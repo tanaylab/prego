@@ -1,0 +1,5 @@
+.Rproj.user
+test/
+dev/
+session_.*
+.vscode

@@ -1,0 +1,137 @@
+#include "port.h"
+BASE_CC_FILE
+#include "BitVecIter.h"
+#include "LeastSquare.h"
+#include "Random.h"
+#include "SpecialFunc.h"
+#include "dnastrutil.h"
+#include "options.h"
+#include "strutil.h"
+
+#include "KMerMultiStat.h"
+#include "PWMLRegression.h"
+#include "PssmRegression.h"
+#include <Rcpp.h>
+#include <string.h>
+#include <vector>
+using namespace std;
+
+// [[Rcpp::plugins("cpp11")]]
+
+
+// [[Rcpp::export]]
+Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
+                                 const Rcpp::DataFrame &response,
+                                 const Rcpp::LogicalVector &is_train_logical, const int &L,
+                                 const int &from_range, const int &to_range, const float &min_cor,
+                                 const int &min_n, const int &min_gap, const int &max_gap,
+                                 const int &n_in_train, const int &seed) {
+
+    Random::reset(seed);
+    vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
+    int resp_dim = response_stat.size();
+
+    vector<string> seqs = Rcpp::as<vector<string>>(sequences);
+
+    vector<int> is_train = Rcpp::as<vector<int>>(is_train_logical);
+
+    float r2_thresh = min_cor * min_cor;
+    int bin_num = 20;
+    int norm = 0;
+    float norm_factor = 1;
+
+    KMerMultiStat multi(L, 0, min_gap, max_gap, &seqs, &is_train, bin_num, norm, norm_factor,
+                        response_stat, from_range, to_range);
+
+    string best_mot = "";
+    float best_r2 = 0;
+    vector<string> foc_mots;
+    vector<float> foc_scores;
+    vector<int> foc_ids;
+    vector<float> response_avg(resp_dim, 0);
+    vector<float> response_var(resp_dim, 0);
+
+    for (int ri = 0; ri < resp_dim; ri++) {
+        vector<int>::iterator train = is_train.begin();
+        for (vector<float>::iterator i = response_stat[ri].begin(); i != response_stat[ri].end();
+             i++) {
+            if (*train) {
+                response_avg[ri] += *i;
+                response_var[ri] += (*i) * (*i);
+            }
+            train++;
+        }
+        response_avg[ri] /= n_in_train;
+        response_var[ri] /= n_in_train;
+        response_var[ri] -= response_avg[ri] * response_avg[ri];
+    }
+    Rcpp::Rcerr << "done normalizing response " << endl;
+
+    // results vectors
+    vector<string> res_kmer;
+    vector<float> res_max_r2;
+    vector<float> res_avg_multi;
+    vector<float> res_multi_var;
+    vector<vector<float>> res_cors(resp_dim);
+
+    for (map<const string, vector<pair<int, vector<float>>>>::const_iterator k =
+             multi.get_pat_begin();
+         k != multi.get_pat_end(); k++) {
+        vector<float> cov(resp_dim, 0);
+        vector<float> corr(resp_dim, 0);
+        float avg_multi = 0;
+        float tot_multi2 = 0;
+        // ODO - compute cov over the rdim
+        const vector<pair<int, vector<float>>> &multi = k->second;
+        for (int m = 1; m < multi.size(); m++) {
+            avg_multi += multi[m].first * m;
+            tot_multi2 += multi[m].first * m * m;
+            for (int ri = 0; ri < resp_dim; ri++) {
+                cov[ri] += m * multi[m].second[ri];
+            }
+        }
+        avg_multi /= n_in_train;
+        float multi_var = tot_multi2 / n_in_train - avg_multi * avg_multi;
+        float max_r2 = 0;
+        for (int ri = 0; ri < resp_dim; ri++) {
+            cov[ri] /= n_in_train;
+            cov[ri] -= avg_multi * response_avg[ri];
+            corr[ri] = cov[ri] / sqrt(multi_var * response_var[ri]);
+            if (max_r2 < corr[ri] * corr[ri]) {
+                max_r2 = corr[ri] * corr[ri];
+            }
+        }
+        if (max_r2 > r2_thresh) {
+            res_kmer.push_back(k->first);
+            res_max_r2.push_back(max_r2);
+            res_avg_multi.push_back(avg_multi);
+            res_multi_var.push_back(multi_var);
+
+            for (int ri = 0; ri < resp_dim; ri++) {
+                res_cors[ri].push_back(corr[ri]);
+            }
+
+            foc_mots.push_back(k->first);
+            foc_scores.push_back(max_r2);
+            foc_ids.push_back(foc_ids.size());
+            if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
+                best_r2 = max_r2;
+                best_mot = k->first;
+                Rcpp::Rcerr << "new best " << best_mot << "  " << best_r2 << endl;
+            }
+        }
+    }
+    Rcpp::Rcerr << "done screening " << endl;
+
+    Rcpp::DataFrame res = Rcpp::DataFrame::create(
+        Rcpp::Named("kmer") = Rcpp::wrap(res_kmer),
+        Rcpp::Named("max_r2") = Rcpp::wrap(res_max_r2),
+        Rcpp::Named("avg_n") = Rcpp::wrap(res_avg_multi),
+        Rcpp::Named("avg_var") = Rcpp::wrap(res_multi_var));
+
+    for (int ri = 0; ri < resp_dim; ri++) {
+        res.push_back(Rcpp::wrap(res_cors[ri]),
+                      Rcpp::as<string>(Rcpp::as<Rcpp::CharacterVector>(response.names())[ri]));        
+    }
+    return res;
+}
