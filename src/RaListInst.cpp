@@ -1,7 +1,7 @@
 #include "port.h"
 BASE_CC_FILE
-#include "RaList.tt"
-#include "RaPartitionList.tt"
+#include "RaList.tpp"
+#include "RaPartitionList.tpp"
 #include "RaListIter.h"
 #include "RaPartitListIter.h"
 
