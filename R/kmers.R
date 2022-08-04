@@ -24,8 +24,15 @@
 #' if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 #' rows are the kmers) is returned instead of a data frame.
 #'
+#' @examples#'
+#' kmers <- screen_kmers(sequences_example, response_mat_example)
+#' head(kmers)
 #'
+#' kmers <- screen_kmers(sequences_example, response_mat_example, return_mat = TRUE)
+#' head(kmers)
 #'
+#' kmers <- screen_kmers(sequences_example, response_mat_example, max_gap = 3)
+#' head(kmers)
 #'
 #' @export
 screen_kmers <- function(sequences,
@@ -48,6 +55,10 @@ screen_kmers <- function(sequences,
         cli_abort("The number of sequences and the length of {.field is_train} vector do not match")
     }
 
+    if (is.null(nrow(response))) {
+        response <- matrix(response, ncol = 1)
+    }
+
     if (length(sequences) != nrow(response)) {
         cli_abort("The number of sequences and the number of rows in {.field response} do not match")
     }
@@ -62,7 +73,7 @@ screen_kmers <- function(sequences,
     cli_alert_info("Screening kmers of length {.val {kmer_length}}, from position {.val {from_range}} to position {.val {to_range}}")
     if (!all(min_gap:max_gap == 0)) {
         cli_alert_info("Gaps of length {.val {min_gap}}:{.val {max_gap}} are allowed")
-    }    
+    }
     cli_alert_info("minimal correlation: {.val {min_cor}}, minimal number of occurrences: {.val {min_n}}")
 
     res <- screen_kmers_cpp(

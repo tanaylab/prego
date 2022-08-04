@@ -57,3 +57,15 @@ rows are the kmers) is returned instead of a data frame.
 \description{
 Screen for kmers
 }
+\examples{
+#'
+kmers <- screen_kmers(sequences_example, response_mat_example)
+head(kmers)
+
+kmers <- screen_kmers(sequences_example, response_mat_example, return_mat = TRUE)
+head(kmers)
+
+kmers <- screen_kmers(sequences_example, response_mat_example, max_gap = 3)
+head(kmers)
+
+}
