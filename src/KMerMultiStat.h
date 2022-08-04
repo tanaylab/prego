@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include "options.h"
@@ -39,7 +40,7 @@ protected:
 	ds_bitvec m_tmp_bv;
 
 	int m_max_multi;
-	map<const string, int> m_kmer_counter;
+	unordered_map<string, int> m_kmer_counter;
 	map<const string, vector<pair<int, vector<float> > > > m_kmer_multi_stat;
 
 	ds_bitvec m_null_fp;

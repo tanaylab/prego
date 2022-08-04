@@ -137,7 +137,7 @@ void KMerMultiStat::build_kmers(int range_min, int range_max)
 			}
 		}
 		//update stat
-		for(map<const string, int>::iterator kmer = m_kmer_counter.begin();
+		for(unordered_map<string, int>::iterator kmer = m_kmer_counter.begin();
 		    kmer != m_kmer_counter.end();
 		    kmer++) {
 			int multi;
