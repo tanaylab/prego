@@ -46,10 +46,10 @@ screen_kmers(
 A data frame with the following columns, together with a column for each response variable with the
 correlation of the kmers to the response variable:
 \itemize{
-\item{kmer:}{the kmer pattern},
-\item{max_r2:}{the maximum R^2 to one of the response variables},
-\item{avg_n:}{the average number of times the kmer appears in the sequences},
-\item{avg_var:}{the variance of the number of times the kmer appears in the sequences},
+\item{kmer: }{the kmer pattern},
+\item{max_r2: }{the maximum R^2 to one of the response variables},
+\item{avg_n: }{the average number of times the kmer appears in the sequences},
+\item{avg_var: }{the variance of the number of times the kmer appears in the sequences},
 } \cr
 if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 rows are the kmers) is returned instead of a data frame.
