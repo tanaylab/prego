@@ -88,7 +88,7 @@ void KMerMultiStat::build_kmers(int range_min, int range_max)
 	if(range_max == -1) {
 		range_max = (*m_sequences)[0].size();
 	}
-	cerr << "Wll build kmer multi stat" << " interv statsz " << m_interv_flat_stat.size()/m_resp_dim << " max gap " << m_max_gap_size << endl;
+	cerr << "Will build kmer multi stat" << " interv stats " << m_interv_flat_stat.size()/m_resp_dim << " max gap " << m_max_gap_size << endl;
 	vector<float>::iterator stat = m_interv_flat_stat.begin();
 
 	for(uint locid = 0; locid < m_sequences->size() ; locid++) {

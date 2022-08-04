@@ -2,4 +2,10 @@
 
 export(screen_kmers)
 importFrom(Rcpp,sourceCpp)
+importFrom(cli,cli_abort)
+importFrom(cli,cli_alert)
+importFrom(cli,cli_alert_info)
+importFrom(cli,cli_alert_success)
+importFrom(cli,cli_ul)
+importFrom(cli,cli_warn)
 useDynLib(prego)

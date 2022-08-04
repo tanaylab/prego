@@ -67,6 +67,10 @@ public:
 		return(m_kmer_multi_stat.end());
 	}
 
+	int get_pat_size() const {
+		return(m_kmer_multi_stat.size());
+	}
+
 	KMerMultiStat() {}
 
 	KMerMultiStat(

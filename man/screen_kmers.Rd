@@ -10,30 +10,35 @@ screen_kmers(
   kmer_length = 6,
   min_cor = 0.08,
   min_n = 50,
-  from_range = 0,
-  to_range = NULL,
   is_train = NULL,
   min_gap = 0,
   max_gap = 0,
+  from_range = 0,
+  to_range = NULL,
+  return_mat = FALSE,
   seed = 60427
 )
 }
 \arguments{
-\item{sequences}{A vector of sequences (will go thruogh toupper)}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go thruogh \code{toupper})}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
 \item{kmer_length}{The number of non-gap characters in motifs that will be screened}
 
-\item{min_cor}{Only patters for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
+\item{min_cor}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
+
+\item{min_n}{Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported}
+
+\item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
+
+\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
 \item{from_range}{Sequences will be considered only from position from_range (default 0)}
 
 \item{to_range}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
 
-\item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
-
-\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+\item{return_mat}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
 
 \item{seed}{random seed}
 }
@@ -45,7 +50,9 @@ correlation of the kmers to the response variable:
 \item{max_r2:}{the maximum R^2 to one of the response variables},
 \item{avg_n:}{the average number of times the kmer appears in the sequences},
 \item{avg_var:}{the variance of the number of times the kmer appears in the sequences},
-}
+} \cr
+if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
+rows are the kmers) is returned instead of a data frame.
 }
 \description{
 Screen for kmers

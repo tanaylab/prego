@@ -2,6 +2,7 @@
 BASE_CC_FILE
 #include "BitVecIter.h"
 #include "LeastSquare.h"
+#include "ProgressReporter.h"
 #include "Random.h"
 #include "SpecialFunc.h"
 #include "dnastrutil.h"
@@ -17,7 +18,6 @@ BASE_CC_FILE
 using namespace std;
 
 // [[Rcpp::plugins("cpp11")]]
-
 
 // [[Rcpp::export]]
 Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
@@ -65,7 +65,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
         response_var[ri] /= n_in_train;
         response_var[ri] -= response_avg[ri] * response_avg[ri];
     }
-    Rcpp::Rcerr << "done normalizing response " << endl;
+    Rcpp::Rcout << "done normalizing response " << endl;
 
     // results vectors
     vector<string> res_kmer;
@@ -74,6 +74,9 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     vector<float> res_multi_var;
     vector<vector<float>> res_cors(resp_dim);
 
+    // iterate over all kmers
+    ProgressReporter progress;
+    progress.init(multi.get_pat_size(), 1);
     for (map<const string, vector<pair<int, vector<float>>>>::const_iterator k =
              multi.get_pat_begin();
          k != multi.get_pat_end(); k++) {
@@ -81,7 +84,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
         vector<float> corr(resp_dim, 0);
         float avg_multi = 0;
         float tot_multi2 = 0;
-        // ODO - compute cov over the rdim
+        // compute cov over the rdim
         const vector<pair<int, vector<float>>> &multi = k->second;
         for (int m = 1; m < multi.size(); m++) {
             avg_multi += multi[m].first * m;
@@ -117,21 +120,23 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
                 best_r2 = max_r2;
                 best_mot = k->first;
-                Rcpp::Rcerr << "new best " << best_mot << "  " << best_r2 << endl;
+                Rcpp::Rcout << "new best " << best_mot << "  " << best_r2 << endl;
             }
         }
+        progress.report(1);
     }
-    Rcpp::Rcerr << "done screening " << endl;
+    progress.report_last();
+    Rcpp::Rcout << "done screening " << endl;
 
+    // assemble results
     Rcpp::DataFrame res = Rcpp::DataFrame::create(
-        Rcpp::Named("kmer") = Rcpp::wrap(res_kmer),
-        Rcpp::Named("max_r2") = Rcpp::wrap(res_max_r2),
+        Rcpp::Named("kmer") = Rcpp::wrap(res_kmer), Rcpp::Named("max_r2") = Rcpp::wrap(res_max_r2),
         Rcpp::Named("avg_n") = Rcpp::wrap(res_avg_multi),
         Rcpp::Named("avg_var") = Rcpp::wrap(res_multi_var));
 
     for (int ri = 0; ri < resp_dim; ri++) {
         res.push_back(Rcpp::wrap(res_cors[ri]),
-                      Rcpp::as<string>(Rcpp::as<Rcpp::CharacterVector>(response.names())[ri]));        
+                      Rcpp::as<string>(Rcpp::as<Rcpp::CharacterVector>(response.names())[ri]));
     }
     return res;
 }
