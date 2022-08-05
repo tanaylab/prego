@@ -1,7 +1,7 @@
 
 #' Screen for kmers
 #'
-#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go thruogh \code{toupper})
+#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param kmer_length The number of non-gap characters in motifs that will be screened
 #' @param min_cor Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported
@@ -20,11 +20,11 @@
 #' \item{max_r2: }{the maximum R^2 to one of the response variables},
 #' \item{avg_n: }{the average number of times the kmer appears in the sequences},
 #' \item{avg_var: }{the variance of the number of times the kmer appears in the sequences},
-#' } \cr
+#' }
 #' if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 #' rows are the kmers) is returned instead of a data frame.
 #'
-#' @examples#'
+#' @examples
 #' kmers <- screen_kmers(sequences_example, response_mat_example)
 #' head(kmers)
 #'

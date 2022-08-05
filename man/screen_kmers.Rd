@@ -20,7 +20,7 @@ screen_kmers(
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go thruogh \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
@@ -50,7 +50,7 @@ correlation of the kmers to the response variable:
 \item{max_r2: }{the maximum R^2 to one of the response variables},
 \item{avg_n: }{the average number of times the kmer appears in the sequences},
 \item{avg_var: }{the variance of the number of times the kmer appears in the sequences},
-} \cr
+}
 if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 rows are the kmers) is returned instead of a data frame.
 }
@@ -58,7 +58,6 @@ rows are the kmers) is returned instead of a data frame.
 Screen for kmers
 }
 \examples{
-#'
 kmers <- screen_kmers(sequences_example, response_mat_example)
 head(kmers)
 
