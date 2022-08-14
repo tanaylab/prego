@@ -50,12 +50,11 @@ test_that("screen_kmers works with 1D with gaps", {
     expect_true(res_df[res_df$kmer == "GATAAGA", "avg_n"] - 0.5 <= 1e-2)
 })
 
-
-test_that("screen_kmers works with 2D", {
+test_that("screen_kmers detects a kmer in 2D", {
     withr::local_seed(60427)
-    seqs1 <- c(get_pat_seq(5000, "GATAAGA", 50), random_nuc(2000, 50))
+    seqs1 <- c(get_pat_seq(5000, "GATAAGA", 200), random_nuc(2000, 200))
     resp1 <- c(rep(1, 5000), rep(0, 2000 + 7000))
-    seqs2 <- c(get_pat_seq(5000, "CTTGTTA", 50), random_nuc(2000, 50))
+    seqs2 <- c(get_pat_seq(5000, "CTTGTTA", 200), random_nuc(2000, 200))
     resp2 <- c(rep(0, 7000), rep(1, 5000), rep(0, 2000))
 
     seqs <- c(seqs1, seqs2)
@@ -71,12 +70,17 @@ test_that("screen_kmers works with 2D", {
     expect_true(!is.null(rownames(res)))
     expect_equal(ncol(res), 2)
     expect_equal(colnames(res), c("resp1", "resp2"))
+})
 
-    res1 <- screen_kmers(seqs, resp, kmer_length = 7, min_cor = 0.08, min_n = 50, return_mat = TRUE, seed = 60427)
-    expect_equal(res, res1)
+test_that("screen_kmers is reprodicible in 2D", {
+    kmers1 <- screen_kmers(sequences_example, response_mat_example, seed = 60427)
+    kmers2 <- screen_kmers(sequences_example, response_mat_example, seed = 60427)
 
-    res_df <- screen_kmers(seqs, resp, kmer_length = 7, min_cor = 0.08, min_n = 50, seed = 60427)
-    expect_equal(colnames(res_df), c("kmer", "max_r2", "avg_n", "avg_var", c("resp1", "resp2")))
-    expect_equal(unlist(res_df[, 5]), res[, 1], ignore_attr = TRUE)
-    expect_equal(unlist(res_df[, 6]), res[, 2], ignore_attr = TRUE)
+    expect_equal(kmers1, kmers2)
+    expect_equal(
+        colnames(kmers1), c(
+            "kmer", "max_r2", "avg_n", "avg_var", "c1", "c2", "c3", "c4",
+            "c5"
+        )
+    )
 })

@@ -73,12 +73,12 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     vector<float> res_avg_multi;
     vector<float> res_multi_var;
     vector<vector<float>> res_cors(resp_dim);
+    ofstream kmer_tab("/home/aviezerl/temp/kmer_tab.txt");
 
     // iterate over all kmers
     ProgressReporter progress;
     progress.init(multi.get_pat_size(), 1);
-    for (map<const string, vector<pair<int, vector<float>>>>::const_iterator k =
-             multi.get_pat_begin();
+    for (auto k = multi.get_pat_begin();
          k != multi.get_pat_end(); k++) {
         vector<float> cov(resp_dim, 0);
         vector<float> corr(resp_dim, 0);
@@ -109,10 +109,12 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             res_max_r2.push_back(max_r2);
             res_avg_multi.push_back(avg_multi);
             res_multi_var.push_back(multi_var);
-
+            kmer_tab << k->first << "\t" << max_r2 << "\t" << avg_multi << "\t" << multi_var;
             for (int ri = 0; ri < resp_dim; ri++) {
                 res_cors[ri].push_back(corr[ri]);
+                kmer_tab << "\t" << corr[ri];
             }
+            kmer_tab << "\n";
 
             foc_mots.push_back(k->first);
             foc_scores.push_back(max_r2);
