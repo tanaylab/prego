@@ -4,9 +4,10 @@
 /*=================================================
 =================================================*/
 
-#include <vector>
-#include "DnaPWML.h"
 #include "BitVec.h"
+#include "DnaPWML.h"
+#include <Rcpp.h>
+#include <vector>
 
 class PWMLRegression  {
 
@@ -106,7 +107,10 @@ public:
 	void optimize();
 
 	void output_pssm(ostream &out, ostream &spat, int psid);
-	void report_cur_lpwm(ostream &out);
+	Rcpp::DataFrame output_pssm_df(int psid);
+	Rcpp::DataFrame output_spat_df(int psid);
+
+	void report_cur_lpwm();
 
 	void init_energies();
 	void fill_predictions(vector<float> &pred);
