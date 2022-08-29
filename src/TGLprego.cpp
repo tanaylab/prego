@@ -76,7 +76,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     Rcpp::DataFrame preds_tab = Rcpp::DataFrame::create(Rcpp::Named("pred") = preds,
                                                         Rcpp::Named("is_train") = is_train);
-    
+
     Rcpp::List res_list = Rcpp::List::create(        
         Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
         Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
@@ -116,7 +116,8 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     vector<int> foc_ids;
     vector<float> response_avg(resp_dim, 0);
     vector<float> response_var(resp_dim, 0);
-
+    
+    // normalize response variables
     for (int ri = 0; ri < resp_dim; ri++) {
         vector<int>::iterator train = is_train.begin();
         for (vector<float>::iterator i = response_stat[ri].begin(); i != response_stat[ri].end();

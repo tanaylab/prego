@@ -54,10 +54,13 @@ regress_pwm <- function(sequences,
         cli_alert_info("Screening for kmers in order to initialize regression")
         kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, ...)
         motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
+        if (length(motif) == 0) { # could not find any kmer
+            motif <- paste(rep("*", kmer_length), collapse = "")
+            cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+        }
     }
     cli_alert_info("Initializing regression with {.val {motif}}")
     cli_alert_info("Running regression")
-
 
     res <- regress_pwm_cpp(
         toupper(sequences),
@@ -78,4 +81,20 @@ regress_pwm <- function(sequences,
     cli_alert_success("Finished running regression")
 
     return(res)
+}
+
+#' Plot LOGO of the pssm result from the regression
+#'
+#' @param pssm the 'pssm' field from the regression result
+#'
+#'
+#' @export
+plot_pssm_logo <- function(pssm) {
+    pfm <- pssm %>%
+        select(-1) %>%
+        as.data.frame() %>%
+        column_to_rownames("pos") %>%
+        as.matrix() %>%
+        t()
+    ggseqlogo::ggseqlogo(pfm)
 }

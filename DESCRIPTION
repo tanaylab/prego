@@ -9,7 +9,8 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Imports: 
     cli,
-    Rcpp (>= 1.0.9)
+    Rcpp (>= 1.0.9),
+    ggseqlogo
 Suggests: 
     testthat (>= 3.0.0),
     withr,
