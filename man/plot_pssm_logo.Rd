@@ -12,3 +12,8 @@ plot_pssm_logo(pssm)
 \description{
 Plot LOGO of the pssm result from the regression
 }
+\examples{
+res <- regress_pwm(sequences_example, response_mat_example)
+plot_pssm_logo(res$pssm)
+
+}

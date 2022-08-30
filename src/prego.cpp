@@ -197,6 +197,14 @@ void screen_kmers(vector<string> &sequences, vector<vector<float> > &response_st
 		}
 	}
 	//seedmot = "**"+best_mot+"**";
+//		if(k->first == "TCCCAG" | k->first == "AAAAAA") {
+	//		for(int m = 1; m < multi.size(); m++) {
+	//			cerr << k->first << " " << multi[m].first << " " << multi[m].second[0] << " " << multi[m].second[0]/(multi[m].first) << endl;
+	//		}
+	//		cerr << "response " << response_avg[0] << " " << response_var[0] << endl;
+	//		cerr << "avg multi " << avg_multi << " " << multi_var << endl;
+	//		cerr << "cov " << cov[0] << " cor " << corr[0] << endl;
+	//	}
 }
 
 int main(int argc, char *argv[])
@@ -282,6 +290,7 @@ int main(int argc, char *argv[])
 		smax = sequences[0].length();
 	}
 	if(with_spat) {
+		cerr << "into pwmlreg" << endl;
 		PWMLRegression pwmlreg(
 			sequences,
 			is_train,	
@@ -295,6 +304,7 @@ int main(int argc, char *argv[])
 
 		pwmlreg.m_logit = opt.get_int("", "verbose");
 		pwmlreg.init_seed(seedmot, isbid);
+		cerr << "done init seed " << seedmot << endl;
 		pwmlreg.optimize();
 		pwmlreg.output_pssm(pssm_out, spat_out, psid);
 		pssm_out.close();

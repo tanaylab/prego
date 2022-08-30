@@ -16,6 +16,7 @@ regress_pwm(
   spat_bin = 50,
   min_rms_for_star = 0.001,
   is_train = NULL,
+  include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
   kmer_length = 8,
@@ -30,7 +31,16 @@ regress_pwm(
 \item{motif}{Initial motif to start the regression from. If NULL - a K-mer screen would be performed in order
 to find the best kmer for initialization.}
 
+\item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
+
+\item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
+would end at the end of the sequence.}
+
+\item{spat_bin}{size of the spatial bin (in bp).}
+
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
+
+\item{include_response}{include the response in the resulting list (default: TRUE)}
 
 \item{seed}{random seed}
 
@@ -49,6 +59,26 @@ to find the best kmer for initialization.}
     \item{\code{return_mat}}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
   }}
 }
+\value{
+a list with the following elements:
+\itemize{
+\item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides},
+\item{spat: }{a PSSM matrix with the inferred spatial model, where rows are positions and columns are nucleotides},
+\item{pred: }{a vector with the predicted pwm for each sequence},
+\item{response: }{The response matrix}
+}
+
+If \code{include_response} is FALSE, the response matrix is not included in the list.
+}
 \description{
 Perform a PWM regression
+}
+\examples{
+res <- regress_pwm(sequences_example, response_mat_example)
+res$pssm
+res$spat
+head(res$pred)
+
+plot_pssm_logo(res$pssm)
+
 }

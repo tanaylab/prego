@@ -74,13 +74,13 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         preds[i] = energy;
     }
 
-    Rcpp::DataFrame preds_tab = Rcpp::DataFrame::create(Rcpp::Named("pred") = preds,
-                                                        Rcpp::Named("is_train") = is_train);
+    // Rcpp::DataFrame preds_tab = Rcpp::DataFrame::create(Rcpp::Named("pred") = preds,
+    //                                                     Rcpp::Named("is_train") = is_train);
 
-    Rcpp::List res_list = Rcpp::List::create(        
-        Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
+    Rcpp::List res_list = Rcpp::List::create(                
         Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
-        Rcpp::Named("pred") = preds_tab
+        Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
+        Rcpp::Named("pred") = preds
     );
     return (res_list);
 }
