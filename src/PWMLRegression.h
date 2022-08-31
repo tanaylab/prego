@@ -77,6 +77,9 @@ protected:
 
 //defining the local search policty
 	vector<vector<NeighStep> > m_cur_neigh;
+
+// imporvement epsilon 
+	float m_imporve_epsilon;
 public:
 
 	bool m_logit;

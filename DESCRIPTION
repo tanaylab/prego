@@ -10,14 +10,14 @@ License: MIT + file LICENSE
 Imports: 
     cli,
     Rcpp (>= 1.0.9),
-    ggseqlogo,
-    assertthat,
+    ggseqlogo,    
     magrittr,
     tibble,
     ggplot2,
     patchwork,
     stringr,
-    tgstat
+    tgstat,
+    dplyr
 Suggests: 
     testthat (>= 3.0.0),
     withr,

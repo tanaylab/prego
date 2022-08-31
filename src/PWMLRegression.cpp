@@ -10,7 +10,8 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                float eps, float min_improv_for_star, float unif_prior)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_spat_bin_size(spat_bin_size), // no spat bin for tiling
-      m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior) {}
+      m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior), 
+      m_imporve_epsilon(eps) {}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     m_rdim = stats.size();
@@ -172,8 +173,7 @@ void PWMLRegression::init_neighborhood(float resolution) {
 void PWMLRegression::optimize() {
     // init
     float prev_r2 = 0;
-    m_cur_r2 = 0;
-    float improve_epsil = 0.0001;
+    m_cur_r2 = 0;    
 
     for (int phase = 0; phase < m_resolutions.size(); phase++) {
         Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
@@ -185,7 +185,7 @@ void PWMLRegression::optimize() {
             take_best_step();
             Rcpp::Rcerr << "S -lrtEP prev " << prev_r2 << " " << m_cur_r2 << endl;
 			Rcpp::checkUserInterrupt();
-        } while (m_cur_r2 > prev_r2 + improve_epsil);
+        } while (m_cur_r2 > prev_r2 + m_imporve_epsilon);
     }
 }
 
@@ -406,6 +406,8 @@ void PWMLRegression::take_best_step() {
     }
 }
 
+// float PWMLRegression::compute_cur_wilcox() {}
+
 float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
     vector<double> xy(m_rdim, 0);
 
@@ -420,6 +422,8 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
             vector<float> &deriv = (*prb_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
+            // push v,response to priority queue
+            // compute wilcoxon
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {

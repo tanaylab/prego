@@ -13,12 +13,15 @@ regress_pwm(
   spat_min = 0,
   spat_max = NULL,
   spat_bin = 50,
+  improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
+  unif_prior = 0.01,
   is_train = NULL,
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
   kmer_length = 8,
+  motif_num = 1,
   ...
 )
 }
@@ -41,7 +44,11 @@ would end at the end of the sequence.}
 
 \item{spat_bin}{size of the spatial bin (in bp).}
 
+\item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
+
 \item{min_nuc_prob}{minimum nucleotide probability in every iteration}
+
+\item{unif_prior}{uniform prior for nucleotide probabilities}
 
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 
@@ -73,6 +80,7 @@ a list with the following elements:
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
 \item{seed_motif: }{The seed motif that started the regression.}
+\item(kmers: ){The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 }
 }
 \description{

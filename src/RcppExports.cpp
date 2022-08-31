@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // regress_pwm_cpp
-Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const int& is_bidirect, const int& verbose, const int& seed);
-RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP is_bidirectSEXP, SEXP verboseSEXP, SEXP seedSEXP) {
+Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const float& improve_epsilon, const int& is_bidirect, const float& unif_prior, const int& verbose, const int& seed);
+RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP improve_epsilonSEXP, SEXP is_bidirectSEXP, SEXP unif_priorSEXP, SEXP verboseSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -24,10 +24,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
     Rcpp::traits::input_parameter< const float& >::type min_nuc_prob(min_nuc_probSEXP);
     Rcpp::traits::input_parameter< const int& >::type spat_bin(spat_binSEXP);
+    Rcpp::traits::input_parameter< const float& >::type improve_epsilon(improve_epsilonSEXP);
     Rcpp::traits::input_parameter< const int& >::type is_bidirect(is_bidirectSEXP);
+    Rcpp::traits::input_parameter< const float& >::type unif_prior(unif_priorSEXP);
     Rcpp::traits::input_parameter< const int& >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(regress_pwm_cpp(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, is_bidirect, verbose, seed));
+    rcpp_result_gen = Rcpp::wrap(regress_pwm_cpp(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, verbose, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -55,7 +57,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 11},
+    {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 13},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {NULL, NULL, 0}
 };

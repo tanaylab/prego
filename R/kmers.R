@@ -93,6 +93,9 @@ screen_kmers <- function(sequences,
 
     cli_alert_success("Found {.val {nrow(res)}} kmers in {.val {length(sequences)}} sequences.")
 
+    res <- res %>%
+        arrange(desc(max_r2))
+
     if (return_mat) {
         res_mat <- as.matrix(res[, -(1:4)])
         rownames(res_mat) <- res$kmer

@@ -23,7 +23,8 @@ using namespace std;
 Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
                            const Rcpp::LogicalVector &is_train_logical, const std::string &motif,
                            const int &spat_min, const int &spat_max, const float &min_nuc_prob,
-                           const int &spat_bin, const int &is_bidirect, const int &verbose,
+                           const int &spat_bin, const float &improve_epsilon,
+                           const int &is_bidirect, const float &unif_prior, const int &verbose,
                            const int &seed) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
@@ -51,8 +52,8 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     int smax = spat_max;
 
     Rcpp::Rcerr << "into pwmlreg" << endl;
-    PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres, 0.001,
-                           0.001, 0.01);
+    PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
+                           improve_epsilon, 0.001, unif_prior);
 
     pwmlreg.add_responses(response_stat);
 
@@ -73,9 +74,6 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         pwml.integrate_energy(seqs[i], energy);
         preds[i] = energy;
     }
-
-    // Rcpp::DataFrame preds_tab = Rcpp::DataFrame::create(Rcpp::Named("pred") = preds,
-    //                                                     Rcpp::Named("is_train") = is_train);
 
     Rcpp::List res_list = Rcpp::List::create(Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
                                              Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
