@@ -8,13 +8,12 @@ regress_pwm(
   sequences,
   response,
   motif = NULL,
+  motif_length = 8,
   bidirect = TRUE,
-  epsilon = 0.001,
   spat_min = 0,
   spat_max = NULL,
-  min_nuc_prob = 0.001,
   spat_bin = 50,
-  min_rms_for_star = 0.001,
+  min_nuc_prob = 0.001,
   is_train = NULL,
   include_response = TRUE,
   seed = 60427,
@@ -28,8 +27,12 @@ regress_pwm(
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
-\item{motif}{Initial motif to start the regression from. If NULL - a K-mer screen would be performed in order
-to find the best kmer for initialization.}
+\item{motif}{Initial motif to start the regression from. The character "*" indicates a wildcard.
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+
+\item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
+
+\item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
 \item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
 
@@ -37,6 +40,8 @@ to find the best kmer for initialization.}
 would end at the end of the sequence.}
 
 \item{spat_bin}{size of the spatial bin (in bp).}
+
+\item{min_nuc_prob}{minimum nucleotide probability in every iteration}
 
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 
@@ -62,13 +67,13 @@ would end at the end of the sequence.}
 \value{
 a list with the following elements:
 \itemize{
-\item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides},
-\item{spat: }{a PSSM matrix with the inferred spatial model, where rows are positions and columns are nucleotides},
-\item{pred: }{a vector with the predicted pwm for each sequence},
-\item{response: }{The response matrix}
+\item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
+\item{spat: }{a PSSM matrix with the inferred spatial model, where rows are positions and columns are nucleotides.}
+\item{pred: }{a vector with the predicted pwm for each sequence.}
+\item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
+\item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
+\item{seed_motif: }{The seed motif that started the regression.}
 }
-
-If \code{include_response} is FALSE, the response matrix is not included in the list.
 }
 \description{
 Perform a PWM regression
