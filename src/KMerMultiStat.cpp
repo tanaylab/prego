@@ -49,10 +49,10 @@ void KMerMultiStat::init_flat_stat(const vector<vector<float>> &stats) {
         return;
     }
     vector<float>::iterator i_multi = m_interv_flat_stat.begin();
-    int prb_i = 0;
-    for (int prb_i = 0; prb_i < m_is_train->size(); prb_i++) {
+    int seq_i = 0;
+    for (int seq_i = 0; seq_i < m_is_train->size(); seq_i++) {
         for (int rd = 0; rd < m_resp_dim; rd++) {
-            *i_multi = stats[rd][prb_i];
+            *i_multi = stats[rd][seq_i];
             ++i_multi;
         }
     }

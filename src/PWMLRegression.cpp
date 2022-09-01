@@ -29,18 +29,18 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     }
     m_train_n = 0;
     vector<float>::iterator i_multi = m_interv_stat.begin();
-    int prb_i = 0;
+    int seq_i = 0;
     for (vector<int>::const_iterator mask = m_train_mask.begin(); mask != m_train_mask.end();
          mask++) {
         for (int rd = 0; rd < m_rdim; rd++) {
-            *i_multi = stats[rd][prb_i];
+            *i_multi = stats[rd][seq_i];
             if (*mask) {
                 m_data_avg[rd] += *i_multi;
                 m_data_var[rd] += (*i_multi) * (*i_multi);
             }
             ++i_multi;
         }
-        prb_i++;
+        seq_i++;
         if (*mask) {
             m_train_n++;
         }
@@ -78,8 +78,8 @@ void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_aux_upds.resize(pos);
 
     m_derivs.resize(m_sequences.size());
-    for (int prb_id = 0; prb_id < m_sequences.size(); prb_id++) {
-        m_derivs[prb_id].resize(pos, vector<float>('T' + 1));
+    for (int seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
+        m_derivs[seq_id].resize(pos, vector<float>('T' + 1));
     }
     int max_spat_bin = m_spat_factors.size();
     fill(m_spat_factors.begin(), m_spat_factors.end(), 1.0 / max_spat_bin);
@@ -107,10 +107,10 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
 
     m_derivs.resize(m_sequences.size(), vector<vector<float>>(pwm.size(), vector<float>('T' + 1)));
     m_derivs.resize(m_sequences.size());
-    for (int prb_id = 0; prb_id < m_sequences.size(); prb_id++) {
-        m_derivs[prb_id].resize(pwm.size());
+    for (int seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
+        m_derivs[seq_id].resize(pwm.size());
         for (int pos = 0; pos < pwm.size(); pos++) {
-            m_derivs[prb_id][pos].resize('T' + 1);
+            m_derivs[seq_id][pos].resize('T' + 1);
         }
     }
     int max_spat_bin = m_spat_factors.size();
@@ -199,18 +199,18 @@ void PWMLRegression::init_energies() {
 	}
 
     int max_pos = m_derivs[0].size();
-    int max_prb_id = m_sequences.size();
-    for (int prb_id = 0; prb_id < max_prb_id; prb_id++) {
-        if (!m_train_mask[prb_id]) {
+    int max_seq_id = m_sequences.size();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (!m_train_mask[seq_id]) {
             continue;
         }
-        string::const_iterator new_start = m_sequences[prb_id].begin();
-        string::const_iterator new_end = m_sequences[prb_id].end();
+        string::const_iterator new_start = m_sequences[seq_id].begin();
+        string::const_iterator new_end = m_sequences[seq_id].end();
         for (int pos = 0; pos < max_pos; pos++) {
-            fill(m_derivs[prb_id][pos].begin(), m_derivs[prb_id][pos].end(), 0);
+            fill(m_derivs[seq_id][pos].begin(), m_derivs[seq_id][pos].end(), 0);
         }
-        fill(m_spat_derivs[prb_id].begin(), m_spat_derivs[prb_id].end(), 0);
-        update_seq_interval(prb_id, new_start, new_end, +1, 0);
+        fill(m_spat_derivs[seq_id].begin(), m_spat_derivs[seq_id].end(), 0);
+        update_seq_interval(seq_id, new_start, new_end, +1, 0);
     }
 	
 	if (m_logit) {
@@ -218,7 +218,7 @@ void PWMLRegression::init_energies() {
 	}
 }
 
-void PWMLRegression::update_seq_interval(int prb_id, string::const_iterator min_i,
+void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_i,
                                          string::const_iterator max_i, int sign, int pos) {
     for (string::const_iterator i = min_i; i < max_i; i++) {
         int spat_bin = int(pos / m_spat_bin_size);
@@ -226,7 +226,7 @@ void PWMLRegression::update_seq_interval(int prb_id, string::const_iterator min_
         string::const_iterator j = i;
         double prod = sign;
         vector<UpdAux>::iterator upds = m_aux_upds.begin();
-        vector<vector<float>>::iterator deriv = m_derivs[prb_id].begin();
+        vector<vector<float>>::iterator deriv = m_derivs[seq_id].begin();
         for (vector<vector<float>>::const_iterator p = m_nuc_factors.begin();
              p != m_nuc_factors.end(); p++) {
             if (!(*j) || *j == 'N' || *j == '*') {
@@ -244,7 +244,7 @@ void PWMLRegression::update_seq_interval(int prb_id, string::const_iterator min_
         if (!prod) {
             continue;
         }
-        m_spat_derivs[prb_id][spat_bin] += prod;
+        m_spat_derivs[seq_id][spat_bin] += prod;
         prod *= m_spat_factors[spat_bin];
         for (upds = m_aux_upds.begin(); upds != m_aux_upds.end(); upds++) {
             *(upds->p) += prod / upds->factor;
@@ -255,7 +255,7 @@ void PWMLRegression::update_seq_interval(int prb_id, string::const_iterator min_
             float rprod = sign;
             j = i;
             vector<UpdAux>::iterator upds = m_aux_upds.begin();
-            vector<vector<float>>::reverse_iterator deriv = m_derivs[prb_id].rbegin();
+            vector<vector<float>>::reverse_iterator deriv = m_derivs[seq_id].rbegin();
             for (vector<vector<float>>::reverse_iterator p = m_nuc_factors.rbegin();
                  p != m_nuc_factors.rend(); p++) {
                 if (!(*j) || *j == 'N' || *j == '*') {
@@ -289,7 +289,7 @@ void PWMLRegression::update_seq_interval(int prb_id, string::const_iterator min_
                 deriv++;
                 j++;
             }
-            m_spat_derivs[prb_id][spat_bin] += rprod;
+            m_spat_derivs[seq_id][spat_bin] += rprod;
             rprod *= m_spat_factors[spat_bin];
             for (upds = m_aux_upds.begin(); upds != m_aux_upds.end(); upds++) {
                 *(upds->p) += rprod / upds->factor;
@@ -406,23 +406,74 @@ void PWMLRegression::take_best_step() {
     }
 }
 
-// float PWMLRegression::compute_cur_wilcox() {}
+float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
+    // vector<double> xy(m_rdim, 0);
+
+    // double ex = 0;
+    // double ex2 = 0;
+    // int max_seq_id = m_sequences.size();
+	
+    // vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
+    // vector<float>::iterator resp = m_interv_stat.begin();
+    // for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+    //     if (m_train_mask[seq_id]) {
+    //         vector<float> &deriv = (*seq_deriv)[pos];
+    //         float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
+    //                   probs['T'] * deriv['T'];
+    //         // TODO: push v,response to priority queue
+    //         // compute wilcoxon
+    //         ex += v;
+    //         ex2 += v * v;
+    //         for (int rd = 0; rd < m_rdim; rd++) {
+    //             xy[rd] += v * *resp;
+    //             resp++;
+    //         }
+    //     }
+    //     seq_deriv++;
+    // }
+	// if (m_logit) {
+    // 	Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
+	// }
+    // ex /= m_train_n;
+    // ex2 /= m_train_n;
+    // double pred_var = ex2 - ex * ex;
+    // float tot_r2 = 0;
+    // m_a.resize(m_rdim);
+    // m_b.resize(m_rdim);
+    // for (int rd = 0; rd < m_rdim; rd++) {
+    //     xy[rd] /= m_train_n;
+    //     float cov = xy[rd] - ex * m_data_avg[rd];
+    //     float r2 = cov * cov / (pred_var * m_data_var[rd]);
+    //     m_a[rd] = (ex2 * m_data_avg[rd] - ex * xy[rd]) / pred_var;
+    //     m_b[rd] = cov / pred_var;
+    //     tot_r2 += r2;
+    // }
+    // //	Rcpp::Rcerr << "n = " << n << " ex " << ex << " ex2 " << ex2 << " xy " << xy << " pred var " <<
+    // //pred_var << " cov = " << cov << " resp  avg " << m_data_avg << " resp _var " << m_data_var <<
+    // //endl;
+
+    // if (std::isnan(tot_r2)) {
+    //     Rcpp::Rcerr << "Nan at at r2 var " << pred_var << " " << ex << " " << ex2 << " " << m_data_avg[0]
+    //          << endl;
+    // }
+    // return (tot_r2);   
+}
 
 float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
     vector<double> xy(m_rdim, 0);
 
     double ex = 0;
     double ex2 = 0;
-    int max_prb_id = m_sequences.size();
+    int max_seq_id = m_sequences.size();
 	
-    vector<vector<vector<float>>>::iterator prb_deriv = m_derivs.begin();
+    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
-    for (int prb_id = 0; prb_id < max_prb_id; prb_id++) {
-        if (m_train_mask[prb_id]) {
-            vector<float> &deriv = (*prb_deriv)[pos];
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
-            // push v,response to priority queue
+            // TODO: push v,response to priority queue
             // compute wilcoxon
             ex += v;
             ex2 += v * v;
@@ -431,7 +482,7 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
                 resp++;
             }
         }
-        prb_deriv++;
+        seq_deriv++;
     }
 	if (m_logit) {
     	Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
@@ -465,15 +516,15 @@ float PWMLRegression::compute_cur_r2_spat() {
     vector<double> xy(m_rdim, 0);
     float ex = 0;
     float ex2 = 0;    
-    int max_prb_id = m_sequences.size();	
+    int max_seq_id = m_sequences.size();	
 
-    vector<vector<float>>::iterator prb_derivs = m_spat_derivs.begin();    
+    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();    
     vector<float>::iterator resp = m_interv_stat.begin();   	
-    for (int prb_id = 0; prb_id < max_prb_id; prb_id++) {        
-        if (m_train_mask[prb_id]) {
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {        
+        if (m_train_mask[seq_id]) {
             float v = 0;            
             vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = prb_derivs->begin(); bin != prb_derivs->end();
+            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
@@ -485,7 +536,7 @@ float PWMLRegression::compute_cur_r2_spat() {
                 resp++;                
             }            
         }        
-        prb_derivs++;
+        seq_derivs++;
     }    
     ex /= m_train_n;
     ex2 /= m_train_n;
@@ -606,17 +657,17 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
 
     preds.resize(m_interv_stat.size());
     vector<float>::iterator prs = preds.begin();
-    vector<vector<vector<float>>>::iterator prb_deriv = m_derivs.begin();
+    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
     vector<float> &factors = m_nuc_factors[0];
-    for (int prb_id = 0; prb_id < m_interv_stat.size(); prb_id++) {
-        if (m_train_mask[prb_id]) {
-            vector<float> &deriv = (*prb_deriv)[0];
+    for (int seq_id = 0; seq_id < m_interv_stat.size(); seq_id++) {
+        if (m_train_mask[seq_id]) {
+            vector<float> &deriv = (*seq_deriv)[0];
 
             float predict = factors['A'] * deriv['A'] + factors['C'] * deriv['C'] +
                             factors['G'] * deriv['G'] + factors['T'] * deriv['T'];
 
-            //		Rcpp::Rcerr << "prb " << prb_id << " deriv " << deriv['A'] << " " << deriv['C'] << " " <<
+            //		Rcpp::Rcerr << "seq " << seq_id << " deriv " << deriv['A'] << " " << deriv['C'] << " " <<
             //deriv['G'] << " " << deriv['T'] << " factors " << factors['A'] << " " << factors['C']
             //<< " " << factors['G'] << " " << factors['T'] << endl;
 
@@ -625,7 +676,7 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
             *prs = -1e+30;
         }
         prs++;
-        prb_deriv++;
+        seq_deriv++;
         resp++;
     }
 }
