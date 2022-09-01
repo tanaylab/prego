@@ -24,8 +24,8 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const Rcpp::LogicalVector &is_train_logical, const std::string &motif,
                            const int &spat_min, const int &spat_max, const float &min_nuc_prob,
                            const int &spat_bin, const float &improve_epsilon,
-                           const int &is_bidirect, const float &unif_prior, const int &verbose,
-                           const int &seed) {
+                           const int &is_bidirect, const float &unif_prior,
+                           const std::string &score_metric, const int &verbose, const int &seed) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
     int resp_dim = response_stat.size();
@@ -36,6 +36,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     string seedmot(motif);
 
+    // initialize resolution objects
     vector<float> res(4);
     res[0] = 0.05;
     res[1] = 0.02;
@@ -53,15 +54,18 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     Rcpp::Rcerr << "into pwmlreg" << endl;
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
-                           improve_epsilon, 0.001, unif_prior);
+                           improve_epsilon, 0.001, unif_prior, score_metric);
 
+    // add responses (and compute their statistics - avg and variance)
     pwmlreg.add_responses(response_stat);
 
     pwmlreg.m_logit = verbose;
-    pwmlreg.init_seed(seedmot, is_bidirect);
 
+    // initialize the seed motif
+    pwmlreg.init_seed(seedmot, is_bidirect);
     Rcpp::Rcerr << "done init seed " << seedmot << endl;
 
+    // main loop
     pwmlreg.optimize();
 
     // get predictions
@@ -75,6 +79,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         preds[i] = energy;
     }
 
+    // prepare output
     Rcpp::List res_list = Rcpp::List::create(Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
                                              Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
                                              Rcpp::Named("pred") = preds);

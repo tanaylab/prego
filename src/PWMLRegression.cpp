@@ -7,11 +7,11 @@ BASE_CC_FILE
 PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &train_mask,
                                int min_range, int max_range, float min_prob, int spat_bin_size,
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
-                               float eps, float min_improv_for_star, float unif_prior)
+                               float eps, float min_improv_for_star, float unif_prior, const string& score_metric)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_spat_bin_size(spat_bin_size), // no spat bin for tiling
       m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior), 
-      m_imporve_epsilon(eps) {}
+      m_imporve_epsilon(eps), m_score_metric(score_metric) {}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     m_rdim = stats.size();
@@ -119,7 +119,7 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
 }
 
 void PWMLRegression::init_neighborhood(float resolution) {
-    // ugly, but faster to program the the full recurence
+    // ugly, but faster to program the the full recurrence
 
     m_cur_neigh.resize(0);
     m_cur_neigh.resize(20);
@@ -177,7 +177,7 @@ void PWMLRegression::optimize() {
 
     for (int phase = 0; phase < m_resolutions.size(); phase++) {
         Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
-        init_neighborhood(m_resolutions[phase]);
+        init_neighborhood(m_resolutions[phase]); // prepare all possible steps
         m_spat_factor_step = m_spat_resolutions[phase];
         do {
             prev_score = m_cur_score;
@@ -323,7 +323,16 @@ void PWMLRegression::take_best_step() {
                     // normalize
                 }
             }
-            float cur_step_score = compute_cur_r2(pos, probs);
+
+            float cur_step_score;
+            if (m_score_metric == "r2"){
+                cur_step_score = compute_cur_r2(pos, probs);
+            } else if (m_score_metric == "wilcox"){
+                cur_step_score = compute_cur_wilcox(pos, probs);
+            } else {
+                Rcpp::stop("Unknown score metric (can be either 'r2' or 'wilcox')");
+            }
+            
             // Rcpp::Rcerr << "score at step " << step_i << " was " << cur_step_score << endl;
             if (best_pos_score < cur_step_score) {
                 best_pos_score = cur_step_score;
@@ -407,6 +416,30 @@ void PWMLRegression::take_best_step() {
 }
 
 float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
+    // vector<double> xy(m_rdim, 0);
+
+    // double ex = 0;
+    // double ex2 = 0;
+    // int max_seq_id = m_sequences.size();
+	
+    // vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
+    // vector<float>::iterator resp = m_interv_stat.begin();
+    // for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+    //     if (m_train_mask[seq_id]) {
+    //         vector<float> &deriv = (*seq_deriv)[pos];
+    //         float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
+    //                   probs['T'] * deriv['T'];
+    //         // TODO: push v,response to priority queue or to a vector and then sort
+    //         // compute wilcox
+    //         ex += v;
+    //         ex2 += v * v;
+    //         for (int rd = 0; rd < m_rdim; rd++) {
+    //             xy[rd] += v * *resp;
+    //             resp++;
+    //         }
+    //     }
+    //     seq_deriv++;
+    // }
  
 }
 
@@ -423,9 +456,7 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
         if (m_train_mask[seq_id]) {
             vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-                      probs['T'] * deriv['T'];
-            // TODO: push v,response to priority queue
-            // compute wilcoxon
+                      probs['T'] * deriv['T'];                 
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {

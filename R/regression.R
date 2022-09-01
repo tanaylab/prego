@@ -5,6 +5,7 @@
 #' @param motif Initial motif to start the regression from. The character "*" indicates a wildcard.
 #' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
+#' @param score_metric metric to use for optimizing the PWM. One of "r2" or "wilcox". For categorical response variables (0 and 1), "wilcox" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2".
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param spat_min start of the spatial model from the beginning of the sequence (in bp)
 #' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
@@ -43,6 +44,7 @@ regress_pwm <- function(sequences,
                         response,
                         motif = NULL,
                         motif_length = 8,
+                        score_metric = "r2",
                         bidirect = TRUE,
                         spat_min = 0,
                         spat_max = NULL,
@@ -63,6 +65,7 @@ regress_pwm <- function(sequences,
             response = response,
             motif = motif,
             motif_length = motif_length,
+            score_metric = score_metric,
             bidirect = bidirect,
             spat_min = spat_min,
             spat_max = spat_max,
@@ -76,6 +79,10 @@ regress_pwm <- function(sequences,
             motif_num = motif_num,
             ...
         ))
+    }
+
+    if (!(score_metric %in% c("r2", "wilcox"))) {
+        cli_abort("score_metric must be one of {.value r2} or {.value wilcox}")
     }
 
     if (is.null(is_train)) {
@@ -135,6 +142,7 @@ regress_pwm <- function(sequences,
         improve_epsilon = improve_epsilon,
         is_bidirect = bidirect,
         unif_prior = unif_prior,
+        score_metric = score_metric,
         verbose = verbose,
         seed = seed
     )
@@ -160,6 +168,7 @@ regress_multiple_motifs <- function(sequences,
                                     response,
                                     motif,
                                     motif_length,
+                                    score_metric,
                                     bidirect,
                                     spat_min,
                                     spat_max,

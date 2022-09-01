@@ -7,6 +7,7 @@
 #include "BitVec.h"
 #include "DnaPWML.h"
 #include <Rcpp.h>
+#include <string.h>
 #include <vector>
 
 class PWMLRegression {
@@ -77,6 +78,9 @@ class PWMLRegression {
     // imporvement epsilon
     float m_imporve_epsilon;
 
+    // score metric
+    string m_score_metric;
+
   public:
     bool m_logit;
 
@@ -86,7 +90,7 @@ class PWMLRegression {
     PWMLRegression(const vector<string> &loci, const vector<int> &train_mask, int min_range,
                    int max_range, float min_prob, int spat_bin_size,
                    const vector<float> &resolutions, const vector<float> &s_resolutions, float eps,
-                   float min_improv_for_star, float unif_prior);
+                   float min_improv_for_star, float unif_prior, const string &score_metric);
 
     void add_responses(const vector<vector<float>> &stats);
 
