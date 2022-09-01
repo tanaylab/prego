@@ -59,7 +59,7 @@ class PWMLRegression {
     int m_spat_bin_size;
     float m_spat_factor_step;
 
-    float m_cur_r2;
+    float m_cur_score;
 
     // cur best fit line m_a + m_b*pred(seq)
     vector<float> m_a;
@@ -80,7 +80,7 @@ class PWMLRegression {
   public:
     bool m_logit;
 
-    float get_cur_r2() const { return (m_cur_r2); }
+    float get_cur_score() const { return (m_cur_score); }
 
     // init in tiling mode
     PWMLRegression(const vector<string> &loci, const vector<int> &train_mask, int min_range,

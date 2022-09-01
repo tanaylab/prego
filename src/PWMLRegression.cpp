@@ -172,20 +172,20 @@ void PWMLRegression::init_neighborhood(float resolution) {
 
 void PWMLRegression::optimize() {
     // init
-    float prev_r2 = 0;
-    m_cur_r2 = 0;    
+    float prev_score = 0;
+    m_cur_score = 0;    
 
     for (int phase = 0; phase < m_resolutions.size(); phase++) {
         Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
         init_neighborhood(m_resolutions[phase]);
         m_spat_factor_step = m_spat_resolutions[phase];
         do {
-            prev_r2 = m_cur_r2;
+            prev_score = m_cur_score;
             init_energies();
             take_best_step();
-            Rcpp::Rcerr << "S -lrtEP prev " << prev_r2 << " " << m_cur_r2 << endl;
+            Rcpp::Rcerr << "S -lrtEP prev " << prev_score << " " << m_cur_score << endl;
 			Rcpp::checkUserInterrupt();
-        } while (m_cur_r2 > prev_r2 + m_imporve_epsilon);
+        } while (m_cur_score > prev_score + m_imporve_epsilon);
     }
 }
 
@@ -302,7 +302,7 @@ void PWMLRegression::take_best_step() {
 
     int best_pos = -1;
     int best_step = -1;
-    float best_r2 = m_cur_r2;
+    float best_score = m_cur_score;
 
     int max_pos = m_nuc_factors.size();
 
@@ -311,7 +311,7 @@ void PWMLRegression::take_best_step() {
     for (int pos = 0; pos < max_pos; pos++) {
         // iter on neighborhood
         int neigh_size = m_cur_neigh.size();
-        float best_pos_r2 = 0;
+        float best_pos_score = 0;
         for (int step_i = 0; step_i < neigh_size; step_i++) {
             // update probs
             probs = m_nuc_factors[pos];
@@ -323,64 +323,64 @@ void PWMLRegression::take_best_step() {
                     // normalize
                 }
             }
-            float cur_step_r2 = compute_cur_r2(pos, probs);
-            // Rcpp::Rcerr << "r2 at step " << step_i << " was " << cur_step_r2 << endl;
-            if (best_pos_r2 < cur_step_r2) {
-                best_pos_r2 = cur_step_r2;
+            float cur_step_score = compute_cur_r2(pos, probs);
+            // Rcpp::Rcerr << "score at step " << step_i << " was " << cur_step_score << endl;
+            if (best_pos_score < cur_step_score) {
+                best_pos_score = cur_step_score;
             }
-            if (cur_step_r2 > best_r2) {
+            if (cur_step_score > best_score) {
                 best_step = step_i;
                 best_pos = pos;
-                best_r2 = cur_step_r2;
+                best_score = cur_step_score;
             }
         }
         if (m_logit) {
-            Rcpp::Rcerr << "best r2 at pos " << pos << " = " << best_pos_r2 << endl;
+            Rcpp::Rcerr << "best score at pos " << pos << " = " << best_pos_score << endl;
         }
         // iter on all changes: single nuc and double nucs (regression?)
     }
-    Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " r2 " << best_r2 << endl;
+    Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score << endl;
     int max_spat_bin = m_spat_factors.size();
-    float best_spat_r2 = m_cur_r2;
+    float best_spat_score = m_cur_score;
     int best_spat_bin = -1;
     float best_spat_diff = 0;    
-    float spat_r2 = compute_cur_r2_spat();
-    Rcpp::Rcerr << "spat r2 without change = " << spat_r2 << " cur is " << m_cur_r2 << endl;
+    float spat_score = compute_cur_r2_spat();
+    Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score << endl;
     for (int spat_bin = 0; spat_bin < max_spat_bin; spat_bin++) {
         m_spat_factors[spat_bin] += m_spat_factor_step;
-        float spat_r2 = compute_cur_r2_spat();
-        // Rcpp::Rcerr << "bin " << spat_bin << " add spat r2 " << spat_r2 << endl;
-        if (spat_r2 > best_spat_r2) {
-            best_spat_r2 = spat_r2;
+        float spat_score = compute_cur_r2_spat();
+        // Rcpp::Rcerr << "bin " << spat_bin << " add spat score " << spat_score << endl;
+        if (spat_score > best_spat_score) {
+            best_spat_score = spat_score;
             best_spat_bin = spat_bin;
             best_spat_diff = m_spat_factor_step;
         }
         m_spat_factors[spat_bin] -= 2 * m_spat_factor_step;
         if (m_spat_factors[spat_bin] >= 0) {
-            spat_r2 = compute_cur_r2_spat();
-            // Rcpp::Rcerr << "bin " << spat_bin << " del spat r2 " << spat_r2 << endl;
-            if (spat_r2 > best_spat_r2) {
-                best_spat_r2 = spat_r2;
+            spat_score = compute_cur_r2_spat();
+            // Rcpp::Rcerr << "bin " << spat_bin << " del spat score " << spat_score << endl;
+            if (spat_score > best_spat_score) {
+                best_spat_score = spat_score;
                 best_spat_bin = spat_bin;
                 best_spat_diff = -m_spat_factor_step;
             }
         }
         m_spat_factors[spat_bin] += m_spat_factor_step;
     }
-    Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff << " r2 "
-         << best_spat_r2 << endl;
-    if (best_r2 == m_cur_r2) {
+    Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff << " score "
+         << best_spat_score << endl;
+    if (best_score == m_cur_score) {
         Rcpp::Rcerr << "no improvement" << endl;
         return;
     }
-    if (best_r2 > best_spat_r2) {
+    if (best_score > best_spat_score) {
         vector<float> &pos_probs = m_nuc_factors[best_pos];
         for (vector<NeighStep>::iterator delta = m_cur_neigh[best_step].begin();
              delta != m_cur_neigh[best_step].end(); delta++) {
             pos_probs[delta->nuc] += delta->diff;
             if (pos_probs[delta->nuc] <= 0) {
                 pos_probs[delta->nuc] = m_min_prob;
-                // noramalize
+                // normalize
             }
         }
         float tot = pos_probs['A'] + pos_probs['C'] + pos_probs['G'] + pos_probs['T'];
@@ -389,7 +389,7 @@ void PWMLRegression::take_best_step() {
         pos_probs['C'] /= tot;
         pos_probs['G'] /= tot;
         pos_probs['T'] /= tot;
-        m_cur_r2 = best_r2;
+        m_cur_score = best_score;
     } else {
         Rcpp::Rcerr << "update spat bin " << best_spat_bin << " diff " << best_spat_diff << endl;
         m_spat_factors[best_spat_bin] += best_spat_diff;
@@ -397,7 +397,7 @@ void PWMLRegression::take_best_step() {
         for (int bin = 0; bin < m_spat_factors.size(); bin++) {
             m_spat_factors[bin] /= (1 + best_spat_diff);
         }
-        m_cur_r2 = best_spat_r2;
+        m_cur_score = best_spat_score;
     }
     if (m_logit) {
         Rcpp::Rcerr << "after step";
@@ -407,56 +407,7 @@ void PWMLRegression::take_best_step() {
 }
 
 float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
-    // vector<double> xy(m_rdim, 0);
-
-    // double ex = 0;
-    // double ex2 = 0;
-    // int max_seq_id = m_sequences.size();
-	
-    // vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    // vector<float>::iterator resp = m_interv_stat.begin();
-    // for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
-    //     if (m_train_mask[seq_id]) {
-    //         vector<float> &deriv = (*seq_deriv)[pos];
-    //         float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-    //                   probs['T'] * deriv['T'];
-    //         // TODO: push v,response to priority queue
-    //         // compute wilcoxon
-    //         ex += v;
-    //         ex2 += v * v;
-    //         for (int rd = 0; rd < m_rdim; rd++) {
-    //             xy[rd] += v * *resp;
-    //             resp++;
-    //         }
-    //     }
-    //     seq_deriv++;
-    // }
-	// if (m_logit) {
-    // 	Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
-	// }
-    // ex /= m_train_n;
-    // ex2 /= m_train_n;
-    // double pred_var = ex2 - ex * ex;
-    // float tot_r2 = 0;
-    // m_a.resize(m_rdim);
-    // m_b.resize(m_rdim);
-    // for (int rd = 0; rd < m_rdim; rd++) {
-    //     xy[rd] /= m_train_n;
-    //     float cov = xy[rd] - ex * m_data_avg[rd];
-    //     float r2 = cov * cov / (pred_var * m_data_var[rd]);
-    //     m_a[rd] = (ex2 * m_data_avg[rd] - ex * xy[rd]) / pred_var;
-    //     m_b[rd] = cov / pred_var;
-    //     tot_r2 += r2;
-    // }
-    // //	Rcpp::Rcerr << "n = " << n << " ex " << ex << " ex2 " << ex2 << " xy " << xy << " pred var " <<
-    // //pred_var << " cov = " << cov << " resp  avg " << m_data_avg << " resp _var " << m_data_var <<
-    // //endl;
-
-    // if (std::isnan(tot_r2)) {
-    //     Rcpp::Rcerr << "Nan at at r2 var " << pred_var << " " << ex << " " << ex2 << " " << m_data_avg[0]
-    //          << endl;
-    // }
-    // return (tot_r2);   
+ 
 }
 
 float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
