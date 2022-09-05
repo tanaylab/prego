@@ -5,7 +5,7 @@
 #' @param motif Initial motif to start the regression from. The character "*" indicates a wildcard.
 #' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
-#' @param score_metric metric to use for optimizing the PWM. One of "r2" or "wilcox". For categorical response variables (0 and 1), "wilcox" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2".
+#' @param score_metric metric to use for optimizing the PWM. One of "r2", "ks" or "wilcox". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param spat_min start of the spatial model from the beginning of the sequence (in bp)
 #' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
@@ -81,8 +81,8 @@ regress_pwm <- function(sequences,
         ))
     }
 
-    if (!(score_metric %in% c("r2", "wilcox"))) {
-        cli_abort("score_metric must be one of {.value r2} or {.value wilcox}")
+    if (!(score_metric %in% c("r2", "wilcox", "ks"))) {
+        cli_abort("score_metric must be one of {.val r2}, {.val ks} or {.val wilcox}")
     }
 
     if (is.null(is_train)) {
@@ -105,6 +105,12 @@ regress_pwm <- function(sequences,
 
     if (is.null(spat_max)) {
         spat_max <- nchar(sequences[1])
+    }
+
+    if (score_metric == "ks") {
+        if (ncol(response) > 1 || (any(response[, 1] != 0 & response[, 1] != 1))) {
+            cli_abort("When {.field score_metric} is {.val ks}, {.field response} should be a single vector of 0 and 1")
+        }
     }
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")

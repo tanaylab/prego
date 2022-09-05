@@ -7,24 +7,29 @@ BASE_CC_FILE
 PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &train_mask,
                                int min_range, int max_range, float min_prob, int spat_bin_size,
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
-                               float eps, float min_improv_for_star, float unif_prior, const string& score_metric)
+                               float eps, float min_improv_for_star, float unif_prior,
+                               const string &score_metric)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_spat_bin_size(spat_bin_size), // no spat bin for tiling
-      m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior), 
+      m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior),
       m_imporve_epsilon(eps), m_score_metric(score_metric) {}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     m_rdim = stats.size();
+    if (m_score_metric == "ks" && m_rdim > 1) {
+        Rcpp::stop("Warning: KS test is only for binary response");
+    }
     Rcpp::Rcerr << "will init response "
-         << " m_rdim " << m_rdim << " size of vec " << stats[0].size() << endl;
+                << " m_rdim " << m_rdim << " size of vec " << stats[0].size() << endl;
     m_data_avg.resize(m_rdim, 0);
     m_data_var.resize(m_rdim, 0);
     m_interv_stat.resize(stats.size() * stats[0].size());
 
     if (m_train_mask.size() != stats[0].size()) {
-        Rcpp::Rcerr << "mismatch sizes between train mask and response stat when adding response to PWML "
-                "regression"
-             << endl;
+        Rcpp::Rcerr
+            << "mismatch sizes between train mask and response stat when adding response to PWML "
+               "regression"
+            << endl;
         return;
     }
     m_train_n = 0;
@@ -40,10 +45,15 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
             }
             ++i_multi;
         }
-        seq_i++;
         if (*mask) {
             m_train_n++;
+            if (m_score_metric == "ks") {
+                if (stats[0][seq_i] == 1) {
+                    m_ncat++;
+                }
+            }
         }
+        seq_i++;
     }
 
     for (int rd = 0; rd < m_rdim; rd++) {
@@ -52,7 +62,8 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         m_data_var[rd] -= m_data_avg[rd] * m_data_avg[rd];
     }
     Rcpp::Rcerr << "response avg " << m_data_avg[0] << " response var " << m_data_var[0] << endl;
-    Rcpp::Rcerr << "ranges " << m_min_range << " " << m_max_range << " bin " << m_spat_bin_size << endl;
+    Rcpp::Rcerr << "ranges " << m_min_range << " " << m_max_range << " bin " << m_spat_bin_size
+                << endl;
 }
 
 void PWMLRegression::init_seed(const string &init_mot, int isbid) {
@@ -99,8 +110,8 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
         m_nuc_factors[i]['C'] = pwm[i].get_prob('C');
         m_nuc_factors[i]['G'] = pwm[i].get_prob('G');
         m_nuc_factors[i]['T'] = pwm[i].get_prob('T');
-        Rcpp::Rcerr << "set pos i to " << m_nuc_factors[i]['A'] << " " << m_nuc_factors[i]['C'] << " "
-             << m_nuc_factors[i]['G'] << " " << m_nuc_factors[i]['T'] << endl;
+        Rcpp::Rcerr << "set pos i to " << m_nuc_factors[i]['A'] << " " << m_nuc_factors[i]['C']
+                    << " " << m_nuc_factors[i]['G'] << " " << m_nuc_factors[i]['T'] << endl;
     }
 
     m_aux_upds.resize(pwm.size());
@@ -173,7 +184,7 @@ void PWMLRegression::init_neighborhood(float resolution) {
 void PWMLRegression::optimize() {
     // init
     float prev_score = 0;
-    m_cur_score = 0;    
+    m_cur_score = 0;
 
     for (int phase = 0; phase < m_resolutions.size(); phase++) {
         Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
@@ -184,7 +195,7 @@ void PWMLRegression::optimize() {
             init_energies();
             take_best_step();
             Rcpp::Rcerr << "S -lrtEP prev " << prev_score << " " << m_cur_score << endl;
-			Rcpp::checkUserInterrupt();
+            Rcpp::checkUserInterrupt();
         } while (m_cur_score > prev_score + m_imporve_epsilon);
     }
 }
@@ -193,10 +204,10 @@ void PWMLRegression::init_energies() {
     // iter start and end
     // each time increase,decrease derivs
 
-	if (m_logit) {
-    	Rcpp::Rcerr << "Will init til energ "
-        	 << " num of sequences " << m_sequences.size() << endl;
-	}
+    if (m_logit) {
+        Rcpp::Rcerr << "Will init til energ "
+                    << " num of sequences " << m_sequences.size() << endl;
+    }
 
     int max_pos = m_derivs[0].size();
     int max_seq_id = m_sequences.size();
@@ -212,10 +223,10 @@ void PWMLRegression::init_energies() {
         fill(m_spat_derivs[seq_id].begin(), m_spat_derivs[seq_id].end(), 0);
         update_seq_interval(seq_id, new_start, new_end, +1, 0);
     }
-	
-	if (m_logit) {
-    	Rcpp::Rcerr << "done init energies " << endl;
-	}
+
+    if (m_logit) {
+        Rcpp::Rcerr << "done init energies " << endl;
+    }
 }
 
 void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_i,
@@ -227,6 +238,7 @@ void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_
         double prod = sign;
         vector<UpdAux>::iterator upds = m_aux_upds.begin();
         vector<vector<float>>::iterator deriv = m_derivs[seq_id].begin();
+
         for (vector<vector<float>>::const_iterator p = m_nuc_factors.begin();
              p != m_nuc_factors.end(); p++) {
             if (!(*j) || *j == 'N' || *j == '*') {
@@ -306,7 +318,7 @@ void PWMLRegression::take_best_step() {
 
     int max_pos = m_nuc_factors.size();
 
-	// choose best step
+    // choose best step
     vector<float> probs(256, 0);
     for (int pos = 0; pos < max_pos; pos++) {
         // iter on neighborhood
@@ -320,19 +332,11 @@ void PWMLRegression::take_best_step() {
                 probs[delta->nuc] += delta->diff;
                 if (probs[delta->nuc] <= 0) {
                     probs[delta->nuc] = m_min_prob;
-                    // normalize
                 }
             }
 
-            float cur_step_score;
-            if (m_score_metric == "r2"){
-                cur_step_score = compute_cur_r2(pos, probs);
-            } else if (m_score_metric == "wilcox"){
-                cur_step_score = compute_cur_wilcox(pos, probs);
-            } else {
-                Rcpp::stop("Unknown score metric (can be either 'r2' or 'wilcox')");
-            }
-            
+            float cur_step_score = compute_cur_score(pos, probs);
+
             // Rcpp::Rcerr << "score at step " << step_i << " was " << cur_step_score << endl;
             if (best_pos_score < cur_step_score) {
                 best_pos_score = cur_step_score;
@@ -348,16 +352,18 @@ void PWMLRegression::take_best_step() {
         }
         // iter on all changes: single nuc and double nucs (regression?)
     }
-    Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score << endl;
+    Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score
+                << endl;
     int max_spat_bin = m_spat_factors.size();
     float best_spat_score = m_cur_score;
     int best_spat_bin = -1;
-    float best_spat_diff = 0;    
-    float spat_score = compute_cur_r2_spat();
-    Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score << endl;
+    float best_spat_diff = 0;
+    float spat_score = compute_cur_spat_score();
+    Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score
+                << endl;
     for (int spat_bin = 0; spat_bin < max_spat_bin; spat_bin++) {
         m_spat_factors[spat_bin] += m_spat_factor_step;
-        float spat_score = compute_cur_r2_spat();
+        float spat_score = compute_cur_spat_score();
         // Rcpp::Rcerr << "bin " << spat_bin << " add spat score " << spat_score << endl;
         if (spat_score > best_spat_score) {
             best_spat_score = spat_score;
@@ -366,7 +372,7 @@ void PWMLRegression::take_best_step() {
         }
         m_spat_factors[spat_bin] -= 2 * m_spat_factor_step;
         if (m_spat_factors[spat_bin] >= 0) {
-            spat_score = compute_cur_r2_spat();
+            spat_score = compute_cur_spat_score();
             // Rcpp::Rcerr << "bin " << spat_bin << " del spat score " << spat_score << endl;
             if (spat_score > best_spat_score) {
                 best_spat_score = spat_score;
@@ -376,8 +382,8 @@ void PWMLRegression::take_best_step() {
         }
         m_spat_factors[spat_bin] += m_spat_factor_step;
     }
-    Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff << " score "
-         << best_spat_score << endl;
+    Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff
+                << " score " << best_spat_score << endl;
     if (best_score == m_cur_score) {
         Rcpp::Rcerr << "no improvement" << endl;
         return;
@@ -415,32 +421,95 @@ void PWMLRegression::take_best_step() {
     }
 }
 
-float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
-    // vector<double> xy(m_rdim, 0);
+float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
+    float score;
+    if (m_score_metric == "r2") {
+        score = compute_cur_r2(pos, probs);
+    } else if (m_score_metric == "wilcox") {
+        score = compute_cur_wilcox(pos, probs);
+    } else if (m_score_metric == "ks") {
+        score = compute_cur_ks(pos, probs);
+    } else {
+        Rcpp::stop("Unknown score metric (can be either 'r2' or 'wilcox')");
+    }    
+    return score;
+}
 
-    // double ex = 0;
-    // double ex2 = 0;
-    // int max_seq_id = m_sequences.size();
-	
-    // vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    // vector<float>::iterator resp = m_interv_stat.begin();
-    // for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
-    //     if (m_train_mask[seq_id]) {
-    //         vector<float> &deriv = (*seq_deriv)[pos];
-    //         float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-    //                   probs['T'] * deriv['T'];
-    //         // TODO: push v,response to priority queue or to a vector and then sort
-    //         // compute wilcox
-    //         ex += v;
-    //         ex2 += v * v;
-    //         for (int rd = 0; rd < m_rdim; rd++) {
-    //             xy[rd] += v * *resp;
-    //             resp++;
-    //         }
-    //     }
-    //     seq_deriv++;
-    // }
- 
+float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
+    int max_seq_id = m_sequences.size();
+    vector<vector<double>> preds(2, vector<double>(0, 0));
+    preds[0].reserve(m_train_n - m_ncat);
+    preds[1].reserve(m_ncat);    
+
+    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
+    vector<float>::iterator resp = m_interv_stat.begin();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            vector<float> &deriv = (*seq_deriv)[pos];
+            float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
+                      probs['T'] * deriv['T'];
+
+            // push predictions according to category
+            assert(*resp == 0 || *resp == 1);
+            if (*resp == 0) {                
+                preds[0].push_back(v);                
+            } else {                
+                preds[1].push_back(v);
+            }
+            resp++;
+        }
+        seq_deriv++;
+    }    
+
+    // compute KS
+    Rcpp::Function ks("ks.test");       
+    Rcpp::List ks_res = ks(preds[0], preds[1]);
+    
+    float score = Rcpp::as<float>(ks_res["statistic"]);    
+    return score;
+}
+
+float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
+    int max_seq_id = m_sequences.size();
+    vector<vector<double>> xy_diff(m_rdim, vector<double>(m_train_n, 0));
+
+    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
+    vector<float>::iterator resp = m_interv_stat.begin();
+    size_t train_seq_id = 0;
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            vector<float> &deriv = (*seq_deriv)[pos];
+            float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
+                      probs['T'] * deriv['T'];
+
+            // push differences to a vector per dimension
+            for (int rd = 0; rd < m_rdim; rd++) {
+                xy_diff[rd][train_seq_id] = v - *resp;
+                resp++;
+            }
+            ++train_seq_id;
+        }
+        seq_deriv++;
+    }
+
+    // sort the diff vectors
+    for (int rd = 0; rd < m_rdim; rd++) {
+        sort(xy_diff[rd].begin(), xy_diff[rd].end());
+    }
+
+    // compute wilcox
+    int wilcox = 0;
+    for (int rd = 0; rd < m_rdim; rd++) {
+        for (int r = 0; r < xy_diff[rd].size(); r++) {
+            int sign = (xy_diff[rd][r] > 0) ? 1 : ((xy_diff[rd][r] < 0) ? -1 : 0);
+            // TODO: deal with ties
+            wilcox += sign * (r + 1);
+        }
+    }
+
+    wilcox = -wilcox; // we want more similar to have higher score
+
+    return (float)wilcox;
 }
 
 float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
@@ -449,14 +518,14 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
     double ex = 0;
     double ex2 = 0;
     int max_seq_id = m_sequences.size();
-	
+
     vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-                      probs['T'] * deriv['T'];                 
+                      probs['T'] * deriv['T'];
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
@@ -466,9 +535,9 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
         }
         seq_deriv++;
     }
-	if (m_logit) {
-    	Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
-	}
+    if (m_logit) {
+        Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
+    }
     ex /= m_train_n;
     ex2 /= m_train_n;
     double pred_var = ex2 - ex * ex;
@@ -483,43 +552,140 @@ float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
         m_b[rd] = cov / pred_var;
         tot_r2 += r2;
     }
-    //	Rcpp::Rcerr << "n = " << n << " ex " << ex << " ex2 " << ex2 << " xy " << xy << " pred var " <<
-    //pred_var << " cov = " << cov << " resp  avg " << m_data_avg << " resp _var " << m_data_var <<
-    //endl;
 
     if (std::isnan(tot_r2)) {
-        Rcpp::Rcerr << "Nan at at r2 var " << pred_var << " " << ex << " " << ex2 << " " << m_data_avg[0]
-             << endl;
+        Rcpp::Rcerr << "Nan at at r2 var " << pred_var << " " << ex << " " << ex2 << " "
+                    << m_data_avg[0] << endl;
     }
     return (tot_r2);
 }
 
-float PWMLRegression::compute_cur_r2_spat() {	
-    vector<double> xy(m_rdim, 0);
-    float ex = 0;
-    float ex2 = 0;    
-    int max_seq_id = m_sequences.size();	
+float PWMLRegression::compute_cur_spat_score() {
+    float score;
+    if (m_score_metric == "r2") {
+        score = compute_cur_r2_spat();
+    } else if (m_score_metric == "wilcox") {
+        score = compute_cur_wilcox_spat();
+    } else if (m_score_metric == "ks") {
+        score = compute_cur_ks_spat();
+    } else {
+        Rcpp::stop("Unknown score metric (can be either 'r2', 'ks' or 'wilcox')");
+    }
+    return (score);
+}
 
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();    
-    vector<float>::iterator resp = m_interv_stat.begin();   	
-    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {        
+float PWMLRegression::compute_cur_ks_spat() {
+    int max_seq_id = m_sequences.size();
+    vector<vector<double>> preds(2, vector<double>(0, 0));    
+    preds[0].reserve(m_train_n - m_ncat);
+    preds[1].reserve(m_ncat);    
+
+    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::iterator resp = m_interv_stat.begin();
+    
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
-            float v = 0;            
+            float v = 0;
             vector<float>::iterator fact = m_spat_factors.begin();
             for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
-            }			 
+            }
+
+            // push predictions according to category
+            assert(*resp == 0 || *resp == 1);
+            if (*resp == 0) {
+                preds[0].push_back(v);                
+            } else {
+                preds[1].push_back(v);
+            }
+            resp++;
+        }
+        seq_derivs++;
+    }
+
+    // compute KS
+    Rcpp::Function ks("ks.test");
+    Rcpp::List ks_res = ks(preds[0], preds[1]);
+    float score = Rcpp::as<float>(ks_res["statistic"]);    
+    return score;
+}
+
+float PWMLRegression::compute_cur_wilcox_spat() {
+    int max_seq_id = m_sequences.size();
+    vector<vector<double>> xy_diff(m_rdim, vector<double>(m_train_n, 0));
+
+    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::iterator resp = m_interv_stat.begin();
+    size_t train_seq_id = 0;
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            float v = 0;
+            vector<float>::iterator fact = m_spat_factors.begin();
+            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+                 bin++) {
+                v += *bin * *fact;
+                fact++;
+            }
+
+            // push differences to a vector per dimension
+            for (int rd = 0; rd < m_rdim; rd++) {
+                xy_diff[rd][train_seq_id] = v - *resp;
+                resp++;
+            }
+            ++train_seq_id;
+        }
+        seq_derivs++;
+    }
+
+    // sort the diff vectors
+    for (int rd = 0; rd < m_rdim; rd++) {
+        sort(xy_diff[rd].begin(), xy_diff[rd].end());
+    }
+
+    // compute wilcox
+    int wilcox = 0;
+    for (int rd = 0; rd < m_rdim; rd++) {
+        for (int r = 0; r < xy_diff[rd].size(); r++) {
+            int sign = (xy_diff[rd][r] > 0) ? 1 : ((xy_diff[rd][r] < 0) ? -1 : 0);
+            // TODO: deal with ties
+            wilcox += sign * (r + 1);
+        }
+    }
+
+    wilcox = -wilcox; // we want more similar to have higher score
+
+    return (float)wilcox;
+}
+
+float PWMLRegression::compute_cur_r2_spat() {
+    vector<double> xy(m_rdim, 0);
+    float ex = 0;
+    float ex2 = 0;
+    int max_seq_id = m_sequences.size();
+
+    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::iterator resp = m_interv_stat.begin();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            float v = 0;
+            vector<float>::iterator fact = m_spat_factors.begin();
+            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+                 bin++) {
+                v += *bin * *fact;
+                fact++;
+            }
             ex += v;
-            ex2 += v * v;            
+            ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
                 xy[rd] += v * *resp;
-                resp++;                
-            }            
-        }        
+                resp++;
+            }
+        }
         seq_derivs++;
-    }    
+    }
+
     ex /= m_train_n;
     ex2 /= m_train_n;
     double pred_var = ex2 - ex * ex;
@@ -532,6 +698,7 @@ float PWMLRegression::compute_cur_r2_spat() {
         m_b[rd] = cov / pred_var;
         tot_r2 += r2;
     }
+
     return (tot_r2);
 }
 
@@ -539,7 +706,7 @@ void PWMLRegression::report_cur_lpwm() {
     int max_pos = m_nuc_factors.size();
     for (int pos = 0; pos < max_pos; pos++) {
         REprintf("(%.2f %.2f %.2f %.2f) ", m_nuc_factors[pos]['A'], m_nuc_factors[pos]['G'],
-                m_nuc_factors[pos]['C'], m_nuc_factors[pos]['T']);
+                 m_nuc_factors[pos]['C'], m_nuc_factors[pos]['T']);
     }
     Rcpp::Rcerr << " ";
     for (int sbin = 0; sbin < m_spat_factors.size(); sbin++) {
@@ -547,52 +714,45 @@ void PWMLRegression::report_cur_lpwm() {
     }
 }
 
-Rcpp::DataFrame PWMLRegression::output_pssm_df(int psid){
-	int max_pos = m_nuc_factors.size();
-	
-	vector<int> poss(max_pos);
-	vector<float> pssm_A(max_pos, 0);
-	vector<float> pssm_C(max_pos, 0);
-	vector<float> pssm_G(max_pos, 0);
-	vector<float> pssm_T(max_pos, 0);
+Rcpp::DataFrame PWMLRegression::output_pssm_df(int psid) {
+    int max_pos = m_nuc_factors.size();
 
-	for (int pos = 0; pos < max_pos; pos++) {
-		poss[pos] = pos;
-		pssm_A[pos] = m_nuc_factors[pos]['A'];
-		pssm_C[pos] = m_nuc_factors[pos]['C'];
-		pssm_G[pos] = m_nuc_factors[pos]['G'];
-		pssm_T[pos] = m_nuc_factors[pos]['T'];
-	}
+    vector<int> poss(max_pos);
+    vector<float> pssm_A(max_pos, 0);
+    vector<float> pssm_C(max_pos, 0);
+    vector<float> pssm_G(max_pos, 0);
+    vector<float> pssm_T(max_pos, 0);
 
-	Rcpp::DataFrame pssm = Rcpp::DataFrame::create(
-		Rcpp::Named("psid") = psid,
-		Rcpp::Named("pos") = poss,
-		Rcpp::Named("A") = pssm_A, 
-		Rcpp::Named("C") = pssm_C,
-		Rcpp::Named("G") = pssm_G,
-		Rcpp::Named("T") = pssm_T
-	);
+    for (int pos = 0; pos < max_pos; pos++) {
+        poss[pos] = pos;
+        pssm_A[pos] = m_nuc_factors[pos]['A'];
+        pssm_C[pos] = m_nuc_factors[pos]['C'];
+        pssm_G[pos] = m_nuc_factors[pos]['G'];
+        pssm_T[pos] = m_nuc_factors[pos]['T'];
+    }
 
-	return pssm;
+    Rcpp::DataFrame pssm = Rcpp::DataFrame::create(
+        Rcpp::Named("psid") = psid, Rcpp::Named("pos") = poss, Rcpp::Named("A") = pssm_A,
+        Rcpp::Named("C") = pssm_C, Rcpp::Named("G") = pssm_G, Rcpp::Named("T") = pssm_T);
+
+    return pssm;
 }
 
-Rcpp::DataFrame PWMLRegression::output_spat_df(int psid){
-	int max_spat_bin = m_spat_factors.size();
-	vector<int> spat_bins(max_spat_bin);
-	vector<float> spat_factors(max_spat_bin, 0);
+Rcpp::DataFrame PWMLRegression::output_spat_df(int psid) {
+    int max_spat_bin = m_spat_factors.size();
+    vector<int> spat_bins(max_spat_bin);
+    vector<float> spat_factors(max_spat_bin, 0);
 
-	for (int bin = 0; bin < max_spat_bin; bin++) {
-		spat_bins[bin] = m_spat_bin_size * bin;
-		spat_factors[bin] = m_spat_factors[bin];
-	}
+    for (int bin = 0; bin < max_spat_bin; bin++) {
+        spat_bins[bin] = m_spat_bin_size * bin;
+        spat_factors[bin] = m_spat_factors[bin];
+    }
 
-	Rcpp::DataFrame spat_df = Rcpp::DataFrame::create(
-		Rcpp::Named("psid") = psid,
-		Rcpp::Named("bin") = spat_bins,
-		Rcpp::Named("spat_factor") = spat_factors		
-	);
+    Rcpp::DataFrame spat_df =
+        Rcpp::DataFrame::create(Rcpp::Named("psid") = psid, Rcpp::Named("bin") = spat_bins,
+                                Rcpp::Named("spat_factor") = spat_factors);
 
-	return(spat_df);
+    return (spat_df);
 }
 
 void PWMLRegression::output_pssm(ostream &out, ostream &spat, int psid) {
@@ -631,7 +791,7 @@ void PWMLRegression::get_model(DnaPWML &model) {
 }
 
 void PWMLRegression::fill_predictions(vector<float> &preds) {
-    // updateting the m_a, m_b
+    // updating the m_a, m_b
     init_energies();
     Rcpp::Rcerr << "done init energ" << endl;
     float r2 = compute_cur_r2_spat();
@@ -649,8 +809,10 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
             float predict = factors['A'] * deriv['A'] + factors['C'] * deriv['C'] +
                             factors['G'] * deriv['G'] + factors['T'] * deriv['T'];
 
-            //		Rcpp::Rcerr << "seq " << seq_id << " deriv " << deriv['A'] << " " << deriv['C'] << " " <<
-            //deriv['G'] << " " << deriv['T'] << " factors " << factors['A'] << " " << factors['C']
+            //		Rcpp::Rcerr << "seq " << seq_id << " deriv " << deriv['A'] << " " <<
+            // deriv['C']
+            //<< " " << deriv['G'] << " " << deriv['T'] << " factors " << factors['A'] << " " <<
+            // factors['C']
             //<< " " << factors['G'] << " " << factors['T'] << endl;
 
             *prs = predict;

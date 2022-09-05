@@ -23,6 +23,7 @@
 #' }
 #' if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 #' rows are the kmers) is returned instead of a data frame.
+#' If no kmer is found, an empty data frame is returned.
 #'
 #' @examples
 #' kmers <- screen_kmers(sequences_example, response_mat_example)
@@ -92,6 +93,11 @@ screen_kmers <- function(sequences,
     )
 
     cli_alert_success("Found {.val {nrow(res)}} kmers in {.val {length(sequences)}} sequences.")
+
+    if (!is.data.frame(res)) {
+        cli_warn("did not find any kmers")
+        res <- as.data.frame(res)
+    }
 
     res <- res %>%
         arrange(desc(max_r2))

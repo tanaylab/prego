@@ -36,7 +36,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "wilcox". For categorical response variables (0 and 1), "wilcox" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2".}
+\item{score_metric}{metric to use for optimizing the PWM. One of "r2", "ks" or "wilcox". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 

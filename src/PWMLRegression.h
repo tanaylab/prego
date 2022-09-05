@@ -28,10 +28,14 @@ class PWMLRegression {
     // Relevant chromosomes and probes (if in tiling mode)
     const vector<string> &m_sequences;
     const vector<int> &m_train_mask;
-    int m_train_n;
+    int m_train_n = 0;
 
     // response dimension
     int m_rdim;
+
+    // response statistics in case of categorical response
+    int m_ncat = 0;
+
     // epigenomic readouts to fit to (blocks of m_rdim in the vector)
     vector<float> m_interv_stat;
     vector<double> m_data_avg;
@@ -119,10 +123,17 @@ class PWMLRegression {
 
     void take_best_step();
 
+    float compute_cur_spat_score();
+    float compute_cur_score(int pos, vector<float> &probs);
+
     float compute_cur_r2(int pos, vector<float> &probs);
     float compute_cur_r2_spat();
 
     float compute_cur_wilcox(int pos, vector<float> &probs);
+    float compute_cur_wilcox_spat();
+
+    float compute_cur_ks(int pos, vector<float> &probs);
+    float compute_cur_ks_spat();
 };
 
 #endif // PWMLRegression_h
