@@ -10,6 +10,30 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// regress_pwm_cpp
+Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const float& improve_epsilon, const int& is_bidirect, const float& unif_prior, const std::string& score_metric, const int& verbose, const int& seed);
+RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP improve_epsilonSEXP, SEXP is_bidirectSEXP, SEXP unif_priorSEXP, SEXP score_metricSEXP, SEXP verboseSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame& >::type response(responseSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type is_train_logical(is_train_logicalSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type motif(motifSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_min(spat_minSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
+    Rcpp::traits::input_parameter< const float& >::type min_nuc_prob(min_nuc_probSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_bin(spat_binSEXP);
+    Rcpp::traits::input_parameter< const float& >::type improve_epsilon(improve_epsilonSEXP);
+    Rcpp::traits::input_parameter< const int& >::type is_bidirect(is_bidirectSEXP);
+    Rcpp::traits::input_parameter< const float& >::type unif_prior(unif_priorSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type score_metric(score_metricSEXP);
+    Rcpp::traits::input_parameter< const int& >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(regress_pwm_cpp(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
 // screen_kmers_cpp
 Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const int& L, const int& from_range, const int& to_range, const float& min_cor, const int& min_n, const int& min_gap, const int& max_gap, const int& n_in_train, const int& seed);
 RcppExport SEXP _prego_screen_kmers_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP LSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP, SEXP min_corSEXP, SEXP min_nSEXP, SEXP min_gapSEXP, SEXP max_gapSEXP, SEXP n_in_trainSEXP, SEXP seedSEXP) {
@@ -34,6 +58,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 14},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {NULL, NULL, 0}
 };
