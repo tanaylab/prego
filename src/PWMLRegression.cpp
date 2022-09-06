@@ -56,6 +56,8 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         seq_i++;
     }
 
+    m_aux_preds.reserve(m_train_n);
+
     for (int rd = 0; rd < m_rdim; rd++) {
         m_data_avg[rd] /= m_train_n;
         m_data_var[rd] /= m_train_n;
@@ -425,21 +427,17 @@ float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
     float score;
     if (m_score_metric == "r2") {
         score = compute_cur_r2(pos, probs);
-    } else if (m_score_metric == "wilcox") {
-        score = compute_cur_wilcox(pos, probs);
     } else if (m_score_metric == "ks") {
         score = compute_cur_ks(pos, probs);
     } else {
-        Rcpp::stop("Unknown score metric (can be either 'r2' or 'wilcox')");
+        Rcpp::stop("Unknown score metric (can be either 'r2' or 'ks')");
     }    
     return score;
 }
 
 float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
     int max_seq_id = m_sequences.size();
-    vector<vector<double>> preds(2, vector<double>(0, 0));
-    preds[0].reserve(m_train_n - m_ncat);
-    preds[1].reserve(m_ncat);    
+    m_aux_preds.resize(0);
 
     vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
@@ -447,69 +445,35 @@ float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
         if (m_train_mask[seq_id]) {
             vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-                      probs['T'] * deriv['T'];
+                      probs['T'] * deriv['T'];            
 
             // push predictions according to category
-            assert(*resp == 0 || *resp == 1);
-            if (*resp == 0) {                
-                preds[0].push_back(v);                
-            } else {                
-                preds[1].push_back(v);
-            }
+            assert(*resp == 0 || *resp == 1);            
+            float epsilon = (rand() / RAND_MAX) * 1e-5; // add random epsilon in order to avoid ties
+            m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
             resp++;
         }
         seq_deriv++;
-    }    
+    }
 
-    // compute KS
-    Rcpp::Function ks("ks.test");       
-    Rcpp::List ks_res = ks(preds[0], preds[1]);
+    sort(m_aux_preds.begin(), m_aux_preds.end());  
+
+    float max_diff = 0;    
+    float cur_diff = 0;
+    float n_0 = m_train_n - m_ncat;
+    float n_1 = m_ncat;
+    for (int i = 0; i < m_aux_preds.size(); i++) {
+        if (m_aux_preds[i].second == 0) {
+            cur_diff -= 1 / n_0;
+        } else {
+            cur_diff += 1 / n_1;
+        }
+        if (cur_diff > max_diff) {
+            max_diff = cur_diff;
+        }
+    }
     
-    float score = Rcpp::as<float>(ks_res["statistic"]);    
-    return score;
-}
-
-float PWMLRegression::compute_cur_wilcox(int pos, vector<float> &probs) {
-    int max_seq_id = m_sequences.size();
-    vector<vector<double>> xy_diff(m_rdim, vector<double>(m_train_n, 0));
-
-    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
-    size_t train_seq_id = 0;
-    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
-        if (m_train_mask[seq_id]) {
-            vector<float> &deriv = (*seq_deriv)[pos];
-            float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-                      probs['T'] * deriv['T'];
-
-            // push differences to a vector per dimension
-            for (int rd = 0; rd < m_rdim; rd++) {
-                xy_diff[rd][train_seq_id] = v - *resp;
-                resp++;
-            }
-            ++train_seq_id;
-        }
-        seq_deriv++;
-    }
-
-    // sort the diff vectors
-    for (int rd = 0; rd < m_rdim; rd++) {
-        sort(xy_diff[rd].begin(), xy_diff[rd].end());
-    }
-
-    // compute wilcox
-    int wilcox = 0;
-    for (int rd = 0; rd < m_rdim; rd++) {
-        for (int r = 0; r < xy_diff[rd].size(); r++) {
-            int sign = (xy_diff[rd][r] > 0) ? 1 : ((xy_diff[rd][r] < 0) ? -1 : 0);
-            // TODO: deal with ties
-            wilcox += sign * (r + 1);
-        }
-    }
-
-    wilcox = -wilcox; // we want more similar to have higher score
-
-    return (float)wilcox;
+    return max_diff;
 }
 
 float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
@@ -564,21 +528,17 @@ float PWMLRegression::compute_cur_spat_score() {
     float score;
     if (m_score_metric == "r2") {
         score = compute_cur_r2_spat();
-    } else if (m_score_metric == "wilcox") {
-        score = compute_cur_wilcox_spat();
     } else if (m_score_metric == "ks") {
         score = compute_cur_ks_spat();
     } else {
-        Rcpp::stop("Unknown score metric (can be either 'r2', 'ks' or 'wilcox')");
+        Rcpp::stop("Unknown score metric (can be either 'r2' or 'ks')");
     }
     return (score);
 }
 
 float PWMLRegression::compute_cur_ks_spat() {
     int max_seq_id = m_sequences.size();
-    vector<vector<double>> preds(2, vector<double>(0, 0));    
-    preds[0].reserve(m_train_n - m_ncat);
-    preds[1].reserve(m_ncat);    
+    m_aux_preds.resize(0); 
 
     vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
@@ -595,68 +555,31 @@ float PWMLRegression::compute_cur_ks_spat() {
 
             // push predictions according to category
             assert(*resp == 0 || *resp == 1);
-            if (*resp == 0) {
-                preds[0].push_back(v);                
-            } else {
-                preds[1].push_back(v);
-            }
+            float epsilon = (rand() / RAND_MAX) * 1e-5;
+            m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
             resp++;
         }
         seq_derivs++;
     }
 
-    // compute KS
-    Rcpp::Function ks("ks.test");
-    Rcpp::List ks_res = ks(preds[0], preds[1]);
-    float score = Rcpp::as<float>(ks_res["statistic"]);    
-    return score;
-}
+    sort(m_aux_preds.begin(), m_aux_preds.end());
 
-float PWMLRegression::compute_cur_wilcox_spat() {
-    int max_seq_id = m_sequences.size();
-    vector<vector<double>> xy_diff(m_rdim, vector<double>(m_train_n, 0));
-
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
-    size_t train_seq_id = 0;
-    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
-        if (m_train_mask[seq_id]) {
-            float v = 0;
-            vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
-                 bin++) {
-                v += *bin * *fact;
-                fact++;
-            }
-
-            // push differences to a vector per dimension
-            for (int rd = 0; rd < m_rdim; rd++) {
-                xy_diff[rd][train_seq_id] = v - *resp;
-                resp++;
-            }
-            ++train_seq_id;
+    float max_diff = 0;    
+    float cur_diff = 0;
+    float n_0 = m_train_n - m_ncat;
+    float n_1 = m_ncat;
+    for (int i = 0; i < m_aux_preds.size(); i++) {
+        if (m_aux_preds[i].second == 0) {
+            cur_diff -= 1 / n_0;
+        } else {
+            cur_diff += 1 / n_1;
         }
-        seq_derivs++;
-    }
-
-    // sort the diff vectors
-    for (int rd = 0; rd < m_rdim; rd++) {
-        sort(xy_diff[rd].begin(), xy_diff[rd].end());
-    }
-
-    // compute wilcox
-    int wilcox = 0;
-    for (int rd = 0; rd < m_rdim; rd++) {
-        for (int r = 0; r < xy_diff[rd].size(); r++) {
-            int sign = (xy_diff[rd][r] > 0) ? 1 : ((xy_diff[rd][r] < 0) ? -1 : 0);
-            // TODO: deal with ties
-            wilcox += sign * (r + 1);
+        if (cur_diff > max_diff) {
+            max_diff = cur_diff;
         }
     }
-
-    wilcox = -wilcox; // we want more similar to have higher score
-
-    return (float)wilcox;
+    
+    return max_diff;
 }
 
 float PWMLRegression::compute_cur_r2_spat() {

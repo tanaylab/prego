@@ -85,6 +85,9 @@ class PWMLRegression {
     // score metric
     string m_score_metric;
 
+	// aux for storing temp energy predictions
+	vector<pair<float, int> > m_aux_preds;
+
   public:
     bool m_logit;
 
@@ -128,9 +131,6 @@ class PWMLRegression {
 
     float compute_cur_r2(int pos, vector<float> &probs);
     float compute_cur_r2_spat();
-
-    float compute_cur_wilcox(int pos, vector<float> &probs);
-    float compute_cur_wilcox_spat();
 
     float compute_cur_ks(int pos, vector<float> &probs);
     float compute_cur_ks_spat();
