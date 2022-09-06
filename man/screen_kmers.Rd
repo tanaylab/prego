@@ -53,6 +53,7 @@ correlation of the kmers to the response variable:
 }
 if \code{return_mat} is TRUE, a matrix with correlations to the response variables (where
 rows are the kmers) is returned instead of a data frame.
+If no kmer is found, an empty data frame is returned.
 }
 \description{
 Screen for kmers
