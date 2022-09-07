@@ -1,5 +1,6 @@
 #include "port.h"
 #include <cmath>
+#include <chrono>
 BASE_CC_FILE
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
@@ -56,7 +57,13 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         seq_i++;
     }
 
-    m_aux_preds.reserve(m_train_n);
+    if (m_score_metric == "ks") {        
+        m_data_epsilon.resize(m_sequences.size());
+        for (size_t i = 0; i < m_data_epsilon.size(); i++) {
+            m_data_epsilon[i] = (rand() / RAND_MAX) * 1e-5;
+        }
+        m_aux_preds.reserve(m_train_n);
+    }
 
     for (int rd = 0; rd < m_rdim; rd++) {
         m_data_avg[rd] /= m_train_n;
@@ -194,8 +201,18 @@ void PWMLRegression::optimize() {
         m_spat_factor_step = m_spat_resolutions[phase];
         do {
             prev_score = m_cur_score;
+            // auto start = chrono::high_resolution_clock::now();
             init_energies();
+            // auto stop = chrono::high_resolution_clock::now();
+            // auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+            // Rcpp::Rcout << "init_energies took " << duration.count() << " milliseconds" << endl;
+
+            // start = chrono::high_resolution_clock::now();
             take_best_step();
+            // stop = chrono::high_resolution_clock::now();
+            // duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+            // Rcpp::Rcout << "take_best_step took " << duration.count() << " milliseconds" << endl;
+
             Rcpp::Rcerr << "S -lrtEP prev " << prev_score << " " << m_cur_score << endl;
         } while (m_cur_score > prev_score + m_imporve_epsilon);
     }
@@ -442,6 +459,7 @@ float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
 float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
     int max_seq_id = m_sequences.size();
     m_aux_preds.resize(0);
+    
 
     vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
@@ -453,10 +471,10 @@ float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
 
             // push predictions according to category
             assert(*resp == 0 || *resp == 1);
-            float epsilon = (rand() / RAND_MAX) * 1e-5; // add random epsilon in order to avoid ties
+            float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
-            resp++;
         }
+        resp++;
         seq_deriv++;
     }
 
@@ -559,7 +577,7 @@ float PWMLRegression::compute_cur_ks_spat() {
 
             // push predictions according to category
             assert(*resp == 0 || *resp == 1);
-            float epsilon = (rand() / RAND_MAX) * 1e-5;
+            float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
             resp++;
         }

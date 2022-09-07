@@ -85,8 +85,11 @@ class PWMLRegression {
     // score metric
     string m_score_metric;
 
-	// aux for storing temp energy predictions
-	vector<pair<float, int> > m_aux_preds;
+    // random number for each sequence in order to break ties
+    vector<float> m_data_epsilon;
+
+    // aux for storing temp energy predictions
+    vector<pair<float, int>> m_aux_preds;
 
   public:
     bool m_logit;
