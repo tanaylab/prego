@@ -719,6 +719,7 @@ float PWMLRegression::get_r2() {
     float r2 = compute_cur_r2_spat();
     return (r2);
 }
+
 void PWMLRegression::get_model(DnaPWML &model) {
     model.get_pssm().resize(m_nuc_factors.size());
     model.get_pssm().set_range(m_min_range, m_max_range);
@@ -733,14 +734,15 @@ void PWMLRegression::get_model(DnaPWML &model) {
     for (int bin = 0; bin < m_spat_factors.size(); bin++) {
         model.set_spat_factor(bin, m_spat_factors[bin]);
     }
+    model.get_pssm().set_bidirect(m_bidirect);
 }
 
 void PWMLRegression::fill_predictions(vector<float> &preds) {
     // updating the m_a, m_b
     init_energies();
     Rcpp::Rcerr << "done init energ" << endl;
-    float r2 = compute_cur_r2_spat();
-    Rcpp::Rcerr << "done comp r2 = " << r2 << endl;
+    // float r2 = compute_cur_r2_spat();
+    // Rcpp::Rcerr << "done comp r2 = " << r2 << endl;
 
     preds.resize(m_interv_stat.size());
     vector<float>::iterator prs = preds.begin();
@@ -753,12 +755,6 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
 
             float predict = factors['A'] * deriv['A'] + factors['C'] * deriv['C'] +
                             factors['G'] * deriv['G'] + factors['T'] * deriv['T'];
-
-            //		Rcpp::Rcerr << "seq " << seq_id << " deriv " << deriv['A'] << " " <<
-            // deriv['C']
-            //<< " " << deriv['G'] << " " << deriv['T'] << " factors " << factors['A'] << " " <<
-            // factors['C']
-            //<< " " << factors['G'] << " " << factors['T'] << endl;
 
             *prs = predict;
         } else {
