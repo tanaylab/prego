@@ -133,6 +133,15 @@ regress_pwm <- function(sequences,
         cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
     }
 
+    # replace gaps with wildcards
+    stringr::str_replace(motif, "\\d+", function(x) {
+        if (is.na(x)) {
+            ""
+        } else {
+            paste(rep("*", x), collapse = "")
+        }
+    })
+
     cli_alert_info("Initializing regression with {.val {motif}}")
 
     cli_alert_info("Running regression")
