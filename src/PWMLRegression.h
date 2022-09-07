@@ -7,7 +7,6 @@
 #include "BitVec.h"
 #include "DnaPWML.h"
 #include <Rcpp.h>
-#include <RcppParallel.h>
 #include <string.h>
 #include <vector>
 

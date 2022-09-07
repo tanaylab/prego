@@ -17,15 +17,13 @@ Imports:
     patchwork,
     stringr,
     tgstat,
-    dplyr,
-    RcppParallel
+    dplyr    
 Suggests: 
     testthat (>= 3.0.0),
     withr,
     purrr
 LinkingTo: 
-    Rcpp,
-    RcppParallel
+    Rcpp
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: es
