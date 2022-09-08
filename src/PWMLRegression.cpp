@@ -120,7 +120,7 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
         m_nuc_factors[i]['C'] = pwm[i].get_prob('C');
         m_nuc_factors[i]['G'] = pwm[i].get_prob('G');
         m_nuc_factors[i]['T'] = pwm[i].get_prob('T');
-        Rcpp::Rcerr << "set pos i to " << m_nuc_factors[i]['A'] << " " << m_nuc_factors[i]['C']
+        Rcpp::Rcerr << "set pos " << i + 1 << " to " << m_nuc_factors[i]['A'] << " " << m_nuc_factors[i]['C']
                     << " " << m_nuc_factors[i]['G'] << " " << m_nuc_factors[i]['T'] << endl;
     }
 
