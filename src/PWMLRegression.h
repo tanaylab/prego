@@ -130,12 +130,12 @@ class PWMLRegression {
     void take_best_step();
 
     float compute_cur_spat_score();
-    float compute_cur_score(int pos, vector<float> &probs);
+    float compute_cur_score(const int &pos, const vector<float> &probs);
 
-    float compute_cur_r2(int pos, vector<float> &probs);
+    float compute_cur_r2(const int &pos, const vector<float> &probs);
     float compute_cur_r2_spat();
 
-    float compute_cur_ks(int pos, vector<float> &probs);
+    float compute_cur_ks(const int &pos, const vector<float> &probs);
     float compute_cur_ks_spat();
 };
 

@@ -1,6 +1,7 @@
 #include "port.h"
-#include <cmath>
 #include <chrono>
+#include <cmath>
+
 BASE_CC_FILE
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
@@ -57,7 +58,7 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         seq_i++;
     }
 
-    if (m_score_metric == "ks") {        
+    if (m_score_metric == "ks") {
         m_data_epsilon.resize(m_sequences.size());
         for (size_t i = 0; i < m_data_epsilon.size(); i++) {
             m_data_epsilon[i] = (rand() / RAND_MAX) * 1e-5;
@@ -348,25 +349,26 @@ void PWMLRegression::take_best_step() {
         }
     }
 
+    // score a single step
+    auto score_step = [&](const pair<int, int> &pos_step) {
+        int pos = pos_step.first;
+        int step = pos_step.second;
+        vector<float> probs = m_nuc_factors[pos];
+        for (auto delta = m_cur_neigh[step].begin(); delta != m_cur_neigh[step].end(); delta++) {
+            probs[delta->nuc] += delta->diff;
+            if (probs[delta->nuc] <= 0) {
+                probs[delta->nuc] = m_min_prob;
+            }
+        }
+        float score = compute_cur_score(pos, probs);
+        if (m_cur_score > score) {
+            score = m_cur_score;
+        }
+        return make_tuple(score, pos, step);
+    };
+
     // choose best step
-    transform(pos_steps.begin(), pos_steps.end(), pos_output.begin(),
-              [&](const pair<int, int> &pos_step) {
-                  int pos = pos_step.first;
-                  int step = pos_step.second;
-                  vector<float> probs = m_nuc_factors[pos];
-                  for (auto delta = m_cur_neigh[step].begin(); delta != m_cur_neigh[step].end();
-                       delta++) {
-                      probs[delta->nuc] += delta->diff;
-                      if (probs[delta->nuc] <= 0) {
-                          probs[delta->nuc] = m_min_prob;
-                      }
-                  }
-                  float score = compute_cur_score(pos, probs);
-                  if (m_cur_score > score) {
-                      score = m_cur_score;
-                  }
-                  return make_tuple(score, pos, step);
-              });
+    transform(pos_steps.begin(), pos_steps.end(), pos_output.begin(), score_step);
 
     sort(pos_output.begin(), pos_output.end(), greater<tuple<float, int, int>>());
     best_score = get<0>(pos_output[0]);
@@ -376,6 +378,7 @@ void PWMLRegression::take_best_step() {
 
     Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score
                 << endl;
+    
     int max_spat_bin = m_spat_factors.size();
     float best_spat_score = m_cur_score;
     int best_spat_bin = -1;
@@ -444,7 +447,7 @@ void PWMLRegression::take_best_step() {
     }
 }
 
-float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_score(const int &pos, const vector<float> &probs) {
     float score;
     if (m_score_metric == "r2") {
         score = compute_cur_r2(pos, probs);
@@ -456,16 +459,15 @@ float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
     return score;
 }
 
-float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_ks(const int &pos, const vector<float> &probs) {
     int max_seq_id = m_sequences.size();
     m_aux_preds.resize(0);
-    
 
-    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
-            vector<float> &deriv = (*seq_deriv)[pos];
+            const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
 
@@ -498,18 +500,18 @@ float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
     return max_diff;
 }
 
-float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs) {
     vector<double> xy(m_rdim, 0);
 
     double ex = 0;
     double ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
-            vector<float> &deriv = (*seq_deriv)[pos];
+            const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
             ex += v;
@@ -562,14 +564,14 @@ float PWMLRegression::compute_cur_ks_spat() {
     int max_seq_id = m_sequences.size();
     m_aux_preds.resize(0);
 
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
 
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             float v = 0;
-            vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+            vector<float>::const_iterator fact = m_spat_factors.begin();
+            for (vector<float>::const_iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
@@ -610,13 +612,13 @@ float PWMLRegression::compute_cur_r2_spat() {
     float ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             float v = 0;
-            vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+            vector<float>::const_iterator fact = m_spat_factors.begin();
+            for (vector<float>::const_iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
