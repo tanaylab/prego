@@ -17,7 +17,7 @@ BASE_CC_FILE
 #include <vector>
 using namespace std;
 
-// [[Rcpp::plugins("cpp11")]]
+// [[Rcpp::plugins("cpp17")]]
 
 // [[Rcpp::export]]
 Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
@@ -25,7 +25,8 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const int &spat_min, const int &spat_max, const float &min_nuc_prob,
                            const int &spat_bin, const float &improve_epsilon,
                            const int &is_bidirect, const float &unif_prior,
-                           const std::string &score_metric, const int &verbose, const int &seed) {
+                           const std::string &score_metric, const int &verbose, const int &seed,
+                           const Rcpp::NumericMatrix &pssm_mat) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
     int resp_dim = response_stat.size();
@@ -33,8 +34,6 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     vector<string> seqs = Rcpp::as<vector<string>>(sequences);
 
     vector<int> is_train = Rcpp::as<vector<int>>(is_train_logical);
-
-    string seedmot(motif);
 
     // initialize resolution objects
     vector<float> res(4);
@@ -61,9 +60,25 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     pwmlreg.m_logit = verbose;
 
-    // initialize the seed motif
-    pwmlreg.init_seed(seedmot, is_bidirect);
-    Rcpp::Rcerr << "done init seed " << seedmot << endl;
+    string seedmot(motif);
+    if (motif.empty()) { // initialize using pssm
+        Rcpp::Rcerr << "using pre-computed pssm" << std::endl;
+        DnaPSSM pssm;
+        pssm.set_bidirect(is_bidirect);
+        pssm.resize(pssm_mat.nrow());
+        pssm.set_range(smin, smax);
+        for (int i = 0; i < pssm_mat.nrow(); i++) {
+            pssm[i].set_weight('A', pssm_mat(i, 0));
+            pssm[i].set_weight('C', pssm_mat(i, 1));
+            pssm[i].set_weight('G', pssm_mat(i, 2));
+            pssm[i].set_weight('T', pssm_mat(i, 3));
+        }
+        pssm.normalize();
+        pwmlreg.init_pwm(pssm);
+    } else { // initialize using a seed motif
+        pwmlreg.init_seed(seedmot, is_bidirect);
+        Rcpp::Rcerr << "done init seed " << seedmot << endl;
+    }
 
     // main loop
     pwmlreg.optimize();
@@ -73,7 +88,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     pwmlreg.get_model(pwml);
 
     vector<float> preds(seqs.size());
-    
+
     for (int i = 0; i < seqs.size(); i++) {
         float energy;
         pwml.integrate_energy(seqs[i], energy);
@@ -174,10 +189,10 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             res_kmer.push_back(k->first);
             res_max_r2.push_back(max_r2);
             res_avg_multi.push_back(avg_multi);
-            res_multi_var.push_back(multi_var);            
+            res_multi_var.push_back(multi_var);
             for (int ri = 0; ri < resp_dim; ri++) {
-                res_cors[ri].push_back(corr[ri]);                
-            }            
+                res_cors[ri].push_back(corr[ri]);
+            }
 
             foc_mots.push_back(k->first);
             foc_scores.push_back(max_r2);

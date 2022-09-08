@@ -34,6 +34,7 @@ void DnaProbVec::normalize() {
         m_logp[3] = -_REAL(MAX) / 100;
     }
 }
+
 void DnaProbVec::normalize_log() {
     float sum = m_logp[0];
     log_sum_log(sum, m_logp[1]);

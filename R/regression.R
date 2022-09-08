@@ -2,7 +2,8 @@
 #'
 #' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
-#' @param motif Initial motif to start the regression from. The character "*" indicates a wildcard.
+#' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
+#' wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
 #' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.
@@ -37,6 +38,9 @@
 #' head(res$pred)
 #'
 #' plot_pssm_logo(res$pssm)
+#'
+#' # intialize with a pre-computed PSSM
+#' res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm) #'
 #'
 #' @inheritParams screen_kmers
 #' @inheritDotParams screen_kmers
@@ -117,33 +121,50 @@ regress_pwm <- function(sequences,
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
 
 
-    if (is.null(motif)) {
-        cli_alert_info("Screening for kmers in order to initialize regression")
-        kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, ...)
-        motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
-        if (length(motif) == 0) { # could not find any kmer
-            motif <- paste(rep("*", motif_length), collapse = "")
-            cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+    kmers <- NULL
+    if (is.data.frame(motif)) { # initiazlie with pre-computed PSSM
+        pssm <- motif
+        if (!all(c("pos", "A", "C", "G", "T") %in% colnames(pssm))) {
+            cli_abort("The {.field motif} PSSM data frame should have columns {.val pos}, {.val A}, {.val C}, {.val G}, {.val T}")
         }
-    } else {
-        kmers <- NULL
+
+        pssm <- pssm %>%
+            arrange(as.numeric(pos)) %>%
+            as.data.frame() %>%
+            tibble::column_to_rownames("pos") %>%
+            select(A, C, G, T) %>%
+            as.matrix()
+
+        motif <- ""
+        cli_alert_info("Initializing regression with pre-computed PSSM")
+    } else { # initialize with kmer
+        pssm <- matrix()
+        if (is.null(motif)) {
+            cli_alert_info("Screening for kmers in order to initialize regression")
+            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, ...)
+            motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
+            if (length(motif) == 0) { # could not find any kmer
+                motif <- paste(rep("*", motif_length), collapse = "")
+                cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+            }
+        }
+        if (stringr::str_length(motif) < motif_length) {
+            motif <- stringr::str_pad(motif, motif_length, "*", side = "both")
+            cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
+        }
+
+        # replace gaps with wildcards
+        stringr::str_replace(motif, "\\d+", function(x) {
+            if (is.na(x)) {
+                ""
+            } else {
+                paste(rep("*", x), collapse = "")
+            }
+        })
+
+        cli_alert_info("Initializing regression with the following motif: {.val {motif}}")
     }
 
-    if (stringr::str_length(motif) < motif_length) {
-        motif <- stringr::str_pad(motif, motif_length, "*", side = "both")
-        cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
-    }
-
-    # replace gaps with wildcards
-    stringr::str_replace(motif, "\\d+", function(x) {
-        if (is.na(x)) {
-            ""
-        } else {
-            paste(rep("*", x), collapse = "")
-        }
-    })
-
-    cli_alert_info("Initializing regression with {.val {motif}}")
 
     cli_alert_info("Running regression")
     res <- regress_pwm_cpp(
@@ -160,7 +181,8 @@ regress_pwm <- function(sequences,
         unif_prior = unif_prior,
         score_metric = score_metric,
         verbose = verbose,
-        seed = seed
+        seed = seed,
+        pssm_mat = pssm
     )
 
 
