@@ -1,5 +1,7 @@
 #include "port.h"
+#include <chrono>
 #include <cmath>
+
 BASE_CC_FILE
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
@@ -56,7 +58,13 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         seq_i++;
     }
 
-    m_aux_preds.reserve(m_train_n);
+    if (m_score_metric == "ks") {
+        m_data_epsilon.resize(m_sequences.size());
+        for (size_t i = 0; i < m_data_epsilon.size(); i++) {
+            m_data_epsilon[i] = (rand() / RAND_MAX) * 1e-5;
+        }
+        m_aux_preds.reserve(m_train_n);
+    }
 
     for (int rd = 0; rd < m_rdim; rd++) {
         m_data_avg[rd] /= m_train_n;
@@ -194,10 +202,19 @@ void PWMLRegression::optimize() {
         m_spat_factor_step = m_spat_resolutions[phase];
         do {
             prev_score = m_cur_score;
+            // auto start = chrono::high_resolution_clock::now();
             init_energies();
+            // auto stop = chrono::high_resolution_clock::now();
+            // auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+            // Rcpp::Rcout << "init_energies took " << duration.count() << " milliseconds" << endl;
+
+            // start = chrono::high_resolution_clock::now();
             take_best_step();
+            // stop = chrono::high_resolution_clock::now();
+            // duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+            // Rcpp::Rcout << "take_best_step took " << duration.count() << " milliseconds" << endl;
+
             Rcpp::Rcerr << "S -lrtEP prev " << prev_score << " " << m_cur_score << endl;
-            Rcpp::checkUserInterrupt();
         } while (m_cur_score > prev_score + m_imporve_epsilon);
     }
 }
@@ -213,6 +230,7 @@ void PWMLRegression::init_energies() {
 
     int max_pos = m_derivs[0].size();
     int max_seq_id = m_sequences.size();
+
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (!m_train_mask[seq_id]) {
             continue;
@@ -319,43 +337,48 @@ void PWMLRegression::take_best_step() {
     float best_score = m_cur_score;
 
     int max_pos = m_nuc_factors.size();
+    int neigh_size = m_cur_neigh.size();
+    vector<tuple<float, int, int>> pos_output(max_pos * neigh_size);
+
+    // create a vector of positions and steps
+    vector<pair<int, int>> pos_steps;
+    pos_steps.reserve(max_pos * neigh_size);
+    for (int pos = 0; pos < max_pos; pos++) {
+        for (int step = 0; step < neigh_size; step++) {
+            pos_steps.push_back(make_pair(pos, step));
+        }
+    }
+
+    // score a single step
+    auto score_step = [&](const pair<int, int> &pos_step) {
+        int pos = pos_step.first;
+        int step = pos_step.second;
+        vector<float> probs = m_nuc_factors[pos];
+        for (auto delta = m_cur_neigh[step].begin(); delta != m_cur_neigh[step].end(); delta++) {
+            probs[delta->nuc] += delta->diff;
+            if (probs[delta->nuc] <= 0) {
+                probs[delta->nuc] = m_min_prob;
+            }
+        }
+        float score = compute_cur_score(pos, probs);
+        if (m_cur_score > score) {
+            score = m_cur_score;
+        }
+        return make_tuple(score, pos, step);
+    };
 
     // choose best step
-    vector<float> probs(256, 0);
-    for (int pos = 0; pos < max_pos; pos++) {
-        // iter on neighborhood
-        int neigh_size = m_cur_neigh.size();
-        float best_pos_score = 0;
-        for (int step_i = 0; step_i < neigh_size; step_i++) {
-            // update probs
-            probs = m_nuc_factors[pos];
-            for (vector<NeighStep>::iterator delta = m_cur_neigh[step_i].begin();
-                 delta != m_cur_neigh[step_i].end(); delta++) {
-                probs[delta->nuc] += delta->diff;
-                if (probs[delta->nuc] <= 0) {
-                    probs[delta->nuc] = m_min_prob;
-                }
-            }
+    transform(pos_steps.begin(), pos_steps.end(), pos_output.begin(), score_step);
 
-            float cur_step_score = compute_cur_score(pos, probs);
+    sort(pos_output.begin(), pos_output.end(), greater<tuple<float, int, int>>());
+    best_score = get<0>(pos_output[0]);
+    best_pos = get<1>(pos_output[0]);
+    best_step = get<2>(pos_output[0]);
+    Rcpp::checkUserInterrupt();
 
-            // Rcpp::Rcerr << "score at step " << step_i << " was " << cur_step_score << endl;
-            if (best_pos_score < cur_step_score) {
-                best_pos_score = cur_step_score;
-            }
-            if (cur_step_score > best_score) {
-                best_step = step_i;
-                best_pos = pos;
-                best_score = cur_step_score;
-            }
-        }
-        if (m_logit) {
-            Rcpp::Rcerr << "best score at pos " << pos << " = " << best_pos_score << endl;
-        }
-        // iter on all changes: single nuc and double nucs (regression?)
-    }
     Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score
                 << endl;
+    
     int max_spat_bin = m_spat_factors.size();
     float best_spat_score = m_cur_score;
     int best_spat_bin = -1;
@@ -390,6 +413,7 @@ void PWMLRegression::take_best_step() {
         Rcpp::Rcerr << "no improvement" << endl;
         return;
     }
+
     if (best_score > best_spat_score) {
         vector<float> &pos_probs = m_nuc_factors[best_pos];
         for (vector<NeighStep>::iterator delta = m_cur_neigh[best_step].begin();
@@ -423,7 +447,7 @@ void PWMLRegression::take_best_step() {
     }
 }
 
-float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_score(const int &pos, const vector<float> &probs) {
     float score;
     if (m_score_metric == "r2") {
         score = compute_cur_r2(pos, probs);
@@ -431,34 +455,34 @@ float PWMLRegression::compute_cur_score(int pos, vector<float> &probs) {
         score = compute_cur_ks(pos, probs);
     } else {
         Rcpp::stop("Unknown score metric (can be either 'r2' or 'ks')");
-    }    
+    }
     return score;
 }
 
-float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_ks(const int &pos, const vector<float> &probs) {
     int max_seq_id = m_sequences.size();
     m_aux_preds.resize(0);
 
-    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
-            vector<float> &deriv = (*seq_deriv)[pos];
+            const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
-                      probs['T'] * deriv['T'];            
+                      probs['T'] * deriv['T'];
 
             // push predictions according to category
-            assert(*resp == 0 || *resp == 1);            
-            float epsilon = (rand() / RAND_MAX) * 1e-5; // add random epsilon in order to avoid ties
+            assert(*resp == 0 || *resp == 1);
+            float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
-            resp++;
         }
+        resp++;
         seq_deriv++;
     }
 
-    sort(m_aux_preds.begin(), m_aux_preds.end());  
+    sort(m_aux_preds.begin(), m_aux_preds.end());
 
-    float max_diff = 0;    
+    float max_diff = 0;
     float cur_diff = 0;
     float n_0 = m_train_n - m_ncat;
     float n_1 = m_ncat;
@@ -472,22 +496,22 @@ float PWMLRegression::compute_cur_ks(int pos, vector<float> &probs) {
             max_diff = cur_diff;
         }
     }
-    
+
     return max_diff;
 }
 
-float PWMLRegression::compute_cur_r2(int pos, vector<float> &probs) {
+float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs) {
     vector<double> xy(m_rdim, 0);
 
     double ex = 0;
     double ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
-            vector<float> &deriv = (*seq_deriv)[pos];
+            const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
             ex += v;
@@ -538,16 +562,16 @@ float PWMLRegression::compute_cur_spat_score() {
 
 float PWMLRegression::compute_cur_ks_spat() {
     int max_seq_id = m_sequences.size();
-    m_aux_preds.resize(0); 
+    m_aux_preds.resize(0);
 
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
-    
+    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
+
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             float v = 0;
-            vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+            vector<float>::const_iterator fact = m_spat_factors.begin();
+            for (vector<float>::const_iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
@@ -555,7 +579,7 @@ float PWMLRegression::compute_cur_ks_spat() {
 
             // push predictions according to category
             assert(*resp == 0 || *resp == 1);
-            float epsilon = (rand() / RAND_MAX) * 1e-5;
+            float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
             resp++;
         }
@@ -564,7 +588,7 @@ float PWMLRegression::compute_cur_ks_spat() {
 
     sort(m_aux_preds.begin(), m_aux_preds.end());
 
-    float max_diff = 0;    
+    float max_diff = 0;
     float cur_diff = 0;
     float n_0 = m_train_n - m_ncat;
     float n_1 = m_ncat;
@@ -578,7 +602,7 @@ float PWMLRegression::compute_cur_ks_spat() {
             max_diff = cur_diff;
         }
     }
-    
+
     return max_diff;
 }
 
@@ -588,13 +612,13 @@ float PWMLRegression::compute_cur_r2_spat() {
     float ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<float>>::iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::iterator resp = m_interv_stat.begin();
+    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             float v = 0;
-            vector<float>::iterator fact = m_spat_factors.begin();
-            for (vector<float>::iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
+            vector<float>::const_iterator fact = m_spat_factors.begin();
+            for (vector<float>::const_iterator bin = seq_derivs->begin(); bin != seq_derivs->end();
                  bin++) {
                 v += *bin * *fact;
                 fact++;
@@ -697,6 +721,7 @@ float PWMLRegression::get_r2() {
     float r2 = compute_cur_r2_spat();
     return (r2);
 }
+
 void PWMLRegression::get_model(DnaPWML &model) {
     model.get_pssm().resize(m_nuc_factors.size());
     model.get_pssm().set_range(m_min_range, m_max_range);
@@ -711,14 +736,15 @@ void PWMLRegression::get_model(DnaPWML &model) {
     for (int bin = 0; bin < m_spat_factors.size(); bin++) {
         model.set_spat_factor(bin, m_spat_factors[bin]);
     }
+    model.get_pssm().set_bidirect(m_bidirect);
 }
 
 void PWMLRegression::fill_predictions(vector<float> &preds) {
     // updating the m_a, m_b
     init_energies();
     Rcpp::Rcerr << "done init energ" << endl;
-    float r2 = compute_cur_r2_spat();
-    Rcpp::Rcerr << "done comp r2 = " << r2 << endl;
+    // float r2 = compute_cur_r2_spat();
+    // Rcpp::Rcerr << "done comp r2 = " << r2 << endl;
 
     preds.resize(m_interv_stat.size());
     vector<float>::iterator prs = preds.begin();
@@ -731,12 +757,6 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
 
             float predict = factors['A'] * deriv['A'] + factors['C'] * deriv['C'] +
                             factors['G'] * deriv['G'] + factors['T'] * deriv['T'];
-
-            //		Rcpp::Rcerr << "seq " << seq_id << " deriv " << deriv['A'] << " " <<
-            // deriv['C']
-            //<< " " << deriv['G'] << " " << deriv['T'] << " factors " << factors['A'] << " " <<
-            // factors['C']
-            //<< " " << factors['G'] << " " << factors['T'] << endl;
 
             *prs = predict;
         } else {
