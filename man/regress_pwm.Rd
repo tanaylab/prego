@@ -31,7 +31,8 @@ regress_pwm(
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
-\item{motif}{Initial motif to start the regression from. The character "*" indicates a wildcard.
+\item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
+wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
 If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
@@ -97,5 +98,8 @@ res$spat
 head(res$pred)
 
 plot_pssm_logo(res$pssm)
+
+# intialize with a pre-computed PSSM
+res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm) #'
 
 }
