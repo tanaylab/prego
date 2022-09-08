@@ -82,6 +82,7 @@ a list with the following elements:
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
+\item{ks: }{If \code{score_metric = "ks"}, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
 \item{seed_motif: }{The seed motif that started the regression.}
 \item(kmers: ){The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 }

@@ -25,6 +25,7 @@
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 #' \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
+#' \item{ks: }{If \code{score_metric = "ks"}, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
 #' \item{seed_motif: }{The seed motif that started the regression.}
 #' \item(kmers: ){The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 #' }
@@ -133,6 +134,15 @@ regress_pwm <- function(sequences,
         cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
     }
 
+    # replace gaps with wildcards
+    stringr::str_replace(motif, "\\d+", function(x) {
+        if (is.na(x)) {
+            ""
+        } else {
+            paste(rep("*", x), collapse = "")
+        }
+    })
+
     cli_alert_info("Initializing regression with {.val {motif}}")
 
     cli_alert_info("Running regression")
@@ -160,6 +170,10 @@ regress_pwm <- function(sequences,
 
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
     res$seed_motif <- motif
+
+    if (score_metric == "ks") {
+        res$ks <- ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])])
+    }
 
     if (!is.null(kmers)) {
         res$kmers <- kmers

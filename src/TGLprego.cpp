@@ -73,6 +73,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     pwmlreg.get_model(pwml);
 
     vector<float> preds(seqs.size());
+    
     for (int i = 0; i < seqs.size(); i++) {
         float energy;
         pwml.integrate_energy(seqs[i], energy);
@@ -141,8 +142,6 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     vector<float> res_avg_multi;
     vector<float> res_multi_var;
     vector<vector<float>> res_cors(resp_dim);
-    ofstream kmer_tab("/home/aviezerl/temp/kmer_tab.txt");
-
     // iterate over all kmers
     ProgressReporter progress;
     progress.init(multi.get_pat_size(), 1);
@@ -175,13 +174,10 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             res_kmer.push_back(k->first);
             res_max_r2.push_back(max_r2);
             res_avg_multi.push_back(avg_multi);
-            res_multi_var.push_back(multi_var);
-            kmer_tab << k->first << "\t" << max_r2 << "\t" << avg_multi << "\t" << multi_var;
+            res_multi_var.push_back(multi_var);            
             for (int ri = 0; ri < resp_dim; ri++) {
-                res_cors[ri].push_back(corr[ri]);
-                kmer_tab << "\t" << corr[ri];
-            }
-            kmer_tab << "\n";
+                res_cors[ri].push_back(corr[ri]);                
+            }            
 
             foc_mots.push_back(k->first);
             foc_scores.push_back(max_r2);
