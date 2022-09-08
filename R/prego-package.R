@@ -6,6 +6,5 @@
 #' @importFrom dplyr select mutate filter slice left_join right_join inner_join anti_join arrange desc
 #' @import ggplot2
 #' @importFrom Rcpp sourceCpp
-#' @importFrom RcppParallel RcppParallelLibs
 #' @useDynLib prego
 NULL
