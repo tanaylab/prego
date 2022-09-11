@@ -108,5 +108,8 @@ regress_pwm_two_phase <- function(sequences,
         motif_num = 1
     )
 
+    res$seed_motif <- res_s$seed_motif
+    res$kmers <- res_s$kmers
+
     return(res)
 }
