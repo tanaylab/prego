@@ -7,7 +7,6 @@
 regress_pwm_two_phase(
   sequences,
   response,
-  motif = NULL,
   motif_length = 15,
   score_metric = "r2",
   bidirect = TRUE,
@@ -21,9 +20,13 @@ regress_pwm_two_phase(
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
-  kmer_length = 8,
+  kmer_length = 5:8,
+  min_gap = 0,
+  max_gap = 1,
+  min_kmer_cor = 0.1,
   two_phase_sample_frac = 0.1,
   first_phase_idxs = NULL,
+  first_phase_metric = "r2",
   ...
 )
 }
@@ -31,10 +34,6 @@ regress_pwm_two_phase(
 \item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
-
-\item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
@@ -63,16 +62,18 @@ would end at the end of the sequence.}
 
 \item{verbose}{show verbose messages.}
 
-\item{kmer_length}{The number of non-gap characters in motifs that will be screened}
+\item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
 
 \item{two_phase_sample_frac}{fraction of the dataset to sample for the first phase of the optimization (default: 0.1). When \code{response} is categorical (0 and 1), the sampling would be stratified by the category,
 i.e. \code{two_phase_sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample
 respectively.}
 
 \item{first_phase_idxs}{indices of the sequences to use in the first phase of the optimization. If NULL, the indices would be sampled using \code{two_phase_sample_frac}.}
+
+\item{first_phase_metric}{metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.}
 }
 \description{
-The first phase of the optimization would be performed with a sampled dataset of size \code{two_phase_sample_frac} and then the optimization would be performed on the full dataset while initializing the motif from the sampled dataset. You can also give explicit indices of the sequences to use in the first phase using \code{first_phase_idxs}.
+The first phase of the optimization would be performed with a sampled dataset of size \code{two_phase_sample_frac} where different candidates of kmers would be regressed in order to find the best seed. Thenm the optimization would be performed on the full dataset while initializing the motif from the sampled dataset. You can also give explicit indices of the sequences to use in the first phase using \code{first_phase_idxs}.
 }
 \examples{
 res <- regress_pwm_two_phase(sequences_example, response_mat_example, two_phase_sample_frac = 0.1)

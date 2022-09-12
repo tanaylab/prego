@@ -51,14 +51,17 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     int smin = spat_min;
     int smax = spat_max;
 
-    Rcpp::Rcerr << "into pwmlreg" << endl;
+    if (verbose){
+        Rcpp::Rcerr << "into pwmlreg" << endl;
+    }
+    
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
                            improve_epsilon, 0.001, unif_prior, score_metric);
 
+    pwmlreg.m_logit = verbose;
+
     // add responses (and compute their statistics - avg and variance)
     pwmlreg.add_responses(response_stat);
-
-    pwmlreg.m_logit = verbose;
 
     string seedmot(motif);
     if (motif.empty()) { // initialize using pssm
@@ -77,7 +80,9 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         pwmlreg.init_pwm(pssm);
     } else { // initialize using a seed motif
         pwmlreg.init_seed(seedmot, is_bidirect);
-        Rcpp::Rcerr << "done init seed " << seedmot << endl;
+        if (verbose) {
+            Rcpp::Rcerr << "done init seed " << seedmot << endl;
+        }        
     }
 
     // main loop

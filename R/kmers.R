@@ -72,9 +72,19 @@ screen_kmers <- function(sequences,
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
     cli_alert_info("Screening kmers of length {.val {kmer_length}}, from position {.val {from_range}} to position {.val {to_range}}")
+    if (max_gap < min_gap) {
+        cli_abort("{.field min_gap} should be smaller than {.field max_gap}")
+    }
+
+    if (min_gap < 0) {
+        cli_abort("{.field min_gap} should be larger than 0")
+    }
+
     if (!all(min_gap:max_gap == 0)) {
         cli_alert_info("Gaps of length {.val {min_gap}}:{.val {max_gap}} are allowed")
     }
+
+
     cli_alert_info("minimal correlation: {.val {min_cor}}, minimal number of occurrences: {.val {min_n}}")
 
     res <- screen_kmers_cpp(
