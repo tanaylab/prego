@@ -114,8 +114,9 @@ regress_pwm <- function(sequences,
         spat_max <- nchar(sequences[1])
     }
 
+    binary_response <- ncol(response) == 1 && all(response %in% c(0, 1))
     if (score_metric == "ks") {
-        if (ncol(response) > 1 || (any(response[, 1] != 0 & response[, 1] != 1))) {
+        if (!binary_response) {
             cli_abort("When {.field score_metric} is {.val ks}, {.field response} should be a single vector of 0 and 1")
         }
     }
@@ -194,7 +195,7 @@ regress_pwm <- function(sequences,
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
     res$seed_motif <- motif
 
-    if (score_metric == "ks") {
+    if (binary_response) {
         res$ks <- ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])])
     }
 
