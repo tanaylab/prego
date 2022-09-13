@@ -114,9 +114,8 @@ regress_pwm <- function(sequences,
         spat_max <- nchar(sequences[1])
     }
 
-    binary_response <- ncol(response) == 1 && all(response %in% c(0, 1))
     if (score_metric == "ks") {
-        if (!binary_response) {
+        if (!is_binary_response(response)) {
             cli_abort("When {.field score_metric} is {.val ks}, {.field response} should be a single vector of 0 and 1")
         }
     }
@@ -160,6 +159,19 @@ regress_pwm <- function(sequences,
     }
 
     cli_alert_info("Running regression")
+    cli_ul(c(
+        "Motif length: {.val {motif_length}}",
+        "Bidirectional: {.val {bidirect}}",
+        "Spat min: {.val {spat_min}}",
+        "Spat max: {.val {spat_max}}",
+        "Spat bin: {.val {spat_bin}}",
+        "Improve epsilon: {.val {improve_epsilon}}",
+        "Min nuc prob: {.val {min_nuc_prob}}",
+        "Uniform prior: {.val {unif_prior}}",
+        "Score metric: {.val {score_metric}}",
+        "Seed: {.val {seed}}"
+    ))
+
     res <- regress_pwm_cpp(
         toupper(sequences),
         response,
@@ -186,15 +198,19 @@ regress_pwm <- function(sequences,
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
     res$seed_motif <- motif
 
-    if (binary_response) {
-        res$ks <- ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])])
+    if (is_binary_response(response)) {
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])]))
     }
 
     if (!is.null(kmers)) {
         res$kmers <- kmers
     }
 
-    cli_alert_success("Finished running regression")
+    if (is_binary_response(response)) {
+        cli_alert_success("Finished running regression. KS test D: {.val {round(res$ks$statistic, digits=2)}}, p-value: {.val {res$ks$p.value}}")
+    } else {
+        cli_alert_success("Finished running regression. R^2: {.val {round(res$r2, digits=2)}}")
+    }
 
     return(res)
 }

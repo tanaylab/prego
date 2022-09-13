@@ -60,7 +60,7 @@ would end at the end of the sequence.}
 
 \item{seed}{random seed}
 
-\item{verbose}{show verbose messages.}
+\item{verbose}{verbosity of the second phase of the optimization.}
 
 \item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
 

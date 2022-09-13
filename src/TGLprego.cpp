@@ -65,7 +65,10 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     string seedmot(motif);
     if (motif.empty()) { // initialize using pssm
-        Rcpp::Rcerr << "using pre-computed pssm" << std::endl;
+        if (verbose){
+            Rcpp::Rcerr << "using pre-computed pssm" << std::endl;
+        }
+        
         DnaPSSM pssm;
         pssm.set_bidirect(is_bidirect);
         pssm.resize(pssm_mat.nrow());

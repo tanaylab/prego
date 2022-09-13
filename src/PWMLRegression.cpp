@@ -460,11 +460,11 @@ void PWMLRegression::take_best_step() {
         }
         m_cur_score = best_spat_score;
     }
-    if (m_logit) {
-        Rcpp::Rcerr << "after step";
-        report_cur_lpwm();
-        Rcpp::Rcerr << endl;
-    }
+    // if (m_logit) {
+    //     Rcpp::Rcerr << "after step";
+    //     report_cur_lpwm();
+    //     Rcpp::Rcerr << endl;
+    // }
 }
 
 float PWMLRegression::compute_cur_score(const int &pos, const vector<float> &probs) {
@@ -543,9 +543,9 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
         }
         seq_deriv++;
     }
-    if (m_logit) {
-        Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
-    }
+    // if (m_logit) {
+    //     Rcpp::Rcerr << "done initing xy for all sequences, xy 0 is " << xy[0] << endl;
+    // }
     ex /= m_train_n;
     ex2 /= m_train_n;
     double pred_var = ex2 - ex * ex;

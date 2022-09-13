@@ -4,3 +4,4 @@ dev/
 tools/
 session_.*
 .vscode
+.lintr
