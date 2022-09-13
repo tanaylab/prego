@@ -5,7 +5,7 @@ regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_m
     .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat)
 }
 
-screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed) {
-    .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed)
+screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose) {
+    .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose)
 }
 

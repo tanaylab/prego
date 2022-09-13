@@ -12,11 +12,12 @@
 #' @param to_range Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)
 #' @param return_mat Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)
 #' @param seed random seed
+#' @param verbose show verbose messages
 #'
 #' @return A data frame with the following columns, together with a column for each response variable with the
 #' correlation of the kmers to the response variable:
 #' \itemize{
-#' \item{kmer: }{the kmer pattern},
+#' \item{kmer: }{the kmer pattern, where "*" indicates a wildcard},
 #' \item{max_r2: }{the maximum R^2 to one of the response variables},
 #' \item{avg_n: }{the average number of times the kmer appears in the sequences},
 #' \item{avg_var: }{the variance of the number of times the kmer appears in the sequences},
@@ -47,7 +48,8 @@ screen_kmers <- function(sequences,
                          from_range = 0,
                          to_range = NULL,
                          return_mat = FALSE,
-                         seed = 60427) {
+                         seed = 60427,
+                         verbose = FALSE) {
     if (is.null(is_train)) {
         is_train <- rep(TRUE, length(sequences))
     }
@@ -99,7 +101,8 @@ screen_kmers <- function(sequences,
         min_gap,
         max_gap,
         n_in_train,
-        seed
+        seed,
+        verbose
     )
 
     cli_alert_success("Found {.val {nrow(res)}} kmers in {.val {length(sequences)}} sequences.")
@@ -108,6 +111,9 @@ screen_kmers <- function(sequences,
         cli_warn("did not find any kmers")
         res <- as.data.frame(res)
     }
+
+    res <- res %>%
+        mutate(kmer = replace_gaps_with_wildcards(kmer))
 
     res <- res %>%
         arrange(desc(max_r2))
@@ -119,4 +125,16 @@ screen_kmers <- function(sequences,
     }
 
     return(res)
+}
+
+replace_gaps_with_wildcards <- function(seqs, gap_char = "*") {
+    stringr::str_replace(seqs, "\\d+", function(x) {
+        purrr::map_chr(x, function(s) {
+            if (is.na(s)) {
+                ""
+            } else {
+                paste(rep(gap_char, s), collapse = "")
+            }
+        })
+    })
 }

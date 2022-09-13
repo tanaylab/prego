@@ -113,7 +113,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
                                  const Rcpp::LogicalVector &is_train_logical, const int &L,
                                  const int &from_range, const int &to_range, const float &min_cor,
                                  const int &min_n, const int &min_gap, const int &max_gap,
-                                 const int &n_in_train, const int &seed) {
+                                 const int &n_in_train, const int &seed, const bool& verbose) {
 
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
@@ -129,8 +129,8 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     float norm_factor = 1;
 
     KMerMultiStat multi(L, 0, min_gap, max_gap, &seqs, &is_train, bin_num, norm, norm_factor,
-                        response_stat, from_range, to_range);
-
+                        response_stat, from_range, to_range, 2, verbose);
+    
     string best_mot = "";
     float best_r2 = 0;
     vector<string> foc_mots;
@@ -154,7 +154,11 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
         response_var[ri] /= n_in_train;
         response_var[ri] -= response_avg[ri] * response_avg[ri];
     }
-    Rcpp::Rcout << "done normalizing response " << endl;
+
+    if (verbose){
+        Rcpp::Rcerr << "done normalizing response " << endl;
+    }
+    
 
     // results vectors
     vector<string> res_kmer;
@@ -162,9 +166,13 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     vector<float> res_avg_multi;
     vector<float> res_multi_var;
     vector<vector<float>> res_cors(resp_dim);
+
     // iterate over all kmers
     ProgressReporter progress;
-    progress.init(multi.get_pat_size(), 1);
+    if (verbose){
+        progress.init(multi.get_pat_size(), 1);
+    }
+    
     for (auto k = multi.get_pat_begin(); k != multi.get_pat_end(); k++) {
         vector<float> cov(resp_dim, 0);
         vector<float> corr(resp_dim, 0);
@@ -205,13 +213,25 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
                 best_r2 = max_r2;
                 best_mot = k->first;
-                Rcpp::Rcout << "new best " << best_mot << "  " << best_r2 << endl;
+                if (verbose){
+                    Rcpp::Rcerr << "new best motif: " << best_mot << " r2: " << best_r2 << endl;
+                }                
             }
         }
-        progress.report(1);
+        if (verbose){
+            progress.report(1);
+        }
+        
     }
-    progress.report_last();
-    Rcpp::Rcout << "done screening " << endl;
+
+    if (verbose){
+        progress.report_last();
+    }
+    
+    if (verbose){
+        Rcpp::Rcerr << "done screening " << endl;
+    }
+    
 
     // assemble results
     Rcpp::DataFrame res = Rcpp::DataFrame::create(

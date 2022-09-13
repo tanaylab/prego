@@ -67,11 +67,14 @@ regress_pwm_two_phase <- function(sequences,
 
     sequences_s <- sequences[first_phase_idxs]
     response_s <- response[first_phase_idxs, , drop = FALSE]
-    cli_alert_info("sampled {.val {sum(response_s[, 1] == 0)}} 0s and {.val {sum(response_s[, 1] == 1)}} 1s")
+    binary_response <- ncol(response) == 1 && all(response %in% c(0, 1))
+    if (binary_response) {
+        cli_alert_info("sampled {.val {sum(response_s[, 1] == 0)}} 0s and {.val {sum(response_s[, 1] == 1)}} 1s")
+    }
 
     cli_h1("First phase")
     cli_h2("Generate candidate kmers")
-    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, ...)
+    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, ...)
 
     cli_h2("Regress each candidate kmer on sampled data")
     cli_alert_info("Running {.val {length(cand_kmers)}} candidate kmers")
@@ -94,7 +97,18 @@ regress_pwm_two_phase <- function(sequences,
             verbose = verbose
         )
     })
-    scores <- sapply(res_s_list, function(x) x[[first_phase_metric]]$statistic)
+
+    if (first_phase_metric == "ks") {
+        if (!binary_response) {
+            cli_abort("Cannot use {.field first_phase_metric} {.val ks} when {.field response} is not binary")
+        }
+        scores <- sapply(res_s_list, function(x) x[[first_phase_metric]]$statistic)
+    } else if (first_phase_metric == "r2") {
+        scores <- sapply(res_s_list, function(x) x[[first_phase_metric]])
+    } else {
+        cli_abort("Unknown {.field first_phase_metric} (can be 'ks' or 'r2')")
+    }
+
     res_s <- res_s_list[[which.max(scores)]]
 
     cli_alert_info("Best motif in the first phase: {.val {res_s$seed_motif}}")
@@ -127,18 +141,23 @@ regress_pwm_two_phase <- function(sequences,
     return(res)
 }
 
-get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, ...) {
+get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, ...) {
     params <- expand.grid(kmer_length, min_gap:max_gap)
     colnames(params) <- c("len", "gap")
+
     all_kmers <- purrr::map_dfr(1:nrow(params), function(i) {
         screen_kmers(sequences, response, kmer_length = params$len[i], min_gap = 0, max_gap = params$gap[i], ...) %>%
-            mutate(len = params$len[i], gap = params$gap[i])
+            mutate(len = params$len[i], gap = params$gap[i], verbose = verbose) %>%
+            suppressMessages()
     })
 
     best_motif <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one motif
 
+
     cands <- all_kmers %>%
+        # filter by correlation
         filter(sqrt(max_r2) > min_kmer_cor) %>%
+        # take the best 2 motif for each parameter combination
         group_by(len, gap) %>%
         slice_max(n = 2, order_by = abs(max_r2)) %>%
         pull(kmer)
