@@ -80,5 +80,7 @@ validate_spat <- function(spat) {
 #'
 #' @export
 consensus_from_pssm <- function(pssm, single_thresh = 0.6, double_thresh = 0.85) {
-    get_consensus_cpp(as.matrix(pssm[, c("A", "C", "G", "T")]), single_thresh, double_thresh)
+    consensus <- get_consensus_cpp(as.matrix(pssm[, c("A", "C", "G", "T")]), single_thresh, double_thresh)
+    consensus <- gsub("^\\*+", "", gsub("\\*+$", "", consensus))
+    return(consensus)
 }
