@@ -24,6 +24,8 @@ regress_pwm_two_phase(
   min_gap = 0,
   max_gap = 1,
   min_kmer_cor = 0.1,
+  consensus_single_thresh = 0.6,
+  consensus_double_thresh = 0.85,
   two_phase_sample_frac = 0.1,
   first_phase_idxs = NULL,
   first_phase_metric = "r2",
@@ -35,34 +37,15 @@ regress_pwm_two_phase(
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
-\item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
-
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
-
-\item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
-
-\item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
-
-\item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
-
-\item{spat_bin}{size of the spatial bin (in bp).}
-
-\item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
-
-\item{min_nuc_prob}{minimum nucleotide probability in every iteration}
-
-\item{unif_prior}{uniform prior for nucleotide probabilities}
-
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
-
-\item{include_response}{include the response in the resulting list (default: TRUE)}
 
 \item{seed}{random seed}
 
 \item{verbose}{verbosity of the second phase of the optimization.}
 
 \item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
+
+\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
 \item{two_phase_sample_frac}{fraction of the dataset to sample for the first phase of the optimization (default: 0.1). When \code{response} is categorical (0 and 1), the sampling would be stratified by the category,
 i.e. \code{two_phase_sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample
@@ -78,6 +61,7 @@ a list with the following elements:
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
 \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
+\item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
 \item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}

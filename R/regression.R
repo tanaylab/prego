@@ -18,12 +18,15 @@
 #' @param include_response include the response in the resulting list (default: TRUE)
 #' @param verbose show verbose messages.
 #' @param seed random seed
+#' @param consensus_single_thresh,consensus_double_thresh thresholds for the consensus sequence calculation
+#' (single and double nucleotides)
 #'
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
 #' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
+#' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 #' \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
 #' \item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
@@ -67,6 +70,8 @@ regress_pwm <- function(sequences,
                         verbose = FALSE,
                         kmer_length = 8,
                         motif_num = 1,
+                        consensus_single_thresh = 0.6,
+                        consensus_double_thresh = 0.85,
                         ...) {
     if (motif_num > 1) {
         return(regress_multiple_motifs(
@@ -191,7 +196,9 @@ regress_pwm <- function(sequences,
         score_metric = score_metric,
         verbose = verbose,
         seed = seed,
-        pssm_mat = pssm
+        pssm_mat = pssm,
+        consensus_single_thresh = consensus_single_thresh,
+        consensus_double_thresh = consensus_double_thresh
     )
 
 

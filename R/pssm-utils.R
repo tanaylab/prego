@@ -68,22 +68,17 @@ validate_spat <- function(spat) {
 #' Convert PSSM to kmer using majority
 #'
 #' @param pssm A PSSM matrix
-#' @param min_freq minimal frequency of a nucleotide in the PSSM in order to be included in the kmer. Nuclotides with frequency less than this are set to "*".
+#' @param single_thresh,double_thresh thresholds for the consensus sequence calculation
+#' (single and double nucleotides)
 #'
-#' @return A kmer with the nucleotide with the highest frequency of each position in the PSSM. If there is no nucleotide with a high enough frequency, the nucleotide is set to "*".
+#' @return A consensus sequence for the PSSM.
 #'
+#' @examples
 #'
-#' @noRd
-kmer_from_pssm <- function(pssm, min_freq = 0.3) {
-    nucs <- c("A", "C", "G", "T")
-    pssm <- pssm[, nucs]
-    kmer <- apply(pssm, 1, function(x) {
-        if (max(x) > min_freq) {
-            return(nucs[which.max(x)])
-        } else {
-            return("*")
-        }
-    })
-    kmer <- paste(kmer, collapse = "")
-    return(kmer)
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' consensus_from_pssm(res$pssm)
+#'
+#' @export
+consensus_from_pssm <- function(pssm, single_thresh = 0.6, double_thresh = 0.85) {
+    get_consensus_cpp(as.matrix(pssm[, c("A", "C", "G", "T")]), single_thresh, double_thresh)
 }

@@ -134,8 +134,6 @@ ostream &operator<<(ostream &out, const DnaProbVec &pvec);
 class DnaPSSM {
 
   public:
-    static const float CONSENSUS_SINGLE_THRESH;
-    static const float CONSENSUS_DOUBLE_THRESH;
 
   protected:
     vector<DnaProbVec> m_chars;
@@ -213,7 +211,7 @@ class DnaPSSM {
     void like_thresh_match(const string &target, float thresh, list<int> &poss, list<float> &vals,
                            list<int> &dirs);
 
-    string get_consensus() const;
+    string get_consensus(const float &single_thresh, const float &double_thresh) const;
     void permut_randomize();
 };
 
