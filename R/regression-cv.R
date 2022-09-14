@@ -52,6 +52,10 @@ regress_pwm_two_phase.cv <- function(sequences,
         }
     }
 
+    if ("first_phase_idxs" %in% names(list(...))) {
+        cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm_two_phase.cv}")
+    }
+
     cv_res <- plyr::llply(unique(folds), function(f) {
         cli_h1("Cross-validation fold {.val {f}}")
         train_idxs <- which(folds != f)
