@@ -22,7 +22,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a PSSM matrix with the inferred spatial model, where rows are positions and columns are nucleotides.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 #' \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
@@ -213,28 +213,4 @@ regress_pwm <- function(sequences,
     }
 
     return(res)
-}
-
-
-#' Convert PSSM to kmer using majority
-#'
-#' @param pssm A PSSM matrix
-#' @param min_freq minimal frequency of a nucleotide in the PSSM in order to be included in the kmer. Nuclotides with frequency less than this are set to "*".
-#'
-#' @return A kmer with the nucleotide with the highest frequency of each position in the PSSM. If there is no nucleotide with a high enough frequency, the nucleotide is set to "*".
-#'
-#'
-#' @noRd
-kmer_from_pssm <- function(pssm, min_freq = 0.3) {
-    nucs <- c("A", "C", "G", "T")
-    pssm <- pssm[, nucs]
-    kmer <- apply(pssm, 1, function(x) {
-        if (max(x) > min_freq) {
-            return(nucs[which.max(x)])
-        } else {
-            return("*")
-        }
-    })
-    kmer <- paste(kmer, collapse = "")
-    return(kmer)
 }

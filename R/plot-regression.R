@@ -9,7 +9,6 @@
 #' @export
 plot_pssm_logo <- function(pssm) {
     pfm <- pssm %>%
-        dplyr::select(-1) %>%
         as.data.frame() %>%
         tibble::column_to_rownames("pos") %>%
         as.matrix() %>%

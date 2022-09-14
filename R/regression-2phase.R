@@ -41,6 +41,7 @@ regress_pwm_two_phase <- function(sequences,
                                   first_phase_idxs = NULL,
                                   first_phase_metric = "r2",
                                   ...) {
+    set.seed(seed)
     if (is.null(nrow(response))) {
         response <- matrix(response, ncol = 1)
     }
@@ -50,7 +51,7 @@ regress_pwm_two_phase <- function(sequences,
     }
 
     cli_alert_info("Performing two phase optimization")
-    cli_h1("First phase")
+    cli_h2("First phase")
 
     if (is.null(first_phase_idxs)) {
         cli_alert_info("Sampling {.val {two_phase_sample_frac}} of the dataset for the first phase")
@@ -64,7 +65,7 @@ regress_pwm_two_phase <- function(sequences,
             samp_idx_1 <- sample(which(response[, 1] == 1), size = round(two_phase_sample_frac[2] * sum(response[, 1] == 1)))
             first_phase_idxs <- c(samp_idx_0, samp_idx_1)
         } else {
-            first_phase_idxs <- sample(seq_len(sequences), size = floor(two_phase_sample_frac * length(sequences)))
+            first_phase_idxs <- sample(seq_along(sequences), size = floor(two_phase_sample_frac * length(sequences)))
         }
     }
 
@@ -74,10 +75,10 @@ regress_pwm_two_phase <- function(sequences,
         cli_alert_info("sampled {.val {sum(response_s[, 1] == 0)}} 0s and {.val {sum(response_s[, 1] == 1)}} 1s")
     }
 
-    cli_h2("Generate candidate kmers")
+    cli_h3("Generate candidate kmers")
     cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, ...)
 
-    cli_h2("Regress each candidate kmer on sampled data")
+    cli_h3("Regress each candidate kmer on sampled data")
     cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
     res_s_list <- purrr::map(cli_progress_along(cand_kmers), function(i) {
         motif <- cand_kmers[i]
@@ -119,7 +120,7 @@ regress_pwm_two_phase <- function(sequences,
 
     cli_alert_info("Best motif in the first phase: {.val {res_s$seed_motif}}, score: {.val {max(scores)}}")
 
-    cli_h1("Running regression on the full dataset")
+    cli_h2("Phase 2: Running regression on the full dataset")
     res <- regress_pwm(
         sequences = sequences,
         response = response,

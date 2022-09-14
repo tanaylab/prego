@@ -20,11 +20,46 @@ using namespace std;
 // [[Rcpp::plugins("cpp17")]]
 
 // [[Rcpp::export]]
+Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
+                                    const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
+                                    const int &spat_min, const int &spat_max,
+                                    const Rcpp::NumericVector &spat_factor, const int &bin_size) {
+    vector<string> seqs = Rcpp::as<vector<string>>(sequences);
+    vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
+    int smin = spat_min;
+    int smax = spat_max;
+
+    DnaPSSM pssm;
+
+    pssm.set_bidirect(is_bidirect);
+    pssm.resize(pssm_mat.nrow());
+    pssm.set_range(smin, smax);
+    for (int i = 0; i < pssm_mat.nrow(); i++) {
+        pssm[i].set_weight('A', pssm_mat(i, 0));
+        pssm[i].set_weight('C', pssm_mat(i, 1));
+        pssm[i].set_weight('G', pssm_mat(i, 2));
+        pssm[i].set_weight('T', pssm_mat(i, 3));
+    }
+    pssm.normalize();
+
+    DnaPWML pwml(pssm, spat_fac, bin_size);
+    Rcpp::NumericVector preds(seqs.size());
+
+    for (int i = 0; i < seqs.size(); i++) {
+        float energy;
+        pwml.integrate_energy(seqs[i], energy);
+        preds[i] = energy;
+    }
+
+    return (preds);
+}
+
+// [[Rcpp::export]]
 Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
                            const Rcpp::LogicalVector &is_train_logical, const std::string &motif,
                            const int &spat_min, const int &spat_max, const float &min_nuc_prob,
                            const int &spat_bin, const float &improve_epsilon,
-                           const int &is_bidirect, const float &unif_prior,
+                           const bool &is_bidirect, const float &unif_prior,
                            const std::string &score_metric, const int &verbose, const int &seed,
                            const Rcpp::NumericMatrix &pssm_mat) {
     Random::reset(seed);
@@ -51,10 +86,10 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     int smin = spat_min;
     int smax = spat_max;
 
-    if (verbose){
+    if (verbose) {
         Rcpp::Rcerr << "into pwmlreg" << endl;
     }
-    
+
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
                            improve_epsilon, 0.001, unif_prior, score_metric);
 
@@ -65,10 +100,10 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     string seedmot(motif);
     if (motif.empty()) { // initialize using pssm
-        if (verbose){
+        if (verbose) {
             Rcpp::Rcerr << "using pre-computed pssm" << std::endl;
         }
-        
+
         DnaPSSM pssm;
         pssm.set_bidirect(is_bidirect);
         pssm.resize(pssm_mat.nrow());
@@ -85,7 +120,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         pwmlreg.init_seed(seedmot, is_bidirect);
         if (verbose) {
             Rcpp::Rcerr << "done init seed " << seedmot << endl;
-        }        
+        }
     }
 
     // main loop
@@ -116,7 +151,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
                                  const Rcpp::LogicalVector &is_train_logical, const int &L,
                                  const int &from_range, const int &to_range, const float &min_cor,
                                  const int &min_n, const int &min_gap, const int &max_gap,
-                                 const int &n_in_train, const int &seed, const bool& verbose) {
+                                 const int &n_in_train, const int &seed, const bool &verbose) {
 
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
@@ -133,7 +168,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
 
     KMerMultiStat multi(L, 0, min_gap, max_gap, &seqs, &is_train, bin_num, norm, norm_factor,
                         response_stat, from_range, to_range, 2, verbose);
-    
+
     string best_mot = "";
     float best_r2 = 0;
     vector<string> foc_mots;
@@ -158,10 +193,9 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
         response_var[ri] -= response_avg[ri] * response_avg[ri];
     }
 
-    if (verbose){
+    if (verbose) {
         Rcpp::Rcerr << "done normalizing response " << endl;
     }
-    
 
     // results vectors
     vector<string> res_kmer;
@@ -172,10 +206,10 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
 
     // iterate over all kmers
     ProgressReporter progress;
-    if (verbose){
+    if (verbose) {
         progress.init(multi.get_pat_size(), 1);
     }
-    
+
     for (auto k = multi.get_pat_begin(); k != multi.get_pat_end(); k++) {
         vector<float> cov(resp_dim, 0);
         vector<float> corr(resp_dim, 0);
@@ -216,25 +250,23 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
                 best_r2 = max_r2;
                 best_mot = k->first;
-                if (verbose){
+                if (verbose) {
                     Rcpp::Rcerr << "new best motif: " << best_mot << " r2: " << best_r2 << endl;
-                }                
+                }
             }
         }
-        if (verbose){
+        if (verbose) {
             progress.report(1);
         }
-        
     }
 
-    if (verbose){
+    if (verbose) {
         progress.report_last();
     }
-    
-    if (verbose){
+
+    if (verbose) {
         Rcpp::Rcerr << "done screening " << endl;
     }
-    
 
     // assemble results
     Rcpp::DataFrame res = Rcpp::DataFrame::create(
