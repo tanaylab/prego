@@ -37,7 +37,7 @@ regress_pwm_two_phase(
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.}
+\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
@@ -72,13 +72,28 @@ respectively.}
 
 \item{first_phase_metric}{metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.}
 }
+\value{
+a list with the following elements:
+\itemize{
+\item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+\item{pred: }{a vector with the predicted pwm for each sequence.}
+\item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
+\item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
+\item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
+\item{seed_motif: }{The seed motif that started the regression.}
+\item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
+}
+}
 \description{
 The first phase of the optimization would be performed with a sampled dataset of size \code{two_phase_sample_frac} where different candidates of kmers would be regressed in order to find the best seed. Thenm the optimization would be performed on the full dataset while initializing the motif from the sampled dataset. You can also give explicit indices of the sequences to use in the first phase using \code{first_phase_idxs}.
 }
 \examples{
-res <- regress_pwm_two_phase(sequences_example, response_mat_example, two_phase_sample_frac = 0.1)
+res <- regress_pwm_two_phase(cluster_sequences_example, cluster_mat_example[, 1], two_phase_sample_frac = c(0.1, 1))
 res$pssm
 res$spat
 head(res$pred)
+
+plot_regression_qc(res)
 
 }

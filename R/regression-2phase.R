@@ -10,13 +10,17 @@
 #' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
 #' @param verbose verbosity of the second phase of the optimization.
 #'
+#'
 #' @examples
-#' res <- regress_pwm_two_phase(sequences_example, response_mat_example, two_phase_sample_frac = 0.1)
+#' res <- regress_pwm_two_phase(cluster_sequences_example, cluster_mat_example[, 1], two_phase_sample_frac = c(0.1, 1))
 #' res$pssm
 #' res$spat
 #' head(res$pred)
 #'
+#' plot_regression_qc(res)
+#'
 #' @inheritParams regress_pwm
+#' @inherit regress_pwm return
 #' @export
 regress_pwm_two_phase <- function(sequences,
                                   response,

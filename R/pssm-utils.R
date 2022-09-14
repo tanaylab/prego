@@ -5,6 +5,17 @@
 #' @param spat a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #'
+#' @return a vector with the predicted pwm for each sequence.
+#'
+#' @examples
+#' res <- regress_pwm(sequences_example, response_mat_example)
+#'
+#' pwm <- compute_pwm(sequences_example, res$pssm)
+#' head(pwm)
+#'
+#' # this is similar to the prediction in the regression
+#' head(res$pred)
+#'
 #' @inheritParams regress_pwm
 #' @export
 compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE) {

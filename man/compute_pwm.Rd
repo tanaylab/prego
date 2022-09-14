@@ -27,6 +27,19 @@ would end at the end of the sequence.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 }
+\value{
+a vector with the predicted pwm for each sequence.
+}
 \description{
 Compute PWMs for a set of sequences given a PSSM matrix
+}
+\examples{
+res <- regress_pwm(sequences_example, response_mat_example)
+
+pwm <- compute_pwm(sequences_example, res$pssm)
+head(pwm)
+
+# this is similar to the prediction in the regression
+head(res$pred)
+
 }

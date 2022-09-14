@@ -37,7 +37,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.}
+\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
@@ -83,9 +83,9 @@ a list with the following elements:
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
-\item{ks: }{If \code{score_metric = "ks"}, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
+\item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
 \item{seed_motif: }{The seed motif that started the regression.}
-\item(kmers: ){The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
+\item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 }
 }
 \description{
@@ -97,9 +97,13 @@ res$pssm
 res$spat
 head(res$pred)
 
-plot_pssm_logo(res$pssm)
+plot_regression_qc(res)
 
 # intialize with a pre-computed PSSM
 res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm)
+
+# binary response
+res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+plot_regression_qc(res_binary)
 
 }

@@ -6,7 +6,9 @@
 #' @param metric metric to use for cross-validation. One of 'ks' or 'r2'. If NULL - 'ks' would be set for binary response and 'r2' for continuous response.
 #' @param folds vector of fold numbers for each sequence (optional)
 #' @param categories vector of categories for each sequence (optional)
+#' @param two_phase whether to use two-phase optimization or not.
 #' @param parallel whether to run the cross-validation in parallel.
+#' @param add_full_model whether to add the full model (without cross-validation) to the results.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -15,20 +17,38 @@
 #' \item{score: }{score of the model on the cross-validated predictions.}
 #' \item{cv_scores: }{a vector of scores for each fold.}
 #' \item{folds: }{a vector with the fold number for each sequence.}
+#' \item{full_model: }{The full model (without cross-validation), if \code{add_full_model} is TRUE.}
 #' }
+#'
+#' @examples
+#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = TRUE, two_phase_sample_frac = c(0.1, 1))
+#' res$score
+#' res$cv_scores
+#'
+#' plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
+#' plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[, 1])
+#' plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[, 1])
+#'
+#' # single phase
+#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = FALSE)
+#' res$score
+#' res$cv_scores
+#' plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
 #'
 #' @inheritParams regress_pwm
 #'
 #' @export
-regress_pwm_two_phase.cv <- function(sequences,
-                                     response,
-                                     nfolds = NULL,
-                                     metric = NULL,
-                                     folds = NULL,
-                                     categories = NULL,
-                                     seed = 60427,
-                                     parallel = getOption("prego.parallel"),
-                                     ...) {
+regress_pwm.cv <- function(sequences,
+                           response,
+                           nfolds = NULL,
+                           metric = NULL,
+                           folds = NULL,
+                           categories = NULL,
+                           two_phase = TRUE,
+                           seed = 60427,
+                           parallel = getOption("prego.parallel"),
+                           add_full_model = TRUE,
+                           ...) {
     set.seed(seed)
     if (is.null(folds)) {
         folds <- get_cv_folds(response, nfolds, categories)
@@ -52,15 +72,22 @@ regress_pwm_two_phase.cv <- function(sequences,
         }
     }
 
-    if ("first_phase_idxs" %in% names(list(...))) {
-        cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm_two_phase.cv}")
+    if (two_phase) {
+        cli_alert_info("Using two-phase optimization")
+        regression_func <- regress_pwm_two_phase
+        if ("first_phase_idxs" %in% names(list(...))) {
+            cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm.cv}")
+        }
+    } else {
+        cli_alert_info("Using single-phase optimization")
+        regression_func <- regress_pwm
     }
 
     cv_res <- plyr::llply(unique(folds), function(f) {
         cli_h1("Cross-validation fold {.val {f}}")
         train_idxs <- which(folds != f)
         test_idxs <- which(folds == f)
-        res <- regress_pwm_two_phase(sequences[train_idxs],
+        res <- regression_func(sequences[train_idxs],
             response[train_idxs, , drop = FALSE],
             seed = seed,
             ...
@@ -86,6 +113,14 @@ regress_pwm_two_phase.cv <- function(sequences,
         cv_scores = sapply(cv_res, function(x) x$test_score),
         folds = folds
     )
+
+    if (add_full_model) {
+        res$full_model <- regression_func(sequences,
+            response,
+            seed = seed,
+            ...
+        )
+    }
 
     return(res)
 }
