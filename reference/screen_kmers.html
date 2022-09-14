@@ -54,14 +54,15 @@
 <span>  from_range <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  to_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  return_mat <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">60427</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sequences</dt>
-<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go thruogh <code>toupper</code>)</p></dd>
+<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through <code>toupper</code>)</p></dd>
 
 
 <dt>response</dt>
@@ -103,108 +104,83 @@
 <dt>seed</dt>
 <dd><p>random seed</p></dd>
 
+
+<dt>verbose</dt>
+<dd><p>show verbose messages</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
 <p>A data frame with the following columns, together with a column for each response variable with the
-correlation of the kmers to the response variable:</p><ul><li><p>kmer: the kmer pattern,</p></li>
+correlation of the kmers to the response variable:</p><ul><li><p>kmer: the kmer pattern, where "*" indicates a wildcard,</p></li>
 <li><p>max_r2: the maximum R^2 to one of the response variables,</p></li>
 <li><p>avg_n: the average number of times the kmer appears in the sequences,</p></li>
 <li><p>avg_var: the variance of the number of times the kmer appears in the sequences,</p></li>
-</ul><p></p>
-<p><br></p>
-
-
-<p>if <code>return_mat</code> is TRUE, a matrix with correlations to the response variables (where
-rows are the kmers) is returned instead of a data frame.</p>
+</ul><p>if <code>return_mat</code> is TRUE, a matrix with correlations to the response variables (where
+rows are the kmers) is returned instead of a data frame.
+If no kmer is found, an empty data frame is returned.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#'</span></span></span>
-<span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done normalizing response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAAACA  0.0065304</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAACAG  0.00992902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAATGA  0.013271</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AACTCA  0.0184843</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AGATAA  0.0499888</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done screening </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">575</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     kmer      max_r2 avg_n  avg_var          c1          c2           c3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 AAAACA 0.006530396 0.228 0.364016  0.01514325 -0.06328546  0.008038806</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 AAACAG 0.009929021 0.187 0.194031  0.02554438 -0.03654361 -0.099644475</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 AAAGGC 0.006959220 0.158 0.161036 -0.01958851  0.01340878  0.083421938</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 AAATCG 0.006565580 0.014 0.013804 -0.01707704 -0.08102827 -0.011113539</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 AAATGA 0.013270982 0.121 0.128359 -0.04639426 -0.02196606 -0.015282936</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 AACAAT 0.009038075 0.091 0.090719 -0.09506879 -0.01191485 -0.019761512</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             c4           c5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.080810867 -0.020295398</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.002127784 -0.015842479</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.024523977 -0.002591754</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.038912542  0.043552887</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.115199745 -0.066986881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.035760492 -0.010772286</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     kmer     max_r2 avg_n    avg_var          c1          c2         c3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 AGATAA 0.04998882 0.140 0.15240000 -0.01025383 -0.03046725 -0.2235818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 TTATCT 0.02975253 0.128 0.13761599  0.03136108  0.04927359 -0.1724892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 CTTATC 0.02680831 0.080 0.07960001  0.02861430  0.01967959 -0.1637324</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 GGGGAG 0.02300140 0.243 0.28195098  0.04611732  0.02960520  0.1516621</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 GGGCGG 0.02280306 0.062 0.06015600  0.06576437  0.02662074  0.1510068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 TAACTG 0.02215597 0.071 0.06995900 -0.01145993 -0.02249238 -0.1488488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             c4          c5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.004382457 -0.03498838</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.035843253  0.02917432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.059437271  0.03772539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.044013925  0.03089626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.104473867  0.12732512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.037136175 -0.01858661</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, return_mat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done normalizing response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAAACA  0.0065304</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAACAG  0.00992902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAATGA  0.013271</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AACTCA  0.0184843</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AGATAA  0.0499888</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done screening </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">575</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 c1          c2           c3           c4           c5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAAACA  0.01514325 -0.06328546  0.008038806 -0.080810867 -0.020295398</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAACAG  0.02554438 -0.03654361 -0.099644475 -0.002127784 -0.015842479</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAAGGC -0.01958851  0.01340878  0.083421938 -0.024523977 -0.002591754</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAATCG -0.01707704 -0.08102827 -0.011113539  0.038912542  0.043552887</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAATGA -0.04639426 -0.02196606 -0.015282936 -0.115199745 -0.066986881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AACAAT -0.09506879 -0.01191485 -0.019761512 -0.035760492 -0.010772286</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 c1          c2         c3           c4          c5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGATAA -0.01025383 -0.03046725 -0.2235818  0.004382457 -0.03498838</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TTATCT  0.03136108  0.04927359 -0.1724892  0.035843253  0.02917432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CTTATC  0.02861430  0.01967959 -0.1637324  0.059437271  0.03772539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GGGGAG  0.04611732  0.02960520  0.1516621  0.044013925  0.03089626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GGGCGG  0.06576437  0.02662074  0.1510068  0.104473867  0.12732512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TAACTG -0.01145993 -0.02249238 -0.1488488 -0.037136175 -0.01858661</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, max_gap <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">3</span> are allowed</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done normalizing response </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AA1AAAT  0.00816524</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AA1AATT  0.00847449</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AA1ACAT  0.011623</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AA1GTTT  0.0168297</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AA2AATG  0.0193508</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AAGA2AG  0.0248085</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best ACAT2CT  0.0284816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AGA1AAG  0.0340495</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> new best AGATAA  0.0501244</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> done screening </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">4884</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      kmer      max_r2 avg_n  avg_var           c1          c2            c3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 AA1AAAT 0.008165239 0.157 0.424351 -0.090361714 -0.04867296 -0.0001863262</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 AA1AACA 0.006417318 0.179 0.262959  0.002516045 -0.08010817  0.0094803311</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 AA1AATA 0.007362609 0.096 0.098784 -0.074151732 -0.08580565 -0.0123533392</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 AA1AATT 0.008474493 0.076 0.078224 -0.092057012 -0.02860663  0.0131487334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 AA1ACAT 0.011623012 0.074 0.070524 -0.007930962 -0.05136836 -0.1078100726</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 AA1ACCA 0.006922199 0.103 0.110391 -0.047498509 -0.04368650  0.0069228597</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       kmer     max_r2 avg_n    avg_var           c1           c2         c3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   AGATAA 0.05012437 0.139 0.15167901 -0.011159671 -0.033565160 -0.2238847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  AGA*AAG 0.03404951 0.220 0.23760001  0.062884174  0.063842162 -0.1845251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   TTATCT 0.02915060 0.127 0.13487099  0.036021627  0.051995803 -0.1707355</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 ACAT**CT 0.02848161 0.090 0.09190000 -0.002383306 -0.023468828 -0.1687650</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  AG*TAAG 0.02829135 0.118 0.12007600  0.034630746 -0.005794165 -0.1682003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   CTTATC 0.02680831 0.080 0.07960001  0.028614303  0.019679585 -0.1637324</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            c4          c5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.06059008 -0.04480414</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.06207323 -0.01855677</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.01127854 -0.06702007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.04431058 -0.07880085</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.10164641 -0.06795115</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.02831929 -0.08319975</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.001539792 -0.03616555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.025056362  0.02373981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.032191906  0.02568413</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.019714575 -0.02059141</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.046150818  0.02593128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.059437271  0.03772539</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

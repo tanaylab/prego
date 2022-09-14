@@ -16,12 +16,42 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/compute_pwm.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_pssm_logo.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_regression_prediction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_regression_qc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_spat_model.html</loc>
   </url>
   <url>
     <loc>/reference/prego-package.html</loc>
   </url>
   <url>
+    <loc>/reference/regress_pwm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/regress_pwm_two_phase.cv.html</loc>
+  </url>
+  <url>
+    <loc>/reference/regress_pwm_two_phase.html</loc>
+  </url>
+  <url>
     <loc>/reference/screen_kmers.html</loc>
+  </url>
+  <url>
+    <loc>/reference/set_parallel.html</loc>
   </url>
 </urlset>
