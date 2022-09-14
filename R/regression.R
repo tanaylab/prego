@@ -217,10 +217,13 @@ regress_pwm <- function(sequences,
         res$kmers <- kmers
     }
 
+    res$consensus <- gsub("^\\*+", "", gsub("\\*+$", "", res$consensus))
+    cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
+
     if (is_binary_response(response)) {
-        cli_alert_success("Finished running regression. KS test D: {.val {round(res$ks$statistic, digits=2)}}, p-value: {.val {res$ks$p.value}}")
+        cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=2)}}, p-value: {.val {res$ks$p.value}}")
     } else {
-        cli_alert_success("Finished running regression. R^2: {.val {round(res$r2, digits=4)}}")
+        cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
     return(res)
