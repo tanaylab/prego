@@ -4,10 +4,12 @@
 \alias{plot_regression_qc}
 \title{Plot the regression results}
 \usage{
-plot_regression_qc(reg)
+plot_regression_qc(reg, response = NULL)
 }
 \arguments{
 \item{reg}{output of \code{regress_pwm}}
+
+\item{response}{the response variable}
 }
 \value{
 a patchwork object
@@ -18,5 +20,8 @@ Plot QC of the regression results
 \examples{
 res <- regress_pwm(sequences_example, response_mat_example)
 plot_regression_qc(res)
+
+res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+plot_regression_qc(res_binary)
 
 }

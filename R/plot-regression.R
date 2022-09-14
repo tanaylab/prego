@@ -127,6 +127,7 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' Plot QC of the regression results
 #'
 #' @param reg output of \code{regress_pwm}
+#' @param response the response variable
 #'
 #' @return a patchwork object
 #'
@@ -134,15 +135,21 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_regression_qc(res)
 #'
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' plot_regression_qc(res_binary)
+#'
 #' @export
-plot_regression_qc <- function(reg) {
-    if (!("response" %in% names(reg))) {
-        cli_abort("{.field response} is missing from the regression result. Please set {.code include_response=TRUE} in {.code regress_pwm()}")
+plot_regression_qc <- function(reg, response = NULL) {
+    if (is.null(response)) {
+        if (!("response" %in% names(reg))) {
+            cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
+        }
+        response <- reg$response
     }
-    if (is_binary_response(reg$response)) {
-        p_pred <- plot_regression_prediction_binary(reg$pred, reg$response)
+    if (is_binary_response(response)) {
+        p_pred <- plot_regression_prediction_binary(reg$pred, response)
     } else {
-        p_pred <- plot_regression_prediction(reg$pred, reg$response)
+        p_pred <- plot_regression_prediction(reg$pred, response)
     }
     design <- "LS
                R#"
