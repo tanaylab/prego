@@ -23,6 +23,8 @@ regress_pwm(
   verbose = FALSE,
   kmer_length = 8,
   motif_num = 1,
+  consensus_single_thresh = 0.6,
+  consensus_double_thresh = 0.85,
   ...
 )
 }
@@ -64,6 +66,9 @@ would end at the end of the sequence.}
 
 \item{kmer_length}{The number of non-gap characters in motifs that will be screened}
 
+\item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
+(single and double nucleotides)}
+
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
@@ -81,6 +86,7 @@ a list with the following elements:
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
 \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
+\item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
 \item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}

@@ -726,10 +726,7 @@ void DnaPSSM::write_tab(ostream &pssmd, int id) const {
     }
 }
 
-const float DnaPSSM::CONSENSUS_SINGLE_THRESH = 0.6;
-const float DnaPSSM::CONSENSUS_DOUBLE_THRESH = 0.85;
-
-string DnaPSSM::get_consensus() const {
+string DnaPSSM::get_consensus(const float &single_thresh, const float& double_thresh) const {
     string output;
     vector<int> ps(4);
     for (vector<DnaProbVec>::const_iterator i = m_chars.begin(); i != m_chars.end(); i++) {
@@ -740,7 +737,7 @@ string DnaPSSM::get_consensus() const {
 
         sort(ps.begin(), ps.end());
 
-        if (ps[3] > CONSENSUS_SINGLE_THRESH * 4000) {
+        if (ps[3] > single_thresh * 4000) {
             int code = ps[3] % 4;
             switch (code) {
             case 0:
@@ -760,7 +757,7 @@ string DnaPSSM::get_consensus() const {
             }
             continue;
         }
-        if (ps[3] + ps[2] >= 4000 * CONSENSUS_DOUBLE_THRESH) {
+        if (ps[3] + ps[2] >= 4000 * double_thresh) {
             int code = (ps[3] % 4) * 4 + ps[2] % 4;
             switch (code) {
             case 1:

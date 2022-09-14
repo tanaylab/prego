@@ -19,7 +19,7 @@
 #'
 #' plot_regression_qc(res)
 #'
-#' @inheritParams regress_pwm
+#' @inheritParams screen_kmers
 #' @inherit regress_pwm return
 #' @export
 regress_pwm_two_phase <- function(sequences,
@@ -41,6 +41,8 @@ regress_pwm_two_phase <- function(sequences,
                                   min_gap = 0,
                                   max_gap = 1,
                                   min_kmer_cor = 0.1,
+                                  consensus_single_thresh = 0.6,
+                                  consensus_double_thresh = 0.85,
                                   two_phase_sample_frac = 0.1,
                                   first_phase_idxs = NULL,
                                   first_phase_metric = "r2",
@@ -143,7 +145,9 @@ regress_pwm_two_phase <- function(sequences,
         seed = seed,
         verbose = verbose,
         kmer_length = kmer_length,
-        motif_num = 1
+        motif_num = 1,
+        consensus_single_thresh = consensus_single_thresh,
+        consensus_double_thresh = consensus_double_thresh
     )
 
     res$seed_motif <- res_s$seed_motif

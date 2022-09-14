@@ -20,6 +20,24 @@ using namespace std;
 // [[Rcpp::plugins("cpp17")]]
 
 // [[Rcpp::export]]
+std::string get_consensus_cpp(const Rcpp::NumericMatrix &pssm_mat, const float &single_thresh,
+                              const float &double_thresh) {
+
+    DnaPSSM pssm;
+
+    pssm.resize(pssm_mat.nrow());
+    for (int i = 0; i < pssm_mat.nrow(); i++) {
+        pssm[i].set_weight('A', pssm_mat(i, 0));
+        pssm[i].set_weight('C', pssm_mat(i, 1));
+        pssm[i].set_weight('G', pssm_mat(i, 2));
+        pssm[i].set_weight('T', pssm_mat(i, 3));
+    }
+    pssm.normalize();
+
+    return (pssm.get_consensus(single_thresh, double_thresh));
+}
+
+// [[Rcpp::export]]
 Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
                                     const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
                                     const int &spat_min, const int &spat_max,
@@ -61,7 +79,9 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const int &spat_bin, const float &improve_epsilon,
                            const bool &is_bidirect, const float &unif_prior,
                            const std::string &score_metric, const int &verbose, const int &seed,
-                           const Rcpp::NumericMatrix &pssm_mat) {
+                           const Rcpp::NumericMatrix &pssm_mat,
+                           const float &consensus_single_thresh,
+                           const float &consensus_double_thresh) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
     int resp_dim = response_stat.size();
@@ -139,9 +159,11 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     }
 
     // prepare output
-    Rcpp::List res_list = Rcpp::List::create(Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
-                                             Rcpp::Named("spat") = pwmlreg.output_spat_df(0),
-                                             Rcpp::Named("pred") = preds);
+    Rcpp::List res_list = Rcpp::List::create(
+        Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
+        Rcpp::Named("spat") = pwmlreg.output_spat_df(0), Rcpp::Named("pred") = preds,
+        Rcpp::Named("consensus") =
+            pwml.get_pssm().get_consensus(consensus_single_thresh, consensus_double_thresh));
     return (res_list);
 }
 
