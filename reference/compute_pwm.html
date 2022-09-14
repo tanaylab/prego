@@ -79,7 +79,41 @@ would end at the end of the sequence.</p></dd>
 <dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
 
+<p>a vector with the predicted pwm for each sequence.</p>
+    </div>
+
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> done normalizing response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> new best CCACCCCC  0.00718373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> new best CCCCACCC  0.0146177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> done screening </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">2138</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with <span style="color: #0000BB;">"TTTACAAC"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">pwm</span> <span class="op">&lt;-</span> <span class="fu">compute_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">res</span><span class="op">$</span><span class="va">pssm</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in compute_pwm(sequences_example, res$pssm):</span> could not find function "compute_pwm"</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pwm</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in head(pwm):</span> object 'pwm' not found</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># this is similar to the prediction in the regression</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -7.270413 -7.297840 -7.026858 -7.599799 -7.084934 -7.561258</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

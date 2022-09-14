@@ -86,7 +86,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 
 <dt>score_metric</dt>
-<dd><p>metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.</p></dd>
+<dd><p>metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.</p></dd>
 
 
 <dt>bidirect</dt>
@@ -170,9 +170,9 @@ would end at the end of the sequence.</p></dd>
 <li><p>pred: a vector with the predicted pwm for each sequence.</p></li>
 <li><p>response: The response matrix. If <code>include_response</code> is FALSE, the response matrix is not included in the list.</p></li>
 <li><p>r2: \(r^2\) of the prediction with respect to the each response variable.</p></li>
-<li><p>ks: If <code>score_metric = "ks"</code>, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.</p></li>
+<li><p>ks: If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.</p></li>
 <li><p>seed_motif: The seed motif that started the regression.</p></li>
-<li><p>(kmers: )The k-mers that were screened in order to find the best seed motif (if motif was NULL).</p></li>
+<li><p>kmers: The k-mers that were screened in order to find the best seed motif (if motif was NULL).</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -183,70 +183,51 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> done normalizing response </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> new best CCACCCCC  0.00718373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> new best CCCCACCC  0.0146177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> done screening </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">2138</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TTTACAAC****"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with <span style="color: #0000BB;">"TTTACAAC"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. R^2: <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0.02</span>, <span style="color: #0000BB;">0</span>, and <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    pos           A           C           G           T</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0 0.283506006 0.224376753 0.341985554 0.150131658</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    1 0.253086418 0.246913567 0.308641970 0.191358030</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    2 0.221712694 0.169537887 0.445516258 0.163233161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    3 0.245094895 0.130914375 0.093120612 0.530870140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    4 0.001055855 0.100411795 0.001055855 0.897476554</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    5 0.001167131 0.005718939 0.001052752 0.992061198</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    6 0.902136743 0.001007861 0.046462409 0.050393071</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    7 0.001005576 0.854739487 0.001005576 0.143249318</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    8 0.942350328 0.001108647 0.055432372 0.001108647</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   9 0.840756953 0.001106953 0.105424076 0.052712038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11  10 0.124257408 0.637169480 0.078802861 0.159770235</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  11 0.199003056 0.325700551 0.090969816 0.384326607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13  12 0.109775484 0.223810568 0.305429220 0.360984772</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14  13 0.118960544 0.381039500 0.263755500 0.236244485</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15  14 0.250000000 0.250000000 0.250000000 0.250000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   psid pos          A          C         G          T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0   0 0.17101707 0.31266135 0.1941226 0.32219896</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    0   1 0.20016445 0.28261185 0.1761953 0.34102842</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    0   2 0.26815110 0.24526116 0.3299702 0.15661749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    0   3 0.80165291 0.04958678 0.0537190 0.09504131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    0   4 0.03046471 0.42433441 0.2698603 0.27534056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    0   5 0.37244797 0.19862147 0.2461770 0.18275347</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    0   6 0.37228289 0.08648261 0.2420855 0.29914907</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    0   7 0.25095624 0.19095579 0.2256914 0.33239663</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">spat</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   bin spat_factor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  50   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 100   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 150   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 200   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 250   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 300   0.1443009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   psid bin spat_factor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0   0   0.1220389</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    0  50   0.1319409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    0 100   0.1985634</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    0 150   0.1516449</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    0 200   0.1319409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    0 250   0.1319409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    0 300   0.1319409</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -19.31668 -18.09744 -14.56399 -19.52544 -17.17279 -20.74502</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -7.270413 -7.297840 -7.026858 -7.599799 -7.084934 -7.561258</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="plot_pssm_logo.html">plot_pssm_logo</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-plt img"><img src="regress_pwm-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># intialize with a pre-computed PSSM</span></span></span>
 <span class="r-in"><span><span class="va">res1</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, motif <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">pssm</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. R^2: <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0.02</span>, <span style="color: #0000BB;">0</span>, and <span style="color: #0000BB;">0</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>argument is not an atomic vector; coercing</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (stringr::str_length(motif) &lt; motif_length) {    motif &lt;- stringr::str_pad(motif, motif_length, "*", side = "both")    cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")}:</span> the condition has length &gt; 1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># binary response</span></span></span>
+<span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in regress_pwm(cluster_sequences_example, cluster_mat_example[,     1]):</span> object 'cluster_sequences_example' not found</span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::select(., -1):</span> object 'res_binary' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

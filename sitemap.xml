@@ -31,6 +31,9 @@
     <loc>/reference/plot_regression_prediction.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_regression_prediction_binary.html</loc>
+  </url>
+  <url>
     <loc>/reference/plot_regression_qc.html</loc>
   </url>
   <url>
@@ -40,10 +43,10 @@
     <loc>/reference/prego-package.html</loc>
   </url>
   <url>
-    <loc>/reference/regress_pwm.html</loc>
+    <loc>/reference/regress_pwm.cv.html</loc>
   </url>
   <url>
-    <loc>/reference/regress_pwm_two_phase.cv.html</loc>
+    <loc>/reference/regress_pwm.html</loc>
   </url>
   <url>
     <loc>/reference/regress_pwm_two_phase.html</loc>

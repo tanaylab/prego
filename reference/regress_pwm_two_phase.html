@@ -84,7 +84,7 @@
 
 
 <dt>score_metric</dt>
-<dd><p>metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.</p></dd>
+<dd><p>metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.</p></dd>
 
 
 <dt>bidirect</dt>
@@ -150,66 +150,33 @@ respectively.</p></dd>
 <dd><p>metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>a list with the following elements:</p><ul><li><p>pssm: data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.</p></li>
+<li><p>spat: a data frame with the inferred spatial model, with the spatial factor for each bin.</p></li>
+<li><p>pred: a vector with the predicted pwm for each sequence.</p></li>
+<li><p>response: The response matrix. If <code>include_response</code> is FALSE, the response matrix is not included in the list.</p></li>
+<li><p>r2: \(r^2\) of the prediction with respect to the each response variable.</p></li>
+<li><p>ks: If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.</p></li>
+<li><p>seed_motif: The seed motif that started the regression.</p></li>
+<li><p>kmers: The k-mers that were screened in order to find the best seed motif (if motif was NULL).</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm_two_phase</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, two_phase_sample_frac <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing two phase optimization</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">First phase</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling <span style="color: #0000BB;">0.1</span> of the dataset for the first phase</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Generate candidate kmers </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Regress each candidate kmer on sampled data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression on <span style="color: #0000BB;">15</span> candidate kmers</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TGG*TCTT"</span>, score: <span style="color: #0000BB;">0.0334954325999651</span>, <span style="color: #0000BB;">0.164550525909299</span>, <span style="color: #0000BB;">0.0896455863787199</span>, <span style="color: #0000BB;">0.0303649822106501</span>, and <span style="color: #0000BB;">0.0371369393142067</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TTATC"</span>, score: <span style="color: #0000BB;">0.171306534272033</span>, <span style="color: #0000BB;">0.151836110451098</span>, <span style="color: #0000BB;">0.268797950313114</span>, <span style="color: #0000BB;">0.104559944458828</span>, and <span style="color: #0000BB;">0.121327188109165</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"CAGAA"</span>, score: <span style="color: #0000BB;">0.134099165696488</span>, <span style="color: #0000BB;">0.0685569160728428</span>, <span style="color: #0000BB;">0.329522809117285</span>, <span style="color: #0000BB;">0.210776665681083</span>, and <span style="color: #0000BB;">0.108384495123907</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"CT*AAA"</span>, score: <span style="color: #0000BB;">0.205198806721792</span>, <span style="color: #0000BB;">0.221297674795456</span>, <span style="color: #0000BB;">0.233750831694291</span>, <span style="color: #0000BB;">0.0952165386555909</span>, and <span style="color: #0000BB;">0.0853449899694711</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAAGTT"</span>, score: <span style="color: #0000BB;">0.369531065354674</span>, <span style="color: #0000BB;">0.202795723060236</span>, <span style="color: #0000BB;">0.0652501723729291</span>, <span style="color: #0000BB;">0.0494363274925201</span>, and <span style="color: #0000BB;">0.0170479585890799</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"GGCTTT"</span>, score: <span style="color: #0000BB;">0.000455710095225261</span>, <span style="color: #0000BB;">0.0208364939128581</span>, <span style="color: #0000BB;">0.00280519864103107</span>, <span style="color: #0000BB;">0.421594657973522</span>, and <span style="color: #0000BB;">0.119508027266349</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAACCTG"</span>, score: <span style="color: #0000BB;">0.223661332750854</span>, <span style="color: #0000BB;">0.120312064378447</span>, <span style="color: #0000BB;">0.0189499490996121</span>, <span style="color: #0000BB;">0.0487289202686493</span>, and <span style="color: #0000BB;">0.0224577278278001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■                 </span>  47% | ETA:  3s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"ACACAGT"</span>, score: <span style="color: #0000BB;">0.310099617648068</span>, <span style="color: #0000BB;">0.129926793347138</span>, <span style="color: #0000BB;">0.237729463407313</span>, <span style="color: #0000BB;">0.0696188258908497</span>, and <span style="color: #0000BB;">0.0548640689472569</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■                 </span>  47% | ETA:  3s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"ATCTCCT"</span>, score: <span style="color: #0000BB;">0.358506251883035</span>, <span style="color: #0000BB;">0.219643750363351</span>, <span style="color: #0000BB;">0.183357513596746</span>, <span style="color: #0000BB;">0.00922714506957671</span>, and <span style="color: #0000BB;">0.00235824433334706</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■                 </span>  47% | ETA:  3s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■             </span>  60% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TTTGG*TC"</span>, score: <span style="color: #0000BB;">0.33279330500321</span>, <span style="color: #0000BB;">0.400244115891077</span>, <span style="color: #0000BB;">0.00925390519431678</span>, <span style="color: #0000BB;">0.0558430766365451</span>, and <span style="color: #0000BB;">0.0385623862063643</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■             </span>  60% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■           </span>  67% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AGAAAGAG"</span>, score: <span style="color: #0000BB;">0.301153707150868</span>, <span style="color: #0000BB;">0.230654299523971</span>, <span style="color: #0000BB;">0.16418397268167</span>, <span style="color: #0000BB;">0.108099889242997</span>, and <span style="color: #0000BB;">0.0638676817635785</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■           </span>  67% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■         </span>  73% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"GAGAAAGA"</span>, score: <span style="color: #0000BB;">0.205597731614181</span>, <span style="color: #0000BB;">0.223967890793122</span>, <span style="color: #0000BB;">0.0292138289586091</span>, <span style="color: #0000BB;">0.0423770470118631</span>, and <span style="color: #0000BB;">0.0930463459704582</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■         </span>  73% | ETA:  2s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■       </span>  80% | ETA:  1s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"ATTTG*GTC"</span>, score: <span style="color: #0000BB;">0.310075846008932</span>, <span style="color: #0000BB;">0.353914551077865</span>, <span style="color: #0000BB;">0.0205856643489672</span>, <span style="color: #0000BB;">0.171526959518067</span>, and <span style="color: #0000BB;">0.121007785805592</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■       </span>  80% | ETA:  1s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■     </span>  87% | ETA:  1s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"GA*AAAGAG"</span>, score: <span style="color: #0000BB;">0.354828669632276</span>, <span style="color: #0000BB;">0.14475227911855</span>, <span style="color: #0000BB;">0.0283621407660442</span>, <span style="color: #0000BB;">0.137758544983709</span>, and <span style="color: #0000BB;">0.0743022919663322</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■     </span>  87% | ETA:  1s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   </span>  93% | ETA:  0s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TGC*ATCCT"</span>, score: <span style="color: #0000BB;">0.352744289107446</span>, <span style="color: #0000BB;">0.213821761622386</span>, <span style="color: #0000BB;">0.0421405960558539</span>, <span style="color: #0000BB;">0.104052024128266</span>, and <span style="color: #0000BB;">0.0458817204803453</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   </span>  93% | ETA:  0s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in res_s_list[[which.max(scores)]]:</span> subscript out of bounds</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm_two_phase</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, two_phase_sample_frac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in regress_pwm_two_phase(cluster_sequences_example, cluster_mat_example[,     1], two_phase_sample_frac = c(0.1, 1)):</span> could not find function "regress_pwm_two_phase"</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">spat</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in head(res$pred):</span> object 'res' not found</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::select(., -1):</span> object 'res' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
