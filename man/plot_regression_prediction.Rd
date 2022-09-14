@@ -14,7 +14,7 @@ plot_regression_prediction(pred, response, point_size = 0.5)
 \item{point_size}{the size of the points in the plot (default: 0.5)}
 }
 \description{
-Plot response variable averages vs the regression model's prediction
+this would return a scatter plot of the response variable averages vs the regression model's prediction
 }
 \examples{
 res <- regress_pwm(sequences_example, response_mat_example)
