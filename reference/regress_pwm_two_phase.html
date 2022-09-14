@@ -62,6 +62,8 @@
 <span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_gap <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  min_kmer_cor <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
 <span>  two_phase_sample_frac <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  first_phase_idxs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  first_phase_metric <span class="op">=</span> <span class="st">"r2"</span>,</span>
@@ -79,49 +81,8 @@
 <dd><p>A matrix of response variables - number of rows should equal the number of sequences</p></dd>
 
 
-<dt>motif_length</dt>
-<dd><p>Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will <em>not</em> be truncated.</p></dd>
-
-
-<dt>score_metric</dt>
-<dd><p>metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.</p></dd>
-
-
-<dt>bidirect</dt>
-<dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
-
-
-<dt>spat_min</dt>
-<dd><p>start of the spatial model from the beginning of the sequence (in bp)</p></dd>
-
-
-<dt>spat_max</dt>
-<dd><p>end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.</p></dd>
-
-
-<dt>spat_bin</dt>
-<dd><p>size of the spatial bin (in bp).</p></dd>
-
-
-<dt>improve_epsilon</dt>
-<dd><p>minimum improve in the objective function to continue the optimization</p></dd>
-
-
-<dt>min_nuc_prob</dt>
-<dd><p>minimum nucleotide probability in every iteration</p></dd>
-
-
-<dt>unif_prior</dt>
-<dd><p>uniform prior for nucleotide probabilities</p></dd>
-
-
 <dt>is_train</dt>
 <dd><p>a boolean vector that determine which subset of sequences to use when screening</p></dd>
-
-
-<dt>include_response</dt>
-<dd><p>include the response in the resulting list (default: TRUE)</p></dd>
 
 
 <dt>seed</dt>
@@ -134,6 +95,10 @@ would end at the end of the sequence.</p></dd>
 
 <dt>kmer_length</dt>
 <dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>
+
+
+<dt>min_gap, max_gap</dt>
+<dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).</p></dd>
 
 
 <dt>two_phase_sample_frac</dt>
@@ -157,6 +122,7 @@ respectively.</p></dd>
 <p>a list with the following elements:</p><ul><li><p>pssm: data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.</p></li>
 <li><p>spat: a data frame with the inferred spatial model, with the spatial factor for each bin.</p></li>
 <li><p>pred: a vector with the predicted pwm for each sequence.</p></li>
+<li><p>consensus: Consensus sequence based on the PSSM.</p></li>
 <li><p>response: The response matrix. If <code>include_response</code> is FALSE, the response matrix is not included in the list.</p></li>
 <li><p>r2: \(r^2\) of the prediction with respect to the each response variable.</p></li>
 <li><p>ks: If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.</p></li>
@@ -252,7 +218,8 @@ respectively.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. KS test D: <span style="color: #0000BB;">0.83</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*A***W*T"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.83</span>, p-value: <span style="color: #0000BB;">0</span></span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    pos          A           C          G          T</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    0 0.25000000 0.250000000 0.25000000 0.25000000</span>

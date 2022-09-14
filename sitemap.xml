@@ -19,6 +19,9 @@
     <loc>/reference/compute_pwm.html</loc>
   </url>
   <url>
+    <loc>/reference/consensus_from_pssm.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
@@ -47,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/regress_pwm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/regress_pwm_clusters.html</loc>
   </url>
   <url>
     <loc>/reference/regress_pwm_two_phase.html</loc>
