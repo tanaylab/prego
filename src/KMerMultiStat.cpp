@@ -6,11 +6,11 @@ KMerMultiStat::KMerMultiStat(int k, int max_degen, int gap_min_size, int gap_max
                              vector<string> *sequences, vector<int> *is_train, int bin_num,
                              int norm_size, float norm_factor,
                              const vector<vector<float>> &interv_stat, int range_min, int range_max,
-                             int gap_marg, const set<string> *pat_filter)
+                             int gap_marg, const bool &logit, const set<string> *pat_filter)
     : m_k(k), m_max_degen(max_degen), m_min_gap_size(gap_min_size), m_max_gap_size(gap_max_size),
       m_norm_size(norm_size), m_norm_factor(norm_factor), m_sequences(sequences),
       m_is_train(is_train), m_resp_dim(interv_stat.size()), m_should_filter(pat_filter != 0),
-      m_pat_filter(pat_filter) {
+      m_pat_filter(pat_filter), m_logit(logit) {
     m_tmp_bv.set_size(sequences->size());
     m_max_multi = bin_num;
     m_gap_margin = gap_marg;
@@ -22,7 +22,7 @@ void KMerMultiStat::init(int k, int max_degen, int gap_min_size, int gap_max_siz
                          vector<string> *sequences, vector<int> *is_train, int norm_size,
                          float norm_factor, const vector<vector<float>> &interv_stat, int range_min,
                          int range_max, int gap_marg) {
-    m_kmer_multi_stat.clear();
+    m_kmer_multi_stat.clear();    
     m_k = k;
     m_max_degen = max_degen;
     m_min_gap_size = gap_min_size;
@@ -43,7 +43,7 @@ void KMerMultiStat::init_flat_stat(const vector<vector<float>> &stats) {
     m_interv_flat_stat.resize(stats.size() * stats[0].size());
 
     if (m_is_train->size() != stats[0].size()) {
-        cerr << "ERROR: mismatch sizes between train mask and response stat when adding response "
+        Rcpp::Rcerr << "ERROR: mismatch sizes between train mask and response stat when adding response "
                 "to PWML regression"
              << endl;
         return;
@@ -63,9 +63,13 @@ void KMerMultiStat::build_kmers(int range_min, int range_max) {
     if (range_max == -1) {
         range_max = (*m_sequences)[0].size();
     }
-    Rcpp::Rcerr << "Will build kmer multi stat"
+
+    if (m_logit){
+        Rcpp::Rcerr << "Will build kmer multi stat"
                 << " interv stats " << m_interv_flat_stat.size() / m_resp_dim << " max gap "
                 << m_max_gap_size << endl;
+    }
+    
     vector<float>::iterator stat = m_interv_flat_stat.begin();
 
     for (uint locid = 0; locid < m_sequences->size(); locid++) {
@@ -74,7 +78,7 @@ void KMerMultiStat::build_kmers(int range_min, int range_max) {
             continue;
         }
         m_cur_locid = locid;
-        if (locid % 20 == 0) {
+        if (m_logit && locid % 20 == 0) {
             Rcpp::Rcerr << "Processing id " << locid << "\r";
         }
         string::const_iterator seq = (*m_sequences)[locid].begin() + range_min;

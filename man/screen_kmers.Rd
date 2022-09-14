@@ -16,7 +16,8 @@ screen_kmers(
   from_range = 0,
   to_range = NULL,
   return_mat = FALSE,
-  seed = 60427
+  seed = 60427,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -41,12 +42,14 @@ screen_kmers(
 \item{return_mat}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
 
 \item{seed}{random seed}
+
+\item{verbose}{show verbose messages}
 }
 \value{
 A data frame with the following columns, together with a column for each response variable with the
 correlation of the kmers to the response variable:
 \itemize{
-\item{kmer: }{the kmer pattern},
+\item{kmer: }{the kmer pattern, where "*" indicates a wildcard},
 \item{max_r2: }{the maximum R^2 to one of the response variables},
 \item{avg_n: }{the average number of times the kmer appears in the sequences},
 \item{avg_var: }{the variance of the number of times the kmer appears in the sequences},

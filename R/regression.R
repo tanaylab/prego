@@ -6,7 +6,7 @@
 #' wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
 #' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
-#' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". For categorical response variables (0 and 1), "ks" is recommended, while for continuous response variables, "r2" is recommended. Default is "r2". When using "ks" the response variable should be a single vector of 0 and 1.
+#' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param spat_min start of the spatial model from the beginning of the sequence (in bp)
 #' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
@@ -22,13 +22,13 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a PSSM matrix with the inferred spatial model, where rows are positions and columns are nucleotides.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
 #' \item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
-#' \item{ks: }{If \code{score_metric = "ks"}, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
+#' \item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
 #' \item{seed_motif: }{The seed motif that started the regression.}
-#' \item(kmers: ){The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
+#' \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 #' }
 #'
 #' @examples
@@ -37,10 +37,14 @@
 #' res$spat
 #' head(res$pred)
 #'
-#' plot_pssm_logo(res$pssm)
+#' plot_regression_qc(res)
 #'
 #' # intialize with a pre-computed PSSM
 #' res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm)
+#'
+#' # binary response
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' plot_regression_qc(res_binary)
 #'
 #' @inheritParams screen_kmers
 #' @inheritDotParams screen_kmers
@@ -114,9 +118,8 @@ regress_pwm <- function(sequences,
         spat_max <- nchar(sequences[1])
     }
 
-    binary_response <- ncol(response) == 1 && all(response %in% c(0, 1))
     if (score_metric == "ks") {
-        if (!binary_response) {
+        if (!is_binary_response(response)) {
             cli_abort("When {.field score_metric} is {.val ks}, {.field response} should be a single vector of 0 and 1")
         }
     }
@@ -156,19 +159,23 @@ regress_pwm <- function(sequences,
             cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
         }
 
-        # replace gaps with wildcards
-        stringr::str_replace(motif, "\\d+", function(x) {
-            if (is.na(x)) {
-                ""
-            } else {
-                paste(rep("*", x), collapse = "")
-            }
-        })
-
         cli_alert_info("Initializing regression with the following motif: {.val {motif}}")
     }
 
     cli_alert_info("Running regression")
+    cli_ul(c(
+        "Motif length: {.val {motif_length}}",
+        "Bidirectional: {.val {bidirect}}",
+        "Spat min: {.val {spat_min}}",
+        "Spat max: {.val {spat_max}}",
+        "Spat bin: {.val {spat_bin}}",
+        "Improve epsilon: {.val {improve_epsilon}}",
+        "Min nuc prob: {.val {min_nuc_prob}}",
+        "Uniform prior: {.val {unif_prior}}",
+        "Score metric: {.val {score_metric}}",
+        "Seed: {.val {seed}}"
+    ))
+
     res <- regress_pwm_cpp(
         toupper(sequences),
         response,
@@ -195,39 +202,19 @@ regress_pwm <- function(sequences,
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
     res$seed_motif <- motif
 
-    if (binary_response) {
-        res$ks <- ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])])
+    if (is_binary_response(response)) {
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])]))
     }
 
     if (!is.null(kmers)) {
         res$kmers <- kmers
     }
 
-    cli_alert_success("Finished running regression")
+    if (is_binary_response(response)) {
+        cli_alert_success("Finished running regression. KS test D: {.val {round(res$ks$statistic, digits=2)}}, p-value: {.val {res$ks$p.value}}")
+    } else {
+        cli_alert_success("Finished running regression. R^2: {.val {round(res$r2, digits=4)}}")
+    }
 
     return(res)
-}
-
-
-#' Convert PSSM to kmer using majority
-#'
-#' @param pssm A PSSM matrix
-#' @param min_freq minimal frequency of a nucleotide in the PSSM in order to be included in the kmer. Nuclotides with frequency less than this are set to "*".
-#'
-#' @return A kmer with the nucleotide with the highest frequency of each position in the PSSM. If there is no nucleotide with a high enough frequency, the nucleotide is set to "*".
-#'
-#'
-#' @noRd
-kmer_from_pssm <- function(pssm, min_freq = 0.3) {
-    nucs <- c("A", "C", "G", "T")
-    pssm <- pssm[, nucs]
-    kmer <- apply(pssm, 1, function(x) {
-        if (max(x) > min_freq) {
-            return(nucs[which.max(x)])
-        } else {
-            return("*")
-        }
-    })
-    kmer <- paste(kmer, collapse = "")
-    return(kmer)
 }

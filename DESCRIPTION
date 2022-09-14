@@ -18,7 +18,10 @@ Imports:
     stringr,
     tgstat,
     dplyr,
-    purrr
+    purrr,
+    doMC,
+    plyr,
+    parallel
 Suggests: 
     testthat (>= 3.0.0),
     withr

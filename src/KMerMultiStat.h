@@ -50,6 +50,8 @@ class KMerMultiStat {
     const set<string> *m_pat_filter;
 
   public:
+    bool m_logit;
+
     void set_gap_margin(int mg) { m_gap_margin = mg; }
 
     pair<int, vector<float>> get_kmer_multi_stat(const string &kmer, int multi) {
@@ -73,7 +75,7 @@ class KMerMultiStat {
     KMerMultiStat(int k, int degen, int min_gap, int max_gap, vector<string> *focus_loci,
                   vector<int> *is_train, int bin_num, int norm, float norm_factor,
                   const vector<vector<float>> &interv_stat, int range_min, int range_max,
-                  int gap_marg = 2, const set<string> *pat_filter = 0);
+                  int gap_marg = 2, const bool &logit = true, const set<string> *pat_filter = 0);
 
     void init(int k, int degen, int min_gap, int max_gap, vector<string> *sequences,
               vector<int> *is_train, int norm, float norm_factor,
