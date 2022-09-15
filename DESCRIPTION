@@ -21,7 +21,8 @@ Imports:
     purrr,
     doMC,
     plyr,
-    parallel
+    parallel,
+    tidyr
 Suggests: 
     testthat (>= 3.0.0),
     withr

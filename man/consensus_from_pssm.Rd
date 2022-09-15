@@ -13,7 +13,7 @@ consensus_from_pssm(pssm, single_thresh = 0.6, double_thresh = 0.85)
 (single and double nucleotides)}
 }
 \value{
-A consensus sequence for the PSSM.
+A consensus sequence for the PSSM. If no consensus sequence can be found, the function returns NA.
 }
 \description{
 Convert PSSM to kmer using majority

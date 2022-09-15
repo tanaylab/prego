@@ -14,7 +14,7 @@
 #'
 #'
 #' @examples
-#' res <- regress_pwm_two_phase(cluster_sequences_example, cluster_mat_example[, 1], two_phase_sample_frac = c(0.1, 1))
+#' res <- regress_pwm.two_phase(cluster_sequences_example, cluster_mat_example[, 1], two_phase_sample_frac = c(0.1, 1), first_phase_metric = "ks")
 #' res$pssm
 #' res$spat
 #' head(res$pred)
@@ -24,7 +24,7 @@
 #' @inheritParams screen_kmers
 #' @inherit regress_pwm return
 #' @export
-regress_pwm_two_phase <- function(sequences,
+regress_pwm.two_phase <- function(sequences,
                                   response,
                                   motif_length = 15,
                                   score_metric = "r2",
@@ -105,7 +105,7 @@ regress_pwm_two_phase <- function(sequences,
             min_nuc_prob = min_nuc_prob,
             unif_prior = unif_prior,
             is_train = is_train,
-            include_response = include_response,
+            include_response = FALSE,
             seed = seed,
             verbose = FALSE
         ) %>%

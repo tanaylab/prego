@@ -71,7 +71,7 @@ validate_spat <- function(spat) {
 #' @param single_thresh,double_thresh thresholds for the consensus sequence calculation
 #' (single and double nucleotides)
 #'
-#' @return A consensus sequence for the PSSM.
+#' @return A consensus sequence for the PSSM. If no consensus sequence can be found, the function returns NA.
 #'
 #' @examples
 #'
@@ -82,5 +82,8 @@ validate_spat <- function(spat) {
 consensus_from_pssm <- function(pssm, single_thresh = 0.6, double_thresh = 0.85) {
     consensus <- get_consensus_cpp(as.matrix(pssm[, c("A", "C", "G", "T")]), single_thresh, double_thresh)
     consensus <- gsub("^\\*+", "", gsub("\\*+$", "", consensus))
+    if (consensus == "") {
+        consensus <- NA
+    }
     return(consensus)
 }
