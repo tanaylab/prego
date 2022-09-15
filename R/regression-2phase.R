@@ -9,6 +9,8 @@
 #' @param first_phase_metric metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.
 #' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
 #' @param verbose verbosity of the second phase of the optimization.
+#' @param parallel whether to run the first phase of the optimization in parallel. use \code{set_parallel}
+#' to set the number of cores to use.
 #'
 #'
 #' @examples
@@ -37,7 +39,7 @@ regress_pwm_two_phase <- function(sequences,
                                   include_response = TRUE,
                                   seed = 60427,
                                   verbose = FALSE,
-                                  kmer_length = 5:8,
+                                  kmer_length = 6:8,
                                   min_gap = 0,
                                   max_gap = 1,
                                   min_kmer_cor = 0.1,
@@ -46,6 +48,7 @@ regress_pwm_two_phase <- function(sequences,
                                   two_phase_sample_frac = 0.1,
                                   first_phase_idxs = NULL,
                                   first_phase_metric = "r2",
+                                  parallel = getOption("prego.parallel", FALSE),
                                   ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -82,12 +85,13 @@ regress_pwm_two_phase <- function(sequences,
     }
 
     cli_h3("Generate candidate kmers")
-    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, ...)
+    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, ...)
 
     cli_h3("Regress each candidate kmer on sampled data")
     cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
-    res_s_list <- purrr::map(cli_progress_along(cand_kmers), function(i) {
+    res_s_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
         motif <- cand_kmers[i]
+        cli_alert("regressing with seed: {.val {motif}}")
         r <- regress_pwm(sequences_s,
             response_s,
             motif = motif,
@@ -116,15 +120,15 @@ regress_pwm_two_phase <- function(sequences,
         } else {
             cli_abort("Unknown {.field first_phase_metric} (can be 'ks' or 'r2')")
         }
-        cli_alert("{.val {motif}}, score: {.val {r$score}}")
+        cli_alert("{.val {motif}}, score ({first_phase_metric}): {.val {r$score}}")
         return(r)
-    })
+    }, .parallel = parallel)
 
     scores <- sapply(res_s_list, function(x) x$score)
 
     res_s <- res_s_list[[which.max(scores)]]
 
-    cli_alert_info("Best motif in the first phase: {.val {res_s$seed_motif}}, score: {.val {max(scores)}}")
+    cli_alert_info("Best motif in the first phase: {.val {res_s$seed_motif}}, score ({first_phase_metric}): {.val {max(scores)}}")
 
     cli_h2("Phase 2: Running regression on the full dataset")
     res <- regress_pwm(
@@ -137,6 +141,7 @@ regress_pwm_two_phase <- function(sequences,
         spat_min = spat_min,
         spat_max = spat_max,
         spat_bin = spat_bin,
+        spat_model = res_s$spat_model,
         improve_epsilon = improve_epsilon,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
@@ -156,15 +161,15 @@ regress_pwm_two_phase <- function(sequences,
     return(res)
 }
 
-get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, ...) {
+get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, ...) {
     params <- expand.grid(kmer_length, min_gap:max_gap)
     colnames(params) <- c("len", "gap")
 
-    all_kmers <- purrr::map_dfr(cli_progress_along(1:nrow(params)), function(i) {
+    all_kmers <- plyr::ldply(cli_progress_along(1:nrow(params)), function(i) {
         screen_kmers(sequences, response, kmer_length = params$len[i], min_gap = 0, max_gap = params$gap[i], ...) %>%
             mutate(len = params$len[i], gap = params$gap[i], verbose = FALSE) %>%
             suppressMessages()
-    })
+    }, .parallel = parallel)
 
     best_motif <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one motif
 

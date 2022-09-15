@@ -80,6 +80,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const bool &is_bidirect, const float &unif_prior,
                            const std::string &score_metric, const int &verbose, const int &seed,
                            const Rcpp::NumericMatrix &pssm_mat,
+                           const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor, 
                            const float &consensus_single_thresh,
                            const float &consensus_double_thresh) {
     Random::reset(seed);
@@ -134,8 +135,13 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
             pssm[i].set_weight('G', pssm_mat(i, 2));
             pssm[i].set_weight('T', pssm_mat(i, 3));
         }
-        pssm.normalize();
-        pwmlreg.init_pwm(pssm);
+        pssm.normalize();        
+        if (spat_factor.isNotNull()) {
+            vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
+            pwmlreg.init_pwm_spat(pssm, spat_fac);            
+        } else {
+            pwmlreg.init_pwm(pssm);
+        }
     } else { // initialize using a seed motif
         pwmlreg.init_seed(seedmot, is_bidirect);
         if (verbose) {

@@ -46,7 +46,7 @@ regress_pwm.cv <- function(sequences,
                            categories = NULL,
                            two_phase = TRUE,
                            seed = 60427,
-                           parallel = getOption("prego.parallel"),
+                           parallel = getOption("prego.parallel", FALSE),
                            add_full_model = TRUE,
                            ...) {
     set.seed(seed)
@@ -74,7 +74,7 @@ regress_pwm.cv <- function(sequences,
 
     if (two_phase) {
         cli_alert_info("Using two-phase optimization")
-        regression_func <- regress_pwm_two_phase
+        regression_func <- purrr::partial(regress_pwm_two_phase, parallel = FALSE)
         if ("first_phase_idxs" %in% names(list(...))) {
             cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm.cv}")
         }

@@ -112,6 +112,20 @@ void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_spat_derivs.resize(m_sequences.size(), vector<float>(max_spat_bin));
 }
 
+void PWMLRegression::init_pwm_spat(DnaPSSM &pwm, const vector<float>& spat_factors){
+    init_pwm(pwm);
+    m_spat_factors.resize(spat_factors.size());
+    copy(spat_factors.begin(), spat_factors.end(), m_spat_factors.begin());
+    int max_spat_bin = m_spat_factors.size();    
+    m_spat_derivs.resize(m_sequences.size(), vector<float>(max_spat_bin));
+    if (m_logit) {
+        Rcpp::Rcerr << "init pwm spat: " << endl;    
+        for (int bin = 0; bin < max_spat_bin; bin++) {
+            Rcpp::Rcerr << m_spat_bin_size * bin << "\t" << m_spat_factors[bin] << endl;
+        }
+    }
+}
+
 void PWMLRegression::init_pwm(DnaPSSM &pwm) {
     Rcpp::Rcerr << "init pwm with size " << pwm.size() << endl;
     m_nuc_factors.resize(pwm.size(), vector<float>('T' + 1));
