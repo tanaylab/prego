@@ -233,7 +233,7 @@ regress_pwm <- function(sequences,
         res$kmers <- kmers
     }
 
-    res$consensus <- gsub("^\\*+", "", gsub("\\*+$", "", res$consensus))
+    res$consensus <- consensus_from_pssm(res$pssm, consensus_single_thresh, consensus_double_thresh)
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
 
     if (is_binary_response(response)) {

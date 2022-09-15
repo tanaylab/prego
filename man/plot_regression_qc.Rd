@@ -4,12 +4,14 @@
 \alias{plot_regression_qc}
 \title{Plot the regression results}
 \usage{
-plot_regression_qc(reg, response = NULL)
+plot_regression_qc(reg, response = NULL, title = NULL)
 }
 \arguments{
 \item{reg}{output of \code{regress_pwm}}
 
 \item{response}{the response variable}
+
+\item{title}{a title for the plot (optional)}
 }
 \value{
 a patchwork object
