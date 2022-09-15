@@ -1,17 +1,20 @@
 #' Run PWM regression on clusters
 #'
 #' @param clusters a vector with the cluster assignments for each sequence
-#' @param two_phase whether to use two-phase optimization or not.
+#' @param two_phase whether to use two-phase optimization or not (default: FALSE).
 #' @param two_phase_sample_frac a vector of two numbers, specifying the fraction of
 #' sequences to use in the first phase of optimization for the sequences which are not
 #' in the cluster (first number) and in the cluster (second number).
+#' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
+#' This would add a column named 'db_match' to the stats data frame. Note that the closest match
+#' is returned, even if it is not similar enough in absolute terms.
 #'
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{models: }{a list with the models for each cluster}
 #' \item{cluster_mat: }{an indicator matrix with the cluster assignments}
 #' \item{pred_mat: }{a matrix with the predicted pwm for each sequence (rows) and cluster (columns)}
-#' \item{stats: }{a data frame with the statistics for each cluster}
+#' \item{stats: }{a data frame with statistics for each cluster}
 #' }
 #'
 #' @examples
@@ -27,7 +30,7 @@
 #' @inheritDotParams regress_pwm.two_phase
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, two_phase = TRUE, two_phase_sample_frac = c(0.1, 1), first_phase_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
+regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_with_db = TRUE, two_phase_sample_frac = c(0.1, 1), first_phase_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }
@@ -63,7 +66,7 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = TRUE, two_phas
         regression_func <- regress_pwm
     }
 
-    cli_alert_info("Running regression for {.val {nrow(cluster_mat)}} clusters")
+    cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
     cluster_models <- plyr::llply(seq_len(ncol(cluster_mat)), function(i) {
         cli_h1("Cluster {.val {i}}")
         regression_func(sequences, cluster_mat[, i], ...)
@@ -86,6 +89,11 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = TRUE, two_phas
             seed_motif = .x$seed_motif
         )
     })
+
+    if (match_with_db) {
+        cli_alert_info("Matching with motif databases")
+        stats$db_match <- purrr::map_chr(cluster_models, ~ pssm_match(.x$pssm, all_motif_datasets(), best = TRUE, parallel = parallel))
+    }
 
     res <- list(
         models = cluster_models,

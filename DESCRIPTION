@@ -10,8 +10,7 @@ License: MIT + file LICENSE
 Imports: 
     cli,
     Rcpp (>= 1.0.9),
-    ggseqlogo,
-    magrittr,
+    ggseqlogo,    
     tibble,
     ggplot2,
     patchwork,
