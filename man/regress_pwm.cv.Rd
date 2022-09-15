@@ -2,7 +2,7 @@
 % Please edit documentation in R/regression-cv.R
 \name{regress_pwm.cv}
 \alias{regress_pwm.cv}
-\title{Cross-validate a two-phase regression model}
+\title{Cross-validate a PWMregression model}
 \usage{
 regress_pwm.cv(
   sequences,
@@ -51,7 +51,7 @@ a list with the following elements:
 }
 }
 \description{
-Perform cross-validation on a two-phase regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
+Perform cross-validation on a PWM regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
 }
 \examples{
 res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = TRUE, two_phase_sample_frac = c(0.1, 1))

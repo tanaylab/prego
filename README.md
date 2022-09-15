@@ -11,10 +11,13 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/prego)](https://CRAN.R-project.org/package=prego)
 <!-- badges: end -->
 
-`prego` implements simple regression algorithms for finding motifs in
+The `prego` package implements simple regression algorithms for finding motifs in
 DNA. You can either use it to find motif which are discriminating
 between two or more clusters of DNA sequences, or for generting motifs
 from one or more continuous variables.
+
+The PREGO algorithm is described
+[here](https://doi.org/10.1101%2Fgr.5113606).
 
 ## Installation
 
@@ -28,7 +31,6 @@ remotes::install_github("tanaylab/prego")
 
 ``` r
 library(prego)
-#> ℹ Parallelization enabled. Using 77 threads.
 ```
 
 For a set of continuous variables:
