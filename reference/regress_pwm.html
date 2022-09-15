@@ -52,6 +52,7 @@
 <span>  spat_min <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  spat_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  spat_bin <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  spat_model <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  improve_epsilon <span class="op">=</span> <span class="fl">0.0001</span>,</span>
 <span>  min_nuc_prob <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  unif_prior <span class="op">=</span> <span class="fl">0.05</span>,</span>
@@ -106,6 +107,10 @@ would end at the end of the sequence.</p></dd>
 
 <dt>spat_bin</dt>
 <dd><p>size of the spatial bin (in bp).</p></dd>
+
+
+<dt>spat_model</dt>
+<dd><p>a previously computed spatial model (see <code>spat</code>) in the return value of this function. This can only be used when <code>motif</code> is a previously computed PSSM.</p></dd>
 
 
 <dt>improve_epsilon</dt>
@@ -205,36 +210,36 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTACAAC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0.0022</span>, <span style="color: #0000BB;">0.0248</span>, <span style="color: #0000BB;">0.0033</span>, and <span style="color: #0000BB;">0.0029</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTACRAC"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.01</span>, <span style="color: #0000BB;">0.0054</span>, <span style="color: #0000BB;">0.0373</span>, <span style="color: #0000BB;">0.0002</span>, and <span style="color: #0000BB;">0.0087</span></span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    pos           A           C           G           T</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0 0.283506006 0.224376753 0.341985554 0.150131658</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    1 0.253086418 0.246913567 0.308641970 0.191358030</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    2 0.221712694 0.169537887 0.445516258 0.163233161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    3 0.245094895 0.130914375 0.093120612 0.530870140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    4 0.001055855 0.100411795 0.001055855 0.897476554</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    5 0.001167131 0.005718939 0.001052752 0.992061198</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    6 0.902136743 0.001007861 0.046462409 0.050393071</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    7 0.001005576 0.854739487 0.001005576 0.143249318</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    8 0.942350328 0.001108647 0.055432372 0.001108647</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   9 0.840756953 0.001106953 0.105424076 0.052712038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11  10 0.124257408 0.637169480 0.078802861 0.159770235</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  11 0.199003056 0.325700551 0.090969816 0.384326607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13  12 0.109775484 0.223810568 0.305429220 0.360984772</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14  13 0.118960544 0.381039500 0.263755500 0.236244485</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15  14 0.250000000 0.250000000 0.250000000 0.250000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    pos            A            C            G            T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0 0.2095587850 0.1994811445 0.4830077589 0.1079523116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    1 0.1915405840 0.1868688613 0.3343640864 0.2872264385</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    2 0.2101173997 0.1766019762 0.4432460964 0.1700345427</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    3 0.1508440375 0.2343198955 0.0968408510 0.5179951787</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    4 0.0008706285 0.2127699703 0.0008706285 0.7854887247</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    5 0.0994162336 0.0010572918 0.0010095837 0.8985168934</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    6 0.8009245396 0.0008999961 0.1971910000 0.0009845063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    7 0.0006821602 0.6252906919 0.0006821602 0.3733449876</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    8 0.5259284377 0.0006187394 0.4273795187 0.0460732840</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   9 0.8413030505 0.0011087267 0.1248238087 0.0327644646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  10 0.0484228246 0.6682083011 0.1590529233 0.1243159994</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  11 0.1276983917 0.3283757865 0.0485897139 0.4953361154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  12 0.1383337379 0.2413944304 0.2644408643 0.3558309674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  13 0.1295451671 0.4627699852 0.2882918715 0.1193930283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  14 0.1975761950 0.2230612934 0.1874464601 0.3919161260</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">spat</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   bin spat_factor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  50   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 100   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 150   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 200   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 250   0.1443009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 300   0.1443009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0  0.06274135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  50  0.11854498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 100  0.08841380</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 150  0.19018117</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 200  0.24080996</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 250  0.14966135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 300  0.14966135</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -19.31668 -18.09744 -14.56399 -19.52544 -17.17279 -20.74502</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -19.17809 -17.81525 -15.05438 -20.49352 -18.27786 -18.84269</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
@@ -255,8 +260,26 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTACAAC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0</span>, <span style="color: #0000BB;">0.0022</span>, <span style="color: #0000BB;">0.0248</span>, <span style="color: #0000BB;">0.0033</span>, and <span style="color: #0000BB;">0.0029</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTACRAC"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0105</span>, <span style="color: #0000BB;">0.0056</span>, <span style="color: #0000BB;">0.0363</span>, <span style="color: #0000BB;">0.0001</span>, and <span style="color: #0000BB;">0.01</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># intialize with a pre-computed PSSM and spatial model</span></span></span>
+<span class="r-in"><span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, motif <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">pssm</span>, spat_model <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">spat</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTACRAC"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0096</span>, <span style="color: #0000BB;">0.0052</span>, <span style="color: #0000BB;">0.0368</span>, <span style="color: #0000BB;">0.0003</span>, and <span style="color: #0000BB;">0.0085</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># binary response</span></span></span>
 <span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -279,8 +302,8 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TA***AKT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.81</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*A***W*T"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8507</span>, p-value: <span style="color: #0000BB;">0</span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-plt img"><img src="regress_pwm-2.png" alt="" width="700" height="433"></span>

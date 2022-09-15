@@ -46,16 +46,16 @@
     <loc>/reference/prego-package.html</loc>
   </url>
   <url>
+    <loc>/reference/regress_pwm.clusters.html</loc>
+  </url>
+  <url>
     <loc>/reference/regress_pwm.cv.html</loc>
   </url>
   <url>
     <loc>/reference/regress_pwm.html</loc>
   </url>
   <url>
-    <loc>/reference/regress_pwm_clusters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/regress_pwm_two_phase.html</loc>
+    <loc>/reference/regress_pwm.two_phase.html</loc>
   </url>
   <url>
     <loc>/reference/screen_kmers.html</loc>

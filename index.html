@@ -54,6 +54,7 @@
 <div class="page-header"><h1 id="prego">prego<a class="anchor" aria-label="anchor" href="#prego"></a>
 </h1></div>
 <!-- badges: start -->
+<p><code>prego</code> implements simple regression algorithms for finding motifs in DNA. You can either use it to find motif which are discriminating between two or more clusters of DNA sequences, or for generting motifs from one or more continuous variables.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -61,8 +62,82 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"tanaylab/prego"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2"><h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
-</h2></div>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">prego</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Parallelization enabled. Using 77 threads.</span></span></code></pre></div>
+<p>For a set of continuous variables:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Number of response variables: 5</span></span>
+<span><span class="co">#&gt; ℹ Screening for kmers in order to initialize regression</span></span>
+<span><span class="co">#&gt; ℹ Number of response variables: 5</span></span>
+<span><span class="co">#&gt; ℹ Screening kmers of length 8, from position 0 to position 300</span></span>
+<span><span class="co">#&gt; ℹ minimal correlation: 0.08, minimal number of occurrences: 50</span></span>
+<span><span class="co">#&gt; ✔ Found 2138 kmers in 1000 sequences.</span></span>
+<span><span class="co">#&gt; ℹ Motif is shorter than 15, extending with wildcards</span></span>
+<span><span class="co">#&gt; ℹ Initializing regression with the following motif: "***TTTACAAC****"</span></span>
+<span><span class="co">#&gt; ℹ Running regression</span></span>
+<span><span class="co">#&gt; • Motif length: 15</span></span>
+<span><span class="co">#&gt; • Bidirectional: TRUE</span></span>
+<span><span class="co">#&gt; • Spat min: 0</span></span>
+<span><span class="co">#&gt; • Spat max: 300</span></span>
+<span><span class="co">#&gt; • Spat bin: 50</span></span>
+<span><span class="co">#&gt; • Improve epsilon: 0.0001</span></span>
+<span><span class="co">#&gt; • Min nuc prob: 0.001</span></span>
+<span><span class="co">#&gt; • Uniform prior: 0.05</span></span>
+<span><span class="co">#&gt; • Score metric: "r2"</span></span>
+<span><span class="co">#&gt; • Seed: 60427</span></span>
+<span><span class="co">#&gt; ✔ Finished running regression. Consensus: "TTACRAC"</span></span>
+<span><span class="co">#&gt; ✔ R^2: 0.01, 0.0054, 0.0373, 0.0002, and 0.0087</span></span>
+<span><span class="fu"><a href="reference/plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")`</span></span>
+<span><span class="co">#&gt; instead.</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="100%"></p>
+<p>For binary response:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Number of response variables: 1</span></span>
+<span><span class="co">#&gt; ℹ Screening for kmers in order to initialize regression</span></span>
+<span><span class="co">#&gt; ℹ Number of response variables: 1</span></span>
+<span><span class="co">#&gt; ℹ Screening kmers of length 8, from position 0 to position 300</span></span>
+<span><span class="co">#&gt; ℹ minimal correlation: 0.08, minimal number of occurrences: 50</span></span>
+<span><span class="co">#&gt; ✔ Found 198 kmers in 2359 sequences.</span></span>
+<span><span class="co">#&gt; ℹ Motif is shorter than 15, extending with wildcards</span></span>
+<span><span class="co">#&gt; ℹ Initializing regression with the following motif: "***TAATCATT****"</span></span>
+<span><span class="co">#&gt; ℹ Running regression</span></span>
+<span><span class="co">#&gt; • Motif length: 15</span></span>
+<span><span class="co">#&gt; • Bidirectional: TRUE</span></span>
+<span><span class="co">#&gt; • Spat min: 0</span></span>
+<span><span class="co">#&gt; • Spat max: 300</span></span>
+<span><span class="co">#&gt; • Spat bin: 50</span></span>
+<span><span class="co">#&gt; • Improve epsilon: 0.0001</span></span>
+<span><span class="co">#&gt; • Min nuc prob: 0.001</span></span>
+<span><span class="co">#&gt; • Uniform prior: 0.05</span></span>
+<span><span class="co">#&gt; • Score metric: "r2"</span></span>
+<span><span class="co">#&gt; • Seed: 60427</span></span>
+<span><span class="co">#&gt; ✔ Finished running regression. Consensus: "T*A***W*T"</span></span>
+<span><span class="co">#&gt; ✔ KS test D: 0.8507, p-value: 0</span></span>
+<span><span class="fu"><a href="reference/plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")`</span></span>
+<span><span class="co">#&gt; instead.</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+<p>For clusters of sequences:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regress_pwm.clusters.html">regress_pwm.clusters</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using two-phase optimization</span></span>
+<span><span class="co">#&gt; ℹ Running regression for 2359 clusters</span></span>
+<span><span class="va">res</span><span class="op">$</span><span class="va">stats</span></span>
+<span><span class="co">#&gt; # A tibble: 5 x 5</span></span>
+<span><span class="co">#&gt;   cluster consensus      ks_D        r2      seed_motif</span></span>
+<span><span class="co">#&gt; 1    c100   AT***TC 0.6998806 0.4004041 ***ATCCATCA****</span></span>
+<span><span class="co">#&gt; 2    c111   Y*RTAAA 0.8492008 0.5081351 ****CATAAA*****</span></span>
+<span><span class="co">#&gt; 3     c29 R*W**KT*A 0.8514453 0.5724329 ***AAT*ATTAA***</span></span>
+<span><span class="co">#&gt; 4      c5      &lt;NA&gt; 0.5543292 0.2086212 ***AAT*ATTAA***</span></span>
+<span><span class="co">#&gt; 5      c6      WATC 0.6016048 0.2819655 ***TCTTATCT****</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
