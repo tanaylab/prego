@@ -229,5 +229,3 @@ plot_pssm_logo_dataset <- function(motif, dataset, title = motif, subtitle = ggp
     }
     plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle)
 }
-
-

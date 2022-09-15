@@ -11,10 +11,10 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/prego)](https://CRAN.R-project.org/package=prego)
 <!-- badges: end -->
 
-The `prego` package implements simple regression algorithms for finding motifs in
-DNA. You can either use it to find motif which are discriminating
-between two or more clusters of DNA sequences, or for generting motifs
-from one or more continuous variables.
+The `prego` package implements simple regression algorithms for finding
+motifs in DNA. You can either use it to find motif which are
+discriminating between two or more clusters of DNA sequences, or for
+generting motifs from one or more continuous variables.
 
 The PREGO algorithm is described
 [here](https://doi.org/10.1101%2Fgr.5113606).
@@ -59,8 +59,8 @@ res <- regress_pwm(sequences_example, response_mat_example)
 #> ✔ Finished running regression. Consensus: "TTACRAC"
 #> ✔ R^2: 0.01, 0.0054, 0.0373, 0.0002, and 0.0087
 plot_regression_qc(res)
-#> Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")`
-#> instead.
+#> Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead.
+#> `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead.
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
@@ -91,8 +91,8 @@ res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #> ✔ Finished running regression. Consensus: "T*A***W*T"
 #> ✔ KS test D: 0.8507, p-value: 0
 plot_regression_qc(res_binary)
-#> Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")`
-#> instead.
+#> Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead.
+#> `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> = "none")` instead.
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
@@ -101,14 +101,15 @@ For clusters of sequences:
 
 ``` r
 res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
-#> ℹ Using two-phase optimization
-#> ℹ Running regression for 2359 clusters
+#> ℹ Using single-phase optimization
+#> ℹ Running regression for 5 clusters
+#> ℹ Matching with motif databases
 res$stats
-#> # A tibble: 5 x 5
-#>   cluster consensus      ks_D        r2      seed_motif
-#> 1    c100   AT***TC 0.6998806 0.4004041 ***ATCCATCA****
-#> 2    c111   Y*RTAAA 0.8492008 0.5081351 ****CATAAA*****
-#> 3     c29 R*W**KT*A 0.8514453 0.5724329 ***AAT*ATTAA***
-#> 4      c5      <NA> 0.5543292 0.2086212 ***AAT*ATTAA***
-#> 5      c6      WATC 0.6016048 0.2819655 ***TCTTATCT****
+#> # A tibble: 5 x 6
+#>   cluster consensus      ks_D        r2      seed_motif              db_match
+#> 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JOLMA.DLX2_mono_DBD_1
+#> 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****           JASPAR.CDX1
+#> 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1
+#> 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****         HOMER.GATA3_2
+#> 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****     HOMER.GAGA_repeat
 ```
