@@ -45,7 +45,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">regress_pwm.clusters</span><span class="op">(</span></span>
 <span>  <span class="va">sequences</span>,</span>
 <span>  <span class="va">clusters</span>,</span>
-<span>  two_phase <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  two_phase <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  match_with_db <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  two_phase_sample_frac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  first_phase_metric <span class="op">=</span> <span class="st">"ks"</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -64,7 +65,13 @@
 
 
 <dt>two_phase</dt>
-<dd><p>whether to use two-phase optimization or not.</p></dd>
+<dd><p>whether to use two-phase optimization or not (default: FALSE).</p></dd>
+
+
+<dt>match_with_db</dt>
+<dd><p>match the resulting PWMs with motif databases using <code>pssm_match</code>.
+This would add a column named 'db_match' to the stats data frame. Note that the closest match
+is returned, even if it is not similar enough in absolute terms.</p></dd>
 
 
 <dt>two_phase_sample_frac</dt>
@@ -158,32 +165,34 @@ would end at the end of the sequence.</p></dd>
 <p>a list with the following elements:</p><ul><li><p>models: a list with the models for each cluster</p></li>
 <li><p>cluster_mat: an indicator matrix with the cluster assignments</p></li>
 <li><p>pred_mat: a matrix with the predicted pwm for each sequence (rows) and cluster (columns)</p></li>
-<li><p>stats: a data frame with the statistics for each cluster</p></li>
+<li><p>stats: a data frame with statistics for each cluster</p></li>
 </ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using two-phase optimization</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">2359</span> clusters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using single-phase optimization</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">5</span> clusters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Matching with motif databases</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred_mat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           c100      c111       c29        c5        c6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_5108540_5108840 -17.23853 -15.91186 -16.38393 -16.46724 -16.79755</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7313460_7313760 -14.83541 -17.12038 -16.55559 -16.30926 -17.39875</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7778180_7778480 -15.96573 -15.12807 -17.03628 -16.37043 -16.64207</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9381040_9381340 -16.26356 -15.11417 -15.35067 -16.31818 -16.07734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9921360_9921660 -15.10197 -17.78709 -15.33256 -16.32377 -16.15256</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9931940_9932240 -16.31921 -17.14347 -14.61532 -16.35062 -16.55878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_5108540_5108840 -17.28819 -15.88604 -16.43380 -16.61165 -16.84203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7313460_7313760 -14.69661 -17.02461 -16.51139 -16.67072 -17.51148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7778180_7778480 -15.75232 -15.11354 -16.80705 -16.65310 -16.69591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9381040_9381340 -16.03874 -15.04809 -15.20886 -16.47437 -16.01101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9921360_9921660 -14.85159 -17.90363 -15.35405 -16.13744 -16.07321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9931940_9932240 -16.32993 -17.16320 -14.44998 -16.72751 -16.53625</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">stats</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 5 x 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   AT***TC 0.6998806 0.4004041 ***ATCCATCA****</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111   Y*RTAAA 0.8492008 0.5081351 ****CATAAA*****</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 R*W**KT*A 0.8514453 0.5724329 ***AAT*ATTAA***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      &lt;NA&gt; 0.5543292 0.2086212 ***AAT*ATTAA***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6      WATC 0.6016048 0.2819655 ***TCTTATCT****</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 5 x 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif              db_match</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JOLMA.DLX2_mono_DBD_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****           JASPAR.CDX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****         HOMER.GATA3_2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****     HOMER.GAGA_repeat</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-plt img"><img src="regress_pwm.clusters-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

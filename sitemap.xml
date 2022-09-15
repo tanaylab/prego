@@ -16,6 +16,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/all_motif_datasets.html</loc>
+  </url>
+  <url>
     <loc>/reference/compute_pwm.html</loc>
   </url>
   <url>
@@ -31,6 +34,9 @@
     <loc>/reference/plot_pssm_logo.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_pssm_logo_dataset.html</loc>
+  </url>
+  <url>
     <loc>/reference/plot_regression_prediction.html</loc>
   </url>
   <url>
@@ -44,6 +50,12 @@
   </url>
   <url>
     <loc>/reference/prego-package.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pssm_diff.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pssm_match.html</loc>
   </url>
   <url>
     <loc>/reference/regress_pwm.clusters.html</loc>
