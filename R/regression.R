@@ -21,6 +21,8 @@
 #' @param seed random seed
 #' @param consensus_single_thresh,consensus_double_thresh thresholds for the consensus sequence calculation
 #' (single and double nucleotides)
+#' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
+#' is returned, even if it is not similar enough in absolute terms.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -53,6 +55,10 @@
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' plot_regression_qc(res_binary)
 #'
+#' # match with db
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
+#' plot_regression_qc(res_binary)
+#'
 #' @inheritParams screen_kmers
 #' @inheritDotParams screen_kmers
 #' @export
@@ -77,6 +83,7 @@ regress_pwm <- function(sequences,
                         motif_num = 1,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
+                        match_with_db = FALSE,
                         ...) {
     if (motif_num > 1) {
         return(regress_multiple_motifs(
@@ -99,6 +106,7 @@ regress_pwm <- function(sequences,
             verbose = verbose,
             kmer_length = kmer_length,
             motif_num = motif_num,
+            match_with_db = match_with_db,
             ...
         ))
     }
@@ -230,6 +238,22 @@ regress_pwm <- function(sequences,
 
     res$consensus <- consensus_from_pssm(res$pssm, consensus_single_thresh, consensus_double_thresh)
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
+
+    if (match_with_db) {
+        best_match <- pssm_match(res$pssm, all_motif_datasets())[1, ]
+        res$db_match <- best_match$motif
+        res$db_match_dist <- best_match$dist
+        cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
+        res$db_match_pssm <- all_motif_datasets() %>%
+            filter(motif == best_match$motif) %>%
+            select(pos, A, C, G, T)
+        res$db_match_pred <- compute_pwm(sequences, res$db_match_pssm)
+        res$db_match_r2 <- tgs_cor(response, as.matrix(res$db_match_pred))[, 1]^2
+        if (is_binary_response(response)) {
+            res$db_match_ks <- suppressWarnings(ks.test(res$db_match_pred[as.logical(response[, 1])], res$db_match_pred[!as.logical(response[, 1])]))
+            cli_alert_success("{.val {res$db_match}} KS test D: {.val {round(res$db_match_ks$statistic, digits=4)}}, p-value: {.val {res$db_match_ks$p.value}}")
+        }
+    }
 
     if (is_binary_response(response)) {
         cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=4)}}, p-value: {.val {res$ks$p.value}}")

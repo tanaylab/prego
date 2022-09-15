@@ -30,6 +30,7 @@ regress_pwm.two_phase(
   first_phase_idxs = NULL,
   first_phase_metric = "r2",
   parallel = getOption("prego.parallel", FALSE),
+  match_with_db = FALSE,
   ...
 )
 }
