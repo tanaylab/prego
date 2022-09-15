@@ -1,4 +1,23 @@
 url: ~
 template:
   bootstrap: 5
-
+reference:
+- title: Motif Regression
+  contents:
+  - starts_with("regress_pwm")
+  - starts_with("plot_regression")  
+  - plot_spat_model
+- title: kmers  
+  contents:
+  - screen_kmers
+- title: PSSM/PWM utils  
+  contents:
+  - compute_pwm
+  - consensus_from_pssm
+  - pssm_diff
+  - pssm_match
+  - plot_pssm_logo
+  - plot_pssm_logo_dataset
+  - all_motif_datasets
+- title: other
+  contents: set_parallel
