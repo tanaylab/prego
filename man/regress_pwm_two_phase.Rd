@@ -20,7 +20,7 @@ regress_pwm_two_phase(
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
-  kmer_length = 5:8,
+  kmer_length = 6:8,
   min_gap = 0,
   max_gap = 1,
   min_kmer_cor = 0.1,
@@ -29,6 +29,7 @@ regress_pwm_two_phase(
   two_phase_sample_frac = 0.1,
   first_phase_idxs = NULL,
   first_phase_metric = "r2",
+  parallel = getOption("prego.parallel", FALSE),
   ...
 )
 }
@@ -54,6 +55,9 @@ respectively.}
 \item{first_phase_idxs}{indices of the sequences to use in the first phase of the optimization. If NULL, the indices would be sampled using \code{two_phase_sample_frac}.}
 
 \item{first_phase_metric}{metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.}
+
+\item{parallel}{whether to run the first phase of the optimization in parallel. use \code{set_parallel}
+to set the number of cores to use.}
 }
 \value{
 a list with the following elements:

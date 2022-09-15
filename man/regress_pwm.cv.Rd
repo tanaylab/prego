@@ -13,7 +13,7 @@ regress_pwm.cv(
   categories = NULL,
   two_phase = TRUE,
   seed = 60427,
-  parallel = getOption("prego.parallel"),
+  parallel = getOption("prego.parallel", FALSE),
   add_full_model = TRUE,
   ...
 )

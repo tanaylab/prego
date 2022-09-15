@@ -106,6 +106,7 @@ class PWMLRegression {
 
     void init_seed(const string &init_mot, int isbid);
     void init_pwm(DnaPSSM &pwm);
+    void init_pwm_spat(DnaPSSM &pwm, const vector<float> &spat_factors);
 
     void optimize();
 

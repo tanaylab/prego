@@ -12,6 +12,7 @@
 #' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
 #' would end at the end of the sequence.
 #' @param spat_bin size of the spatial bin (in bp).
+#' @param spat_model a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.
 #' @param improve_epsilon minimum improve in the objective function to continue the optimization
 #' @param min_nuc_prob minimum nucleotide probability in every iteration
 #' @param unif_prior uniform prior for nucleotide probabilities
@@ -45,6 +46,9 @@
 #' # intialize with a pre-computed PSSM
 #' res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm)
 #'
+#' # intialize with a pre-computed PSSM and spatial model
+#' res2 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm, spat_model = res$spat)
+#'
 #' # binary response
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' plot_regression_qc(res_binary)
@@ -61,6 +65,7 @@ regress_pwm <- function(sequences,
                         spat_min = 0,
                         spat_max = NULL,
                         spat_bin = 50,
+                        spat_model = NULL,
                         improve_epsilon = 0.0001,
                         min_nuc_prob = 0.001,
                         unif_prior = 0.05,
@@ -84,6 +89,7 @@ regress_pwm <- function(sequences,
             spat_min = spat_min,
             spat_max = spat_max,
             spat_bin = spat_bin,
+            spat_model = spat_model,
             improve_epsilon = improve_epsilon,
             min_nuc_prob = min_nuc_prob,
             unif_prior = unif_prior,
@@ -121,6 +127,15 @@ regress_pwm <- function(sequences,
 
     if (is.null(spat_max)) {
         spat_max <- nchar(sequences[1])
+    }
+
+    if (!is.null(spat_model)) {
+        if (!is.data.frame(motif)) {
+            cli_abort("If {.field spat_model} is provided, {.field motif} must be a previously computed PSSM")
+        }
+        validate_spat(spat_model)
+        spat_bin <- unique(diff(spat_model$bin))
+        spat_model <- spat_model$spat_factor
     }
 
     if (score_metric == "ks") {
@@ -190,6 +205,7 @@ regress_pwm <- function(sequences,
         spat_max = spat_max,
         min_nuc_prob = min_nuc_prob,
         spat_bin = spat_bin,
+        spat_factor = spat_model,
         improve_epsilon = improve_epsilon,
         is_bidirect = bidirect,
         unif_prior = unif_prior,
@@ -221,7 +237,7 @@ regress_pwm <- function(sequences,
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
 
     if (is_binary_response(response)) {
-        cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=2)}}, p-value: {.val {res$ks$p.value}}")
+        cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=4)}}, p-value: {.val {res$ks$p.value}}")
     } else {
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }

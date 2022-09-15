@@ -14,6 +14,7 @@ regress_pwm(
   spat_min = 0,
   spat_max = NULL,
   spat_bin = 50,
+  spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
@@ -49,6 +50,8 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 would end at the end of the sequence.}
 
 \item{spat_bin}{size of the spatial bin (in bp).}
+
+\item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
 
 \item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
 
@@ -107,6 +110,9 @@ plot_regression_qc(res)
 
 # intialize with a pre-computed PSSM
 res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm)
+
+# intialize with a pre-computed PSSM and spatial model
+res2 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm, spat_model = res$spat)
 
 # binary response
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
