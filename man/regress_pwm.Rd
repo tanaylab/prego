@@ -26,6 +26,7 @@ regress_pwm(
   motif_num = 1,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
+  match_with_db = FALSE,
   ...
 )
 }
@@ -72,6 +73,9 @@ would end at the end of the sequence.}
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
 
+\item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
+is returned, even if it is not similar enough in absolute terms.}
+
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
@@ -116,6 +120,10 @@ res2 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm, s
 
 # binary response
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+plot_regression_qc(res_binary)
+
+# match with db
+res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 plot_regression_qc(res_binary)
 
 }

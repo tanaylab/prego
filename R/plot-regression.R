@@ -141,13 +141,30 @@ plot_regression_qc <- function(reg,
         p_pred <- plot_regression_prediction(reg$pred, response)
     }
 
-    match_df <- pssm_match(reg$pssm, all_motif_datasets())
-    best_motif <- match_df[1, ]
+    if (is.null(reg$db_match) || is.null(reg$db_match_dist)) {
+        match_df <- pssm_match(reg$pssm, all_motif_datasets())
+        best_motif <- match_df[1, ]
+        reg$db_match <- best_motif$motif
+        reg$db_match_dist <- best_motif$dist
+    }
+
+    m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}")
+
+    if (is_binary_response(response)) {
+        if (!is.null(reg$db_match_ks)) {
+            m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}, KS D: {round(reg$db_match_ks$statistic, digits = 3)}")
+        }
+    } else {
+        if (!is.null(reg$db_match_r2)) {
+            m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}, R2: {round(reg$db_match_r2, digits = 3)}")
+        }
+    }
+
     p_match <- plot_pssm_logo_dataset(
-        best_motif$motif,
+        reg$db_match,
         all_motif_datasets(),
-        title = glue("Best match: {best_motif$motif}"),
-        subtitle = glue("KL: {round(best_motif$dist, digits = 3)}")
+        title = glue("Best match: {reg$db_match}"),
+        subtitle = m_subtitle
     )
 
     design <- "LS

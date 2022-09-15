@@ -49,6 +49,7 @@ regress_pwm.two_phase <- function(sequences,
                                   first_phase_idxs = NULL,
                                   first_phase_metric = "r2",
                                   parallel = getOption("prego.parallel", FALSE),
+                                  match_with_db = FALSE,
                                   ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -107,7 +108,8 @@ regress_pwm.two_phase <- function(sequences,
             is_train = is_train,
             include_response = FALSE,
             seed = seed,
-            verbose = FALSE
+            verbose = FALSE,
+            match_with_db = FALSE
         ) %>%
             suppressMessages()
         if (first_phase_metric == "ks") {
@@ -152,7 +154,8 @@ regress_pwm.two_phase <- function(sequences,
         kmer_length = kmer_length,
         motif_num = 1,
         consensus_single_thresh = consensus_single_thresh,
-        consensus_double_thresh = consensus_double_thresh
+        consensus_double_thresh = consensus_double_thresh,
+        match_with_db = match_with_db
     )
 
     res$seed_motif <- res_s$seed_motif

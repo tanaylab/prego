@@ -69,7 +69,7 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
     cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
     cluster_models <- plyr::llply(seq_len(ncol(cluster_mat)), function(i) {
         cli_h1("Cluster {.val {i}}")
-        regression_func(sequences, cluster_mat[, i], ...)
+        regression_func(sequences, cluster_mat[, i], match_with_db = match_with_db, ...)
     }, .parallel = parallel)
 
     names(cluster_models) <- colnames(cluster_mat)
@@ -92,7 +92,11 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
 
     if (match_with_db) {
         cli_alert_info("Matching with motif databases")
-        stats$db_match <- purrr::map_chr(cluster_models, ~ pssm_match(.x$pssm, all_motif_datasets(), best = TRUE, parallel = parallel))
+        stats$db_match <- purrr::map_chr(cluster_models, "db_match")
+        stats$db_match_dist <- purrr::map_chr(cluster_models, "db_match_dist")
+        pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
+        colnames(pred_mat_db) <- names(stats$db_match)
+        rownames(pred_mat_db) <- names(sequences)
     }
 
     res <- list(
@@ -101,6 +105,10 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
         pred_mat = pred_mat,
         stats = stats
     )
+
+    if (match_with_db) {
+        res$db_pred_mat <- pred_mat_db
+    }
 
     return(res)
 }
