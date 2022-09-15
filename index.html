@@ -93,8 +93,8 @@
 <span><span class="co">#&gt; ✔ Finished running regression. Consensus: "TTACRAC"</span></span>
 <span><span class="co">#&gt; ✔ R^2: 0.01, 0.0054, 0.0373, 0.0002, and 0.0087</span></span>
 <span><span class="fu"><a href="reference/plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")`</span></span>
-<span><span class="co">#&gt; instead.</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span></span>
+<span><span class="co">#&gt; `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="100%"></p>
 <p>For binary response:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -121,22 +121,23 @@
 <span><span class="co">#&gt; ✔ Finished running regression. Consensus: "T*A***W*T"</span></span>
 <span><span class="co">#&gt; ✔ KS test D: 0.8507, p-value: 0</span></span>
 <span><span class="fu"><a href="reference/plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")`</span></span>
-<span><span class="co">#&gt; instead.</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span></span>
+<span><span class="co">#&gt; `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
 <p>For clusters of sequences:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regress_pwm.clusters.html">regress_pwm.clusters</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Using two-phase optimization</span></span>
-<span><span class="co">#&gt; ℹ Running regression for 2359 clusters</span></span>
+<span><span class="co">#&gt; ℹ Using single-phase optimization</span></span>
+<span><span class="co">#&gt; ℹ Running regression for 5 clusters</span></span>
+<span><span class="co">#&gt; ℹ Matching with motif databases</span></span>
 <span><span class="va">res</span><span class="op">$</span><span class="va">stats</span></span>
-<span><span class="co">#&gt; # A tibble: 5 x 5</span></span>
-<span><span class="co">#&gt;   cluster consensus      ks_D        r2      seed_motif</span></span>
-<span><span class="co">#&gt; 1    c100   AT***TC 0.6998806 0.4004041 ***ATCCATCA****</span></span>
-<span><span class="co">#&gt; 2    c111   Y*RTAAA 0.8492008 0.5081351 ****CATAAA*****</span></span>
-<span><span class="co">#&gt; 3     c29 R*W**KT*A 0.8514453 0.5724329 ***AAT*ATTAA***</span></span>
-<span><span class="co">#&gt; 4      c5      &lt;NA&gt; 0.5543292 0.2086212 ***AAT*ATTAA***</span></span>
-<span><span class="co">#&gt; 5      c6      WATC 0.6016048 0.2819655 ***TCTTATCT****</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 5 x 6</span></span>
+<span><span class="co">#&gt;   cluster consensus      ks_D        r2      seed_motif              db_match</span></span>
+<span><span class="co">#&gt; 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JOLMA.DLX2_mono_DBD_1</span></span>
+<span><span class="co">#&gt; 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****           JASPAR.CDX1</span></span>
+<span><span class="co">#&gt; 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1</span></span>
+<span><span class="co">#&gt; 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****         HOMER.GATA3_2</span></span>
+<span><span class="co">#&gt; 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****     HOMER.GAGA_repeat</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
