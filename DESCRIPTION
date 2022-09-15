@@ -22,7 +22,8 @@ Imports:
     doMC,
     plyr,
     parallel,
-    tidyr
+    tidyr,
+    glue
 Suggests: 
     testthat (>= 3.0.0),
     withr

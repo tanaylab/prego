@@ -4,7 +4,14 @@
 \alias{plot_regression_qc}
 \title{Plot the regression results}
 \usage{
-plot_regression_qc(reg, response = NULL, title = NULL)
+plot_regression_qc(
+  reg,
+  response = NULL,
+  title = glue("Motif regression results (consensus: {reg$consensus})"),
+  subtitle = NULL,
+ 
+    caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")
+)
 }
 \arguments{
 \item{reg}{output of \code{regress_pwm}}
@@ -12,6 +19,10 @@ plot_regression_qc(reg, response = NULL, title = NULL)
 \item{response}{the response variable}
 
 \item{title}{a title for the plot (optional)}
+
+\item{subtitle}{a subtitle for the plot (optional)}
+
+\item{caption}{a caption for the plot (optional)}
 }
 \value{
 a patchwork object

@@ -8,3 +8,4 @@
 ^\.vscode$
 ^src/\.clang-format
 ^tools$
+^data-raw$

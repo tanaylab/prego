@@ -1,22 +1,3 @@
-#' Plot LOGO of the pssm result from the regression
-#'
-#' @param pssm the 'pssm' field from the regression result
-#'
-#' @examples
-#' res <- regress_pwm(sequences_example, response_mat_example)
-#' plot_pssm_logo(res$pssm)
-#'
-#' @export
-plot_pssm_logo <- function(pssm) {
-    pfm <- pssm %>%
-        as.data.frame() %>%
-        tibble::column_to_rownames("pos") %>%
-        as.matrix() %>%
-        t()
-    ggseqlogo::ggseqlogo(pfm) +
-        ggtitle("Sequence model")
-}
-
 #' Plot spatial model of the regression result
 #'
 #' @param spat the 'spat' field from the regression result
@@ -129,6 +110,9 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' @param reg output of \code{regress_pwm}
 #' @param response the response variable
 #' @param title a title for the plot (optional)
+#' @param subtitle a subtitle for the plot (optional)
+#' @param caption a caption for the plot (optional)
+#'
 #'
 #' @return a patchwork object
 #'
@@ -140,7 +124,11 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' plot_regression_qc(res_binary)
 #'
 #' @export
-plot_regression_qc <- function(reg, response = NULL, title = NULL) {
+plot_regression_qc <- function(reg,
+                               response = NULL,
+                               title = glue("Motif regression results (consensus: {reg$consensus})"),
+                               subtitle = NULL,
+                               caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")) {
     if (is.null(response)) {
         if (!("response" %in% names(reg))) {
             cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
@@ -152,17 +140,28 @@ plot_regression_qc <- function(reg, response = NULL, title = NULL) {
     } else {
         p_pred <- plot_regression_prediction(reg$pred, response)
     }
+
+    match_df <- pssm_match(reg$pssm, all_motif_datasets())
+    best_motif <- match_df[1, ]
+    p_match <- plot_pssm_logo_dataset(
+        best_motif$motif,
+        all_motif_datasets(),
+        title = glue("Best match: {best_motif$motif}"),
+        subtitle = glue("KL: {round(best_motif$dist, digits = 3)}")
+    )
+
     design <- "LS
-               R#"
+               MR"
     p <- patchwork::wrap_plots(
         L = plot_pssm_logo(reg$pssm),
         S = plot_spat_model(reg$spat),
         R = p_pred,
+        M = p_match,
         design = design
     )
 
     if (!is.null(title)) {
-        p <- p + patchwork::plot_annotation(title = title)
+        p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle, caption = caption)
     }
     return(p)
 }

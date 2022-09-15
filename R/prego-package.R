@@ -6,6 +6,7 @@
 #' @importFrom dplyr select mutate filter slice left_join right_join inner_join anti_join arrange desc pull group_by slice_max ungroup
 #' @importFrom tibble tibble
 #' @importFrom stats ks.test
+#' @importFrom glue glue
 #' @import ggplot2
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib prego

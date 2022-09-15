@@ -154,12 +154,7 @@ regress_pwm <- function(sequences,
             cli_abort("The {.field motif} PSSM data frame should have columns {.val pos}, {.val A}, {.val C}, {.val G}, {.val T}")
         }
 
-        pssm <- pssm %>%
-            arrange(as.numeric(pos)) %>%
-            as.data.frame() %>%
-            tibble::column_to_rownames("pos") %>%
-            select(A, C, G, T) %>%
-            as.matrix()
+        pssm <- pssm_to_mat(pssm)
 
         motif <- ""
         cli_alert_info("Initializing regression with pre-computed PSSM")
