@@ -7,7 +7,8 @@
 regress_pwm.clusters(
   sequences,
   clusters,
-  two_phase = TRUE,
+  two_phase = FALSE,
+  match_with_db = TRUE,
   two_phase_sample_frac = c(0.1, 1),
   first_phase_metric = "ks",
   parallel = getOption("prego.parallel", TRUE),
@@ -19,7 +20,11 @@ regress_pwm.clusters(
 
 \item{clusters}{a vector with the cluster assignments for each sequence}
 
-\item{two_phase}{whether to use two-phase optimization or not.}
+\item{two_phase}{whether to use two-phase optimization or not (default: FALSE).}
+
+\item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
+This would add a column named 'db_match' to the stats data frame. Note that the closest match
+is returned, even if it is not similar enough in absolute terms.}
 
 \item{two_phase_sample_frac}{a vector of two numbers, specifying the fraction of
 sequences to use in the first phase of optimization for the sequences which are not
@@ -65,7 +70,7 @@ a list with the following elements:
 \item{models: }{a list with the models for each cluster}
 \item{cluster_mat: }{an indicator matrix with the cluster assignments}
 \item{pred_mat: }{a matrix with the predicted pwm for each sequence (rows) and cluster (columns)}
-\item{stats: }{a data frame with the statistics for each cluster}
+\item{stats: }{a data frame with statistics for each cluster}
 }
 }
 \description{
