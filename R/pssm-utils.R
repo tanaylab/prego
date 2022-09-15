@@ -230,21 +230,4 @@ plot_pssm_logo_dataset <- function(motif, dataset, title = motif, subtitle = ggp
     plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle)
 }
 
-#' Get a data frame of all the motif datasets bundled with prego
-#'
-#' @return a data frame which concatenates motifs from "HOMER", "JASPAR" and "JOLMA".
-#' Motif names are prefixed with the dataset name, e.g. "JASPAR.GATA4".
-#'
-#' @examples
-#' all_motif_datasets()
-#'
-#' @export
-all_motif_datasets <- function() {
-    dplyr::bind_rows(
-        HOMER_motifs %>% mutate(dataset = "HOMER"),
-        JASPAR_motifs %>% mutate(dataset = "JASPAR"),
-        JOLMA_motifs %>% mutate(dataset = "JOLMA")
-    ) %>%
-        mutate(motif_orig = motif) %>%
-        tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
-}
+
