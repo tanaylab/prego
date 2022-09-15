@@ -1,6 +1,6 @@
-#' Cross-validate a two-phase regression model
+#' Cross-validate a PWMregression model
 #'
-#' @description Perform cross-validation on a two-phase regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
+#' @description Perform cross-validation on a PWM regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
 #'
 #' @param nfolds number of folds for cross-validation. Can be NULL if \code{folds} are provided.
 #' @param metric metric to use for cross-validation. One of 'ks' or 'r2'. If NULL - 'ks' would be set for binary response and 'r2' for continuous response.

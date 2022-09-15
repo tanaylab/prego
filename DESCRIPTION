@@ -1,11 +1,11 @@
 Package: prego
-Title: What the Package Does (One Line, Title Case)
+Title: PWM Regression Optimizer
 Version: 0.0.0.9000
 Authors@R: c(
     person("Aviezer", "Lifshitz", , "aviezer.lifshitz@weizmann.ac.il", role = c("aut", "cre")),
     person("Amos", "Tanay", , "amos.tanay@weizmann.ac.il", role = "aut")
   )
-Description: What the package does (one paragraph).
+Description: PREGO implements regression algorithms for finding motifs in DNA. It contains algorithms which were described at: "Extensive low-affinity transcriptional interactions in the yeast genome" <doi:10.1101/gr.5113606>.
 License: MIT + file LICENSE
 Imports: 
     cli,

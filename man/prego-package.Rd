@@ -4,9 +4,9 @@
 \name{prego-package}
 \alias{prego}
 \alias{prego-package}
-\title{prego: What the Package Does (One Line, Title Case)}
+\title{prego: PWM Regression Optimizer}
 \description{
-What the package does (one paragraph).
+PREGO implements regression algorithms for finding motifs in DNA. It contains algorithms which were described at: "Extensive low-affinity transcriptional interactions in the yeast genome" \doi{10.1101/gr.5113606}.
 }
 \author{
 \strong{Maintainer}: Aviezer Lifshitz \email{aviezer.lifshitz@weizmann.ac.il}
