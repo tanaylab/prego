@@ -18,4 +18,3 @@ all_motif_datasets <- function() {
         mutate(motif_orig = motif) %>%
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
 }
-
