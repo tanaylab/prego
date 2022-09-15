@@ -21,7 +21,7 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     if (m_score_metric == "ks" && m_rdim > 1) {
         Rcpp::stop("Warning: KS test is only for binary response");
     }
-    if (m_logit){
+    if (m_logit) {
         Rcpp::Rcerr << "will init response "
                     << " m_rdim " << m_rdim << " size of vec " << stats[0].size() << endl;
     }
@@ -73,11 +73,12 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
         m_data_var[rd] /= m_train_n;
         m_data_var[rd] -= m_data_avg[rd] * m_data_avg[rd];
     }
-    if (m_logit){
-        Rcpp::Rcerr << "response avg " << m_data_avg[0] << " response var " << m_data_var[0] << endl;
+    if (m_logit) {
+        Rcpp::Rcerr << "response avg " << m_data_avg[0] << " response var " << m_data_var[0]
+                    << endl;
         Rcpp::Rcerr << "ranges " << m_min_range << " " << m_max_range << " bin " << m_spat_bin_size
-                << endl;
-    }    
+                    << endl;
+    }
 }
 
 void PWMLRegression::init_seed(const string &init_mot, int isbid) {
@@ -124,8 +125,9 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
         m_nuc_factors[i]['C'] = pwm[i].get_prob('C');
         m_nuc_factors[i]['G'] = pwm[i].get_prob('G');
         m_nuc_factors[i]['T'] = pwm[i].get_prob('T');
-        Rcpp::Rcerr << "set pos " << i + 1 << " to " << m_nuc_factors[i]['A'] << " " << m_nuc_factors[i]['C']
-                    << " " << m_nuc_factors[i]['G'] << " " << m_nuc_factors[i]['T'] << endl;
+        Rcpp::Rcerr << "set pos " << i + 1 << " to " << m_nuc_factors[i]['A'] << " "
+                    << m_nuc_factors[i]['C'] << " " << m_nuc_factors[i]['G'] << " "
+                    << m_nuc_factors[i]['T'] << endl;
     }
 
     m_aux_upds.resize(pwm.size());
@@ -201,9 +203,9 @@ void PWMLRegression::optimize() {
     m_cur_score = 0;
 
     for (int phase = 0; phase < m_resolutions.size(); phase++) {
-        if (m_logit){
+        if (m_logit) {
             Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
-        }        
+        }
         init_neighborhood(m_resolutions[phase]); // prepare all possible steps
         m_spat_factor_step = m_spat_resolutions[phase];
         do {
@@ -220,7 +222,7 @@ void PWMLRegression::optimize() {
             // duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
             // Rcpp::Rcout << "take_best_step took " << duration.count() << " milliseconds" << endl;
 
-            if (m_logit){
+            if (m_logit) {
                 Rcpp::Rcerr << "S -lrtEP prev " << prev_score << " " << m_cur_score << endl;
             }
         } while (m_cur_score > prev_score + m_imporve_epsilon);
@@ -384,17 +386,17 @@ void PWMLRegression::take_best_step() {
     best_step = get<2>(pos_output[0]);
     Rcpp::checkUserInterrupt();
 
-    if (m_logit){
-        Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score " << best_score
-                    << endl;
+    if (m_logit) {
+        Rcpp::Rcerr << "best step was " << best_step << " pos " << best_pos << " score "
+                    << best_score << endl;
     }
-    
+
     int max_spat_bin = m_spat_factors.size();
     float best_spat_score = m_cur_score;
     int best_spat_bin = -1;
     float best_spat_diff = 0;
     float spat_score = compute_cur_spat_score();
-    if (m_logit){
+    if (m_logit) {
         Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score
                     << endl;
     }
@@ -419,12 +421,12 @@ void PWMLRegression::take_best_step() {
         }
         m_spat_factors[spat_bin] += m_spat_factor_step;
     }
-    if (m_logit){
+    if (m_logit) {
         Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff
                     << " score " << best_spat_score << endl;
     }
     if (best_score == m_cur_score) {
-        if (m_logit){
+        if (m_logit) {
             Rcpp::Rcerr << "no improvement" << endl;
         }
         return;
@@ -441,19 +443,22 @@ void PWMLRegression::take_best_step() {
             }
         }
         float tot = pos_probs['A'] + pos_probs['C'] + pos_probs['G'] + pos_probs['T'];
-        if (m_logit){
+        if (m_logit) {
             Rcpp::Rcerr << "update pos " << best_pos << " tot = " << tot << endl;
-        }        
+        }
         pos_probs['A'] /= tot;
         pos_probs['C'] /= tot;
         pos_probs['G'] /= tot;
         pos_probs['T'] /= tot;
         m_cur_score = best_score;
     } else {
-        if (m_logit){
-            Rcpp::Rcerr << "update spat bin " << best_spat_bin << " diff " << best_spat_diff << endl;
+        if (m_logit) {
+            Rcpp::Rcerr << "update spat bin " << best_spat_bin << " diff " << best_spat_diff
+                        << endl;
+        }
+
         m_spat_factors[best_spat_bin] += best_spat_diff;
-        }        
+
         // normalize
         for (int bin = 0; bin < m_spat_factors.size(); bin++) {
             m_spat_factors[bin] /= (1 + best_spat_diff);
@@ -699,8 +704,8 @@ Rcpp::DataFrame PWMLRegression::output_pssm_df(int psid) {
     }
 
     Rcpp::DataFrame pssm = Rcpp::DataFrame::create(
-        Rcpp::Named("pos") = poss, Rcpp::Named("A") = pssm_A,
-        Rcpp::Named("C") = pssm_C, Rcpp::Named("G") = pssm_G, Rcpp::Named("T") = pssm_T);
+        Rcpp::Named("pos") = poss, Rcpp::Named("A") = pssm_A, Rcpp::Named("C") = pssm_C,
+        Rcpp::Named("G") = pssm_G, Rcpp::Named("T") = pssm_T);
 
     return pssm;
 }
@@ -715,9 +720,8 @@ Rcpp::DataFrame PWMLRegression::output_spat_df(int psid) {
         spat_factors[bin] = m_spat_factors[bin];
     }
 
-    Rcpp::DataFrame spat_df =
-        Rcpp::DataFrame::create(Rcpp::Named("bin") = spat_bins,
-                                Rcpp::Named("spat_factor") = spat_factors);
+    Rcpp::DataFrame spat_df = Rcpp::DataFrame::create(Rcpp::Named("bin") = spat_bins,
+                                                      Rcpp::Named("spat_factor") = spat_factors);
 
     return (spat_df);
 }
