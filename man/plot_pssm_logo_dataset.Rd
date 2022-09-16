@@ -6,7 +6,7 @@
 \usage{
 plot_pssm_logo_dataset(
   motif,
-  dataset,
+  dataset = all_motif_datasets(),
   title = motif,
   subtitle = ggplot2::waiver()
 )
@@ -27,6 +27,9 @@ a ggplot object
 Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
 }
 \examples{
+
+plot_pssm_logo_dataset("JASPAR.Brachyury")
+
 plot_pssm_logo_dataset("GATA5", JASPAR_motifs)
 
 }
