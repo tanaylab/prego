@@ -217,11 +217,14 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #' @return a ggplot object
 #'
 #' @examples
+#'
+#' plot_pssm_logo_dataset("JASPAR.Brachyury")
+#'
 #' plot_pssm_logo_dataset("GATA5", JASPAR_motifs)
 #'
 #' @inheritParams plot_pssm_logo
 #' @export
-plot_pssm_logo_dataset <- function(motif, dataset, title = motif, subtitle = ggplot2::waiver()) {
+plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver()) {
     motif_dataset <- dataset %>%
         filter(motif == !!motif)
     if (nrow(motif_dataset) == 0) {
