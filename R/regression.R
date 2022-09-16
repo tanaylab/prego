@@ -23,6 +23,7 @@
 #' (single and double nucleotides)
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 #' is returned, even if it is not similar enough in absolute terms.
+#' @param motif_dataset  a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -84,6 +85,7 @@ regress_pwm <- function(sequences,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
                         match_with_db = FALSE,
+                        motif_dataset = all_motif_datasets(),
                         ...) {
     if (motif_num > 1) {
         return(regress_multiple_motifs(
@@ -240,11 +242,11 @@ regress_pwm <- function(sequences,
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
 
     if (match_with_db) {
-        best_match <- pssm_match(res$pssm, all_motif_datasets())[1, ]
+        best_match <- pssm_match(res$pssm, motif_dataset)[1, ]
         res$db_match <- best_match$motif
         res$db_match_dist <- best_match$dist
         cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
-        res$db_match_pssm <- all_motif_datasets() %>%
+        res$db_match_pssm <- motif_dataset %>%
             filter(motif == best_match$motif) %>%
             select(pos, A, C, G, T)
         res$db_match_pred <- compute_pwm(sequences, res$db_match_pssm)

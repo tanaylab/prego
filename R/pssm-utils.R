@@ -212,7 +212,7 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #' Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
 #'
 #' @param motif the motif name (e.g. "GATA4")
-#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}
+#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets()
 #'
 #' @return a ggplot object
 #'

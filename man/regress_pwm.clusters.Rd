@@ -23,8 +23,9 @@ regress_pwm.clusters(
 \item{two_phase}{whether to use two-phase optimization or not (default: FALSE).}
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
-This would add a column named 'db_match' to the stats data frame. Note that the closest match
-is returned, even if it is not similar enough in absolute terms.}
+This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
+database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
+Note that the closest match is returned, even if it is not similar enough in absolute terms.}
 
 \item{two_phase_sample_frac}{a vector of two numbers, specifying the fraction of
 sequences to use in the first phase of optimization for the sequences which are not
@@ -58,6 +59,7 @@ would end at the end of the sequence.}
     \item{\code{seed}}{random seed}
     \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
+    \item{\code{motif_dataset}}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
     \item{\code{kmer_length}}{The number of non-gap characters in motifs that will be screened}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
     \item{\code{first_phase_idxs}}{indices of the sequences to use in the first phase of the optimization. If NULL, the indices would be sampled using \code{two_phase_sample_frac}.}
@@ -70,6 +72,8 @@ a list with the following elements:
 \item{models: }{a list with the models for each cluster}
 \item{cluster_mat: }{an indicator matrix with the cluster assignments}
 \item{pred_mat: }{a matrix with the predicted pwm for each sequence (rows) and cluster (columns)}
+\item{motif_dataset: }{a data frame with the PSSMs for each cluster}
+\item{spat_dataset: }{a data frame with the spatial model for each cluster}
 \item{stats: }{a data frame with statistics for each cluster}
 }
 }
