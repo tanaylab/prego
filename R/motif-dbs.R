@@ -26,3 +26,82 @@ all_motif_datasets <- function() {
         mutate(motif_orig = motif) %>%
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
 }
+
+#' Extract pwm of seqeuences from a motif database
+#'
+#' @description Extracts the pwm of a motif from a motif database. Note that for a large number of motifs, this function can be slow and consume
+#' a lot of memory.
+#'
+#' @param motifs names of specific motifs to extract from the dataset
+#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.
+#' @param parallel logical, whether to use parallel processing
+#'
+#' @return a matrix size of # of sequences x # of motifs with the pwm of each sequence for each motif
+#'
+#' @examples
+#' pwms <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "HOMER.Hnf1", "HOMER.GATA3_2"))
+#' head(pwms)
+#'
+#' # all motifs
+#' all_pwms <- extract_pwm(cluster_sequences_example)
+#' dim(all_pwms)
+#' all_pwms[1:5, 1:5]
+#'
+#' # for a specific dataset
+#' pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs)
+#' head(pwms_jaspar)
+#'
+#' @inheritParams compute_pwm
+#' @export
+extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, parallel = getOption("prego.parallel", TRUE)) {
+    if (!is.null(motifs)) {
+        dataset <- dataset %>% filter(motif %in% motifs)
+    }
+
+    sequences <- toupper(sequences)
+
+    res <- plyr::daply(dataset, "motif", function(x) {
+        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+    }, .parallel = parallel)
+
+    res <- as.matrix(t(res))
+
+    if (!is.null(names(sequences))) {
+        rownames(res) <- names(sequences)
+    }
+
+    return(res)
+}
+
+#' Extract pwm of intervals from a motif database
+#'
+#' @param intervals misha intervals set
+#'
+#' @return The intervals set with additional columns per motif, containing the pwm of each interval for each motif
+#'
+#' @inheritParams extract_pwm
+#'
+#' @examples
+#' \dontrun{
+#' library(misha)
+#' gdb.init_examples()
+#' pwms <- gextract_pwm("annotations")
+#' pwms[, 1:20]
+#' }
+#'
+#' @export
+gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, parallel = getOption("prego.parallel", TRUE)) {
+    if (!("misha" %in% installed.packages())) {
+        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
+    }
+
+    if (is.character(intervals)) {
+        intervals <- misha::gintervals.load(intervals)
+    }
+
+    sequences <- misha::gseq.extract(intervals)
+
+    res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, parallel = parallel)
+
+    return(cbind(intervals, as.data.frame(res)))
+}
