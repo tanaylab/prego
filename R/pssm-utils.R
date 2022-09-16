@@ -65,7 +65,7 @@ validate_spat <- function(spat) {
 }
 
 
-#' Convert PSSM to kmer using majority
+#' Convert PSSM to consensus sequence
 #'
 #' @param pssm A PSSM matrix
 #' @param single_thresh,double_thresh thresholds for the consensus sequence calculation

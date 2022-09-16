@@ -2,7 +2,7 @@
 % Please edit documentation in R/pssm-utils.R
 \name{consensus_from_pssm}
 \alias{consensus_from_pssm}
-\title{Convert PSSM to kmer using majority}
+\title{Convert PSSM to consensus sequence}
 \usage{
 consensus_from_pssm(pssm, single_thresh = 0.6, double_thresh = 0.85)
 }
@@ -16,7 +16,7 @@ consensus_from_pssm(pssm, single_thresh = 0.6, double_thresh = 0.85)
 A consensus sequence for the PSSM. If no consensus sequence can be found, the function returns NA.
 }
 \description{
-Convert PSSM to kmer using majority
+Convert PSSM to consensus sequence
 }
 \examples{
 
