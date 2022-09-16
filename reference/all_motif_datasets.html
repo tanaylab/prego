@@ -52,11 +52,18 @@
 <p>a data frame which concatenates motifs from "HOMER", "JASPAR" and "JOLMA".
 Motif names are prefixed with the dataset name, e.g. "JASPAR.GATA4".</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    
+<ul><li><p>HOMER:  Heinz S, Benner C, Spann N, Bertolino E et al. Simple Combinations of Lineage-Determining Transcription Factors Prime cis-Regulatory Elements Required for Macrophage and B Cell Identities. Mol Cell 2010 May 28;38(4):576-589. PMID: 20513432</p></li>
+<li><p>JASPAR: Castro-Mondragon JA, Riudavets-Puig R, Rauluseviciute I, Berhanu Lemma R, Turchi L, Blanc-Mathieu R, Lucas J, Boddie P, Khan A, Manosalva Pérez N, Fornes O, Leung TY, Aguirre A, Hammal F, Schmelter D, Baranasic D, Ballester B, Sandelin A, Lenhard B, Vandepoele K, Wasserman WW, Parcy F, and Mathelier A JASPAR 2022: the 9th release of the open-access database of transcription factor binding profiles Nucleic Acids Res. 2022 Jan 7;50(D1):D165-D173.; doi: 10.1093/nar/gkab1113</p></li>
+<li><p>JOLMA: Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). https://doi.org/10.1038/nature18912</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">all_motif_datasets</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 20,375 x 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 38,758 x 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        motif pos     A     C     G     T dataset motif_orig</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 HOMER.AP_1   0 0.419 0.275 0.277 0.028   HOMER       AP_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 HOMER.AP_1   1 0.001 0.001 0.001 0.997   HOMER       AP_1</span>
@@ -64,7 +71,7 @@ Motif names are prefixed with the dataset name, e.g. "JASPAR.GATA4".</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 HOMER.AP_1   3 0.984 0.003 0.001 0.012   HOMER       AP_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 HOMER.AP_1   4 0.062 0.579 0.305 0.054   HOMER       AP_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 HOMER.AP_1   5 0.026 0.001 0.001 0.972   HOMER       AP_1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # ... with 20,369 more rows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # ... with 38,752 more rows</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
