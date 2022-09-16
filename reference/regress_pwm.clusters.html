@@ -70,8 +70,9 @@
 
 <dt>match_with_db</dt>
 <dd><p>match the resulting PWMs with motif databases using <code>pssm_match</code>.
-This would add a column named 'db_match' to the stats data frame. Note that the closest match
-is returned, even if it is not similar enough in absolute terms.</p></dd>
+This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
+database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
+Note that the closest match is returned, even if it is not similar enough in absolute terms.</p></dd>
 
 
 <dt>two_phase_sample_frac</dt>
@@ -142,6 +143,9 @@ would end at the end of the sequence.</p></dd>
 <dd><p>thresholds for the consensus sequence calculation
 (single and double nucleotides)</p></dd>
 
+    <dt><code>motif_dataset</code></dt>
+<dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
+
     <dt><code>kmer_length</code></dt>
 <dd><p>The number of non-gap characters in motifs that will be screened</p></dd>
 
@@ -165,6 +169,8 @@ would end at the end of the sequence.</p></dd>
 <p>a list with the following elements:</p><ul><li><p>models: a list with the models for each cluster</p></li>
 <li><p>cluster_mat: an indicator matrix with the cluster assignments</p></li>
 <li><p>pred_mat: a matrix with the predicted pwm for each sequence (rows) and cluster (columns)</p></li>
+<li><p>motif_dataset: a data frame with the PSSMs for each cluster</p></li>
+<li><p>spat_dataset: a data frame with the spatial model for each cluster</p></li>
 <li><p>stats: a data frame with statistics for each cluster</p></li>
 </ul></div>
 

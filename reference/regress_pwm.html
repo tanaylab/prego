@@ -65,6 +65,7 @@
 <span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
 <span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -154,6 +155,10 @@ would end at the end of the sequence.</p></dd>
 <dt>match_with_db</dt>
 <dd><p>match the resulting PWMs with motif databases using <code>pssm_match</code>. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.</p></dd>
+
+
+<dt>motif_dataset</dt>
+<dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
 
 
 <dt>...</dt>
