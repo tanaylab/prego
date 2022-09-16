@@ -14,7 +14,7 @@ plot_pssm_logo_dataset(
 \arguments{
 \item{motif}{the motif name (e.g. "GATA4")}
 
-\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}}
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets()}
 
 \item{title}{title of the plot}
 

@@ -6,14 +6,17 @@
 #' sequences to use in the first phase of optimization for the sequences which are not
 #' in the cluster (first number) and in the cluster (second number).
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
-#' This would add a column named 'db_match' to the stats data frame. Note that the closest match
-#' is returned, even if it is not similar enough in absolute terms.
+#' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
+#' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
+#' Note that the closest match is returned, even if it is not similar enough in absolute terms.
 #'
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{models: }{a list with the models for each cluster}
 #' \item{cluster_mat: }{an indicator matrix with the cluster assignments}
 #' \item{pred_mat: }{a matrix with the predicted pwm for each sequence (rows) and cluster (columns)}
+#' \item{motif_dataset: }{a data frame with the PSSMs for each cluster}
+#' \item{spat_dataset: }{a data frame with the spatial model for each cluster}
 #' \item{stats: }{a data frame with statistics for each cluster}
 #' }
 #'
@@ -91,23 +94,32 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
     })
 
     if (match_with_db) {
-        cli_alert_info("Matching with motif databases")
-        stats$db_match <- purrr::map_chr(cluster_models, "db_match")
-        stats$db_match_dist <- purrr::map_chr(cluster_models, "db_match_dist")
-        pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
-        colnames(pred_mat_db) <- names(stats$db_match)
-        rownames(pred_mat_db) <- names(sequences)
+
     }
+
+    motif_dataset <- purrr::imap_dfr(cluster_models, ~ .x$pssm %>% mutate(motif = .y)) %>%
+        select(motif, pos, A, C, G, T)
+    spat_dataset <- purrr::imap_dfr(cluster_models, ~ .x$spat %>% mutate(motif = .y)) %>%
+        select(motif, bin, spat_factor)
 
     res <- list(
         models = cluster_models,
         cluster_mat = cluster_mat,
         pred_mat = pred_mat,
+        motif_dataset = motif_dataset,
+        spat_dataset = spat_dataset,
         stats = stats
     )
 
     if (match_with_db) {
-        res$db_pred_mat <- pred_mat_db
+        cli_alert_info("Matching with motif databases")
+        res$stats$db_match <- purrr::map_chr(cluster_models, "db_match")
+        res$stats$db_match_dist <- purrr::map_chr(cluster_models, "db_match_dist")
+        res$pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
+        colnames(res$pred_mat_db) <- names(res$stats$db_match)
+        rownames(res$pred_mat_db) <- names(sequences)
+        res$db_dataset <- purrr::imap_dfr(cluster_models, ~ .x$db_match_pssm %>% mutate(cluster = .y, motif = .x$db_match)) %>%
+            select(cluster, motif, pos, A, C, G, T)
     }
 
     return(res)

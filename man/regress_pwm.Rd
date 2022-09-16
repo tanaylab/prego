@@ -27,6 +27,7 @@ regress_pwm(
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
   match_with_db = FALSE,
+  motif_dataset = all_motif_datasets(),
   ...
 )
 }
@@ -75,6 +76,8 @@ would end at the end of the sequence.}
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.}
+
+\item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
