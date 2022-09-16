@@ -13,6 +13,8 @@ reference:
 - title: PSSM/PWM utils  
   contents:
   - compute_pwm
+  - extract_pwm
+  - gextract_pwm
   - consensus_from_pssm
   - pssm_diff
   - pssm_match
