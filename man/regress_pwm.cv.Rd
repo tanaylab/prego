@@ -11,7 +11,7 @@ regress_pwm.cv(
   metric = NULL,
   folds = NULL,
   categories = NULL,
-  two_phase = TRUE,
+  use_sample = TRUE,
   seed = 60427,
   parallel = getOption("prego.parallel", FALSE),
   add_full_model = TRUE,
@@ -31,7 +31,7 @@ regress_pwm.cv(
 
 \item{categories}{vector of categories for each sequence (optional)}
 
-\item{two_phase}{whether to use two-phase optimization or not.}
+\item{use_sample}{whether to use sampled optimization or not.}
 
 \item{seed}{random seed}
 
@@ -54,7 +54,7 @@ a list with the following elements:
 Perform cross-validation on a PWM regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
 }
 \examples{
-res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = TRUE, two_phase_sample_frac = c(0.1, 1))
+res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1))
 res$score
 res$cv_scores
 
@@ -62,8 +62,8 @@ plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full mod
 plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[, 1])
 plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[, 1])
 
-# single phase
-res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = FALSE)
+# without sampling
+res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = FALSE)
 res$score
 res$cv_scores
 plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)

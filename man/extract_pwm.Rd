@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif-dbs.R
 \name{extract_pwm}
 \alias{extract_pwm}
-\title{Extract pwm of seqeuences from a motif database}
+\title{Extract pwm of sequences from a motif database}
 \usage{
 extract_pwm(
   sequences,
