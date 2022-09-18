@@ -31,7 +31,6 @@ remotes::install_github("tanaylab/prego")
 
 ``` r
 library(prego)
-#> ℹ Parallelization enabled. Using 77 threads.
 ```
 
 For a set of continuous variables:
@@ -102,7 +101,6 @@ For clusters of sequences:
 
 ``` r
 res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
-#> ℹ Using single-phase optimization
 #> ℹ Running regression for 5 clusters
 #> ℹ Matching with motif databases
 res$stats
