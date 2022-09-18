@@ -7,10 +7,11 @@
 regress_pwm.clusters(
   sequences,
   clusters,
-  two_phase = FALSE,
+  use_sample = FALSE,
   match_with_db = TRUE,
-  two_phase_sample_frac = c(0.1, 1),
-  first_phase_metric = "ks",
+  sample_frac = NULL,
+  sample_ratio = 1,
+  final_metric = "ks",
   parallel = getOption("prego.parallel", TRUE),
   ...
 )
@@ -20,24 +21,26 @@ regress_pwm.clusters(
 
 \item{clusters}{a vector with the cluster assignments for each sequence}
 
-\item{two_phase}{whether to use two-phase optimization or not (default: FALSE).}
+\item{use_sample}{whether to use sampled optimization or not (default: FALSE).}
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
 This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
 database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
 Note that the closest match is returned, even if it is not similar enough in absolute terms.}
 
-\item{two_phase_sample_frac}{a vector of two numbers, specifying the fraction of
-sequences to use in the first phase of optimization for the sequences which are not
-in the cluster (first number) and in the cluster (second number).}
+\item{sample_frac}{a vector of two numbers, specifying the fraction of
+sequences to use in when sampling for the sequences which are not
+in the cluster (first number) and in the cluster (second number). If NULL -}
 
-\item{first_phase_metric}{metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.}
+\item{sample_ratio}{When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.}
 
-\item{parallel}{whether to run the first phase of the optimization in parallel. use \code{set_parallel}
+\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+
+\item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.two_phase]{regress_pwm.two_phase}}
+  Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
   \describe{
     \item{\code{response}}{A matrix of response variables - number of rows should equal the number of sequences}
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
@@ -62,8 +65,7 @@ would end at the end of the sequence.}
     \item{\code{motif_dataset}}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
     \item{\code{kmer_length}}{The number of non-gap characters in motifs that will be screened}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
-    \item{\code{first_phase_idxs}}{indices of the sequences to use in the first phase of the optimization. If NULL, the indices would be sampled using \code{two_phase_sample_frac}.}
-    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
   }}
 }
 \value{
