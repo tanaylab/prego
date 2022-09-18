@@ -66,6 +66,7 @@ would end at the end of the sequence.}
     \item{\code{kmer_length}}{The number of non-gap characters in motifs that will be screened}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
     \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
+    \item{\code{max_cands}}{maximum number of kmer candidates to try.}
   }}
 }
 \value{
