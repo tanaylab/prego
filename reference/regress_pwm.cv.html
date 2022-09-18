@@ -49,7 +49,7 @@
 <span>  metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  folds <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  categories <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  two_phase <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use_sample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  add_full_model <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -83,8 +83,8 @@
 <dd><p>vector of categories for each sequence (optional)</p></dd>
 
 
-<dt>two_phase</dt>
-<dd><p>whether to use two-phase optimization or not.</p></dd>
+<dt>use_sample</dt>
+<dd><p>whether to use sampled optimization or not.</p></dd>
 
 
 <dt>seed</dt>
@@ -113,115 +113,35 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.cv</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, nfolds <span class="op">=</span> <span class="fl">5</span>, two_phase <span class="op">=</span> <span class="cn">TRUE</span>, two_phase_sample_frac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.cv</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, nfolds <span class="op">=</span> <span class="fl">5</span>, use_sample <span class="op">=</span> <span class="cn">TRUE</span>, sample_frac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Stratified sampling</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Response is binary: setting metric to <span style="color: #0000BB;">"ks"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using two-phase optimization</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Cross-validation score: <span style="color: #0000BB;">0.830886035159227</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing two phase optimization</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">First phase</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling <span style="color: #0000BB;">0.1</span> and <span style="color: #0000BB;">1</span> of the dataset for the first phase</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Stratified sampling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> sampled <span style="color: #0000BB;">187</span> 0s and <span style="color: #0000BB;">492</span> 1s</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Generate candidate kmers </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Regress each candidate kmer on sampled data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression on <span style="color: #0000BB;">12</span> candidate kmers</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"AAT*ATT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAT*ATT"</span>, score (r2): <span style="color: #0000BB;">0.591132168596821</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"GTTAAT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"GTTAAT"</span>, score (r2): <span style="color: #0000BB;">0.604879432766023</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"CTTATC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"CTTATC"</span>, score (r2): <span style="color: #0000BB;">0.340270238865439</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"TAAT*AT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TAAT*AT"</span>, score (r2): <span style="color: #0000BB;">0.605634808074741</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"CTTATCT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"CTTATCT"</span>, score (r2): <span style="color: #0000BB;">0.388715363408895</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"TCTTATC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TCTTATC"</span>, score (r2): <span style="color: #0000BB;">0.336555500560427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"AAT*ATTA"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAT*ATTA"</span>, score (r2): <span style="color: #0000BB;">0.607909926960762</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"TAAT*ATT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TAAT*ATT"</span>, score (r2): <span style="color: #0000BB;">0.608690777008848</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"TAATCATT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TAATCATT"</span>, score (r2): <span style="color: #0000BB;">0.604883777958721</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"AAGATAAC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAGATAAC"</span>, score (r2): <span style="color: #0000BB;">0.391166315606388</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"AAT*ATTAA"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"AAT*ATTAA"</span>, score (r2): <span style="color: #0000BB;">0.612328728097362</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → regressing with seed: <span style="color: #0000BB;">"TTAAT*ATT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → <span style="color: #0000BB;">"TTAAT*ATT"</span>, score (r2): <span style="color: #0000BB;">0.612328820509699</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best motif in the first phase: <span style="color: #0000BB;">"***TTAAT*ATT***"</span>, score (r2): <span style="color: #0000BB;">0.612328820509699</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Phase 2: Running regression on the full dataset</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*AM**W*Y"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8514</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in do.ply(i):</span> task 1 failed - "unused arguments (use_sample = TRUE, sample_frac = c(0.1, 1))"</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">score</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        D </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.830886 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">cv_scores</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fold1.D   fold2.D   fold3.D   fold4.D   fold5.D </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8045157 0.8475936 0.8744323 0.8470208 0.8309351 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">cv_pred</span>, <span class="va">res</span><span class="op">$</span><span class="va">full_model</span><span class="op">$</span><span class="va">pred</span>, xlab <span class="op">=</span> <span class="st">"CV predictions"</span>, ylab <span class="op">=</span> <span class="st">"Full model predictions"</span>, cex <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="regress_pwm.cv-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions",     ylab = "Full model predictions", cex = 0.1):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_prediction_binary.html">plot_regression_prediction_binary</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">cv_pred</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="regress_pwm.cv-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[,     1]):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_prediction_binary.html">plot_regression_prediction_binary</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">full_model</span><span class="op">$</span><span class="va">pred</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="regress_pwm.cv-3.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[,     1]):</span> object 'res' not found</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># single phase</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.cv</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, nfolds <span class="op">=</span> <span class="fl">5</span>, two_phase <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># without sampling</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.cv</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, nfolds <span class="op">=</span> <span class="fl">5</span>, use_sample <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Stratified sampling</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Response is binary: setting metric to <span style="color: #0000BB;">"ks"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using single-phase optimization</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Cross-validation score: <span style="color: #0000BB;">0.831531608031667</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">198</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TAATCATT****"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*A***W*T"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8507</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using two-phase optimization</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in do.ply(i):</span> task 1 failed - "unused argument (use_sample = FALSE)"</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">score</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         D </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8315316 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">cv_scores</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fold1.D   fold2.D   fold3.D   fold4.D   fold5.D </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8024361 0.8345217 0.8846364 0.8416589 0.8319746 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">cv_pred</span>, <span class="va">res</span><span class="op">$</span><span class="va">full_model</span><span class="op">$</span><span class="va">pred</span>, xlab <span class="op">=</span> <span class="st">"CV predictions"</span>, ylab <span class="op">=</span> <span class="st">"Full model predictions"</span>, cex <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="regress_pwm.cv-4.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions",     ylab = "Full model predictions", cex = 0.1):</span> object 'res' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

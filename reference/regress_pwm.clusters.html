@@ -45,10 +45,11 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">regress_pwm.clusters</span><span class="op">(</span></span>
 <span>  <span class="va">sequences</span>,</span>
 <span>  <span class="va">clusters</span>,</span>
-<span>  two_phase <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  use_sample <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  match_with_db <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  two_phase_sample_frac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>  first_phase_metric <span class="op">=</span> <span class="st">"ks"</span>,</span>
+<span>  sample_frac <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sample_ratio <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  final_metric <span class="op">=</span> <span class="st">"ks"</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -64,8 +65,8 @@
 <dd><p>a vector with the cluster assignments for each sequence</p></dd>
 
 
-<dt>two_phase</dt>
-<dd><p>whether to use two-phase optimization or not (default: FALSE).</p></dd>
+<dt>use_sample</dt>
+<dd><p>whether to use sampled optimization or not (default: FALSE).</p></dd>
 
 
 <dt>match_with_db</dt>
@@ -75,23 +76,27 @@ database motif predictions, and and 'db_dataset' which is similiar to 'motif_dat
 Note that the closest match is returned, even if it is not similar enough in absolute terms.</p></dd>
 
 
-<dt>two_phase_sample_frac</dt>
+<dt>sample_frac</dt>
 <dd><p>a vector of two numbers, specifying the fraction of
-sequences to use in the first phase of optimization for the sequences which are not
-in the cluster (first number) and in the cluster (second number).</p></dd>
+sequences to use in when sampling for the sequences which are not
+in the cluster (first number) and in the cluster (second number). If NULL -</p></dd>
 
 
-<dt>first_phase_metric</dt>
-<dd><p>metric to use in order to choose the best motif in the first phase of the optimization. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif in the first phase of the optimization out of all the runs on the sampled dataset.</p></dd>
+<dt>sample_ratio</dt>
+<dd><p>When <code>sample_frac</code> is NULL, the number of sequences not in the cluster would be equal to <code>sample_ratio</code> times the number of sequences in the cluster.</p></dd>
+
+
+<dt>final_metric</dt>
+<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.</p></dd>
 
 
 <dt>parallel</dt>
-<dd><p>whether to run the first phase of the optimization in parallel. use <code>set_parallel</code>
+<dd><p>whether to run optimization in parallel. use <code>set_parallel</code>
 to set the number of cores to use.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Arguments passed on to <code><a href="regress_pwm.html">regress_pwm</a></code>, <code><a href="regress_pwm.two_phase.html">regress_pwm.two_phase</a></code></p><dl><dt><code>response</code></dt>
+<dd><p>Arguments passed on to <code><a href="regress_pwm.html">regress_pwm</a></code>, <code><a href="regress_pwm.sample.html">regress_pwm.sample</a></code></p><dl><dt><code>response</code></dt>
 <dd><p>A matrix of response variables - number of rows should equal the number of sequences</p></dd>
 
     <dt><code>motif</code></dt>
@@ -152,11 +157,8 @@ would end at the end of the sequence.</p></dd>
     <dt><code>is_train</code></dt>
 <dd><p>a boolean vector that determine which subset of sequences to use when screening</p></dd>
 
-    <dt><code>first_phase_idxs</code></dt>
-<dd><p>indices of the sequences to use in the first phase of the optimization. If NULL, the indices would be sampled using <code>two_phase_sample_frac</code>.</p></dd>
-
-    <dt><code>min_gap,max_gap</code></dt>
-<dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).</p></dd>
+    <dt><code>sample_idxs</code></dt>
+<dd><p>indices of the sequences to use. If NULL, the indices would be sampled using <code>sample_frac</code>.</p></dd>
 
   
 </dl></dd>

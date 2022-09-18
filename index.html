@@ -127,17 +127,16 @@
 <p>For clusters of sequences:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regress_pwm.clusters.html">regress_pwm.clusters</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Using single-phase optimization</span></span>
 <span><span class="co">#&gt; ℹ Running regression for 5 clusters</span></span>
 <span><span class="co">#&gt; ℹ Matching with motif databases</span></span>
 <span><span class="va">res</span><span class="op">$</span><span class="va">stats</span></span>
-<span><span class="co">#&gt; # A tibble: 5 x 6</span></span>
-<span><span class="co">#&gt;   cluster consensus      ks_D        r2      seed_motif              db_match</span></span>
-<span><span class="co">#&gt; 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JOLMA.DLX2_mono_DBD_1</span></span>
-<span><span class="co">#&gt; 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****           JASPAR.CDX1</span></span>
-<span><span class="co">#&gt; 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1</span></span>
-<span><span class="co">#&gt; 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****         HOMER.GATA3_2</span></span>
-<span><span class="co">#&gt; 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****     HOMER.GAGA_repeat</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 5 x 7</span></span>
+<span><span class="co">#&gt;   cluster consensus      ks_D        r2      seed_motif              db_match db_match_dist</span></span>
+<span><span class="co">#&gt; 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JASPAR.MEIS1.MA1639.1      0.244724</span></span>
+<span><span class="co">#&gt; 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****   JOLMA.CDX1_mono_DBD      0.152716</span></span>
+<span><span class="co">#&gt; 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1      0.340463</span></span>
+<span><span class="co">#&gt; 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****      JASPAR.GATA1/2/3      0.198050</span></span>
+<span><span class="co">#&gt; 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****          JASPAR.GATAd      0.219126</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
