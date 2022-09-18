@@ -220,16 +220,60 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.sample</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, final_metric <span class="op">=</span> <span class="st">"ks"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in regress_pwm.sample(cluster_sequences_example, cluster_mat_example[,     1], final_metric = "ks"):</span> could not find function "regress_pwm.sample"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing sampled optimization</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling <span style="color: #0000BB;">0.26</span> and <span style="color: #0000BB;">1</span> of the dataset</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Stratified sampling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> sampled <span style="color: #0000BB;">492</span> zeros and <span style="color: #0000BB;">492</span> ones</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Generate candidate kmers </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Regress each candidate kmer on sampled data </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression on <span style="color: #0000BB;">12</span> candidate kmers</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best motif: <span style="color: #0000BB;">"***TAAT*ATT****"</span>, score (ks): <span style="color: #0000BB;">0.839430894308943</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*A***W*Y"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8317</span>, p-value: <span style="color: #0000BB;">0</span></span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    pos           A           C            G           T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0 0.250626564 0.197994992 0.3007518649 0.250626564</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    1 0.172827423 0.126956835 0.4582388699 0.241976887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    2 0.001020463 0.224947587 0.1401386410 0.633893311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    3 0.183996066 0.145866245 0.1611137390 0.509023905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    4 0.750249088 0.000829170 0.2480926216 0.000829170</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    5 0.493347496 0.277119190 0.2284980565 0.001035169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    6 0.205613986 0.260621846 0.0010101653 0.532754004</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    7 0.243313923 0.269434452 0.3032339811 0.184017703</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    8 0.454548210 0.120878413 0.0008699328 0.423703402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   9 0.272164911 0.001022725 0.3231071830 0.403705150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  10 0.032962959 0.355953276 0.0507135391 0.560370207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  11 0.246685192 0.227644801 0.2974082530 0.228261679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  12 0.266773373 0.268996507 0.2223111391 0.241918981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  13 0.209610566 0.308415264 0.2409870923 0.240987092</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  14 0.245290428 0.254709572 0.2649136484 0.235086337</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">spat</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bin spat_factor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0  0.05538948</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  50  0.16784865</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 100  0.19019334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 150  0.18985935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 200  0.14691675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 250  0.08195649</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 300  0.16784865</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in head(res$pred):</span> object 'res' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -16.36732 -16.49921 -16.82357 -15.62233 -15.53948 -15.02455</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in "response" %in% names(reg):</span> object 'res' not found</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-plt img"><img src="regress_pwm.sample-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

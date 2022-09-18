@@ -261,7 +261,7 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <span class="r-in"><span><span class="co"># intialize with a pre-computed PSSM</span></span></span>
 <span class="r-in"><span><span class="va">res1</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, motif <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">pssm</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM, consensus: <span style="color: #0000BB;">"TTACRAC"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
@@ -279,7 +279,7 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <span class="r-in"><span><span class="co"># intialize with a pre-computed PSSM and spatial model</span></span></span>
 <span class="r-in"><span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, motif <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">pssm</span>, spat_model <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">spat</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with pre-computed PSSM, consensus: <span style="color: #0000BB;">"TTACRAC"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
