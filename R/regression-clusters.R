@@ -120,3 +120,58 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
 
     return(res)
 }
+
+#' Match every cluster with motif from database
+#'
+#' @param sequences a vector with the sequences
+#' @param clusters a vector with the cluster assignments
+#' @param min_D minimum distance to consider a match
+#' @param only_match if TRUE, only return the best match for each cluster
+#'
+#' @return a matrix with the KS D statistics for each cluster (columns) and every motif (rows)
+#' that had at least one cluster with D >= min_D. If \code{only_match} is TRUE, a named vector
+#' with the name of best motif match for each cluster is returned (regardless of \code{min_D}).
+#'
+#' @examples
+#' D_mat <- match_pwm.clusters(cluster_sequences_example, clusters_example)
+#' dim(D_mat)
+#' D_mat[1:5, 1:5]
+#'
+#' # return only the best match
+#' match_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+#'
+#' @inheritParams extract_pwm
+#' @inheritDotParams compute_pwm
+#' @export
+match_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, ...) {
+    if (!is.null(motifs)) {
+        dataset <- dataset %>% filter(motif %in% motifs)
+    }
+
+    sequences <- toupper(sequences)
+    cluster_ids <- unique(clusters)
+
+    res <- plyr::daply(dataset, "motif", function(x) {
+        pwm <- compute_pwm(sequences, x, ...)
+        purrr::map_dbl(cluster_ids, function(cl) {
+            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl])$statistic)
+        })
+    }, .parallel = parallel)
+    colnames(res) <- cluster_ids
+    res <- as.matrix(res)
+
+    if (only_match) {
+        best_match <- rownames(res)[apply(res, 2, which.max)]
+        names(best_match) <- cluster_ids
+        return(best_match)
+    }
+
+    maxs <- apply(res, 1, max)
+    f <- which(maxs >= min_D)
+    if (length(f) == 0) {
+        cli_abort("No matches found, try to lower the {.field min_D} parameter")
+    }
+    res <- res[f, , drop = FALSE]
+
+    return(res)
+}
