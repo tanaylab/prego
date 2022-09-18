@@ -1,10 +1,11 @@
 #' Run PWM regression on clusters
 #'
 #' @param clusters a vector with the cluster assignments for each sequence
-#' @param two_phase whether to use two-phase optimization or not (default: FALSE).
-#' @param two_phase_sample_frac a vector of two numbers, specifying the fraction of
-#' sequences to use in the first phase of optimization for the sequences which are not
-#' in the cluster (first number) and in the cluster (second number).
+#' @param use_sample whether to use sampled optimization or not (default: FALSE).
+#' @param sample_frac a vector of two numbers, specifying the fraction of
+#' sequences to use in when sampling for the sequences which are not
+#' in the cluster (first number) and in the cluster (second number). If NULL -
+#' @param sample_ratio When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
 #' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
 #' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
@@ -28,12 +29,12 @@
 #' plot_regression_qc(res$models[[1]], title = names(res$models)[1])
 #'
 #' @inheritParams regress_pwm
-#' @inheritParams regress_pwm.two_phase
+#' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
-#' @inheritDotParams regress_pwm.two_phase
+#' @inheritDotParams regress_pwm.sample
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_with_db = TRUE, two_phase_sample_frac = c(0.1, 1), first_phase_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
+regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }
@@ -58,14 +59,13 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
 
     cluster_mat <- cluster_mat[names(sequences), ]
 
-    if (two_phase) {
-        cli_alert_info("Using two-phase optimization")
-        regression_func <- purrr::partial(regress_pwm.two_phase, two_phase_sample_frac = two_phase_sample_frac, first_phase_metric = first_phase_metric, parallel = FALSE)
-        if ("first_phase_idxs" %in% names(list(...))) {
-            cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm.clusters}")
+    if (use_sample) {
+        cli_alert_info("Using sampled optimization")
+        regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio, parallel = !parallel)
+        if ("sample_idxs" %in% names(list(...))) {
+            cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.clusters}")
         }
     } else {
-        cli_alert_info("Using single-phase optimization")
         regression_func <- regress_pwm
     }
 
@@ -92,10 +92,6 @@ regress_pwm.clusters <- function(sequences, clusters, two_phase = FALSE, match_w
             seed_motif = .x$seed_motif
         )
     })
-
-    if (match_with_db) {
-
-    }
 
     motif_dataset <- purrr::imap_dfr(cluster_models, ~ .x$pssm %>% mutate(motif = .y)) %>%
         select(motif, pos, A, C, G, T)

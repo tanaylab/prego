@@ -27,7 +27,7 @@ all_motif_datasets <- function() {
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
 }
 
-#' Extract pwm of seqeuences from a motif database
+#' Extract pwm of sequences from a motif database
 #'
 #' @description Extracts the pwm of a motif from a motif database. Note that for a large number of motifs, this function can be slow and consume
 #' a lot of memory.
