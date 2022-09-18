@@ -8,6 +8,7 @@
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.
 #' @param final_metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.
 #' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
+#' @param max_cands maximum number of kmer candidates to try.
 #' @param verbose verbosity of the optimization.
 #' @param parallel whether to run optimization in parallel. use \code{set_parallel}
 #' to set the number of cores to use.
@@ -41,6 +42,7 @@ regress_pwm.sample <- function(sequences,
                                seed = 60427,
                                verbose = FALSE,
                                kmer_length = 6:8,
+                               max_cands = 10,
                                min_gap = 0,
                                max_gap = 1,
                                min_kmer_cor = 0.1,
@@ -97,7 +99,7 @@ regress_pwm.sample <- function(sequences,
     }
 
     cli_h3("Generate candidate kmers")
-    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, ...)
+    cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
 
     cli_h3("Regress each candidate kmer on sampled data")
     cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
@@ -172,7 +174,7 @@ regress_pwm.sample <- function(sequences,
     res$kmers <- cand_kmers
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset)
+        res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
     }
 
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
@@ -186,28 +188,36 @@ regress_pwm.sample <- function(sequences,
     return(res)
 }
 
-get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, n_per_comb = 2, ...) {
-    params <- expand.grid(kmer_length, min_gap:max_gap)
-    colnames(params) <- c("len", "gap")
-
-    all_kmers <- plyr::ldply(cli_progress_along(1:nrow(params)), function(i) {
-        screen_kmers(sequences, response, kmer_length = params$len[i], min_gap = 0, max_gap = params$gap[i], ...) %>%
-            mutate(len = params$len[i], gap = params$gap[i], verbose = FALSE) %>%
+get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
+    all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
+        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = 0, max_gap = max_gap, ...) %>%
+            mutate(len = kmer_length[i], verbose = FALSE) %>%
             suppressMessages()
     }, .parallel = parallel)
 
-    best_motif <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one motif
+    best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
 
-
-    cands <- all_kmers %>%
+    all_kmers <- all_kmers %>%
         # filter by correlation
         filter(sqrt(max_r2) > min_kmer_cor) %>%
-        # take the best n_per_comb motif for each parameter combination
-        group_by(len, gap) %>%
-        slice_max(n = n_per_comb, order_by = abs(max_r2)) %>%
+        dplyr::distinct(kmer, .keep_all = TRUE)
+
+    cands <- all_kmers %>%
+        slice_max(n = min(nrow(all_kmers), max_cands), order_by = abs(max_r2)) %>%
+        ungroup() %>%
+        arrange(abs(max_r2)) %>%
         pull(kmer)
 
-    cands <- unique(c(best_motif, cands))
+    dist_mat <- stringdist::stringdistmatrix(cands, cands, method = "osa", nthread = 1)
+    for (i in 1:nrow(dist_mat)) {
+        if (min(dist_mat[i, ], na.rm = TRUE) < 2) {
+            cands <- cands[-i]
+            dist_mat[i, ] <- NA
+            dist_mat[, i] <- NA
+        }
+    }
+
+    cands <- unique(c(best_kmer, cands))
 
     return(cands)
 }

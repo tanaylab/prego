@@ -21,6 +21,7 @@ regress_pwm.sample(
   seed = 60427,
   verbose = FALSE,
   kmer_length = 6:8,
+  max_cands = 10,
   min_gap = 0,
   max_gap = 1,
   min_kmer_cor = 0.1,
@@ -69,6 +70,8 @@ would end at the end of the sequence.}
 \item{verbose}{verbosity of the optimization.}
 
 \item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
+
+\item{max_cands}{maximum number of kmer candidates to try.}
 
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}

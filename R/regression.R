@@ -250,7 +250,7 @@ regress_pwm <- function(sequences,
 
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset)
+        res <- add_regression_db_match(res, sequences, motif_dataset, parallel)
     }
 
     if (is_binary_response(response)) {
@@ -262,8 +262,8 @@ regress_pwm <- function(sequences,
     return(res)
 }
 
-add_regression_db_match <- function(reg, sequences, motif_dataset) {
-    best_match <- pssm_match(reg$pssm, motif_dataset)[1, ]
+add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = getOption("prego.parallel", TRUE)) {
+    best_match <- pssm_match(reg$pssm, motif_dataset, parallel = parallel)[1, ]
     reg$db_match <- best_match$motif
     reg$db_match_dist <- best_match$dist
     cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
