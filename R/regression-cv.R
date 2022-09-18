@@ -6,7 +6,7 @@
 #' @param metric metric to use for cross-validation. One of 'ks' or 'r2'. If NULL - 'ks' would be set for binary response and 'r2' for continuous response.
 #' @param folds vector of fold numbers for each sequence (optional)
 #' @param categories vector of categories for each sequence (optional)
-#' @param two_phase whether to use two-phase optimization or not.
+#' @param use_sample whether to use sampled optimization or not.
 #' @param parallel whether to run the cross-validation in parallel.
 #' @param add_full_model whether to add the full model (without cross-validation) to the results.
 #'
@@ -21,7 +21,7 @@
 #' }
 #'
 #' @examples
-#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = TRUE, two_phase_sample_frac = c(0.1, 1))
+#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1))
 #' res$score
 #' res$cv_scores
 #'
@@ -29,8 +29,8 @@
 #' plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[, 1])
 #' plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[, 1])
 #'
-#' # single phase
-#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, two_phase = FALSE)
+#' # without sampling
+#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = FALSE)
 #' res$score
 #' res$cv_scores
 #' plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
@@ -44,7 +44,7 @@ regress_pwm.cv <- function(sequences,
                            metric = NULL,
                            folds = NULL,
                            categories = NULL,
-                           two_phase = TRUE,
+                           use_sample = TRUE,
                            seed = 60427,
                            parallel = getOption("prego.parallel", FALSE),
                            add_full_model = TRUE,
@@ -72,14 +72,13 @@ regress_pwm.cv <- function(sequences,
         }
     }
 
-    if (two_phase) {
-        cli_alert_info("Using two-phase optimization")
-        regression_func <- purrr::partial(regress_pwm.two_phase, parallel = FALSE)
-        if ("first_phase_idxs" %in% names(list(...))) {
-            cli_abort("The {.field first_phase_idxs} argument is not supported in {.fun regress_pwm.cv}")
+    if (use_sample) {
+        cli_alert_info("Using sampled optimization")
+        regression_func <- purrr::partial(regress_pwm.sample, parallel = FALSE)
+        if ("sample_idxs" %in% names(list(...))) {
+            cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.cv}")
         }
     } else {
-        cli_alert_info("Using single-phase optimization")
         regression_func <- regress_pwm
     }
 
