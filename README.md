@@ -31,6 +31,7 @@ remotes::install_github("tanaylab/prego")
 
 ``` r
 library(prego)
+#> ℹ Parallelization enabled. Using 77 threads.
 ```
 
 For a set of continuous variables:
@@ -105,11 +106,11 @@ res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
 #> ℹ Running regression for 5 clusters
 #> ℹ Matching with motif databases
 res$stats
-#> # A tibble: 5 x 6
-#>   cluster consensus      ks_D        r2      seed_motif              db_match
-#> 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JOLMA.DLX2_mono_DBD_1
-#> 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****           JASPAR.CDX1
-#> 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1
-#> 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****         HOMER.GATA3_2
-#> 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****     HOMER.GAGA_repeat
+#> # A tibble: 5 x 7
+#>   cluster consensus      ks_D        r2      seed_motif              db_match db_match_dist
+#> 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JASPAR.MEIS1.MA1639.1      0.244724
+#> 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****   JOLMA.CDX1_mono_DBD      0.152716
+#> 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1      0.340463
+#> 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****      JASPAR.GATA1/2/3      0.198050
+#> 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****          JASPAR.GATAd      0.219126
 ```
