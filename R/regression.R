@@ -36,6 +36,7 @@
 #' \item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
 #' \item{seed_motif: }{The seed motif that started the regression.}
 #' \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
+#' \item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
 #' }
 #'
 #' @examples
@@ -165,9 +166,14 @@ regress_pwm <- function(sequences,
         }
 
         pssm <- pssm_to_mat(pssm)
+        consensus <- consensus_from_pssm(pssm, consensus_single_thresh, consensus_double_thresh)
 
         motif <- ""
-        cli_alert_info("Initializing regression with pre-computed PSSM")
+        if (!is.na(consensus)) {
+            cli_alert_info("Initializing regression with pre-computed PSSM, consensus: {.val {consensus_from_pssm(pssm)}}")
+        } else {
+            cli_alert_info("Initializing regression with pre-computed PSSM")
+        }
     } else { # initialize with kmer
         pssm <- matrix()
         if (is.null(motif)) {
@@ -241,20 +247,10 @@ regress_pwm <- function(sequences,
     res$consensus <- consensus_from_pssm(res$pssm, consensus_single_thresh, consensus_double_thresh)
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
 
+
+
     if (match_with_db) {
-        best_match <- pssm_match(res$pssm, motif_dataset)[1, ]
-        res$db_match <- best_match$motif
-        res$db_match_dist <- best_match$dist
-        cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
-        res$db_match_pssm <- motif_dataset %>%
-            filter(motif == best_match$motif) %>%
-            select(pos, A, C, G, T)
-        res$db_match_pred <- compute_pwm(sequences, res$db_match_pssm)
-        res$db_match_r2 <- tgs_cor(response, as.matrix(res$db_match_pred))[, 1]^2
-        if (is_binary_response(response)) {
-            res$db_match_ks <- suppressWarnings(ks.test(res$db_match_pred[as.logical(response[, 1])], res$db_match_pred[!as.logical(response[, 1])]))
-            cli_alert_success("{.val {res$db_match}} KS test D: {.val {round(res$db_match_ks$statistic, digits=4)}}, p-value: {.val {res$db_match_ks$p.value}}")
-        }
+        res <- add_regression_db_match(res, sequences, motif_dataset)
     }
 
     if (is_binary_response(response)) {
@@ -264,4 +260,21 @@ regress_pwm <- function(sequences,
     }
 
     return(res)
+}
+
+add_regression_db_match <- function(reg, sequences, motif_dataset) {
+    best_match <- pssm_match(reg$pssm, motif_dataset)[1, ]
+    reg$db_match <- best_match$motif
+    reg$db_match_dist <- best_match$dist
+    cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
+    reg$db_match_pssm <- motif_dataset %>%
+        filter(motif == best_match$motif) %>%
+        select(pos, A, C, G, T)
+    reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
+    reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
+    if (is_binary_response(reg$response)) {
+        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])]))
+        cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
+    }
+    return(reg)
 }
