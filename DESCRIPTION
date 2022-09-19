@@ -10,7 +10,7 @@ License: MIT + file LICENSE
 Imports: 
     cli,
     Rcpp (>= 1.0.9),
-    ggseqlogo,    
+    ggseqlogo,
     tibble,
     ggplot2,
     patchwork,
@@ -22,7 +22,8 @@ Imports:
     plyr,
     parallel,
     tidyr,
-    glue
+    glue,
+    stringdist
 Suggests: 
     testthat (>= 3.0.0),
     withr,
