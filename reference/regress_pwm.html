@@ -61,11 +61,19 @@
 <span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  kmer_length <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  multi_kmers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  final_metric <span class="op">=</span> <span class="st">"r2"</span>,</span>
+<span>  max_cands <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  max_gap <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  min_kmer_cor <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  motif_num <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  smooth_k <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
 <span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -144,7 +152,31 @@ would end at the end of the sequence.</p></dd>
 
 
 <dt>kmer_length</dt>
-<dd><p>The number of non-gap characters in motifs that will be screened</p></dd>
+<dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>
+
+
+<dt>multi_kmers</dt>
+<dd><p>if TRUE, different candidates of kmers would be regressed in order to find the best seed according to <code>final_metric</code>.</p></dd>
+
+
+<dt>final_metric</dt>
+<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.</p></dd>
+
+
+<dt>max_cands</dt>
+<dd><p>maximum number of kmer candidates to try.</p></dd>
+
+
+<dt>min_gap, max_gap</dt>
+<dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).</p></dd>
+
+
+<dt>motif_num</dt>
+<dd><p>Number of motifs to infer. When <code>motif_num</code> &gt; 1, the function would run <code>motif_num</code> times, each time on the residuals of a linear model of all the previous runs (see <code>smooth_k</code> parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.</p></dd>
+
+
+<dt>smooth_k</dt>
+<dd><p>k for smoothing the predictions of each model in order to compute the resiuals when <code>motif_num</code> &gt; 1. The residulas are computed as <code>response</code> - running mean of size 'k' of the current model.</p></dd>
 
 
 <dt>consensus_single_thresh, consensus_double_thresh</dt>
@@ -159,6 +191,11 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 
 <dt>motif_dataset</dt>
 <dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
+
+
+<dt>parallel</dt>
+<dd><p>whether to run optimization in parallel. use <code>set_parallel</code>
+to set the number of cores to use.</p></dd>
 
 
 <dt>...</dt>
@@ -198,6 +235,14 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <li><p>seed_motif: The seed motif that started the regression.</p></li>
 <li><p>kmers: The k-mers that were screened in order to find the best seed motif (if motif was NULL).</p></li>
 <li><p>sample_idxs: The indices of the sequences that were used for the regression (only for <code>regress_pwm.sample</code>).</p></li>
+</ul><p>When <code>match_with_db</code> is TRUE, the following additional elements are returned:</p><ul><li><p>motif_db: The motif database that the most similar to the resulting PSSM.</p></li>
+<li><p>db_match_dist: The distance between the resulting PSSM and the closest match in the motif database (KL divergence).</p></li>
+<li><p>db_match_pssm: The PSSM of the closest match in the motif database.</p></li>
+<li><p>db_match_pred: The predicted PWM of the closest match in the motif database.</p></li>
+<li><p>db_match_r2: The \(r^2\) of the predicted PWM of the closest match in the motif database and the response</p></li>
+<li><p>db_match_ks: If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.</p></li>
+</ul><p>When <code>n_motifs</code> is greater than 1, the following additional elements are returned:</p><ul><li><p>models: A list (as above) of each inferred model</p></li>
+<li><p>multi_stats: A data frame with the following columns: <code>model</code>, <code>score</code> (KS for binary, r^2 otherwise), <code>comb_score</code> (score for the combined linear model for models 1:i) and additional statistics per model</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -351,6 +396,22 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-plt img"><img src="regress_pwm-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># use multiple kmer seeds</span></span></span>
+<span class="r-in"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, multi_kmers <span class="op">=</span> <span class="cn">TRUE</span>, kmer_length <span class="op">=</span> <span class="fl">6</span><span class="op">:</span><span class="fl">8</span>, final_metric <span class="op">=</span> <span class="st">"ks"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in screen_kmers(sequences, response, kmer_length = kmer_length,     ...):</span> unused arguments (multi_kmers = TRUE, final_metric = "ks")</span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_multi</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in "response" %in% names(reg):</span> object 'res_multi' not found</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Screen for multiple motifs</span></span></span>
+<span class="r-in"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, motif_num <span class="op">=</span> <span class="fl">3</span>, match_with_db <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in regress_multiple_motifs(sequences = sequences, response = response,     motif = motif, motif_length = motif_length, score_metric = score_metric,     bidirect = bidirect, spat_min = spat_min, spat_max = spat_max,     spat_bin = spat_bin, spat_model = spat_model, improve_epsilon = improve_epsilon,     min_nuc_prob = min_nuc_prob, unif_prior = unif_prior, is_train = is_train,     include_response = include_response, seed = seed, verbose = verbose,     kmer_length = kmer_length, motif_num = motif_num, match_with_db = match_with_db,     ...):</span> Multiple motifs are not supported yet</span>
+<span class="r-in"><span><span class="va">res_multi</span><span class="op">$</span><span class="va">multi_stats</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_multi' not found</span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc_multi.html">plot_regression_qc_multi</a></span><span class="op">(</span><span class="va">res_multi</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_regression_qc_multi(res_multi):</span> could not find function "plot_regression_qc_multi"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

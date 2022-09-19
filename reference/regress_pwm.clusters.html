@@ -152,17 +152,29 @@ would end at the end of the sequence.</p></dd>
     <dt><code>motif_dataset</code></dt>
 <dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
 
+    <dt><code>multi_kmers</code></dt>
+<dd><p>if TRUE, different candidates of kmers would be regressed in order to find the best seed according to <code>final_metric</code>.</p></dd>
+
     <dt><code>kmer_length</code></dt>
-<dd><p>The number of non-gap characters in motifs that will be screened</p></dd>
+<dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>
+
+    <dt><code>max_cands</code></dt>
+<dd><p>maximum number of kmer candidates to try.</p></dd>
+
+    <dt><code>motif_num</code></dt>
+<dd><p>Number of motifs to infer. When <code>motif_num</code> &gt; 1, the function would run <code>motif_num</code> times, each time on the residuals of a linear model of all the previous runs (see <code>smooth_k</code> parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.</p></dd>
+
+    <dt><code>smooth_k</code></dt>
+<dd><p>k for smoothing the predictions of each model in order to compute the resiuals when <code>motif_num</code> &gt; 1. The residulas are computed as <code>response</code> - running mean of size 'k' of the current model.</p></dd>
 
     <dt><code>is_train</code></dt>
 <dd><p>a boolean vector that determine which subset of sequences to use when screening</p></dd>
 
+    <dt><code>min_gap,max_gap</code></dt>
+<dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).</p></dd>
+
     <dt><code>sample_idxs</code></dt>
 <dd><p>indices of the sequences to use. If NULL, the indices would be sampled using <code>sample_frac</code>.</p></dd>
-
-    <dt><code>max_cands</code></dt>
-<dd><p>maximum number of kmer candidates to try.</p></dd>
 
   
 </dl></dd>
@@ -212,6 +224,15 @@ would end at the end of the sequence.</p></dd>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
 <span class="r-plt img"><img src="regress_pwm.clusters-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># multiple motifs per cluster</span></span></span>
+<span class="r-in"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span>, motif_num <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">5</span> clusters</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in do.ply(i):</span> task 1 failed - "Multiple motifs are not supported yet"</span>
+<span class="r-in"><span><span class="va">res_multi</span><span class="op">$</span><span class="va">multi_stats</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_multi' not found</span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc_multi.html">plot_regression_qc_multi</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_regression_qc_multi(res$models[[1]], title = names(res$models)[1]):</span> could not find function "plot_regression_qc_multi"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
