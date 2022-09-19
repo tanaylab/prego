@@ -7,6 +7,7 @@
 regress_pwm.sample(
   sequences,
   response,
+  motif = NULL,
   motif_length = 15,
   score_metric = "r2",
   bidirect = TRUE,
@@ -41,6 +42,10 @@ regress_pwm.sample(
 \item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
+
+\item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
+wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
@@ -121,6 +126,7 @@ a list with the following elements:
 }
 \description{
 The optimization would be performed with a sampled dataset of size \code{sample_frac} (or explicit sampled indices \code{sample_idxs}) where different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.
+It is optional, however, to run the optimization with explicit initial seed (kmer or PSSM) using the \code{motf} argument.
 }
 \examples{
 res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")

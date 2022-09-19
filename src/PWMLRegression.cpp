@@ -580,7 +580,7 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
         tot_r2 += r2;
     }
 
-    if (std::isnan(tot_r2)) {
+    if (m_logit && std::isnan(tot_r2)) {
         Rcpp::Rcerr << "Nan at at r2 var " << pred_var << " " << ex << " " << ex2 << " "
                     << m_data_avg[0] << endl;
     }
