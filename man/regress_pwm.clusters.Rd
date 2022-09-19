@@ -100,4 +100,5 @@ res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, m
 res_multi$multi_stats
 plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
 
+
 }
