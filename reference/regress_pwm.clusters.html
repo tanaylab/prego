@@ -73,7 +73,8 @@
 <dd><p>match the resulting PWMs with motif databases using <code>pssm_match</code>.
 This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
 database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
-Note that the closest match is returned, even if it is not similar enough in absolute terms.</p></dd>
+Note that the closest match is returned, even if it is not similar enough in absolute terms.
+Also, the match is done between the rsulting regression <em>pssm</em> and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use <code>screen_pwm.clusters</code>.</p></dd>
 
 
 <dt>sample_frac</dt>
@@ -159,6 +160,9 @@ would end at the end of the sequence.</p></dd>
 
     <dt><code>sample_idxs</code></dt>
 <dd><p>indices of the sequences to use. If NULL, the indices would be sampled using <code>sample_frac</code>.</p></dd>
+
+    <dt><code>max_cands</code></dt>
+<dd><p>maximum number of kmer candidates to try.</p></dd>
 
   
 </dl></dd>

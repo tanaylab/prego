@@ -34,9 +34,6 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/match_pwm.clusters.html</loc>
-  </url>
-  <url>
     <loc>/reference/pipe.html</loc>
   </url>
   <url>
@@ -80,6 +77,9 @@
   </url>
   <url>
     <loc>/reference/screen_kmers.html</loc>
+  </url>
+  <url>
+    <loc>/reference/screen_pwm.clusters.html</loc>
   </url>
   <url>
     <loc>/reference/set_parallel.html</loc>

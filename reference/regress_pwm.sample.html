@@ -59,6 +59,7 @@
 <span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  kmer_length <span class="op">=</span> <span class="fl">6</span><span class="op">:</span><span class="fl">8</span>,</span>
+<span>  max_cands <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_gap <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  min_kmer_cor <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -140,6 +141,10 @@ would end at the end of the sequence.</p></dd>
 
 <dt>kmer_length</dt>
 <dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>
+
+
+<dt>max_cands</dt>
+<dd><p>maximum number of kmer candidates to try.</p></dd>
 
 
 <dt>consensus_single_thresh, consensus_double_thresh</dt>
