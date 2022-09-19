@@ -175,6 +175,7 @@ plot_regression_qc(res_multi)
 
 # Screen for multiple motifs
 res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], motif_num = 3, match_with_db = TRUE)
-res_multi$stats
+res_multi$multi_stats
+plot_regression_qc_multi(res_multi)
 
 }
