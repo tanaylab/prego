@@ -250,7 +250,7 @@ regress_pwm <- function(sequences,
 
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset, parallel)
+        res <- add_regression_db_match(res, sequences, motif_dataset)
     }
 
     if (is_binary_response(response)) {
