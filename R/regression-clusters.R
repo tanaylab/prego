@@ -10,6 +10,7 @@
 #' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
 #' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
+#' Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -121,7 +122,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
     return(res)
 }
 
-#' Match every cluster with motif from database
+#' Screen for motifs in a database for every cluster
 #'
 #' @param sequences a vector with the sequences
 #' @param clusters a vector with the cluster assignments
@@ -133,17 +134,17 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
 #' with the name of best motif match for each cluster is returned (regardless of \code{min_D}).
 #'
 #' @examples
-#' D_mat <- match_pwm.clusters(cluster_sequences_example, clusters_example)
+#' D_mat <- screen_pwm.clusters(cluster_sequences_example, clusters_example)
 #' dim(D_mat)
 #' D_mat[1:5, 1:5]
 #'
 #' # return only the best match
-#' match_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+#' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
 #'
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm
 #' @export
-match_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, ...) {
+screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }

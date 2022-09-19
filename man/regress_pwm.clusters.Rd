@@ -26,7 +26,8 @@ regress_pwm.clusters(
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
 This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
 database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
-Note that the closest match is returned, even if it is not similar enough in absolute terms.}
+Note that the closest match is returned, even if it is not similar enough in absolute terms.
+Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.}
 
 \item{sample_frac}{a vector of two numbers, specifying the fraction of
 sequences to use in when sampling for the sequences which are not
