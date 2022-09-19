@@ -29,6 +29,11 @@
 #'
 #' plot_regression_qc(res$models[[1]], title = names(res$models)[1])
 #'
+#' # multiple motifs per cluster
+#' res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
+#' res_multi$multi_stats
+#' plot_regression_qc_multi(res$models[[1]], title = names(res$models)[1])
+#'
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
@@ -62,7 +67,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
 
     if (use_sample) {
         cli_alert_info("Using sampled optimization")
-        regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio, parallel = !parallel)
+        regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio, parallel = FALSE)
         if ("sample_idxs" %in% names(list(...))) {
             cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.clusters}")
         }
@@ -117,6 +122,11 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
         rownames(res$pred_mat_db) <- names(sequences)
         res$db_dataset <- purrr::imap_dfr(cluster_models, ~ .x$db_match_pssm %>% mutate(cluster = .y, motif = .x$db_match)) %>%
             select(cluster, motif, pos, A, C, G, T)
+    }
+
+    if ("models" %in% names(res$models[[1]])) {
+        res$multi_stats <- purrr::imap_dfr(cluster_models, ~ .x$multi_stats %>% mutate(cluster = .y)) %>%
+            select(cluster, everything())
     }
 
     return(res)

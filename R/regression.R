@@ -24,6 +24,14 @@
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 #' is returned, even if it is not similar enough in absolute terms.
 #' @param motif_dataset  a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.
+#' @param multi_kmers if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.
+#' @param final_metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.
+#' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
+#' @param max_cands maximum number of kmer candidates to try.
+#' @param parallel whether to run optimization in parallel. use \code{set_parallel}
+#' to set the number of cores to use.
+#' @param motif_num Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.
+#' @param smooth_k k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -37,6 +45,22 @@
 #' \item{seed_motif: }{The seed motif that started the regression.}
 #' \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 #' \item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
+#' }
+#'
+#' When \code{match_with_db} is TRUE, the following additional elements are returned:
+#' \itemize{
+#' \item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
+#' \item{db_match_dist: }{The distance between the resulting PSSM and the closest match in the motif database (KL divergence).}
+#' \item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
+#' \item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
+#' \item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
+#' \item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
+#' }
+#'
+#' When \code{n_motifs} is greater than 1, the following additional elements are returned:
+#' \itemize{
+#' \item{models: }{A list (as above) of each inferred model}
+#' \item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
 #' }
 #'
 #' @examples
@@ -61,6 +85,15 @@
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 #' plot_regression_qc(res_binary)
 #'
+#' # use multiple kmer seeds
+#' res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], multi_kmers = TRUE, kmer_length = 6:8, final_metric = "ks")
+#' plot_regression_qc(res_multi)
+#'
+#' # Screen for multiple motifs
+#' res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], motif_num = 3, match_with_db = TRUE)
+#' res_multi$multi_stats
+#' plot_regression_qc_multi(res_multi)
+#'
 #' @inheritParams screen_kmers
 #' @inheritDotParams screen_kmers
 #' @export
@@ -82,36 +115,57 @@ regress_pwm <- function(sequences,
                         seed = 60427,
                         verbose = FALSE,
                         kmer_length = 8,
+                        multi_kmers = FALSE,
+                        final_metric = "r2",
+                        max_cands = 10,
+                        min_gap = 0,
+                        max_gap = 1,
+                        min_kmer_cor = 0.1,
                         motif_num = 1,
+                        smooth_k = 100,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
                         match_with_db = FALSE,
                         motif_dataset = all_motif_datasets(),
+                        parallel = getOption("prego.parallel", FALSE),
                         ...) {
     if (motif_num > 1) {
-        return(regress_multiple_motifs(
-            sequences = sequences,
-            response = response,
-            motif = motif,
-            motif_length = motif_length,
-            score_metric = score_metric,
-            bidirect = bidirect,
-            spat_min = spat_min,
-            spat_max = spat_max,
-            spat_bin = spat_bin,
-            spat_model = spat_model,
-            improve_epsilon = improve_epsilon,
-            min_nuc_prob = min_nuc_prob,
-            unif_prior = unif_prior,
-            is_train = is_train,
-            include_response = include_response,
-            seed = seed,
-            verbose = verbose,
-            kmer_length = kmer_length,
-            motif_num = motif_num,
-            match_with_db = match_with_db,
-            ...
-        ))
+        return(
+            regress_multiple_motifs(
+                sequences = sequences,
+                response = response,
+                motif = motif,
+                motif_length = motif_length,
+                score_metric = score_metric,
+                bidirect = bidirect,
+                spat_min = spat_min,
+                spat_max = spat_max,
+                spat_bin = spat_bin,
+                spat_model = spat_model,
+                improve_epsilon = improve_epsilon,
+                min_nuc_prob = min_nuc_prob,
+                unif_prior = unif_prior,
+                is_train = is_train,
+                include_response = include_response,
+                seed = seed,
+                verbose = verbose,
+                kmer_length = kmer_length,
+                multi_kmers = multi_kmers,
+                final_metric = final_metric,
+                max_cands = max_cands,
+                min_gap = min_gap,
+                max_gap = max_gap,
+                min_kmer_cor = min_kmer_cor,
+                motif_num = motif_num,
+                smooth_k = smooth_k,
+                consensus_single_thresh = consensus_single_thresh,
+                consensus_double_thresh = consensus_double_thresh,
+                match_with_db = match_with_db,
+                motif_dataset = motif_dataset,
+                parallel = parallel,
+                ...
+            )
+        )
     }
 
     if (!(score_metric %in% c("r2", "ks"))) {
@@ -157,6 +211,10 @@ regress_pwm <- function(sequences,
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
 
+    if (!is.null(motif) && multi_kmers) {
+        cli_warning("Motif is provided, {.field multi_kmers} will be ignored")
+    }
+
     # get motif for initialization (either kmers or pssm)
     kmers <- NULL
     if (is.data.frame(motif)) { # initiazlie with pre-computed PSSM
@@ -177,8 +235,40 @@ regress_pwm <- function(sequences,
     } else { # initialize with kmer
         pssm <- matrix()
         if (is.null(motif)) {
+            if (multi_kmers) {
+                return(regress_pwm.multi_kmers(
+                    sequences = sequences,
+                    response = response,
+                    motif_length = motif_length,
+                    score_metric = score_metric,
+                    bidirect = bidirect,
+                    spat_min = spat_min,
+                    spat_max = spat_max,
+                    spat_bin = spat_bin,
+                    spat_model = spat_model,
+                    improve_epsilon = improve_epsilon,
+                    min_nuc_prob = min_nuc_prob,
+                    unif_prior = unif_prior,
+                    is_train = is_train,
+                    include_response = include_response,
+                    seed = seed,
+                    verbose = verbose,
+                    kmer_length = kmer_length,
+                    max_cands = max_cands,
+                    min_gap = min_gap,
+                    max_gap = max_gap,
+                    min_kmer_cor = min_kmer_cor,
+                    consensus_single_thresh = consensus_single_thresh,
+                    consensus_double_thresh = consensus_double_thresh,
+                    final_metric = final_metric,
+                    parallel = parallel,
+                    match_with_db = match_with_db,
+                    motif_dataset = motif_dataset,
+                    ...
+                ))
+            }
             cli_alert_info("Screening for kmers in order to initialize regression")
-            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, ...)
+            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
             if (length(motif) == 0) { # could not find any kmer
                 motif <- paste(rep("*", motif_length), collapse = "")
@@ -277,4 +367,149 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = ge
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
     }
     return(reg)
+}
+
+regress_pwm.multi_kmers <- function(sequences,
+                                    response,
+                                    motif_length = 15,
+                                    score_metric = "r2",
+                                    bidirect = TRUE,
+                                    spat_min = 0,
+                                    spat_max = NULL,
+                                    spat_bin = 50,
+                                    spat_model = NULL,
+                                    improve_epsilon = 0.0001,
+                                    min_nuc_prob = 0.001,
+                                    unif_prior = 0.05,
+                                    is_train = NULL,
+                                    include_response = TRUE,
+                                    seed = 60427,
+                                    verbose = FALSE,
+                                    kmer_length = 6:8,
+                                    max_cands = 10,
+                                    min_gap = 0,
+                                    max_gap = 1,
+                                    min_kmer_cor = 0.1,
+                                    consensus_single_thresh = 0.6,
+                                    consensus_double_thresh = 0.85,
+                                    final_metric = "r2",
+                                    parallel = getOption("prego.parallel", FALSE),
+                                    match_with_db = FALSE,
+                                    motif_dataset = all_motif_datasets(),
+                                    ...) {
+    set.seed(seed)
+    if (is.null(nrow(response))) {
+        response <- matrix(response, ncol = 1)
+    }
+
+    if (length(sequences) != nrow(response)) {
+        cli_abort("The number of sequences and the number of rows in {.field response} do not match")
+    }
+
+    regress_pwm_single_kmer <- purrr::partial(
+        regress_pwm,
+        sequences = sequences,
+        response = response,
+        motif_length = motif_length,
+        score_metric = score_metric,
+        bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_bin = spat_bin,
+        improve_epsilon = improve_epsilon,
+        min_nuc_prob = min_nuc_prob,
+        unif_prior = unif_prior,
+        is_train = is_train,
+        include_response = FALSE,
+        seed = seed,
+        verbose = FALSE,
+        consensus_single_thresh = consensus_single_thresh,
+        consensus_double_thresh = consensus_double_thresh,
+        match_with_db = FALSE
+    )
+
+    cli_h3("Generate candidate kmers")
+    cand_kmers <- get_cand_kmers(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
+
+    cli_h3("Regress each candidate kmer on sampled data")
+    cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
+    cli_ul(c(
+        "Bidirectional: {.val {bidirect}}",
+        "Spat min: {.val {spat_min}}",
+        "Spat max: {.val {spat_max}}",
+        "Spat bin: {.val {spat_bin}}",
+        "Improve epsilon: {.val {improve_epsilon}}",
+        "Min nuc prob: {.val {min_nuc_prob}}",
+        "Uniform prior: {.val {unif_prior}}",
+        "Score metric: {.val {score_metric}}",
+        "Seed: {.val {seed}}"
+    ))
+    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
+        motif <- cand_kmers[i]
+        cli_alert("regressing with seed: {.val {motif}}")
+        r <- regress_pwm_single_kmer(motif = motif) %>%
+            suppressMessages()
+        if (final_metric == "ks") {
+            if (!is_binary_response(response)) {
+                cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
+            }
+            r$score <- r[[final_metric]]$statistic
+        } else if (final_metric == "r2") {
+            r$score <- r[[final_metric]]
+        } else {
+            cli_abort("Unknown {.field final_metric} (can be 'ks' or 'r2')")
+        }
+        cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
+        return(r)
+    }, .parallel = parallel)
+
+    scores <- sapply(res_kmer_list, function(x) x$score)
+
+    res <- res_kmer_list[[which.max(scores)]]
+    res$kmers <- cand_kmers
+
+    if (include_response) {
+        res$response <- response
+    }
+
+    if (match_with_db) {
+        res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+    }
+
+    cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
+
+    return(res)
+}
+
+get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
+    all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
+        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, ...) %>%
+            mutate(len = kmer_length[i], verbose = FALSE) %>%
+            suppressMessages()
+    }, .parallel = parallel)
+
+    best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
+
+    all_kmers <- all_kmers %>%
+        # filter by correlation
+        filter(sqrt(max_r2) > min_kmer_cor) %>%
+        dplyr::distinct(kmer, .keep_all = TRUE)
+
+    cands <- all_kmers %>%
+        slice_max(n = min(nrow(all_kmers), max_cands), order_by = abs(max_r2)) %>%
+        arrange(desc(abs(max_r2)))
+
+
+    dist_mat <- stringdist::stringdistmatrix(cands$kmer, cands$kmer, method = "osa", nthread = 1)
+    dist_mat[dist_mat != 1] <- NA
+    g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
+    cands <- cands %>%
+        mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%
+        group_by(kmer_clust) %>%
+        slice(1) %>%
+        pull(kmer)
+
+    cands <- unique(c(best_kmer, cands))
+
+    return(cands)
 }

@@ -64,10 +64,14 @@ would end at the end of the sequence.}
     \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
     \item{\code{motif_dataset}}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
-    \item{\code{kmer_length}}{The number of non-gap characters in motifs that will be screened}
-    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
-    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
+    \item{\code{multi_kmers}}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
+    \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
     \item{\code{max_cands}}{maximum number of kmer candidates to try.}
+    \item{\code{motif_num}}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
+    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
+    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
   }}
 }
 \value{
@@ -90,5 +94,10 @@ head(res$pred_mat)
 res$stats
 
 plot_regression_qc(res$models[[1]], title = names(res$models)[1])
+
+# multiple motifs per cluster
+res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
+res_multi$multi_stats
+plot_regression_qc_multi(res$models[[1]], title = names(res$models)[1])
 
 }

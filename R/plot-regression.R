@@ -177,8 +177,58 @@ plot_regression_qc <- function(reg,
         design = design
     )
 
-    if (!is.null(title)) {
+    if (!is.null(title) || !is.null(subtitle) || !is.null(caption)) {
         p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle, caption = caption)
     }
+    return(p)
+}
+
+#' Plot the regression results for multiple motifs
+#'
+#' @description plot the regression results when \code{motif_num} > 1
+#'
+#' @examples
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 3], motif_num = 3)
+#' plot_regression_qc_multi(res_binary)
+#'
+#' @inheritParams plot_regression_qc
+#' @export
+plot_regression_qc_multi <- function(reg, title = glue("Motif regression results (consensus: {reg$consensus})"),
+                                     subtitle = NULL,
+                                     caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")) {
+    if (!("models" %in% names(reg)) || !("multi_stats" %in% names(reg))) {
+        cli_abort("The regression result does not contain multiple motifs")
+    }
+
+    response <- reg$models[[1]]$response
+
+    models <- purrr::map(reg$models, ~ {
+        m <- .x
+        m$response <- response
+        m
+    })
+
+    model_plots <- purrr::imap(models, ~ plot_regression_qc(.x, title = paste0("model ", .y), subtitle = NULL, caption = NULL))
+
+    p_models <- patchwork::wrap_plots(model_plots)
+
+    p_scores <- reg$multi_stats %>%
+        dplyr::rename(`Score` = score, `Combined score` = comb_score) %>%
+        tidyr::pivot_longer(cols = c("Score", "Combined score")) %>%
+        mutate(label = round(value, digits = 3)) %>%
+        ggplot(aes(x = factor(model), y = value, label = label)) +
+        geom_col() +
+        theme_classic() +
+        geom_text(vjust = -0.5) +
+        xlab("Model") +
+        ylab("Score") +
+        facet_wrap(. ~ name, scales = "free_y", ncol = 2)
+
+    p <- p_models / p_scores
+
+    if (!is.null(title) || !is.null(subtitle) || !is.null(caption)) {
+        p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle, caption = caption)
+    }
+
     return(p)
 }
