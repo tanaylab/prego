@@ -1,18 +1,12 @@
 #' Run PWM regression on a sample of the data
 #'
-#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac} (or explicit sampled indices \code{sample_idxs}) where different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.
-#' It is optional, however, to run the optimization with explicit initial seed (kmer or PSSM) using the \code{motf} argument.
+#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}. Note that \code{multi_kmers} is TRUE by default.
 #'
 #' @param sample_frac fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
 #' If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.
 #' @param sample_idxs indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.
-#' @param final_metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.
-#' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
-#' @param max_cands maximum number of kmer candidates to try.
 #' @param verbose verbosity of the optimization.
-#' @param parallel whether to run optimization in parallel. use \code{set_parallel}
-#' to set the number of cores to use.
 #'
 #'
 #' @examples
@@ -44,6 +38,7 @@ regress_pwm.sample <- function(sequences,
                                seed = 60427,
                                verbose = FALSE,
                                kmer_length = 6:8,
+                               multi_kmers = TRUE,
                                max_cands = 10,
                                min_gap = 0,
                                max_gap = 1,
@@ -69,16 +64,17 @@ regress_pwm.sample <- function(sequences,
 
     cli_alert_info("Performing sampled optimization")
     if (is.null(sample_idxs)) {
-        sample_idxs <- sample_response(response, sample_frac, sample_ratio)
+        sample_idxs <- sample_response(response, sample_frac, sample_ratio, seed)
     }
 
     sequences_s <- sequences[sample_idxs]
     response_s <- response[sample_idxs, , drop = FALSE]
 
-    regress_pwm_sampled <- purrr::partial(
-        regress_pwm,
+    res <- regress_pwm(
         sequences = sequences_s,
         response = response_s,
+        motif = motif,
+        multi_kmers = multi_kmers,
         motif_length = motif_length,
         score_metric = score_metric,
         bidirect = bidirect,
@@ -92,56 +88,17 @@ regress_pwm.sample <- function(sequences,
         include_response = FALSE,
         seed = seed,
         verbose = FALSE,
+        kmer_length = kmer_length,
+        max_cands = max_cands,
+        min_gap = min_gap,
+        max_gap = max_gap,
+        min_kmer_cor = min_kmer_cor,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
-        match_with_db = FALSE
+        final_metric = final_metric,
+        match_with_db = FALSE,
+        parallel = parallel
     )
-
-    if (!is.null(motif)) {
-        res <- regress_pwm_sampled(motif = motif)
-    } else {
-        cli_h3("Generate candidate kmers")
-        cand_kmers <- get_cand_kmers(sequences_s, response_s, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
-
-        cli_h3("Regress each candidate kmer on sampled data")
-        cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
-        cli_ul(c(
-            "Bidirectional: {.val {bidirect}}",
-            "Spat min: {.val {spat_min}}",
-            "Spat max: {.val {spat_max}}",
-            "Spat bin: {.val {spat_bin}}",
-            "Improve epsilon: {.val {improve_epsilon}}",
-            "Min nuc prob: {.val {min_nuc_prob}}",
-            "Uniform prior: {.val {unif_prior}}",
-            "Score metric: {.val {score_metric}}",
-            "Seed: {.val {seed}}"
-        ))
-        res_s_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
-            motif <- cand_kmers[i]
-            cli_alert("regressing with seed: {.val {motif}}")
-            r <- regress_pwm_sampled(motif = motif) %>%
-                suppressMessages()
-            if (final_metric == "ks") {
-                if (!is_binary_response(response_s)) {
-                    cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
-                }
-                r$score <- r[[final_metric]]$statistic
-            } else if (final_metric == "r2") {
-                r$score <- r[[final_metric]]
-            } else {
-                cli_abort("Unknown {.field final_metric} (can be 'ks' or 'r2')")
-            }
-            cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
-            return(r)
-        }, .parallel = parallel)
-
-        scores <- sapply(res_s_list, function(x) x$score)
-
-        res <- res_s_list[[which.max(scores)]]
-        res$kmers <- cand_kmers
-
-        cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
-    }
 
     res$sample_idxs <- sample_idxs
 
@@ -204,7 +161,10 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
     return(cands)
 }
 
-sample_response <- function(response, sample_frac = NULL, sample_ratio = 1) {
+sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed = NULL) {
+    if (!is.null(seed)) {
+        set.seed(seed)
+    }
     if (is.null(sample_frac)) {
         if (is_binary_response(response)) {
             sample_frac <- c(pmin(1, sample_ratio * sum(response[, 1] == 1) / sum(response[, 1] == 0)), 1)

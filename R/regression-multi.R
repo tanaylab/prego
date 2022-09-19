@@ -8,16 +8,46 @@ regress_multiple_motifs <- function(sequences,
                                     spat_min,
                                     spat_max,
                                     spat_bin,
+                                    spat_model,
+                                    improve_epsilon,
                                     min_nuc_prob,
+                                    unif_prior,
                                     is_train,
                                     include_response,
                                     seed,
                                     verbose,
                                     kmer_length,
-                                    motif_num = 2,
+                                    motif_num,
+                                    consensus_single_thresh,
+                                    consensus_double_thresh,
+                                    match_with_db,
                                     ...) {
     cli_abort("Multiple motifs are not supported yet")
     # cli_alert_info("Running regression of {.val {motif_num}} motifs")
+    # first_regression_func <- purrr::partial(
+    #     regress_pwm,
+    #     motif = motif,
+    #     motif_length = motif_length,
+    #     score_metric = score_metric,
+    #     bidirect = bidirect,
+    #     spat_min = spat_min,
+    #     spat_max = spat_max,
+    #     spat_bin = spat_bin,
+    #     spat_model = spat_model,
+    #     improve_epsilon = improve_epsilon,
+    #     min_nuc_prob = min_nuc_prob,
+    #     unif_prior = unif_prior,
+    #     is_train = is_train,
+    #     include_response = FALSE,
+    #     seed = seed,
+    #     verbose = verbose,
+    #     kmer_length = kmer_length,
+    #     consensus_single_thresh = consensus_single_thresh,
+    #     consensus_double_thresh = consensus_double_thresh,
+    #     match_with_db = match_with_db,
+    #     ...
+    # )
+
 
     # res <- list()
     # resp <- response

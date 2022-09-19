@@ -22,6 +22,7 @@ regress_pwm.sample(
   seed = 60427,
   verbose = FALSE,
   kmer_length = 6:8,
+  multi_kmers = TRUE,
   max_cands = 10,
   min_gap = 0,
   max_gap = 1,
@@ -76,7 +77,11 @@ would end at the end of the sequence.}
 
 \item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
 
+\item{multi_kmers}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
+
 \item{max_cands}{maximum number of kmer candidates to try.}
+
+\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
@@ -125,8 +130,7 @@ a list with the following elements:
 }
 }
 \description{
-The optimization would be performed with a sampled dataset of size \code{sample_frac} (or explicit sampled indices \code{sample_idxs}) where different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.
-It is optional, however, to run the optimization with explicit initial seed (kmer or PSSM) using the \code{motf} argument.
+The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}. Note that \code{multi_kmers} is TRUE by default.
 }
 \examples{
 res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")

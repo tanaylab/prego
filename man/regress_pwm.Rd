@@ -23,11 +23,18 @@ regress_pwm(
   seed = 60427,
   verbose = FALSE,
   kmer_length = 8,
+  multi_kmers = FALSE,
+  final_metric = "r2",
+  max_cands = 10,
+  min_gap = 0,
+  max_gap = 1,
+  min_kmer_cor = 0.1,
   motif_num = 1,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
   match_with_db = FALSE,
   motif_dataset = all_motif_datasets(),
+  parallel = getOption("prego.parallel", FALSE),
   ...
 )
 }
@@ -69,7 +76,15 @@ would end at the end of the sequence.}
 
 \item{verbose}{show verbose messages.}
 
-\item{kmer_length}{The number of non-gap characters in motifs that will be screened}
+\item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
+
+\item{multi_kmers}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
+
+\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+
+\item{max_cands}{maximum number of kmer candidates to try.}
+
+\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
@@ -78,6 +93,9 @@ would end at the end of the sequence.}
 is returned, even if it is not similar enough in absolute terms.}
 
 \item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
+
+\item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
+to set the number of cores to use.}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
@@ -129,5 +147,9 @@ plot_regression_qc(res_binary)
 # match with db
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 plot_regression_qc(res_binary)
+
+# use multiple kmer seeds
+res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], multi_kmers = TRUE, kmer_length = 6:8, final_metric = "ks")
+plot_regression_qc(res_multi)
 
 }
