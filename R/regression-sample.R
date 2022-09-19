@@ -18,40 +18,25 @@
 #' plot_regression_qc(res)
 #'
 #' @inheritParams regress_pwm
+#' @inheritDotParams regress_pwm
 #' @inheritDotParams screen_kmers
 #' @inherit regress_pwm return
 #' @export
 regress_pwm.sample <- function(sequences,
                                response,
-                               motif = NULL,
-                               motif_length = 15,
-                               score_metric = "r2",
                                bidirect = TRUE,
                                spat_min = 0,
                                spat_max = NULL,
-                               spat_bin = 50,
-                               improve_epsilon = 0.0001,
-                               min_nuc_prob = 0.001,
-                               unif_prior = 0.05,
-                               is_train = NULL,
                                include_response = TRUE,
-                               seed = 60427,
-                               verbose = FALSE,
-                               kmer_length = 6:8,
+                               motif_num = 1,
                                multi_kmers = TRUE,
-                               max_cands = 10,
-                               min_gap = 0,
-                               max_gap = 1,
-                               min_kmer_cor = 0.1,
-                               consensus_single_thresh = 0.6,
-                               consensus_double_thresh = 0.85,
                                sample_frac = NULL,
                                sample_idxs = NULL,
                                sample_ratio = 1,
-                               final_metric = "r2",
-                               parallel = getOption("prego.parallel", FALSE),
+                               parallel = getOption("prego.parallel", TRUE),
                                match_with_db = FALSE,
                                motif_dataset = all_motif_datasets(),
+                               seed = 60427,
                                ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -73,31 +58,17 @@ regress_pwm.sample <- function(sequences,
     res <- regress_pwm(
         sequences = sequences_s,
         response = response_s,
-        motif = motif,
-        multi_kmers = multi_kmers,
-        motif_length = motif_length,
-        score_metric = score_metric,
         bidirect = bidirect,
         spat_min = spat_min,
         spat_max = spat_max,
-        spat_bin = spat_bin,
-        improve_epsilon = improve_epsilon,
-        min_nuc_prob = min_nuc_prob,
-        unif_prior = unif_prior,
-        is_train = is_train,
+        motif_num = motif_num,
+        multi_kmers = multi_kmers,
         include_response = FALSE,
-        seed = seed,
         verbose = FALSE,
-        kmer_length = kmer_length,
-        max_cands = max_cands,
-        min_gap = min_gap,
-        max_gap = max_gap,
-        min_kmer_cor = min_kmer_cor,
-        consensus_single_thresh = consensus_single_thresh,
-        consensus_double_thresh = consensus_double_thresh,
-        final_metric = final_metric,
         match_with_db = FALSE,
-        parallel = parallel
+        parallel = parallel,
+        seed = seed,
+        ...
     )
 
     res$sample_idxs <- sample_idxs
@@ -126,39 +97,6 @@ regress_pwm.sample <- function(sequences,
     }
 
     return(res)
-}
-
-get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
-    all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
-        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = 0, max_gap = max_gap, ...) %>%
-            mutate(len = kmer_length[i], verbose = FALSE) %>%
-            suppressMessages()
-    }, .parallel = parallel)
-
-    best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
-
-    all_kmers <- all_kmers %>%
-        # filter by correlation
-        filter(sqrt(max_r2) > min_kmer_cor) %>%
-        dplyr::distinct(kmer, .keep_all = TRUE)
-
-    cands <- all_kmers %>%
-        slice_max(n = min(nrow(all_kmers), max_cands), order_by = abs(max_r2)) %>%
-        arrange(desc(abs(max_r2)))
-
-
-    dist_mat <- stringdist::stringdistmatrix(cands$kmer, cands$kmer, method = "osa", nthread = 1)
-    dist_mat[dist_mat != 1] <- NA
-    g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
-    cands <- cands %>%
-        mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%
-        group_by(kmer_clust) %>%
-        slice(1) %>%
-        pull(kmer)
-
-    cands <- unique(c(best_kmer, cands))
-
-    return(cands)
 }
 
 sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed = NULL) {

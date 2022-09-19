@@ -30,6 +30,7 @@ regress_pwm(
   max_gap = 1,
   min_kmer_cor = 0.1,
   motif_num = 1,
+  smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
   match_with_db = FALSE,
@@ -86,6 +87,10 @@ would end at the end of the sequence.}
 
 \item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
+\item{motif_num}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
+
+\item{smooth_k}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
 
@@ -122,6 +127,22 @@ a list with the following elements:
 \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 \item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
 }
+
+When \code{match_with_db} is TRUE, the following additional elements are returned:
+\itemize{
+\item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
+\item{db_match_dist: }{The distance between the resulting PSSM and the closest match in the motif database (KL divergence).}
+\item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
+\item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
+\item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
+\item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
+}
+
+When \code{n_motifs} is greater than 1, the following additional elements are returned:
+\itemize{
+\item{models: }{A list (as above) of each inferred model}
+\item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
+}
 }
 \description{
 Perform a PWM regression
@@ -151,5 +172,9 @@ plot_regression_qc(res_binary)
 # use multiple kmer seeds
 res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], multi_kmers = TRUE, kmer_length = 6:8, final_metric = "ks")
 plot_regression_qc(res_multi)
+
+# Screen for multiple motifs
+res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], motif_num = 3, match_with_db = TRUE)
+res_multi$stats
 
 }

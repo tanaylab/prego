@@ -7,35 +7,19 @@
 regress_pwm.sample(
   sequences,
   response,
-  motif = NULL,
-  motif_length = 15,
-  score_metric = "r2",
   bidirect = TRUE,
   spat_min = 0,
   spat_max = NULL,
-  spat_bin = 50,
-  improve_epsilon = 0.0001,
-  min_nuc_prob = 0.001,
-  unif_prior = 0.05,
-  is_train = NULL,
   include_response = TRUE,
-  seed = 60427,
-  verbose = FALSE,
-  kmer_length = 6:8,
+  motif_num = 1,
   multi_kmers = TRUE,
-  max_cands = 10,
-  min_gap = 0,
-  max_gap = 1,
-  min_kmer_cor = 0.1,
-  consensus_single_thresh = 0.6,
-  consensus_double_thresh = 0.85,
   sample_frac = NULL,
   sample_idxs = NULL,
   sample_ratio = 1,
-  final_metric = "r2",
-  parallel = getOption("prego.parallel", FALSE),
+  parallel = getOption("prego.parallel", TRUE),
   match_with_db = FALSE,
   motif_dataset = all_motif_datasets(),
+  seed = 60427,
   ...
 )
 }
@@ -44,14 +28,6 @@ regress_pwm.sample(
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
-\item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
-
-\item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
-
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
-
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
 \item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
@@ -59,32 +35,11 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 \item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
 would end at the end of the sequence.}
 
-\item{spat_bin}{size of the spatial bin (in bp).}
-
-\item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
-
-\item{min_nuc_prob}{minimum nucleotide probability in every iteration}
-
-\item{unif_prior}{uniform prior for nucleotide probabilities}
-
-\item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
-
 \item{include_response}{include the response in the resulting list (default: TRUE)}
 
-\item{seed}{random seed}
-
-\item{verbose}{verbosity of the optimization.}
-
-\item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
+\item{motif_num}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
 
 \item{multi_kmers}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
-
-\item{max_cands}{maximum number of kmer candidates to try.}
-
-\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
-
-\item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
-(single and double nucleotides)}
 
 \item{sample_frac}{fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
 If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.}
@@ -92,8 +47,6 @@ If NULL - the default would be 0.1 for continuous variables, and for binary vari
 \item{sample_idxs}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
 
 \item{sample_ratio}{ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.}
-
-\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
 
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
@@ -103,16 +56,37 @@ is returned, even if it is not similar enough in absolute terms.}
 
 \item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
 
+\item{seed}{random seed}
+
 \item{...}{
-  Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
+  Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
+    \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
+wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+    \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
+    \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
+    \item{\code{spat_bin}}{size of the spatial bin (in bp).}
+    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
+    \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
+    \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
+    \item{\code{unif_prior}}{uniform prior for nucleotide probabilities}
+    \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
+(single and double nucleotides)}
+    \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+    \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
+    \item{\code{max_cands}}{maximum number of kmer candidates to try.}
+    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
+    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{min_n}}{Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported}
-    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
     \item{\code{from_range}}{Sequences will be considered only from position from_range (default 0)}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
     \item{\code{return_mat}}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
   }}
+
+\item{verbose}{verbosity of the optimization.}
 }
 \value{
 a list with the following elements:
@@ -127,6 +101,22 @@ a list with the following elements:
 \item{seed_motif: }{The seed motif that started the regression.}
 \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 \item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
+}
+
+When \code{match_with_db} is TRUE, the following additional elements are returned:
+\itemize{
+\item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
+\item{db_match_dist: }{The distance between the resulting PSSM and the closest match in the motif database (KL divergence).}
+\item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
+\item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
+\item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
+\item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
+}
+
+When \code{n_motifs} is greater than 1, the following additional elements are returned:
+\itemize{
+\item{models: }{A list (as above) of each inferred model}
+\item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
 }
 }
 \description{
