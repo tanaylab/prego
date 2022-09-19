@@ -1,4 +1,4 @@
-#' Cross-validate a PWMregression model
+#' Cross-validate a PWM regression model
 #'
 #' @description Perform cross-validation on a PWM regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
 #'

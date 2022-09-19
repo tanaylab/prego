@@ -24,7 +24,8 @@ Imports:
     tidyr,
     glue,
     stringdist,
-    igraph
+    igraph,
+    zoo
 Suggests: 
     testthat (>= 3.0.0),
     withr,

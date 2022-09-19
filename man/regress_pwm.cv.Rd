@@ -2,7 +2,7 @@
 % Please edit documentation in R/regression-cv.R
 \name{regress_pwm.cv}
 \alias{regress_pwm.cv}
-\title{Cross-validate a PWMregression model}
+\title{Cross-validate a PWM regression model}
 \usage{
 regress_pwm.cv(
   sequences,
