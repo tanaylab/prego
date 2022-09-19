@@ -32,7 +32,7 @@
 #' # multiple motifs per cluster
 #' res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 #' res_multi$multi_stats
-#' plot_regression_qc_multi(res$models[[1]], title = names(res$models)[1])
+#' plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
 #'
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
