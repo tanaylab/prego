@@ -199,24 +199,24 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Matching with motif databases</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred_mat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           c100      c111       c29        c5        c6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_5108540_5108840 -17.28819 -15.88604 -16.43380 -16.61165 -16.84203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7313460_7313760 -14.69661 -17.02461 -16.51139 -16.67072 -17.51148</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7778180_7778480 -15.75232 -15.11354 -16.80705 -16.65310 -16.69591</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9381040_9381340 -16.03874 -15.04809 -15.20886 -16.47437 -16.01101</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9921360_9921660 -14.85159 -17.90363 -15.35405 -16.13744 -16.07321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9931940_9932240 -16.32993 -17.16320 -14.44998 -16.72751 -16.53625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_5108540_5108840 -17.38049 -16.05691 -16.54865 -16.61165 -16.84203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7313460_7313760 -14.87819 -17.07130 -16.55741 -16.67072 -17.51148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_7778180_7778480 -15.45138 -15.25819 -16.90154 -16.65310 -16.69591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9381040_9381340 -16.28883 -15.07864 -15.26242 -16.47437 -16.01101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9921360_9921660 -14.95923 -17.74738 -15.20133 -16.13744 -16.07321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> chr1_9931940_9932240 -16.35172 -17.07624 -14.42843 -16.72751 -16.53625</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">stats</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 5 x 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif              db_match</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   AT***TC 0.7024075 0.3852463 ***ATCCATCA**** JASPAR.MEIS1.MA1639.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111   Y*RTAAA 0.8479663 0.4978355 ***CAATTAAC****   JOLMA.CDX1_mono_DBD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 T*A***W*T 0.8507039 0.5581745 ***TAATCATT****            HOMER.Hnf1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   GA***AT 0.7031941 0.3918910 ***TGAT*GATG*** JASPAR.MEIS2.MA1640.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111    Y*RTAA 0.8519552 0.5023664 ***GC*ATAAAA***   JOLMA.CDX1_mono_DBD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 T*AM**W*T 0.8472845 0.5480150 ***TTAAT*ATT***            HOMER.Hnf1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      GATA 0.5887910 0.2227806 ***CTGATAAG****      JASPAR.GATA1/2/3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6      TATC 0.6160721 0.2783910 ***TCTTATCT****          JASPAR.GATAd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   db_match_dist</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.244724</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0.152716</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0.340463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.313315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0.164809</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0.349275</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4      0.198050</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      0.219126</span>
 <span class="r-in"><span></span></span>
@@ -228,11 +228,65 @@ would end at the end of the sequence.</p></dd>
 <span class="r-in"><span><span class="co"># multiple motifs per cluster</span></span></span>
 <span class="r-in"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span>, motif_num <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">5</span> clusters</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in do.ply(i):</span> task 1 failed - "Multiple motifs are not supported yet"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Matching with motif databases</span>
 <span class="r-in"><span><span class="va">res_multi</span><span class="op">$</span><span class="va">multi_stats</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_multi' not found</span>
-<span class="r-in"><span><span class="fu"><a href="plot_regression_qc_multi.html">plot_regression_qc_multi</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plot_regression_qc_multi(res$models[[1]], title = names(res$models)[1]):</span> could not find function "plot_regression_qc_multi"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cluster model      score comb_score         diff      consensus</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     c100     1 0.70319411  0.7031941           NA        GA***AT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     c100     2 0.23683187  0.7250886  0.021894525     G**CACGC*S</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c100     3 0.03376990  0.7344159  0.009327270    C**AGCCAACG</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     c111     1 0.85195519  0.8519552           NA         Y*RTAA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     c111     2 0.07829314  0.8504424 -0.001512773    R*ACCTC*TTA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     c111     3 0.12630940  0.8544884  0.004045954   K*TAGACTATCT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      c29     1 0.84728446  0.8472845           NA      T*AM**W*T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      c29     2 0.43145932  0.8549464  0.007661959   TTAATGC*TA*T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      c29     3 0.14822375  0.8693406  0.014394207 T**T*AATTGY**Y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      c5     1 0.58879105  0.5887910           NA           GATA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      c5     2 0.15430907  0.5977727  0.008981632   A**TRCTC***C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      c5     3 0.08257701  0.6040529  0.006280265      AGGG*CCTC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      c6     1 0.61607207  0.6160721           NA           TATC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14      c6     2 0.17195312  0.6106491 -0.005422993       CTA**CTT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      c6     3 0.08840848  0.6003275 -0.010321589     C*AGGGAG*W</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         seed_motif              db_match db_match_dist     db_match_r2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  ***TGAT*GATG*** JASPAR.MEIS2.MA1640.1     0.3133155 0.0556688782658</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  ***GGCCACGC****            JASPAR.Hey     0.4012114 0.0047592283493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  ***AGCCAACG****         JASPAR.WRKY30     0.5336163 0.0000743315531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  ***GC*ATAAAA***   JOLMA.CDX1_mono_DBD     0.1648090 0.4490421421307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  ***ACCTC*TTA***   JOLMA.VAX2_mono_DBD     0.6771373 0.0001735170005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  ***TAGA*TACC***            HOMER.Fli1     0.8078310 0.0021165826267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  ***TTAAT*ATT***            HOMER.Hnf1     0.3492750 0.5342781708772</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  ***TAATGC*TA***          JASPAR.PITX3     0.4875679 0.0038462827197</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  ***GTTAATTG****           JASPAR.Hox1     0.4363963 0.0063700963609</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 ***CTGATAAG****      JASPAR.GATA1/2/3     0.1980504 0.1032477212985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 ***TGCTC*TCC***         JASPAR.ZNF189     0.4841530 0.0017649801503</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 ***AGGG*CCTC***         JASPAR.Plagl1     0.6822063 0.0008142246719</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 ***TCTTATCT****          JASPAR.GATAd     0.2191264 0.1587976426856</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 ***CTAA*CTTC***          JASPAR.GATA1     0.4343921 0.0000001567831</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 ***CCAGGG*GT***         JASPAR.DOF5.3     0.5329004 0.0007108575817</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    db_match_ks</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    0.2779008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    0.7772799</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    0.8138562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9         NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   0.4532731</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11        NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12        NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   0.5123886</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14        NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15        NULL</span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc_multi.html">plot_regression_qc_multi</a></span><span class="op">(</span><span class="va">res_multi</span><span class="op">$</span><span class="va">models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
+<span class="r-plt img"><img src="regress_pwm.clusters-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
