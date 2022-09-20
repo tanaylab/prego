@@ -4,6 +4,7 @@
 #' @param pssm a PSSM matrix or data frame. The columns of the matrix or data frame should be named with the nucleotides ('A', 'C', 'G' and 'T').
 #' @param spat a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
+#' @param prior a prior probability for each nucleotide.
 #'
 #' @return a vector with the predicted pwm for each sequence.
 #'
@@ -18,7 +19,7 @@
 #'
 #' @inheritParams regress_pwm
 #' @export
-compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE) {
+compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -35,9 +36,19 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
         cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
     }
 
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
     pwm <- compute_pwm_cpp(
         sequences = toupper(sequences),
-        pssm = as.matrix(pssm[, c("A", "C", "G", "T")]),
+        pssm = pssm_mat,
         is_bidirect = bidirect,
         spat_min = spat_min,
         spat_max = spat_max,

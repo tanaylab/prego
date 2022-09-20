@@ -12,6 +12,7 @@ gextract_pwm(
   spat_min = 0,
   spat_max = NULL,
   bidirect = TRUE,
+  prior = 0,
   parallel = getOption("prego.parallel", TRUE)
 )
 }
@@ -30,6 +31,8 @@ gextract_pwm(
 would end at the end of the sequence.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
+
+\item{prior}{a prior probability for each nucleotide.}
 
 \item{parallel}{logical, whether to use parallel processing}
 }
