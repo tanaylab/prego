@@ -40,7 +40,7 @@
 #' @inheritDotParams regress_pwm.sample
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
+regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }

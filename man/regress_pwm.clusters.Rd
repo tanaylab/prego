@@ -7,7 +7,7 @@
 regress_pwm.clusters(
   sequences,
   clusters,
-  use_sample = FALSE,
+  use_sample = TRUE,
   match_with_db = TRUE,
   sample_frac = NULL,
   sample_ratio = 1,
