@@ -12,6 +12,7 @@ screen_pwm.clusters(
   parallel = getOption("prego.parallel", TRUE),
   min_D = 0.4,
   only_match = FALSE,
+  prior = 0.01,
   ...
 )
 }
@@ -29,6 +30,8 @@ screen_pwm.clusters(
 \item{min_D}{minimum distance to consider a match}
 
 \item{only_match}{if TRUE, only return the best match for each cluster}
+
+\item{prior}{a prior probability for each nucleotide.}
 
 \item{...}{
   Arguments passed on to \code{\link[=compute_pwm]{compute_pwm}}

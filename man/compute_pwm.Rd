@@ -10,7 +10,8 @@ compute_pwm(
   spat = NULL,
   spat_min = 0,
   spat_max = NULL,
-  bidirect = TRUE
+  bidirect = TRUE,
+  prior = 0
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ compute_pwm(
 would end at the end of the sequence.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
+
+\item{prior}{a prior probability for each nucleotide.}
 }
 \value{
 a vector with the predicted pwm for each sequence.

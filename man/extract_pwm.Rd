@@ -12,6 +12,7 @@ extract_pwm(
   spat_min = 0,
   spat_max = NULL,
   bidirect = TRUE,
+  prior = 0,
   parallel = getOption("prego.parallel", TRUE)
 )
 }
@@ -31,6 +32,8 @@ would end at the end of the sequence.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
+\item{prior}{a prior probability for each nucleotide.}
+
 \item{parallel}{logical, whether to use parallel processing}
 }
 \value{
@@ -45,12 +48,15 @@ pwms <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "HOMER.
 head(pwms)
 
 # all motifs
-all_pwms <- extract_pwm(cluster_sequences_example)
+all_pwms <- extract_pwm(cluster_sequences_example, prior = 0.01)
 dim(all_pwms)
 all_pwms[1:5, 1:5]
 
 # for a specific dataset
-pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs)
+pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs, prior = 0.01)
 head(pwms_jaspar)
+
+# for specific motifs
+pwms_jaspar <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "JASPAR.CDX2"), prior = 0.01)
 
 }

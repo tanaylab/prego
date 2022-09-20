@@ -43,17 +43,20 @@ all_motif_datasets <- function() {
 #' head(pwms)
 #'
 #' # all motifs
-#' all_pwms <- extract_pwm(cluster_sequences_example)
+#' all_pwms <- extract_pwm(cluster_sequences_example, prior = 0.01)
 #' dim(all_pwms)
 #' all_pwms[1:5, 1:5]
 #'
 #' # for a specific dataset
-#' pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs)
+#' pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs, prior = 0.01)
 #' head(pwms_jaspar)
+#'
+#' # for specific motifs
+#' pwms_jaspar <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "JASPAR.CDX2"), prior = 0.01)
 #'
 #' @inheritParams compute_pwm
 #' @export
-extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, parallel = getOption("prego.parallel", TRUE)) {
+extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -61,7 +64,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
     sequences <- toupper(sequences)
 
     res <- plyr::daply(dataset, "motif", function(x) {
-        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     }, .parallel = parallel)
 
     res <- as.matrix(t(res))
@@ -90,7 +93,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
 #' }
 #'
 #' @export
-gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
     if (!("misha" %in% installed.packages())) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
@@ -101,7 +104,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 
     sequences <- misha::gseq.extract(intervals)
 
-    res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, parallel = parallel)
+    res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
     return(cbind(intervals, as.data.frame(res)))
 }

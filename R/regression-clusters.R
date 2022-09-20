@@ -153,7 +153,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm
 #' @export
-screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, ...) {
+screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, prior = 0.01, ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -162,7 +162,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     cluster_ids <- unique(clusters)
 
     res <- plyr::daply(dataset, "motif", function(x) {
-        pwm <- compute_pwm(sequences, x, ...)
+        pwm <- compute_pwm(sequences, x, prior = prior, ...)
         purrr::map_dbl(cluster_ids, function(cl) {
             suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl])$statistic)
         })
