@@ -490,6 +490,12 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
 
     best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
 
+    if (length(best_kmer) == 0) { # could not find any kmer
+        res <- paste(rep("*", kmer_length), collapse = "")
+        cli_alert_info("Could not find any kmer. Initializing with {.val {res}}")
+        return(res)
+    }
+
     all_kmers <- all_kmers %>%
         # filter by correlation
         filter(sqrt(max_r2) > min_kmer_cor) %>%
@@ -502,12 +508,16 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
 
     dist_mat <- stringdist::stringdistmatrix(cands$kmer, cands$kmer, method = "osa", nthread = 1)
     dist_mat[dist_mat != 1] <- NA
-    g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
-    cands <- cands %>%
-        mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%
-        group_by(kmer_clust) %>%
-        slice(1) %>%
-        pull(kmer)
+    if (ncol(dist_mat) == nrow(dist_mat)) {
+        g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
+        cands <- cands %>%
+            mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%
+            group_by(kmer_clust) %>%
+            slice(1) %>%
+            pull(kmer)
+    } else {
+        cands <- cands$kmer
+    }
 
     cands <- unique(c(best_kmer, cands))
 

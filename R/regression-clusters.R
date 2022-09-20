@@ -64,7 +64,6 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = FALSE, match_
         as.matrix()
 
     cluster_mat <- cluster_mat[names(sequences), ]
-
     if (use_sample) {
         cli_alert_info("Using sampled optimization")
         regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio, parallel = FALSE)
