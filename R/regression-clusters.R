@@ -11,6 +11,7 @@
 #' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
 #' Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
+#' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -40,7 +41,7 @@
 #' @inheritDotParams regress_pwm.sample
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), ...) {
+regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), use_sge = FALSE, ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }
@@ -66,7 +67,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
     cluster_mat <- cluster_mat[names(sequences), ]
     if (use_sample) {
         cli_alert_info("Using sampled optimization")
-        regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio, parallel = FALSE)
+        regression_func <- purrr::partial(regress_pwm.sample, sample_frac = sample_frac, final_metric = final_metric, sample_ratio = sample_ratio)
         if ("sample_idxs" %in% names(list(...))) {
             cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.clusters}")
         }
@@ -75,10 +76,25 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
     }
 
     cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
-    cluster_models <- plyr::llply(seq_len(ncol(cluster_mat)), function(i) {
-        cli_h1("Cluster {.val {i}}")
-        regression_func(sequences, cluster_mat[, i], match_with_db = match_with_db, ...)
-    }, .parallel = parallel)
+    if (use_sge) {
+        if (!("misha.ext" %in% installed.packages())) {
+            cli_abort("The {.field misha.ext} package is required when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
+        }
+        cli_alert_info("Using SGE cluster")
+        cmds <- paste0("regression_func(sequences, cluster_mat[, ", seq_len(ncol(cluster_mat)), "], match_with_db = match_with_db, parallel = parallel, ...)")
+        sge_res <- gcluster.run2(command_list = cmds)
+        ret_class <- purrr::map_chr(sge_res, ~ class(.x$retv))
+        if (any(ret_class != "list")) {
+            failed <- which(ret_class != "list")
+            cli_abort("Some of the regression jobs failed: {.val {failed}}.")
+        }
+        cluster_models <- purrr::map(sge_res, "retv")
+    } else {
+        cluster_models <- plyr::llply(seq_len(ncol(cluster_mat)), function(i) {
+            cli_h1("Cluster {.val {i}}")
+            regression_func(sequences, cluster_mat[, i], match_with_db = match_with_db, parallel = FALSE, ...)
+        }, .parallel = parallel)
+    }
 
     names(cluster_models) <- colnames(cluster_mat)
 
