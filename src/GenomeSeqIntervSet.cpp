@@ -83,7 +83,7 @@ void GenomeSeqIntervSet::add_locus(const string &chrom, int from, int to, int st
 		
 		int aln_from = m_project_align->get_alnpos_by_refgenome(from);
 		int aln_to = m_project_align->get_alnpos_by_refgenome(to);
-		cerr << "mapped " << from << " " << to << " to aln " << aln_from << " " << aln_to << endl;
+		Rcpp::Rcerr << "mapped " << from << " " << to << " to aln " << aln_from << " " << aln_to << endl;
 
 		//filter gaps?
 		string *interv_seq = new string;

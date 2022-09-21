@@ -15,8 +15,6 @@ float gamma_ln(float xx)
 		-1.231739572450155,
 		0.1208650973866179e-2,
 		-0.5395239384953e-5};
-
-	int j;
 	
 	y = x = xx;
 
@@ -40,8 +38,6 @@ double dbl_gamma_ln(float xx)
 		-1.231739572450155,
 		0.1208650973866179e-2,
 		-0.5395239384953e-5};
-
-	int j;
 	
 	y = x = xx;
 
@@ -61,15 +57,9 @@ FactorialFuncTable::FactorialFuncTable(int max_n) :
 
 }
 
-float FactorialFuncTable::factorial(int n)
-{
+float FactorialFuncTable::factorial(int n) { return 0; }
 
-}
-
-float FactorialFuncTable::factorial_ln(int n) 
-{
-
-}
+float FactorialFuncTable::factorial_ln(int n) { return 0; }
 
 BinomFuncTable::BinomFuncTable(int max_n, int max_k) :
 	m_factor_table(max_n, -1),
@@ -162,11 +152,11 @@ float BinomFuncTable::binom(int n, int k)
 double betai(double a, double b, double x)
 {
 	double betacf(double a, double b, double x);
-	float dbl_gamma_ln(float xx);
+	double dbl_gamma_ln(float xx);
 	void nrerror(char error_text[]);
 	double bt;
 	if(x < 0.0 || x > 1.0) {
-		cerr << "Bad x " << x<< " in routine betai";
+		Rcpp::Rcerr << "Bad x " << x<< " in routine betai";
 		return(-1);
 	}
 	if(x == 0.0 || x == 1.0) {
@@ -232,7 +222,7 @@ double betacf(double a, double b, double x)
 			break; 	//Are we done?
 	}
 	if (m > MAXIT)  {
-		cerr << "a " << a << " or b " << b << " too big, or MAXIT too small in betacf, x = " << x << endl;
+		Rcpp::Rcerr << "a " << a << " or b " << b << " too big, or MAXIT too small in betacf, x = " << x << endl;
 	}
 	return h;
 }
@@ -248,7 +238,7 @@ float gammp(float a, float x)
 	float gamser,gammcf,gln; 
 	
 	if (x < 0.0 || a <= 0.0) 
-		cerr << "Invalid arguments in routine gammp" << endl;; 
+		Rcpp::Rcerr << "Invalid arguments in routine gammp" << endl;; 
 	if (x < (a+1.0)) { 
 		//Use the series representation. 
 		gser(&gamser,a,x,&gln); 
@@ -265,7 +255,7 @@ float gammq(float a, float x) // Returns the incomplete gamma function Q(a; x)  
 	float gamser,gammcf,gln; 
 
 	if (x < 0.0 || a <= 0.0) 
-		cerr << "Invalid arguments in routine gammq" << endl; 
+		Rcpp::Rcerr << "Invalid arguments in routine gammq" << endl; 
 	if (x < (a+1.0)) { 
 		//Use the series representation 
 		gser(&gamser,a,x,&gln); 
@@ -290,7 +280,7 @@ void gser(float *gamser, float a, float x, float *gln)
 	*gln=gamma_ln(a); 
 	if (x <= 0.0) { 
 		if (x < 0.0) 
-			cerr << "x less than 0 in routine gser" << endl;; 
+			Rcpp::Rcerr << "x less than 0 in routine gser" << endl;; 
 		*gamser=0.0; 
 		return; 
 	} else { 
@@ -305,7 +295,7 @@ void gser(float *gamser, float a, float x, float *gln)
 				return; 
 			} 
 		} 
-		cerr << "a too large, ITMAX too small in routine gser" << endl; 
+		Rcpp::Rcerr << "a too large, ITMAX too small in routine gser" << endl; 
 		return; 
 	} 
 }
@@ -336,7 +326,7 @@ void gcf(float *gammcf, float a, float x, float *gln)
 			break; 
 	} 
 	if (i > ITMAX) 
-		cerr << "a too large, ITMAX too small in gcf" << endl;; 
+		Rcpp::Rcerr << "a too large, ITMAX too small in gcf" << endl;; 
 	*gammcf=exp(-x+a*log(x)-(*gln))*h; //Put factors in front. 
 }
 

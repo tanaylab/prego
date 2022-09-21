@@ -54,7 +54,7 @@ void options::read(istream &in, bool logit)
 		}
 
 		if(m_logit)
-			cerr << "new line is %%" << line << "%%" << endl;
+			Rcpp::Rcerr << "new line is %%" << line << "%%" << endl;
 
 		if(is_comment_line(line)) {
 			continue;
@@ -67,13 +67,13 @@ void options::read(istream &in, bool logit)
 				continue;
 			}
 			if(m_logit) {
-				cerr << "not array line\n";
+				Rcpp::Rcerr << "not array line\n";
 			}
 			if(is_option_line(line)) {
 				continue;
 			}
 			if(m_logit) {
-				cerr << "not option line\n";
+				Rcpp::Rcerr << "not option line\n";
 			}
 		}
 		ASSERT(false, "problem parsing line " << line);
@@ -93,7 +93,7 @@ bool options::is_scope_line(std::string &line)
 
 	cur_scope = line.substr(1, line.find(']') - 1);
 	if(m_logit)
-		cerr << "new scope " << cur_scope << endl;
+		Rcpp::Rcerr << "new scope " << cur_scope << endl;
 	return(true);
 }
 
@@ -114,7 +114,7 @@ bool options::get_option_name(std::string &line)
 
 	string::size_type space = cur_name.find(' ');
 	if(space != std::string::npos) {
-		cerr << "bad option name (with space) -" << cur_name << "- pos is " << space << endl;
+		Rcpp::Rcerr << "bad option name (with space) -" << cur_name << "- pos is " << space << endl;
 		return(false);
 	}
 	line.erase(0, equal + 1);
@@ -123,8 +123,8 @@ bool options::get_option_name(std::string &line)
 	}
 
 	if(m_logit) {
-		cerr << "new option name is " << cur_name << endl;
-		cerr << "line is left with " << line << endl;
+		Rcpp::Rcerr << "new option name is " << cur_name << endl;
+		Rcpp::Rcerr << "line is left with " << line << endl;
 	}
 
 	return(true);
@@ -160,7 +160,7 @@ bool options::is_array_line(std::string &line, istream &in)
 	}
 
 	if(m_logit) 
-		cerr << "array " << cur_name << " type " << atype 
+		Rcpp::Rcerr << "array " << cur_name << " type " << atype 
 						<< " size " << asize << endl;
 
 	uint size = atoi(asize.c_str());
@@ -201,7 +201,7 @@ bool options::is_array_line(std::string &line, istream &in)
 		}
 	}
 	if(m_logit) 
-		cerr << "out of array read\n";
+		Rcpp::Rcerr << "out of array read\n";
 
 	return(true);
 }
@@ -216,7 +216,7 @@ bool options::is_option_line(std::string &line)
 	}
 
 	if(m_logit)
-		cerr << "assigning to " << cur_name << " option " << line << endl;
+		Rcpp::Rcerr << "assigning to " << cur_name << " option " << line << endl;
 
 	scalars[cur_scope+"::"+cur_name] = line;
 	return(true); //no checks for now

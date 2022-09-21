@@ -13,7 +13,9 @@ plot_spat_model(spat)
 Plot spatial model of the regression result
 }
 \examples{
+\dontrun{
 res <- regress_pwm(sequences_example, response_mat_example)
 plot_spat_model(res$spat)
+}
 
 }

@@ -19,7 +19,7 @@ void FastaParse::first()
 		m_file >> code;
 	}
 	if(code != '>') {
-		cerr << "no header line in fasta parsig, code was " << code << endl;
+		Rcpp::Rcerr << "no header line in fasta parsig, code was " << code << endl;
 		m_is_valid = false;
 	} else {
 		next();
@@ -40,7 +40,7 @@ bool FastaParse::next()
 	m_desc = m_aux_fields[0];
 	*m_seq = "";
 
-	cerr << "got desc " << m_desc << endl;
+	Rcpp::Rcerr << "got desc " << m_desc << endl;
 
 	//read linse until ">"
 

@@ -18,8 +18,9 @@ KL divergence between the two PSSMs
 Compute PSSM difference
 }
 \examples{
-
+\dontrun{
 res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 pssm_diff(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
+}
 
 }

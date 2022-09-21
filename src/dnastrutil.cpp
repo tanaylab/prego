@@ -141,11 +141,11 @@ void find_dup(string::const_iterator start, int gap,
 	int &hit_l, int &hit_pos, int dup_horiz)
 {
 
-/*	cerr << "look for gap " << gap << " ";
+/*	Rcpp::Rcerr << "look for gap " << gap << " ";
 	for(int i = 0; i < gap; i++) {
-		cerr << *(start+i);
+		Rcpp::Rcerr << *(start+i);
 	}
-	cerr << endl;*/
+	Rcpp::Rcerr << endl;*/
 	static const int UCDIFF = 'a'-'A';
 
 	dist = gap + 1;
@@ -270,15 +270,15 @@ void find_dup(string::const_iterator start, int gap,
 		source++;
 	}
 	
-/*	cerr << "best was dist " << dist << " ";
+/*	Rcpp::Rcerr << "best was dist " << dist << " ";
 	for(int i = 0; i < gap; i++) {
 		if(where > 0) {
-			cerr << *(end+where+i);
+			Rcpp::Rcerr << *(end+where+i);
 		} else {
-			cerr << *(start+where-gap+i);
+			Rcpp::Rcerr << *(start+where-gap+i);
 		}
 	}
-	cerr << endl;*/
+	Rcpp::Rcerr << endl;*/
 }
 
 void find_rc_dup(string::const_iterator start, int gap, 
@@ -286,11 +286,11 @@ void find_rc_dup(string::const_iterator start, int gap,
 	int &hit_l, int &hit_pos, int dup_horiz)
 {
 
-/*	cerr << "look for gap " << gap << " ";
+/*	Rcpp::Rcerr << "look for gap " << gap << " ";
 	for(int i = 0; i < gap; i++) {
-		cerr << *(start+i);
+		Rcpp::Rcerr << *(start+i);
 	}
-	cerr << endl;*/
+	Rcpp::Rcerr << endl;*/
 	static const int UCDIFF = 'a'-'A';
 
 	dist = gap + 1;
@@ -299,7 +299,7 @@ void find_rc_dup(string::const_iterator start, int gap,
 	string rcseq;
 
 	for(string::const_iterator i = start + gap - 1; i >= start; i--) {
-		rcseq.push_back(revcomp[*i]);
+		rcseq.push_back(revcomp[(unsigned char)(*i)]);
 	}
 	
 	string::const_iterator source = start - gap;
@@ -550,7 +550,7 @@ void find_max_stem(string::const_iterator start,  string::const_iterator end,
 			string::const_iterator i = cstart;
 			string::const_iterator j = cend;
 			while(i < j-1) {
-				if(*i != revcomp[*j]) {
+				if(*i != revcomp[(unsigned char)(*j)]) {
 					break;
 				}
 				i++;
@@ -613,7 +613,7 @@ void center_stem(string::const_iterator center, int &dist)
 	string::const_iterator i = center;
 	string::const_iterator j = center-1;
 	
-	while(*i == revcomp[*j]) {
+	while(*i == revcomp[(unsigned char)(*j)]) {
 		dist++;
 		i++;
 		j--;
@@ -624,7 +624,7 @@ void inward_stem(string::const_iterator left, string::const_iterator right, int 
 
 	dist = 0;
 
-	while(*left == revcomp[*right]) {
+	while(*left == revcomp[(unsigned char)(*right)]) {
 		dist++;
 		left++;
 		right--;
@@ -717,10 +717,10 @@ void best_gap_positions(const string &s1, const string &s2,
 		}
 	}
 
-//	cerr << "will scan, minpos " << min_pos << " max p " << max_pos << " l " << gap_length << " maf_l = " << s1.length() << " pos " << cent_pos << endl;
+//	Rcpp::Rcerr << "will scan, minpos " << min_pos << " max p " << max_pos << " l " << gap_length << " maf_l = " << s1.length() << " pos " << cent_pos << endl;
 
 	for(int pos = min_pos; pos < max_pos; pos++) {
-//		cerr << "pos = " << pos << endl;
+//		Rcpp::Rcerr << "pos = " << pos << endl;
 		string::const_iterator j = seq2;
 		string::const_iterator i = seq1; 
 		while(*i == '-') {
@@ -748,7 +748,7 @@ void best_gap_positions(const string &s1, const string &s2,
 				j++;
 			}
 		}
-//		cerr << "mis before " << pos << " was " << mis << " bst " << best_mis << endl;
+//		Rcpp::Rcerr << "mis before " << pos << " was " << mis << " bst " << best_mis << endl;
 		if(mis > best_mis) {
 			continue;
 		}
@@ -777,7 +777,7 @@ void best_gap_positions(const string &s1, const string &s2,
 				j++;
 			}
 		}
-//		cerr << "mis aft " << pos << " was " << mis << " bst " << best_mis << endl;
+//		Rcpp::Rcerr << "mis aft " << pos << " was " << mis << " bst " << best_mis << endl;
 		if(mis < best_mis) {
 			best_pos.clear();	
 			best_mis = mis;
@@ -895,7 +895,7 @@ void synonm_code_randomize(const string &seq, int from, int to,
 
 	//first copy to template:
 
-	cerr << "will randomize " << from << " " << to << endl;
+	Rcpp::Rcerr << "will randomize " << from << " " << to << endl;
 	targ.resize(2*horiz + to - from);
 	copy(seq.begin() + from - horiz, seq.begin() + to + horiz, targ.begin());
 
@@ -905,7 +905,7 @@ void synonm_code_randomize(const string &seq, int from, int to,
 		//get codon, randomize alternatives
 		string::iterator j = i+1;
 		string::iterator k = i+2;
-	//	cerr << "Codon = " << *i << *j << *k << endl;
+	//	Rcpp::Rcerr << "Codon = " << *i << *j << *k << endl;
 		if(*i > 'Z') {
 			*i -= 'z'-'Z';
 		}
@@ -1054,7 +1054,7 @@ void synonm_code_randomize(const string &seq, int from, int to,
 				}
 			}
 		}
-//		cerr << "Rand = " << *i << *j << *k << endl;
+//		Rcpp::Rcerr << "Rand = " << *i << *j << *k << endl;
 	}
 }
 

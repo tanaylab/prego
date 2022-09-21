@@ -1,7 +1,7 @@
 #ifndef base_init_h
 #define base_init_h 1
 
-#include <error.h>
+#include "error.h"
 
 #if DBG_ON
 class TraceFileInit {
@@ -17,18 +17,18 @@ public:
                         file_ = 0;
                         return;
                 }
-                cerr << "Construct objects for " << file_;
+                Rcpp::Rcerr << "Construct objects for " << file_;
                 if(line_ > 0)
-                        cerr << " at " << line_;
-                cerr << endl;
+                        Rcpp::Rcerr << " at " << line_;
+                Rcpp::Rcerr << endl;
         }
         ~TraceFileInit() {
                 if(!file_)
                         return;
-                cerr << "Destruct objects for " << file_;
+                Rcpp::Rcerr << "Destruct objects for " << file_;
                 if(line_ > 0)
-                        cerr << " at " << line_;
-                cerr << endl;
+                        Rcpp::Rcerr << " at " << line_;
+                Rcpp::Rcerr << endl;
         }
 };
 #endif // DBG_OM

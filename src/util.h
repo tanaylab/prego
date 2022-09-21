@@ -33,7 +33,7 @@ inline void log_minus_log(float &l1, float l2) {
 			l1 = -_REAL(MAX);
 				
 		} else {
-//			cerr << "NAN at log minus log " 
+//			Rcpp::Rcerr << "NAN at log minus log " 
 //			<< l1 << " " << l2 << " " << l2 - l1 << endl;
 			l1 = -_REAL(MAX);
 		}
@@ -64,7 +64,7 @@ inline void log_sum_log(double &l1, double l2) {
 
 inline void log_minus_log(double &l1, double l2) {
 	if(1 < exp(l2 - l1)) {
-		cerr << "NAN at log minus log " 
+		Rcpp::Rcerr << "NAN at log minus log " 
 			<< l1 << " " << l2 << " " << l2 - l1 << endl;
 	}
 	l1 += log(1 - exp(l2-l1));

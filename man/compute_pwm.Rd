@@ -37,6 +37,7 @@ a vector with the predicted pwm for each sequence.
 Compute PWMs for a set of sequences given a PSSM matrix
 }
 \examples{
+\dontrun{
 res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 
 pwm <- compute_pwm(cluster_sequences_example, res$pssm, res$spat)
@@ -44,5 +45,6 @@ head(pwm)
 
 # this is similar to the prediction in the regression
 head(res$pred)
+}
 
 }

@@ -6,31 +6,33 @@ BASE_CC_FILE
 
 #define TOL 1.0e-5 
 
+// some macros are commented in order to avoid compilation warnings.
+
 static double sqrarg;
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
-static double dsqrarg;
-#define DSQR(a) ((dsqrarg=(a)) == 0.0 ? 0.0 : dsqrarg*dsqrarg)
-static double dmaxarg1,dmaxarg2;
-#define DMAX(a,b) (dmaxarg1=(a),dmaxarg2=(b),(dmaxarg1) > (dmaxarg2) ?\
-(dmaxarg1) : (dmaxarg2))
-static double dminarg1,dminarg2;
-#define DMIN(a,b) (dminarg1=(a),dminarg2=(b),(dminarg1) < (dminarg2) ?\
-(dminarg1) : (dminarg2))
+// static double dsqrarg;
+// #define DSQR(a) ((dsqrarg=(a)) == 0.0 ? 0.0 : dsqrarg*dsqrarg)
+// static double dmaxarg1,dmaxarg2;
+// #define DMAX(a,b) (dmaxarg1=(a),dmaxarg2=(b),(dmaxarg1) > (dmaxarg2) ?\
+// (dmaxarg1) : (dmaxarg2))
+// static double dminarg1,dminarg2;
+// #define DMIN(a,b) (dminarg1=(a),dminarg2=(b),(dminarg1) < (dminarg2) ?\
+// (dminarg1) : (dminarg2))
 static double maxarg1,maxarg2;
 #define FMAX(a,b) (maxarg1=(a),maxarg2=(b),(maxarg1) > (maxarg2) ?\
 (maxarg1) : (maxarg2))
-static double minarg1,minarg2;
-#define FMIN(a,b) (minarg1=(a),minarg2=(b),(minarg1) < (minarg2) ?\
-(minarg1) : (minarg2))
-static long lmaxarg1,lmaxarg2;
-#define LMAX(a,b) (lmaxarg1=(a),lmaxarg2=(b),(lmaxarg1) > (lmaxarg2) ?\
-(lmaxarg1) : (lmaxarg2))
-static long lminarg1,lminarg2;
-#define LMIN(a,b) (lminarg1=(a),lminarg2=(b),(lminarg1) < (lminarg2) ?\
-(lminarg1) : (lminarg2))
-static int imaxarg1,imaxarg2;
-#define IMAX(a,b) (imaxarg1=(a),imaxarg2=(b),(imaxarg1) > (imaxarg2) ?\
-(imaxarg1) : (imaxarg2))
+// static double minarg1,minarg2;
+// #define FMIN(a,b) (minarg1=(a),minarg2=(b),(minarg1) < (minarg2) ?\
+// (minarg1) : (minarg2))
+// static long lmaxarg1,lmaxarg2;
+// #define LMAX(a,b) (lmaxarg1=(a),lmaxarg2=(b),(lmaxarg1) > (lmaxarg2) ?\
+// (lmaxarg1) : (lmaxarg2))
+// static long lminarg1,lminarg2;
+// #define LMIN(a,b) (lminarg1=(a),lminarg2=(b),(lminarg1) < (lminarg2) ?\
+// (lminarg1) : (lminarg2))
+// static int imaxarg1,imaxarg2;
+// #define IMAX(a,b) (imaxarg1=(a),imaxarg2=(b),(imaxarg1) > (imaxarg2) ?\
+// (imaxarg1) : (imaxarg2))
 static int iminarg1,iminarg2;
 #define IMIN(a,b) (iminarg1=(a),iminarg2=(b),(iminarg1) < (iminarg2) ?\
 (iminarg1) : (iminarg2))
@@ -49,12 +51,12 @@ void svbksb(vector<vector<double> > &u, vector<double> &w,
 	for (j=1;j<=n;j++) { //Calculate UTB. 
 		s=0.0;
 		if (w[j]) { //Nonzero result only if wj is nonzero. 
-			//cerr << "bksb j " << j << " w " << w[j] << endl;
+			//Rcpp::Rcerr << "bksb j " << j << " w " << w[j] << endl;
 			for (i=1;i<=m;i++) {
 				s += u[i][j]*b[i];
 			}
 			s /= w[j]; //This is the divide by wj . 
-			//cerr << "bksb j " << j << " s " << s << endl;
+			//Rcpp::Rcerr << "bksb j " << j << " s " << s << endl;
 		} 
 		tmp[j]=s;
 	} 
@@ -354,41 +356,41 @@ void svdfit(vector<vector<double> > &x, vector<double> &y, vector<double> &sig,
 
 	svdcmp(u, ndata, ma, w, v); //Singular value decomposition. 
 /*dump matrices
-	cerr << "V mat:" << endl;
+	Rcpp::Rcerr << "V mat:" << endl;
 	for(i = 1; i <= ma ; i++) {
-		cerr << i;
+		Rcpp::Rcerr << i;
 		for(j = 1; j <= ma; j++) {
-			cerr << "\t" << v[i][j];
+			Rcpp::Rcerr << "\t" << v[i][j];
 		}
-		cerr << endl;
+		Rcpp::Rcerr << endl;
 	}
-	cerr << "U mat:" << endl;
+	Rcpp::Rcerr << "U mat:" << endl;
 	for(i = 1; i <= ndata; i++) {
-		cerr << i;
+		Rcpp::Rcerr << i;
 		for(j = 1; j <= ma; j++) {
-			cerr << "\t" << u[i][j];
+			Rcpp::Rcerr << "\t" << u[i][j];
 		}
-		cerr << endl;
+		Rcpp::Rcerr << endl;
 	}
 */
 	wmax=0.0; //Edit the singular values, given TOL 
 	for(j=1;j<=ma;j++) {
-	//	cerr << "w val " << j << " was " << w[j] << endl;
+	//	Rcpp::Rcerr << "w val " << j << " was " << w[j] << endl;
 		if (w[j] > wmax) {
 			wmax=w[j]; 
 		}
 	}
-//	cerr << "Max w val was " << wmax << endl;
+//	Rcpp::Rcerr << "Max w val was " << wmax << endl;
 	thresh=TOL*wmax; 
 	for (j=1;j<=ma;j++) {
 		if (w[j] < thresh) {
-			cerr << "nullify singular val " << w[j] << " at " << j << endl;
+			Rcpp::Rcerr << "nullify singular val " << w[j] << " at " << j << endl;
 			w[j]=0.0; 
 		}
 	}
 	svbksb(u,w,v,ndata,ma,b,a); 
 /*	for(j = 1; j <= ma; j++) {
-		cerr << "a[" << j << "] = " << a[j] << endl;
+		Rcpp::Rcerr << "a[" << j << "] = " << a[j] << endl;
 	}
 */
 	*chisq=0.0; //Evaluate chi-square. 

@@ -62,7 +62,7 @@ is returned, even if it is not similar enough in absolute terms.}
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
 If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
@@ -71,22 +71,22 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
     \item{\code{unif_prior}}{uniform prior for nucleotide probabilities}
+    \item{\code{verbose}}{show verbose messages.}
     \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
     \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
     \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
     \item{\code{max_cands}}{maximum number of kmer candidates to try.}
-    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
-    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{min_n}}{Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported}
     \item{\code{from_range}}{Sequences will be considered only from position from_range (default 0)}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
     \item{\code{return_mat}}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
   }}
-
-\item{verbose}{verbosity of the optimization.}
 }
 \value{
 a list with the following elements:
@@ -123,11 +123,13 @@ When \code{n_motifs} is greater than 1, the following additional elements are re
 The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}. Note that \code{multi_kmers} is TRUE by default.
 }
 \examples{
+\dontrun{
 res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")
 res$pssm
 res$spat
 head(res$pred)
 
 plot_regression_qc(res)
+}
 
 }

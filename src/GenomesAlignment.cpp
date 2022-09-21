@@ -36,7 +36,7 @@ void GAlignsMafsCache::set_focus_interval(const string &chr, int fr, int to)
 	if (m_use_ref_genome_coords){
 		m_base_ref_coord = fr;
 		m_max_ref_coord = to;
-		//cerr << "set interv " << m_base_ref_coord <<  " " << m_max_ref_coord << endl;
+		//Rcpp::Rcerr << "set interv " << m_base_ref_coord <<  " " << m_max_ref_coord << endl;
 	} else {
 		m_base_global_aln_coord = fr;
 		m_max_global_aln_coord = to;
@@ -110,7 +110,7 @@ void GAlignsMafsCache::read_chrom(const string &chrom)
 }
 
 void GAlignsMafsCache::read_chrom_ref_genome_coord(const string &chrom){
-//	cerr << "read_chrom_ref_genome_coord" << endl;
+//	Rcpp::Rcerr << "read_chrom_ref_genome_coord" << endl;
 	reset();
 
 	ASSERT(m_chrom_maf_fn.find(chrom) != m_chrom_maf_fn.end(),
@@ -127,7 +127,7 @@ void GAlignsMafsCache::read_chrom_ref_genome_coord(const string &chrom){
 	m_max_chr_coord = 0;
 	m_base_aln_coor = 0;
 
-	//cerr << "will read chrom, base " << m_base_ref_coord << endl;
+	//Rcpp::Rcerr << "will read chrom, base " << m_base_ref_coord << endl;
 //initialize
 	int mfi = 0;
 
@@ -165,7 +165,7 @@ void GAlignsMafsCache::read_chrom_ref_genome_coord(const string &chrom){
 			continue;
 		}
 
-		//cerr << "got maf entry, ref " << ref_spid << " pos ref " << maf.get_pos(ref_spid) << " gap " << -m_max_chr_coord-maf.get_pos(ref_spid) << endl;
+		//Rcpp::Rcerr << "got maf entry, ref " << ref_spid << " pos ref " << maf.get_pos(ref_spid) << " gap " << -m_max_chr_coord-maf.get_pos(ref_spid) << endl;
 		if(base_chr_coord > m_max_chr_coord) {		//if this entry starts after more than 0 character from the ending of the last entry, add padding
 			int gap_size = base_chr_coord - m_max_chr_coord;
 			int num_out_of_focus =  max(0 , m_base_ref_coord - m_max_chr_coord); // number of nucs before the interval
@@ -228,12 +228,12 @@ void GAlignsMafsCache::read_chrom_ref_genome_coord(const string &chrom){
 		m_max_chr_coord = maf.get_max_pos(ref_spid);
 		mfi++;
 	}
-//	cerr << "done reading maf, seq at 0 internal len is " << m_seq[0].length() << endl;
+//	Rcpp::Rcerr << "done reading maf, seq at 0 internal len is " << m_seq[0].length() << endl;
 	create_maps();
 }
 
 void GAlignsMafsCache::read_chrom_global_aln_coord(const string &chrom){
-//	cerr << "read_chrom_global_aln_coord" << endl;
+//	Rcpp::Rcerr << "read_chrom_global_aln_coord" << endl;
 	reset();
 
 	ASSERT(m_chrom_maf_fn.find(chrom) != m_chrom_maf_fn.end(),
@@ -247,7 +247,7 @@ void GAlignsMafsCache::read_chrom_global_aln_coord(const string &chrom){
 	if (m_base_global_aln_coord == -1){
 		m_base_ref_coord = -1;
 	}
-	//cerr << "will read chrom, base " << m_base_ref_coord << endl;
+	//Rcpp::Rcerr << "will read chrom, base " << m_base_ref_coord << endl;
 //initialize
 	int mfi = 0;
 	m_curr_global_aln_coord = 0;
@@ -295,7 +295,7 @@ void GAlignsMafsCache::read_chrom_global_aln_coord(const string &chrom){
 			}
 			m_curr_global_aln_coord += gap_size; // enlarging base_aln_coor according to the number out of focus
 		}
-		//cerr << "got maf entry, ref " << ref_spid << " pos ref " << maf.get_pos(ref_spid) << " gap " << -m_max_chr_coord-maf.get_pos(ref_spid) << endl;
+		//Rcpp::Rcerr << "got maf entry, ref " << ref_spid << " pos ref " << maf.get_pos(ref_spid) << " gap " << -m_max_chr_coord-maf.get_pos(ref_spid) << endl;
 
 		int offset = ( m_base_global_aln_coord == -1 ?  0 :  max(0 , m_base_global_aln_coord - m_curr_global_aln_coord) );
 		if (m_base_global_aln_coord!= -1 && !is_seq_started){
@@ -422,10 +422,10 @@ void GAlignsMafsCache::append_seq_of_N (string& str, const string& to_append  ){
 
 int GAlignsMafsCache::get_refgenome_pos(int pos) const
 {
-	//cerr << "GAlignsMafsCache::get_refgenome_pos (" << pos << ")" << endl;
+	//Rcpp::Rcerr << "GAlignsMafsCache::get_refgenome_pos (" << pos << ")" << endl;
 	//check to see that this if max align pos
 	if (pos == m_seq[0].length()) {
-		//cerr << "pos is last pos, returning " << m_max_ref_coord << endl;
+		//Rcpp::Rcerr << "pos is last pos, returning " << m_max_ref_coord << endl;
 		return(m_max_ref_coord);
 	}
 

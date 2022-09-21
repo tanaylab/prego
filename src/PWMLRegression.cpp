@@ -12,8 +12,8 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                float eps, float min_improv_for_star, float unif_prior,
                                const string &score_metric)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
-      m_min_prob(min_prob), m_spat_bin_size(spat_bin_size), // no spat bin for tiling
-      m_resolutions(resolutions), m_spat_resolutions(s_resolutions), m_unif_prior(unif_prior),
+      m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
+      m_unif_prior(unif_prior), m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
       m_imporve_epsilon(eps), m_score_metric(score_metric) {}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
@@ -61,9 +61,11 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     }
 
     if (m_score_metric == "ks") {
+        Rcpp::RNGScope scope; 
+        Rcpp::NumericVector x = Rcpp::runif(m_sequences.size());
         m_data_epsilon.resize(m_sequences.size());
         for (size_t i = 0; i < m_data_epsilon.size(); i++) {
-            m_data_epsilon[i] = (rand() / RAND_MAX) * 1e-5;
+            m_data_epsilon[i] = x[i] * 1e-5;
         }
         m_aux_preds.reserve(m_train_n);
     }

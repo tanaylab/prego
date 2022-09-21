@@ -2,6 +2,7 @@
 BASE_CC_FILE
 #include "DnaPSSM.h"
 #include "Random.h"
+#include "Rcpp.h"
 
 #include <algorithm>
 
@@ -41,7 +42,7 @@ void DnaProbVec::normalize_log() {
     log_sum_log(sum, m_logp[2]);
     log_sum_log(sum, m_logp[3]);
 
-    cerr << "normalize, sum = " << sum << " 0 " << m_logp[0] << " 1 " << m_logp[1] << endl;
+    Rcpp::Rcerr << "normalize, sum = " << sum << " 0 " << m_logp[0] << " 1 " << m_logp[1] << endl;
 
     m_logp[0] -= sum;
     m_logp[1] -= sum;
@@ -262,7 +263,6 @@ string::const_iterator DnaPSSM::max_like_match(const string &target, float &best
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -335,7 +335,6 @@ void DnaPSSM::update_like_vec(const string &target, vector<float> &likes, vector
                     rlogp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     rlogp += p->get_log_prob('T');
@@ -399,7 +398,7 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
             j++;
         }
         log_sum_log(energy, logp);
-        //   		cerr << " +e at " << i-max_i << " is " << logp << endl;
+        //   		Rcpp::Rcerr << " +e at " << i-max_i << " is " << logp << endl;
         if (m_bidirect) {
             logp = 0;
             j = i;
@@ -409,7 +408,6 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -449,7 +447,7 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
                 }
                 j++;
             }
-            //      		cerr << "-e at " << i-max_i << " is " << logp << endl;
+            //      		Rcpp::Rcerr << "-e at " << i-max_i << " is " << logp << endl;
             log_sum_log(energy, logp);
         }
     }
@@ -493,7 +491,6 @@ void DnaPSSM::integrate_like(const string &target, float &energy, vector<float> 
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -549,6 +546,7 @@ void DnaPSSM::count(string::const_iterator seq, float weight, int dir) {
                 c = 'C';
                 break;
             default:
+                c = '*';
                 break;
             }
             i->incr_weight(c, weight);
@@ -808,7 +806,7 @@ string DnaPSSM::get_consensus(const float &single_thresh, const float& double_th
 }
 
 ostream &operator<<(ostream &out, const DnaPSSM &pssm) {
-    cerr << "[" << pssm.get_min_range() << "," << pssm.get_max_range()
+    Rcpp::Rcerr << "[" << pssm.get_min_range() << "," << pssm.get_max_range()
          << "] dir=" << pssm.is_bidirect() << endl;
     for (int i = 0; i < pssm.size(); i++) {
         out << pssm[i];
@@ -861,8 +859,7 @@ void DnaPSSM::integrate_energy(const string &target, float &energy, vector<float
                 if (!(*j)) {
                     logp = -_REAL(MAX);
                     break;
-                }
-                char c = 0;
+                }                
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -933,8 +930,7 @@ void DnaPSSM::like_thresh_match(const string &target, float thresh, list<int> &p
                 if (!(*j)) {
                     logp = -_REAL(MAX);
                     break;
-                }
-                char c = 0;
+                }                
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');

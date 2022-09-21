@@ -46,10 +46,10 @@ public:
 	int get_spat_bin_size() const {
 		return(m_spat_bin_size);
 	}
-	int set_spat_bin_size(int sz) {
+	void set_spat_bin_size(int sz) {
 		m_spat_bin_size = sz;
 	}
-	int set_num_spat_bins(int nm) {
+	void set_num_spat_bins(int nm) {
 		m_spat_factors.resize(nm);
 	}
 
