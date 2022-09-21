@@ -6,16 +6,17 @@
 #' If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.
 #' @param sample_idxs indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.
-#' @param verbose verbosity of the optimization.
 #'
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")
 #' res$pssm
 #' res$spat
 #' head(res$pred)
 #'
 #' plot_regression_qc(res)
+#' }
 #'
 #' @inheritParams regress_pwm
 #' @inheritDotParams regress_pwm

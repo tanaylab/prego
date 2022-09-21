@@ -32,6 +32,7 @@
 #include <time.h>
 
 using namespace std;
+#include "Rcpp.h"
 
 #include "config.h"
 #include "modes.h"

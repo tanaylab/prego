@@ -11,8 +11,8 @@
 #' @references
 #' \itemize{
 #' \item{HOMER: } {Heinz S, Benner C, Spann N, Bertolino E et al. Simple Combinations of Lineage-Determining Transcription Factors Prime cis-Regulatory Elements Required for Macrophage and B Cell Identities. Mol Cell 2010 May 28;38(4):576-589. PMID: 20513432}
-#' \item{JASPAR: }{Castro-Mondragon JA, Riudavets-Puig R, Rauluseviciute I, Berhanu Lemma R, Turchi L, Blanc-Mathieu R, Lucas J, Boddie P, Khan A, Manosalva Pérez N, Fornes O, Leung TY, Aguirre A, Hammal F, Schmelter D, Baranasic D, Ballester B, Sandelin A, Lenhard B, Vandepoele K, Wasserman WW, Parcy F, and Mathelier A JASPAR 2022: the 9th release of the open-access database of transcription factor binding profiles Nucleic Acids Res. 2022 Jan 7;50(D1):D165-D173.; doi: \link{10.1093/nar/gkab1113}}
-#' \item{JOLMA: }{Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). \link{https://doi.org/10.1038/nature18912}}
+#' \item{JASPAR: }{Castro-Mondragon JA, Riudavets-Puig R, Rauluseviciute I, Berhanu Lemma R, Turchi L, Blanc-Mathieu R, Lucas J, Boddie P, Khan A, Manosalva Pérez N, Fornes O, Leung TY, Aguirre A, Hammal F, Schmelter D, Baranasic D, Ballester B, Sandelin A, Lenhard B, Vandepoele K, Wasserman WW, Parcy F, and Mathelier A JASPAR 2022: the 9th release of the open-access database of transcription factor binding profiles Nucleic Acids Res. 2022 Jan 7;50(D1):D165-D173.; doi: 10.1093/nar/gkab1113}
+#' \item{JOLMA: }{Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). \url{https://doi.org/10.1038/nature18912}}
 #' }
 #'
 #'
@@ -27,6 +27,36 @@ all_motif_datasets <- function() {
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
 }
 
+#' PSSMs from the HOMER motif database
+#'
+#'
+#' @format A data frame containing the PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name.
+#'
+#' @references Heinz S, Benner C, Spann N, Bertolino E et al. Simple Combinations of Lineage-Determining Transcription Factors Prime cis-Regulatory Elements Required for Macrophage and B Cell Identities. Mol Cell 2010 May 28;38(4):576-589. PMID: 20513432
+#'
+#' @source \url{http://homer.ucsd.edu/homer/motif/}
+"HOMER_motifs"
+
+#' PSSMs from the JASPAR motif database
+#'
+#'
+#' @format A data frame containing the PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name.
+#'
+#' @references Castro-Mondragon JA, Riudavets-Puig R, Rauluseviciute I, Berhanu Lemma R, Turchi L, Blanc-Mathieu R, Lucas J, Boddie P, Khan A, Manosalva Pérez N, Fornes O, Leung TY, Aguirre A, Hammal F, Schmelter D, Baranasic D, Ballester B, Sandelin A, Lenhard B, Vandepoele K, Wasserman WW, Parcy F, and Mathelier A JASPAR 2022: the 9th release of the open-access database of transcription factor binding profiles Nucleic Acids Res. 2022 Jan 7;50(D1):D165-D173.; doi: 10.1093/nar/gkab1113
+#'
+#' @source \url{https://jaspar.genereg.net/downloads/}
+"JASPAR_motifs"
+
+#' PSSMs from the Jolma et al. motif database
+#'
+#'
+#' @format A data frame containing the PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name.
+#'
+#' @references Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). \url{https://doi.org/10.1038/nature18912}
+#'
+#' @source \url{https://doi.org/10.1038/nature18912}
+"JOLMA_motifs"
+
 #' Extract pwm of sequences from a motif database
 #'
 #' @description Extracts the pwm of a motif from a motif database. Note that for a large number of motifs, this function can be slow and consume
@@ -39,7 +69,11 @@ all_motif_datasets <- function() {
 #' @return a matrix size of # of sequences x # of motifs with the pwm of each sequence for each motif
 #'
 #' @examples
-#' pwms <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "HOMER.Hnf1", "HOMER.GATA3_2"))
+#' \dontrun{
+#' pwms <- extract_pwm(
+#'     cluster_sequences_example,
+#'     motifs = c("JASPAR.CDX1", "HOMER.Hnf1", "HOMER.GATA3_2")
+#' )
 #' head(pwms)
 #'
 #' # all motifs
@@ -52,7 +86,12 @@ all_motif_datasets <- function() {
 #' head(pwms_jaspar)
 #'
 #' # for specific motifs
-#' pwms_jaspar <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "JASPAR.CDX2"), prior = 0.01)
+#' pwms_jaspar <- extract_pwm(
+#'     cluster_sequences_example,
+#'     motifs = c("JASPAR.CDX1", "JASPAR.CDX2"),
+#'     prior = 0.01
+#' )
+#' }
 #'
 #' @inheritParams compute_pwm
 #' @export
@@ -94,7 +133,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
 #'
 #' @export
 gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
-    if (!("misha" %in% installed.packages())) {
+    if (!("misha" %in% utils::installed.packages())) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
 

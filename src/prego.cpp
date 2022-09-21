@@ -150,7 +150,7 @@
 // 		response_var[ri] /= n_in_train;
 // 		response_var[ri] -= response_avg[ri]*response_avg[ri];
 // 	}
-// 	cerr << "done normalizing response " << endl;
+// 	Rcpp::Rcerr << "done normalizing response " << endl;
 
 // 	for(map<const string, vector<pair<int, vector<float> > > >::const_iterator k = multi.get_pat_begin();
 //    	 k != multi.get_pat_end();
@@ -192,18 +192,18 @@
 // 			if(max_r2 > best_r2 && (avg_multi*n_in_train) > min_n) {
 // 				best_r2 = max_r2;
 // 				best_mot = k->first;
-// 				cerr << "new best " << best_mot << "  " << best_r2 << endl;
+// 				Rcpp::Rcerr << "new best " << best_mot << "  " << best_r2 << endl;
 // 			}
 // 		}
 // 	}
 // 	//seedmot = "**"+best_mot+"**";
 // //		if(k->first == "TCCCAG" | k->first == "AAAAAA") {
 // 	//		for(int m = 1; m < multi.size(); m++) {
-// 	//			cerr << k->first << " " << multi[m].first << " " << multi[m].second[0] << " " << multi[m].second[0]/(multi[m].first) << endl;
+// 	//			Rcpp::Rcerr << k->first << " " << multi[m].first << " " << multi[m].second[0] << " " << multi[m].second[0]/(multi[m].first) << endl;
 // 	//		}
-// 	//		cerr << "response " << response_avg[0] << " " << response_var[0] << endl;
-// 	//		cerr << "avg multi " << avg_multi << " " << multi_var << endl;
-// 	//		cerr << "cov " << cov[0] << " cor " << corr[0] << endl;
+// 	//		Rcpp::Rcerr << "response " << response_avg[0] << " " << response_var[0] << endl;
+// 	//		Rcpp::Rcerr << "avg multi " << avg_multi << " " << multi_var << endl;
+// 	//		Rcpp::Rcerr << "cov " << cov[0] << " cor " << corr[0] << endl;
 // 	//	}
 // }
 
@@ -215,11 +215,11 @@
 
 // 	const string &mode = opt.get_str("", "mode", "screen");
 // 	if(mode != "regress" && mode != "screen" && mode != "full") {
-// 		cerr << "mode must be regress, screen or full" << endl;
+// 		Rcpp::Rcerr << "mode must be regress, screen or full" << endl;
 // 		return(1);
 // 	}
 // 	if(argc < 3) {
-// 		cerr << "usage prego fasta response options [options]" << endl;
+// 		Rcpp::Rcerr << "usage prego fasta response options [options]" << endl;
 // 		return(1);
 // 	}
 // 	char *seq_fn = argv[1];
@@ -240,13 +240,13 @@
 // 	read_responses(response_fn, response_stat, is_train, n_in_train);
 
 
-// 	cerr << "done reading " << sequences.size() << " sequences" << endl;
-// 	cerr << "response dim " << resp_dim << endl;
+// 	Rcpp::Rcerr << "done reading " << sequences.size() << " sequences" << endl;
+// 	Rcpp::Rcerr << "response dim " << resp_dim << endl;
 // 	ASSERT(sequences.size() == response_stat[0].size(), 
 // 				"incompatible sequence and response table size " 
 // 							<< sequences.size() << " " << response_stat[0].size());
 
-// 	cerr << "mode is " << mode << endl;
+// 	Rcpp::Rcerr << "mode is " << mode << endl;
 // 	if(mode == "screen" || mode == "full") {
 // 		screen_kmers(sequences, response_stat, is_train, n_in_train, opt);
 // 	}
@@ -258,15 +258,15 @@
 // 	string seedmot(motif);
 
 // 	if(seedmot == "") {
-// 		cerr << "no motif found by screen, reverting to stars" << endl;
+// 		Rcpp::Rcerr << "no motif found by screen, reverting to stars" << endl;
 // 		seedmot = "******";
 // 	} else {
-// 		cerr << "using seed " << seedmot << endl;
+// 		Rcpp::Rcerr << "using seed " << seedmot << endl;
 // 	}
 // 	int isbid = opt.get_int("", "bidirect");
 
 // 	float epsilon = opt.get_float("", "eps");
-// 	cerr << "epislon is " << epsilon << endl;
+// 	Rcpp::Rcerr << "epislon is " << epsilon << endl;
 // 	int no_reg = opt.get_float("", "no_reg");
 // 	float min_rms_for_star = opt.get_float("", "min_rms_for_star");
 
@@ -290,7 +290,7 @@
 // 		smax = sequences[0].length();
 // 	}
 // 	if(with_spat) {
-// 		cerr << "into pwmlreg" << endl;
+// 		Rcpp::Rcerr << "into pwmlreg" << endl;
 // 		PWMLRegression pwmlreg(
 // 			sequences,
 // 			is_train,	
@@ -304,7 +304,7 @@
 
 // 		pwmlreg.m_logit = opt.get_int("", "verbose");
 // 		pwmlreg.init_seed(seedmot, isbid);
-// 		cerr << "done init seed " << seedmot << endl;
+// 		Rcpp::Rcerr << "done init seed " << seedmot << endl;
 // 		pwmlreg.optimize();
 // 		pwmlreg.output_pssm(pssm_out, spat_out, psid);
 // 		pssm_out.close();
@@ -373,6 +373,6 @@
 // 								sqrt((tr_x2-tr_x*tr_x)*(tr_y2-tr_y*tr_y));
 // 		float tst_cor =  (tst_xy- tst_x*tst_y) / 
 // 								sqrt((tst_x2-tst_x*tst_x)*(tst_y2-tst_y*tst_y));
-// 		cerr << "pwml tr cor " << cur_corr << " recomp " << tr_cor << " tst cor " << tst_cor << endl;
+// 		Rcpp::Rcerr << "pwml tr cor " << cur_corr << " recomp " << tr_cor << " tst cor " << tst_cor << endl;
 // 		preds_tab.close();
 // */

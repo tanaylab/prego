@@ -6,5 +6,5 @@ void base_crash() {
         if(stack_mode.to_act())
                 stack_print(error_mode.out());
 #endif // DBG_ON
-        abort();
+        // Rcpp::stop("ERROR: base_crash called");
 }

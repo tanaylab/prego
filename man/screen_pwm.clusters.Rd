@@ -53,11 +53,13 @@ with the name of best motif match for each cluster is returned (regardless of \c
 Screen for motifs in a database for every cluster
 }
 \examples{
+\dontrun{
 D_mat <- screen_pwm.clusters(cluster_sequences_example, clusters_example)
 dim(D_mat)
 D_mat[1:5, 1:5]
 
 # return only the best match
 screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+}
 
 }

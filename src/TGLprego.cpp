@@ -84,8 +84,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const float &consensus_single_thresh,
                            const float &consensus_double_thresh) {
     Random::reset(seed);
-    vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);
-    int resp_dim = response_stat.size();
+    vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
     vector<string> seqs = Rcpp::as<vector<string>>(sequences);
 

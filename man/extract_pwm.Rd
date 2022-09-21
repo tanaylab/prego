@@ -44,7 +44,11 @@ Extracts the pwm of a motif from a motif database. Note that for a large number 
 a lot of memory.
 }
 \examples{
-pwms <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "HOMER.Hnf1", "HOMER.GATA3_2"))
+\dontrun{
+pwms <- extract_pwm(
+    cluster_sequences_example,
+    motifs = c("JASPAR.CDX1", "HOMER.Hnf1", "HOMER.GATA3_2")
+)
 head(pwms)
 
 # all motifs
@@ -57,6 +61,11 @@ pwms_jaspar <- extract_pwm(cluster_sequences_example, dataset = JASPAR_motifs, p
 head(pwms_jaspar)
 
 # for specific motifs
-pwms_jaspar <- extract_pwm(cluster_sequences_example, motifs = c("JASPAR.CDX1", "JASPAR.CDX2"), prior = 0.01)
+pwms_jaspar <- extract_pwm(
+    cluster_sequences_example,
+    motifs = c("JASPAR.CDX1", "JASPAR.CDX2"),
+    prior = 0.01
+)
+}
 
 }

@@ -3,8 +3,10 @@
 #' @param spat the 'spat' field from the regression result
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_spat_model(res$spat)
+#' }
 #'
 #' @export
 plot_spat_model <- function(spat) {
@@ -27,8 +29,10 @@ plot_spat_model <- function(spat) {
 #' @param point_size the size of the points in the plot (default: 0.5)
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_regression_prediction(res$pred, res$response)
+#' }
 #'
 #' @export
 plot_regression_prediction <- function(pred, response, point_size = 0.5) {
@@ -50,14 +54,16 @@ plot_regression_prediction <- function(pred, response, point_size = 0.5) {
 }
 
 
-#' Plot the comulative of the regression model's prediction stratified by the response variable
+#' Plot the cumulative of the regression model's prediction stratified by the response variable
 #'
 #' @param pred the 'pred' field from the regression result
 #' @param response the 'response' field from the regression result (the response variable). Should be binary (0/1).
 #'
 #' @examples
+#' \dontrun{
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], score_metric = "ks")
 #' plot_regression_prediction_binary(res_binary$pred, res_binary$response)
+#' }
 #'
 #' @export
 plot_regression_prediction_binary <- function(pred, response) {
@@ -113,29 +119,36 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' @param response the response variable
 #' @param title a title for the plot (optional)
 #' @param subtitle a subtitle for the plot (optional)
-#' @param caption a caption for the plot (optional)
+#' @param caption a caption for the plot (optional). When caption is NULL a default caption would be plotted.
 #'
 #'
 #' @return a patchwork object
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_regression_qc(res)
 #'
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' plot_regression_qc(res_binary)
+#' }
 #'
 #' @export
 plot_regression_qc <- function(reg,
                                response = NULL,
                                title = glue("Motif regression results (consensus: {reg$consensus})"),
                                subtitle = NULL,
-                               caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")) {
+                               caption = NULL) {
     if (is.null(response)) {
         if (!("response" %in% names(reg))) {
             cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
         }
         response <- reg$response
+    }
+    if (is.null(caption)) {
+        caption <- glue("# of 1: {sum(response == 1)}, \\
+                        # of 0: {sum(response == 0)}, \\
+                        seed: {reg$seed_motif}")
     }
     if (is_binary_response(response)) {
         p_pred <- plot_regression_prediction_binary(reg$pred, response)
@@ -190,16 +203,24 @@ plot_regression_qc <- function(reg,
 #' @description plot the regression results when \code{motif_num} > 1
 #'
 #' @examples
+#' \dontrun{
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 3], motif_num = 3)
 #' plot_regression_qc_multi(res_binary)
+#' }
 #'
 #' @inheritParams plot_regression_qc
 #' @export
 plot_regression_qc_multi <- function(reg, title = glue("Motif regression results (consensus: {reg$consensus})"),
                                      subtitle = NULL,
-                                     caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")) {
+                                     caption = NULL) {
     if (!("models" %in% names(reg)) || !("multi_stats" %in% names(reg))) {
         cli_abort("The regression result does not contain multiple motifs")
+    }
+
+    if (is.null(caption)) {
+        caption <- glue("# of 1: {sum(response == 1)}, \\
+                        # of 0: {sum(response == 0)}, \\
+                        seed: {reg$seed_motif}")
     }
 
     if (!is.null(reg$response)) {

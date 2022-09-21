@@ -8,9 +8,9 @@
 #' @param sample_ratio When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
 #' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
-#' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
+#' database motif predictions, and and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
-#' Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
+#' Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
 #' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 #' environment before starting the parallelization, so it is better to run this function in a clean environment.
 #' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.
@@ -26,6 +26,7 @@
 #' }
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
 #' head(res$pred_mat)
 #' res$stats
@@ -36,7 +37,7 @@
 #' res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 #' res_multi$multi_stats
 #' plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
-#'
+#' }
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
@@ -79,10 +80,10 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 
     cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
     if (use_sge) {
-        if (!("misha.ext" %in% installed.packages())) {
+        if (!("misha.ext" %in% utils::installed.packages())) {
             cli_abort("The {.field misha.ext} package is required when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
         }
-        if (!("prego" %in% installed.packages())) {
+        if (!("prego" %in% utils::installed.packages())) {
             cli_abort("The {.field prego} package needs to be installed when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/prego')}.")
         }
         cli_alert_info("Using SGE cluster")
@@ -164,12 +165,14 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' with the name of best motif match for each cluster is returned (regardless of \code{min_D}).
 #'
 #' @examples
+#' \dontrun{
 #' D_mat <- screen_pwm.clusters(cluster_sequences_example, clusters_example)
 #' dim(D_mat)
 #' D_mat[1:5, 1:5]
 #'
 #' # return only the best match
 #' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+#' }
 #'
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm

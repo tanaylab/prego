@@ -21,21 +21,38 @@
 #' }
 #'
 #' @examples
-#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1))
+#' \dontrun{
+#' res <- regress_pwm.cv(
+#'     cluster_sequences_example, cluster_mat_example[, 1],
+#'     nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1)
+#' )
 #' res$score
 #' res$cv_scores
 #'
-#' plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
+#' plot(
+#'     res$cv_pred,
+#'     res$full_model$pred,
+#'     xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1
+#' )
 #' plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[, 1])
 #' plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[, 1])
 #'
 #' # without sampling
-#' res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = FALSE)
+#' res <- regress_pwm.cv(
+#'     cluster_sequences_example, cluster_mat_example[, 1],
+#'     nfolds = 5, use_sample = FALSE
+#' )
 #' res$score
 #' res$cv_scores
-#' plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
+#' plot(res$cv_pred,
+#'     res$full_model$pred,
+#'     xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1
+#' )
+#' }
 #'
 #' @inheritParams regress_pwm
+#' @inheritDotParams regress_pwm
+#' @inheritDotParams regress_pwm.sample
 #'
 #' @export
 regress_pwm.cv <- function(sequences,

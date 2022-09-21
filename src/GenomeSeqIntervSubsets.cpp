@@ -48,5 +48,5 @@ void GenomeSeqIntervSubsets::read(istream &tab, int generic_format)
 		}
 		tab >> chrom;
 	}
-	cerr << "lcount " << lcount << " missed " << missed << " probes" << endl;
+	Rcpp::Rcerr << "lcount " << lcount << " missed " << missed << " probes" << endl;
 }

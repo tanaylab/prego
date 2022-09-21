@@ -17,7 +17,9 @@ plot_regression_prediction(pred, response, point_size = 0.5)
 this would return a scatter plot of the response variable averages vs the regression model's prediction
 }
 \examples{
+\dontrun{
 res <- regress_pwm(sequences_example, response_mat_example)
 plot_regression_prediction(res$pred, res$response)
+}
 
 }

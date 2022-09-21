@@ -129,12 +129,12 @@ public:
 	void reset();
 
 	void print_all_seq(){
-		cerr << "DEBUG:: full seq  " << m_phylo.get_max_sp_node_id() << " species"  << endl;
+		Rcpp::Rcerr << "DEBUG:: full seq  " << m_phylo.get_max_sp_node_id() << " species"  << endl;
 		for (int i=0; i<m_phylo.get_max_sp_node_id(); i++){
-			cerr << i <<":\t" ;
-			cerr << m_seq[i] << endl;
+			Rcpp::Rcerr << i <<":\t" ;
+			Rcpp::Rcerr << m_seq[i] << endl;
 		}
-		cerr << "end sequences" << endl;
+		Rcpp::Rcerr << "end sequences" << endl;
 	}
 
 	void set_ref_use_genome_coords(int use_ref_genome_coords){

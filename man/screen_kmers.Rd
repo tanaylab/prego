@@ -33,7 +33,7 @@ screen_kmers(
 
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 
-\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+\item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
 
 \item{from_range}{Sequences will be considered only from position from_range (default 0)}
 

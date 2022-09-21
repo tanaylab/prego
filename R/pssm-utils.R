@@ -9,6 +9,7 @@
 #' @return a vector with the predicted pwm for each sequence.
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #'
 #' pwm <- compute_pwm(cluster_sequences_example, res$pssm, res$spat)
@@ -16,6 +17,7 @@
 #'
 #' # this is similar to the prediction in the regression
 #' head(res$pred)
+#' }
 #'
 #' @inheritParams regress_pwm
 #' @export
@@ -48,7 +50,7 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
 
     pwm <- compute_pwm_cpp(
         sequences = toupper(sequences),
-        pssm = pssm_mat,
+        pssm_mat = pssm_mat,
         is_bidirect = bidirect,
         spat_min = spat_min,
         spat_max = spat_max,
@@ -85,9 +87,10 @@ validate_spat <- function(spat) {
 #' @return A consensus sequence for the PSSM. If no consensus sequence can be found, the function returns NA.
 #'
 #' @examples
-#'
+#' \dontrun{
 #' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' consensus_from_pssm(res$pssm)
+#' }
 #'
 #' @export
 consensus_from_pssm <- function(pssm, single_thresh = 0.6, double_thresh = 0.85) {
@@ -121,9 +124,10 @@ pssm_to_mat <- function(pssm_df) {
 #' @return KL divergence between the two PSSMs
 #'
 #' @examples
-#'
+#' \dontrun{
 #' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' pssm_diff(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
+#' }
 #'
 #' @export
 pssm_diff <- function(pssm1, pssm2) {
@@ -172,9 +176,11 @@ pssm_diff <- function(pssm1, pssm2) {
 #' @return if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'dist' with its distance from \code{pssm}. The data frame is sorted by increasing distance.
 #'
 #' @examples
+#' \dontrun{
 #' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' head(pssm_match(res1$pssm, JASPAR_motifs))
 #' pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
+#' }
 #'
 #' @export
 pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.parallel", TRUE)) {
@@ -210,8 +216,10 @@ pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.p
 #' @return a ggplot object
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_pssm_logo(res$pssm)
+#' }
 #'
 #' @export
 plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver()) {

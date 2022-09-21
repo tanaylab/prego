@@ -27,8 +27,10 @@ if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data f
 Match PSSM to a directory of motifs
 }
 \examples{
+\dontrun{
 res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 head(pssm_match(res1$pssm, JASPAR_motifs))
 pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
+}
 
 }
