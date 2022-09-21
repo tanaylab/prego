@@ -98,7 +98,9 @@ to set the number of cores to use.</p></dd>
 
 
 <dt>use_sge</dt>
-<dd><p>use the function <code>gcluster.run2</code> from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the <code>misha.ext</code> package is installed.</p></dd>
+<dd><p>use the function <code>gcluster.run2</code> from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the <code>misha.ext</code> package is installed. Note that <code>gcluster.run2</code> writes the current
+environment before starting the parallelization, so it is better to run this function in a clean environment.
+Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> or pkgload::load_all() to load the package.</p></dd>
 
 
 <dt>...</dt>
@@ -191,7 +193,7 @@ would end at the end of the sequence.</p></dd>
 
 <p>a list with the following elements:</p><ul><li><p>models: a list with the models for each cluster</p></li>
 <li><p>cluster_mat: an indicator matrix with the cluster assignments</p></li>
-<li><p>pred_mat: a matrix with the predicted pwm for each sequence (rows) and cluster (columns)</p></li>
+<li><p>pred_mat: a matrix of the energies of the predicted motifs per cluster (columns) in each sequence (rows)</p></li>
 <li><p>motif_dataset: a data frame with the PSSMs for each cluster</p></li>
 <li><p>spat_dataset: a data frame with the spatial model for each cluster</p></li>
 <li><p>stats: a data frame with statistics for each cluster</p></li>
@@ -237,22 +239,22 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">5</span> clusters</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Matching with motif databases</span>
 <span class="r-in"><span><span class="va">res_multi</span><span class="op">$</span><span class="va">multi_stats</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    cluster model      score comb_score        diff       consensus</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     c100     1 0.70631068  0.7063107          NA         AT***TC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     c100     2 0.26456311  0.7766990 0.070388350   G*CA*G*CA*S*K</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c100     3 0.45145631  0.8373786 0.060679612             TTA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     c111     1 0.86641929  0.8664193          NA          Y*RTAA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     c111     2 0.08534323  0.8831169 0.016697588 T**T***GATT***G</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     c111     3 0.09461967  0.8942486 0.011131725  K*GGTAC*WTT**C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      c29     1 0.83739837  0.8373984          NA       T*A***W*Y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      c29     2 0.10975610  0.8882114 0.050813008       C***WATTA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      c29     3 0.16666667  0.8963415 0.008130081   WTGRAMTACYA*R</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      c5     1 0.61097257  0.6109726          NA            GATA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11      c5     2 0.29177057  0.6932668 0.082294264        GA*C*A*G</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12      c5     3 0.20448878  0.7182045 0.024937656     ACGKCGTA**C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13      c6     1 0.61747573  0.6174757          NA             GAT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14      c6     2 0.26407767  0.6485437 0.031067961       GC*CRK**A</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15      c6     3 0.19417476  0.7087379 0.060194175     T*TGCSA***A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cluster model       score comb_score        diff       consensus</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     c100     1 0.706310680  0.7063107          NA         AT***TC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     c100     2 0.264563107  0.7766990 0.070388350   G*CA*G*CA*S*K</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c100     3 0.000000000  0.8373786 0.060679612             TTA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     c111     1 0.866419295  0.8664193          NA          Y*RTAA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     c111     2 0.063079777  0.8831169 0.016697588 T**T***GATT***G</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     c111     3 0.094619666  0.8942486 0.011131725  K*GGTAC*WTT**C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      c29     1 0.837398374  0.8373984          NA       T*A***W*Y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      c29     2 0.004065041  0.8882114 0.050813008       C***WATTA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      c29     3 0.166666667  0.8963415 0.008130081   WTGRAMTACYA*R</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      c5     1 0.610972569  0.6109726          NA            GATA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      c5     2 0.000000000  0.6932668 0.082294264        GA*C*A*G</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      c5     3 0.204488778  0.7182045 0.024937656     ACGKCGTA**C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      c6     1 0.617475728  0.6174757          NA             GAT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14      c6     2 0.000000000  0.6485437 0.031067961       GC*CRK**A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      c6     3 0.011650485  0.7087379 0.060194175     T*TGCSA***A</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         seed_motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  ***ATCCATCA****</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  ***CATG*CAAC***</span>
