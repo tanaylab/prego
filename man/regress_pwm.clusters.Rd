@@ -13,6 +13,7 @@ regress_pwm.clusters(
   sample_ratio = 1,
   final_metric = "ks",
   parallel = getOption("prego.parallel", TRUE),
+  use_sge = FALSE,
   ...
 )
 }
@@ -39,6 +40,8 @@ in the cluster (first number) and in the cluster (second number). If NULL -}
 
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
+
+\item{use_sge}{use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed.}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
