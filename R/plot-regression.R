@@ -54,7 +54,7 @@ plot_regression_prediction <- function(pred, response, point_size = 0.5) {
 }
 
 
-#' Plot the comulative of the regression model's prediction stratified by the response variable
+#' Plot the cumulative of the regression model's prediction stratified by the response variable
 #'
 #' @param pred the 'pred' field from the regression result
 #' @param response the 'response' field from the regression result (the response variable). Should be binary (0/1).

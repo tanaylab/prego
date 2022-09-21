@@ -3,7 +3,7 @@
 #' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-#' wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+#' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
 #' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
@@ -31,7 +31,7 @@
 #' @param parallel whether to run optimization in parallel. use \code{set_parallel}
 #' to set the number of cores to use.
 #' @param motif_num Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.
-#' @param smooth_k k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.
+#' @param smooth_k k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.
 #' @param min_kmer_cor minimal correlation between the kmer and the response in order to use it as a seed.
 #'
 #' @return a list with the following elements:
@@ -346,7 +346,7 @@ regress_pwm <- function(sequences,
     res$seed_motif <- motif
 
     if (is_binary_response(response)) {
-        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "less"))
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "greater"))
     }
 
     if (!is.null(kmers)) {
@@ -382,7 +382,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = ge
     reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
     reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
     if (is_binary_response(reg$response)) {
-        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = "less"))
+        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = "greater"))
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
     }
     return(reg)

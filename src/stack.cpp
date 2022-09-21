@@ -33,7 +33,7 @@ void stack_push(const char *file, int line, const char *func) {
         memory_mode.deact();
         memory_mode.deact();
         if(memory_mode.to_act() && !mem_verify()) {
-                cerr << "Detected at entry to:" << endl;
+                Rcpp::cerr << "Detected at entry to:" << endl;
                 stack_print(error_mode.out());
         }
         memory_mode.act();
@@ -48,7 +48,7 @@ void stack_pop() {
         memory_mode.deact();
         memory_mode.deact();
         if(memory_mode.to_act() && !mem_verify()) {
-                cerr << "Detected at entry to:" << endl;
+                Rcpp::cerr << "Detected at entry to:" << endl;
                 stack_print(error_mode.out());
         }
         memory_mode.act();

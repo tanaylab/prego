@@ -43,7 +43,7 @@ regress_pwm.cv(
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
   \describe{
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
 If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
@@ -68,10 +68,10 @@ is returned, even if it is not similar enough in absolute terms.}
     \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
     \item{\code{max_cands}}{maximum number of kmer candidates to try.}
     \item{\code{motif_num}}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
-    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
     \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
-    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{sample_frac}}{fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
 If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.}
     \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}

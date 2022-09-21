@@ -61,9 +61,11 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     }
 
     if (m_score_metric == "ks") {
+        Rcpp::RNGScope scope; 
+        Rcpp::NumericVector x = Rcpp::runif(m_sequences.size());
         m_data_epsilon.resize(m_sequences.size());
         for (size_t i = 0; i < m_data_epsilon.size(); i++) {
-            m_data_epsilon[i] = (rand() / RAND_MAX) * 1e-5;
+            m_data_epsilon[i] = x[i] * 1e-5;
         }
         m_aux_preds.reserve(m_train_n);
     }

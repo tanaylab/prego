@@ -38,11 +38,11 @@ ActiveMode::~ActiveMode() {
                 delete(out_);
 }
 ActiveMode::ActiveMode(const ActiveMode &) {
-        cerr << "PANIC: ActiveMode::ActiveMode called" << endl;
-        exit(EXIT_FAILURE);
+        Rcpp::Rcerr << "PANIC: ActiveMode::ActiveMode called" << endl;
+        Rcpp::stop("PANIC: ActiveMode::ActiveMode called");
 }
 
 void ActiveMode::operator=(const ActiveMode &) {
-        cerr << "PANIC: ActiveMode::operator= called" << endl;
-        exit(EXIT_FAILURE);
+        Rcpp::Rcerr << "PANIC: ActiveMode::operator= called" << endl;
+        Rcpp::stop("PANIC: ActiveMode::operator= called");
 }

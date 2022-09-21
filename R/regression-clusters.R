@@ -8,9 +8,9 @@
 #' @param sample_ratio When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
 #' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
-#' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
+#' database motif predictions, and and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
-#' Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
+#' Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
 #' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 #' environment before starting the parallelization, so it is better to run this function in a clean environment.
 #' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.

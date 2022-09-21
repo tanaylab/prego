@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-regression.R
 \name{plot_regression_prediction_binary}
 \alias{plot_regression_prediction_binary}
-\title{Plot the comulative of the regression model's prediction stratified by the response variable}
+\title{Plot the cumulative of the regression model's prediction stratified by the response variable}
 \usage{
 plot_regression_prediction_binary(pred, response)
 }
@@ -12,7 +12,7 @@ plot_regression_prediction_binary(pred, response)
 \item{response}{the 'response' field from the regression result (the response variable). Should be binary (0/1).}
 }
 \description{
-Plot the comulative of the regression model's prediction stratified by the response variable
+Plot the cumulative of the regression model's prediction stratified by the response variable
 }
 \examples{
 \dontrun{
