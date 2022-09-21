@@ -22,5 +22,8 @@ reference:
   - plot_pssm_logo_dataset
   - all_motif_datasets
   - screen_pwm.clusters
+  - ends_with("motifs")  
 - title: other
-  contents: set_parallel
+  contents: 
+  - set_parallel
+  - ends_with("example")
