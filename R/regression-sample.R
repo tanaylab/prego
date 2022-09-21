@@ -82,7 +82,7 @@ regress_pwm.sample <- function(sequences,
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
 
     if (is_binary_response(response)) {
-        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "greater"))
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "less"))
     }
 
     if (match_with_db) {

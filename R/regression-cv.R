@@ -143,7 +143,7 @@ regress_pwm.cv <- function(sequences,
 
 score_model <- function(metric, response, pred) {
     if (metric == "ks") {
-        score <- suppressWarnings(ks.test(pred[response == 1], pred[response == 0], alternative = "greater")$statistic)
+        score <- suppressWarnings(ks.test(pred[response == 1], pred[response == 0], alternative = "less")$statistic)
     } else if (metric == "r2") {
         score <- cor(response, pred)^2
     } else {

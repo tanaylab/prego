@@ -188,7 +188,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     res <- plyr::daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         purrr::map_dbl(cluster_ids, function(cl) {
-            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "greater")$statistic)
+            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "less")$statistic)
         })
     }, .parallel = parallel)
     colnames(res) <- cluster_ids
