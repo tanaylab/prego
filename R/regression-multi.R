@@ -99,9 +99,9 @@ regress_multiple_motifs <- function(sequences,
         e_comb <- predict(model_comb, pred_df)
 
         if (is_binary_response(response)) {
-            ks <- suppressWarnings(ks.test(e[[i]][r0 == 0], e[[i]][r0 == 1])$statistic)
+            ks <- suppressWarnings(ks.test(e[[i]][r0 == 1], e[[i]][r0 == 0], alternative = "greater")$statistic)
             cli_alert_info("KS statistic: {.val {ks}}")
-            ks_comb <- suppressWarnings(ks.test(e_comb[r0 == 0], e_comb[r0 == 1])$statistic)
+            ks_comb <- suppressWarnings(ks.test(e_comb[r0 == 1], e_comb[r0 == 0], alternative = "greater")$statistic)
             cli_alert_info("KS test statistic for models {.val {1:i}}: {.val {ks_comb}}")
             cli_alert_info("Improvement in KS test statistic: {.val {ks_comb - comb_scores[i - 1]}}")
             comb_scores <- c(comb_scores, ks_comb)
