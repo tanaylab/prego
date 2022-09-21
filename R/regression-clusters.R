@@ -82,7 +82,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
         }
         cli_alert_info("Using SGE cluster")
         cmds <- paste0("regression_func(sequences, cluster_mat[, ", seq_len(ncol(cluster_mat)), "], match_with_db = match_with_db, parallel = parallel, ...)")
-        sge_res <- gcluster.run2(command_list = cmds)
+        sge_res <- misha.ext::gcluster.run2(command_list = cmds)
         ret_class <- purrr::map_chr(sge_res, ~ class(.x$retv))
         if (any(ret_class != "list")) {
             failed <- which(ret_class != "list")
