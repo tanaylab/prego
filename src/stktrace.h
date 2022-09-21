@@ -15,7 +15,7 @@ class TraceMemWrite : public ActionTrace {
 private:
         void *addr_;
         int size_;
-        char mem_[MAX_SIZE];
+        // char mem_[MAX_SIZE];
 public:
          TraceMemWrite(void *addr, int size);
         virtual  ~TraceMemWrite();

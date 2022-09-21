@@ -1,7 +1,7 @@
 #ifndef base_init_h
 #define base_init_h 1
 
-#include <error.h>
+#include "error.h"
 
 #if DBG_ON
 class TraceFileInit {

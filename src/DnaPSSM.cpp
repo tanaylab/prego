@@ -262,7 +262,6 @@ string::const_iterator DnaPSSM::max_like_match(const string &target, float &best
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -335,7 +334,6 @@ void DnaPSSM::update_like_vec(const string &target, vector<float> &likes, vector
                     rlogp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     rlogp += p->get_log_prob('T');
@@ -409,7 +407,6 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -493,7 +490,6 @@ void DnaPSSM::integrate_like(const string &target, float &energy, vector<float> 
                     logp = -_REAL(MAX);
                     break;
                 }
-                char c = 0;
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -549,6 +545,7 @@ void DnaPSSM::count(string::const_iterator seq, float weight, int dir) {
                 c = 'C';
                 break;
             default:
+                c = '*';
                 break;
             }
             i->incr_weight(c, weight);
@@ -861,8 +858,7 @@ void DnaPSSM::integrate_energy(const string &target, float &energy, vector<float
                 if (!(*j)) {
                     logp = -_REAL(MAX);
                     break;
-                }
-                char c = 0;
+                }                
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');
@@ -933,8 +929,7 @@ void DnaPSSM::like_thresh_match(const string &target, float thresh, list<int> &p
                 if (!(*j)) {
                     logp = -_REAL(MAX);
                     break;
-                }
-                char c = 0;
+                }                
                 switch (*j) {
                 case 'A':
                     logp += p->get_log_prob('T');

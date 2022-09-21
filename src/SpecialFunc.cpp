@@ -15,8 +15,6 @@ float gamma_ln(float xx)
 		-1.231739572450155,
 		0.1208650973866179e-2,
 		-0.5395239384953e-5};
-
-	int j;
 	
 	y = x = xx;
 
@@ -40,8 +38,6 @@ double dbl_gamma_ln(float xx)
 		-1.231739572450155,
 		0.1208650973866179e-2,
 		-0.5395239384953e-5};
-
-	int j;
 	
 	y = x = xx;
 
@@ -61,15 +57,9 @@ FactorialFuncTable::FactorialFuncTable(int max_n) :
 
 }
 
-float FactorialFuncTable::factorial(int n)
-{
+float FactorialFuncTable::factorial(int n) { return 0; }
 
-}
-
-float FactorialFuncTable::factorial_ln(int n) 
-{
-
-}
+float FactorialFuncTable::factorial_ln(int n) { return 0; }
 
 BinomFuncTable::BinomFuncTable(int max_n, int max_k) :
 	m_factor_table(max_n, -1),
@@ -162,7 +152,7 @@ float BinomFuncTable::binom(int n, int k)
 double betai(double a, double b, double x)
 {
 	double betacf(double a, double b, double x);
-	float dbl_gamma_ln(float xx);
+	double dbl_gamma_ln(float xx);
 	void nrerror(char error_text[]);
 	double bt;
 	if(x < 0.0 || x > 1.0) {

@@ -299,7 +299,7 @@ void find_rc_dup(string::const_iterator start, int gap,
 	string rcseq;
 
 	for(string::const_iterator i = start + gap - 1; i >= start; i--) {
-		rcseq.push_back(revcomp[*i]);
+		rcseq.push_back(revcomp[(unsigned char)(*i)]);
 	}
 	
 	string::const_iterator source = start - gap;
@@ -550,7 +550,7 @@ void find_max_stem(string::const_iterator start,  string::const_iterator end,
 			string::const_iterator i = cstart;
 			string::const_iterator j = cend;
 			while(i < j-1) {
-				if(*i != revcomp[*j]) {
+				if(*i != revcomp[(unsigned char)(*j)]) {
 					break;
 				}
 				i++;
@@ -613,7 +613,7 @@ void center_stem(string::const_iterator center, int &dist)
 	string::const_iterator i = center;
 	string::const_iterator j = center-1;
 	
-	while(*i == revcomp[*j]) {
+	while(*i == revcomp[(unsigned char)(*j)]) {
 		dist++;
 		i++;
 		j--;
@@ -624,7 +624,7 @@ void inward_stem(string::const_iterator left, string::const_iterator right, int 
 
 	dist = 0;
 
-	while(*left == revcomp[*right]) {
+	while(*left == revcomp[(unsigned char)(*right)]) {
 		dist++;
 		left++;
 		right--;

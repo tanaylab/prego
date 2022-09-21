@@ -1,7 +1,7 @@
 #define ENV_FILE
-#include <malloc.h>
 #include "port.h"
 #include "stktrace.h"
+#include <stdlib.h>
 
 #if DBG_ON
 
