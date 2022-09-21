@@ -15,7 +15,9 @@ plot_regression_prediction_binary(pred, response)
 Plot the comulative of the regression model's prediction stratified by the response variable
 }
 \examples{
+\dontrun{
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], score_metric = "ks")
 plot_regression_prediction_binary(res_binary$pred, res_binary$response)
+}
 
 }

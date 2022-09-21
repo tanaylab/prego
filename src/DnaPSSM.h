@@ -64,8 +64,8 @@ class DnaProbVec {
         if (ec != -1) {
             m_p[ec] = w;
         } else {
-            cerr << "Set weight of PSSM with wrong character " << c;
-            exit(1);
+            Rcpp::Rcerr << "Set weight of PSSM with wrong character " << c;
+            Rcpp::stop("Error in DnaProbVec::set_weight");
         }
     }
 

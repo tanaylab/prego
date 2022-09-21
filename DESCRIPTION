@@ -25,7 +25,10 @@ Imports:
     glue,
     stringdist,
     igraph,
-    zoo
+    zoo,
+    utils,
+    stats,
+    magrittr
 Suggests: 
     testthat (>= 3.0.0),
     withr,

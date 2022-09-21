@@ -9,3 +9,5 @@
 ^src/\.clang-format
 ^tools$
 ^data-raw$
+^.lintr$
+^_pkgdown.yml$

@@ -8,8 +8,7 @@ plot_regression_qc_multi(
   reg,
   title = glue("Motif regression results (consensus: {reg$consensus})"),
   subtitle = NULL,
- 
-    caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")
+  caption = NULL
 )
 }
 \arguments{
@@ -19,13 +18,15 @@ plot_regression_qc_multi(
 
 \item{subtitle}{a subtitle for the plot (optional)}
 
-\item{caption}{a caption for the plot (optional)}
+\item{caption}{a caption for the plot (optional). When caption is NULL a default caption would be plotted.}
 }
 \description{
 plot the regression results when \code{motif_num} > 1
 }
 \examples{
+\dontrun{
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 3], motif_num = 3)
 plot_regression_qc_multi(res_binary)
+}
 
 }

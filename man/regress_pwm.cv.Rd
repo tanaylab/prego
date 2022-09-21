@@ -38,6 +38,45 @@ regress_pwm.cv(
 \item{parallel}{whether to run the cross-validation in parallel.}
 
 \item{add_full_model}{whether to add the full model (without cross-validation) to the results.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
+  \describe{
+    \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
+wildcard or a data frame with a pre-computed PSSM (see thre slot \code{pssm} in the return value of this function).
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+    \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
+    \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
+    \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
+    \item{\code{spat_min}}{start of the spatial model from the beginning of the sequence (in bp)}
+    \item{\code{spat_max}}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
+would end at the end of the sequence.}
+    \item{\code{spat_bin}}{size of the spatial bin (in bp).}
+    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
+    \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
+    \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
+    \item{\code{unif_prior}}{uniform prior for nucleotide probabilities}
+    \item{\code{include_response}}{include the response in the resulting list (default: TRUE)}
+    \item{\code{verbose}}{show verbose messages.}
+    \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
+(single and double nucleotides)}
+    \item{\code{match_with_db}}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
+is returned, even if it is not similar enough in absolute terms.}
+    \item{\code{motif_dataset}}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
+    \item{\code{multi_kmers}}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
+    \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+    \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
+    \item{\code{max_cands}}{maximum number of kmer candidates to try.}
+    \item{\code{motif_num}}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
+    \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
+    \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
+    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
+    \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
+    \item{\code{sample_frac}}{fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
+If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.}
+    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
+    \item{\code{sample_ratio}}{ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.}
+  }}
 }
 \value{
 a list with the following elements:
@@ -54,18 +93,33 @@ a list with the following elements:
 Perform cross-validation on a PWM regression model. You can either provide explicit folds, or use the \code{nfolds} argument to set the number of folds. If the response is binary (0 and 1) or a \code{categories} vector is given, the folds would be stratified by the response/categories.
 }
 \examples{
-res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1))
+\dontrun{
+res <- regress_pwm.cv(
+    cluster_sequences_example, cluster_mat_example[, 1],
+    nfolds = 5, use_sample = TRUE, sample_frac = c(0.1, 1)
+)
 res$score
 res$cv_scores
 
-plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
+plot(
+    res$cv_pred,
+    res$full_model$pred,
+    xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1
+)
 plot_regression_prediction_binary(res$cv_pred, cluster_mat_example[, 1])
 plot_regression_prediction_binary(res$full_model$pred, cluster_mat_example[, 1])
 
 # without sampling
-res <- regress_pwm.cv(cluster_sequences_example, cluster_mat_example[, 1], nfolds = 5, use_sample = FALSE)
+res <- regress_pwm.cv(
+    cluster_sequences_example, cluster_mat_example[, 1],
+    nfolds = 5, use_sample = FALSE
+)
 res$score
 res$cv_scores
-plot(res$cv_pred, res$full_model$pred, xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1)
+plot(res$cv_pred,
+    res$full_model$pred,
+    xlab = "CV predictions", ylab = "Full model predictions", cex = 0.1
+)
+}
 
 }

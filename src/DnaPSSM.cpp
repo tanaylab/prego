@@ -2,6 +2,7 @@
 BASE_CC_FILE
 #include "DnaPSSM.h"
 #include "Random.h"
+#include "Rcpp.h"
 
 #include <algorithm>
 
@@ -41,7 +42,7 @@ void DnaProbVec::normalize_log() {
     log_sum_log(sum, m_logp[2]);
     log_sum_log(sum, m_logp[3]);
 
-    cerr << "normalize, sum = " << sum << " 0 " << m_logp[0] << " 1 " << m_logp[1] << endl;
+    Rcpp::Rcerr << "normalize, sum = " << sum << " 0 " << m_logp[0] << " 1 " << m_logp[1] << endl;
 
     m_logp[0] -= sum;
     m_logp[1] -= sum;
@@ -397,7 +398,7 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
             j++;
         }
         log_sum_log(energy, logp);
-        //   		cerr << " +e at " << i-max_i << " is " << logp << endl;
+        //   		Rcpp::Rcerr << " +e at " << i-max_i << " is " << logp << endl;
         if (m_bidirect) {
             logp = 0;
             j = i;
@@ -446,7 +447,7 @@ void DnaPSSM::integrate_like_seg(const char *min_i, const char *max_i, float &en
                 }
                 j++;
             }
-            //      		cerr << "-e at " << i-max_i << " is " << logp << endl;
+            //      		Rcpp::Rcerr << "-e at " << i-max_i << " is " << logp << endl;
             log_sum_log(energy, logp);
         }
     }
@@ -805,7 +806,7 @@ string DnaPSSM::get_consensus(const float &single_thresh, const float& double_th
 }
 
 ostream &operator<<(ostream &out, const DnaPSSM &pssm) {
-    cerr << "[" << pssm.get_min_range() << "," << pssm.get_max_range()
+    Rcpp::Rcerr << "[" << pssm.get_min_range() << "," << pssm.get_max_range()
          << "] dir=" << pssm.is_bidirect() << endl;
     for (int i = 0; i < pssm.size(); i++) {
         out << pssm[i];

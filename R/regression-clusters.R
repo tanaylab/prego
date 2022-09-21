@@ -26,6 +26,7 @@
 #' }
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
 #' head(res$pred_mat)
 #' res$stats
@@ -36,7 +37,7 @@
 #' res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 #' res_multi$multi_stats
 #' plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
-#'
+#' }
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
@@ -79,10 +80,10 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 
     cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
     if (use_sge) {
-        if (!("misha.ext" %in% installed.packages())) {
+        if (!("misha.ext" %in% utils::installed.packages())) {
             cli_abort("The {.field misha.ext} package is required when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
         }
-        if (!("prego" %in% installed.packages())) {
+        if (!("prego" %in% utils::installed.packages())) {
             cli_abort("The {.field prego} package needs to be installed when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/prego')}.")
         }
         cli_alert_info("Using SGE cluster")
@@ -164,12 +165,14 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' with the name of best motif match for each cluster is returned (regardless of \code{min_D}).
 #'
 #' @examples
+#' \dontrun{
 #' D_mat <- screen_pwm.clusters(cluster_sequences_example, clusters_example)
 #' dim(D_mat)
 #' D_mat[1:5, 1:5]
 #'
 #' # return only the best match
 #' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+#' }
 #'
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm

@@ -9,8 +9,7 @@ plot_regression_qc(
   response = NULL,
   title = glue("Motif regression results (consensus: {reg$consensus})"),
   subtitle = NULL,
- 
-    caption = glue("# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}")
+  caption = NULL
 )
 }
 \arguments{
@@ -22,7 +21,7 @@ plot_regression_qc(
 
 \item{subtitle}{a subtitle for the plot (optional)}
 
-\item{caption}{a caption for the plot (optional)}
+\item{caption}{a caption for the plot (optional). When caption is NULL a default caption would be plotted.}
 }
 \value{
 a patchwork object
@@ -31,10 +30,12 @@ a patchwork object
 Plot QC of the regression results
 }
 \examples{
+\dontrun{
 res <- regress_pwm(sequences_example, response_mat_example)
 plot_regression_qc(res)
 
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 plot_regression_qc(res_binary)
+}
 
 }

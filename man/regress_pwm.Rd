@@ -87,6 +87,8 @@ would end at the end of the sequence.}
 
 \item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple tesing severly).}
 
+\item{min_kmer_cor}{minimal correlation between the kmer and the response in order to use it as a seed.}
+
 \item{motif_num}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
 
 \item{smooth_k}{k for smoothing the predictions of each model in order to compute the resiuals when \code{motif_num} > 1. The residulas are computed as \code{response} - running mean of size 'k' of the current model.}
@@ -148,6 +150,7 @@ When \code{n_motifs} is greater than 1, the following additional elements are re
 Perform a PWM regression
 }
 \examples{
+\dontrun{
 res <- regress_pwm(sequences_example, response_mat_example)
 res$pssm
 res$spat
@@ -159,7 +162,12 @@ plot_regression_qc(res)
 res1 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm)
 
 # intialize with a pre-computed PSSM and spatial model
-res2 <- regress_pwm(sequences_example, response_mat_example, motif = res$pssm, spat_model = res$spat)
+res2 <- regress_pwm(
+    sequences_example,
+    response_mat_example,
+    motif = res$pssm,
+    spat_model = res$spat
+)
 
 # binary response
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
@@ -170,12 +178,24 @@ res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], m
 plot_regression_qc(res_binary)
 
 # use multiple kmer seeds
-res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], multi_kmers = TRUE, kmer_length = 6:8, final_metric = "ks")
+res_multi <- regress_pwm(
+    cluster_sequences_example,
+    cluster_mat_example[, 1],
+    multi_kmers = TRUE,
+    kmer_length = 6:8,
+    final_metric = "ks"
+)
 plot_regression_qc(res_multi)
 
 # Screen for multiple motifs
-res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], motif_num = 3, match_with_db = TRUE)
+res_multi <- regress_pwm(
+    cluster_sequences_example,
+    cluster_mat_example[, 1],
+    motif_num = 3,
+    match_with_db = TRUE
+)
 res_multi$multi_stats
 plot_regression_qc_multi(res_multi)
+}
 
 }

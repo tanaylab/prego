@@ -43,15 +43,15 @@ float PssmRegression::go() {
     float prev_rms = _REAL(MAX) / 2;
     m_cur_rms = _REAL(MAX) / 3;
     int max_pos = m_chars.size();
-    cerr << "starting regression iterations, epsilon = " << m_epsilon << endl;
+    Rcpp::Rcerr << "starting regression iterations, epsilon = " << m_epsilon << endl;
     while ((prev_rms - m_cur_rms) > m_epsilon) {
         prev_rms = m_cur_rms;
         for (int pos = 0; pos < max_pos; pos++) {
             compute_wgts(pos);
             reopti_pos(pos);
-            cerr << "pos " << pos << " RMS " << m_cur_rms << endl;
+            Rcpp::Rcerr << "pos " << pos << " RMS " << m_cur_rms << endl;
         }
-        cerr << "delta in current iter = " << m_cur_rms - prev_rms;
+        Rcpp::Rcerr << "delta in current iter = " << m_cur_rms - prev_rms;
     }
     int vcount = 1;
     int max_vid = m_relevant_vars.size();
@@ -198,7 +198,7 @@ void PssmRegression::update_coefs(vector<float> &coefs, int vid, int pos) {
             }
         }
     }
-    //	cerr << "coefs " << vid << " - " << coefs[1] << " " << coefs[2] << " " << coefs[3] << " " <<
+    //	Rcpp::Rcerr << "coefs " << vid << " - " << coefs[1] << " " << coefs[2] << " " << coefs[3] << " " <<
     //coefs[4] << endl;
 }
 
@@ -206,13 +206,13 @@ void PssmRegression::reopti_pos(int pos) {
     float chisq = 0;
 
     //	for(int i = 1; i < m_coefs.size(); i++) {
-    //		cerr << "TEST\t" << pos << "\t" << m_coefs[i][1] << "\t" << m_coefs[i][2] << "\t" <<
+    //		Rcpp::Rcerr << "TEST\t" << pos << "\t" << m_coefs[i][1] << "\t" << m_coefs[i][2] << "\t" <<
     //m_coefs[i][3] << "\t" << m_coefs[i][4] << "\t" << m_interv_data[i] << endl;
     //
     //	}
     bool is_star = m_is_wildcard[pos];
 
-    cerr << "prev coefs " << m_chars[pos]['A'] << " " << m_chars[pos]['G'] << " "
+    Rcpp::Rcerr << "prev coefs " << m_chars[pos]['A'] << " " << m_chars[pos]['G'] << " "
          << m_chars[pos]['C'] << " " << m_chars[pos]['T'] << endl;
 
     bool cont = true;
@@ -224,18 +224,18 @@ void PssmRegression::reopti_pos(int pos) {
     chr_list[4] = 'T';
     chr_list[5] = 'N';
     while (cont) {
-        cerr << "least square with max c " << max_c << endl;
+        Rcpp::Rcerr << "least square with max c " << max_c << endl;
         least_square(m_coefs, m_interv_data, m_pos_coefs, max_c, chisq);
         float rms = sqrt(chisq / m_coefs.size());
         if (is_star && (m_cur_rms - rms) < m_min_rms_for_star) {
-            cerr << "Will not generalize star since rms delta is too small\n";
+            Rcpp::Rcerr << "Will not generalize star since rms delta is too small\n";
             return;
         }
-        cerr << "rms was " << sqrt(chisq / m_coefs.size()) << endl;
+        Rcpp::Rcerr << "rms was " << sqrt(chisq / m_coefs.size()) << endl;
         cont = false;
         for (int i = 1; i <= max_c; i++) {
             if (m_no_neg_mode && chr_list[i] != 'N' && m_pos_coefs[i] < 0) {
-                cerr << "remove char " << chr_list[i] << "\t coef " << m_pos_coefs[i] << endl;
+                Rcpp::Rcerr << "remove char " << chr_list[i] << "\t coef " << m_pos_coefs[i] << endl;
                 char c = chr_list[i];
                 chr_list[i] = chr_list[max_c];
                 chr_list[max_c] = c;
@@ -258,7 +258,7 @@ void PssmRegression::reopti_pos(int pos) {
     m_base_coef = 0;
     for (int i = 1; i <= max_c; i++) {
         if (chr_list[i] != 'N') {
-            cerr << "set " << chr_list[i] << " to  " << m_pos_coefs[i] << endl;
+            Rcpp::Rcerr << "set " << chr_list[i] << " to  " << m_pos_coefs[i] << endl;
             m_chars[pos][chr_list[i]] = m_pos_coefs[i];
         } else {
             m_base_coef = m_pos_coefs[i];
@@ -269,8 +269,8 @@ void PssmRegression::reopti_pos(int pos) {
     //	m_chars[pos]['C'] = m_pos_coefs[3];
     //	m_chars[pos]['T'] = m_pos_coefs[4];
 
-    cerr << "after opti pos " << chisq << endl;
-    cerr << "new coefs " << m_chars[pos]['A'] << " " << m_chars[pos]['G'] << " "
+    Rcpp::Rcerr << "after opti pos " << chisq << endl;
+    Rcpp::Rcerr << "new coefs " << m_chars[pos]['A'] << " " << m_chars[pos]['G'] << " "
          << m_chars[pos]['C'] << " " << m_chars[pos]['T'] << " const " << m_base_coef << endl;
 }
 
@@ -304,7 +304,7 @@ void PssmRegression::update_yvals(const ds_bitvec &relevant_set, vector<float> &
         if (relevant_set[vid]) {
             coefs[0] = 0;
             update_coefs(coefs, vid, -1);
-            //			cerr << "Corr\t" << vid << "\t" << chip_data[vid] << "\t" << coefs[0] <<
+            //			Rcpp::Rcerr << "Corr\t" << vid << "\t" << chip_data[vid] << "\t" << coefs[0] <<
             //endl;
             chip_data[vid] += coefs[0] + m_base_coef;
         }
