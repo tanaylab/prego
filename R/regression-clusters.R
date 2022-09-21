@@ -17,7 +17,7 @@
 #' \itemize{
 #' \item{models: }{a list with the models for each cluster}
 #' \item{cluster_mat: }{an indicator matrix with the cluster assignments}
-#' \item{pred_mat: }{a matrix with the predicted pwm for each sequence (rows) and cluster (columns)}
+#' \item{pred_mat: }{a matrix of the energies of the predicted motifs per cluster (columns) in each sequence (rows)}
 #' \item{motif_dataset: }{a data frame with the PSSMs for each cluster}
 #' \item{spat_dataset: }{a data frame with the spatial model for each cluster}
 #' \item{stats: }{a data frame with statistics for each cluster}
