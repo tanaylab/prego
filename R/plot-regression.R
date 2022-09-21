@@ -75,7 +75,7 @@ plot_regression_prediction_binary <- function(pred, response) {
     x0 <- min_max[which.max(abs(cdf0(min_max) - cdf1(min_max)))]
     y0 <- cdf0(x0)
     y1 <- cdf1(x0)
-    ks <- suppressWarnings(ks.test(pred_1, pred_0))
+    ks <- suppressWarnings(ks.test(pred_1, pred_0, alternative = "greater"))
 
     tibble(response = factor(response), pred = pred) %>%
         ggplot(aes(x = pred, y = 1 - ..y.., color = response)) +
