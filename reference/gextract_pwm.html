@@ -50,6 +50,7 @@
 <span>  spat_min <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  spat_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bidirect <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  prior <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -83,6 +84,10 @@ would end at the end of the sequence.</p></dd>
 
 <dt>bidirect</dt>
 <dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
+
+
+<dt>prior</dt>
+<dd><p>a prior probability for each nucleotide.</p></dd>
 
 
 <dt>parallel</dt>

@@ -50,6 +50,7 @@
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  min_D <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  only_match <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  prior <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,6 +83,10 @@
 
 <dt>only_match</dt>
 <dd><p>if TRUE, only return the best match for each cluster</p></dd>
+
+
+<dt>prior</dt>
+<dd><p>a prior probability for each nucleotide.</p></dd>
 
 
 <dt>...</dt>
@@ -118,22 +123,22 @@ with the name of best motif match for each cluster is returned (regardless of <c
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">D_mat</span> <span class="op">&lt;-</span> <span class="fu">screen_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">D_mat</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 134   5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 140   5</span>
 <span class="r-in"><span><span class="va">D_mat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> motif                c111       c100       c29        c6        c5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Cdx2    0.7540602 0.19627533 0.2020273 0.2570036 0.2844548</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.EGL_5   0.4974026 0.09071462 0.1020756 0.2681117 0.3309550</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.ELT_3   0.2319752 0.34937245 0.3110235 0.4566898 0.4407444</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.GATA3_2 0.2680819 0.43694432 0.3615099 0.5554388 0.5195196</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Gata1   0.3588412 0.44478934 0.3348357 0.5664606 0.5751288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Cdx2    0.7512416 0.19572058 0.2013959 0.2602900 0.2799780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.EGL_5   0.4951334 0.08740108 0.1021322 0.2708759 0.3356318</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.ELT_3   0.2120166 0.35663904 0.2772828 0.4412253 0.4028871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.GATA3_2 0.2699443 0.43555308 0.3580763 0.5556662 0.5197909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Gata1   0.3600970 0.42419505 0.3368715 0.5648327 0.5661434</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># return only the best match</span></span></span>
 <span class="r-in"><span><span class="fu">screen_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span>, only_match <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    c111                    c100                     c29 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           "JASPAR.CDX1"           "HOMER.HOXA2" "JOLMA.HNF1B_di_full_2" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      c6                      c5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          "JASPAR.GATA5"           "HOMER.Gata1" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  c111                  c100                   c29 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "JOLMA.CDX1_mono_DBD"         "HOMER.HOXA2"        "JASPAR.HNF1A" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    c6                    c5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        "JASPAR.GATA5"         "HOMER.Gata2" </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -53,6 +53,7 @@ a lot of memory.</p>
 <span>  spat_min <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  spat_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bidirect <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  prior <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,6 +89,10 @@ would end at the end of the sequence.</p></dd>
 <dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
 
 
+<dt>prior</dt>
+<dd><p>a prior probability for each nucleotide.</p></dd>
+
+
 <dt>parallel</dt>
 <dd><p>logical, whether to use parallel processing</p></dd>
 
@@ -113,988 +118,910 @@ would end at the end of the sequence.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   6     -3.387886  -7.175642  -12.434833</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># all motifs</span></span></span>
-<span class="r-in"><span><span class="va">all_pwms</span> <span class="op">&lt;-</span> <span class="fu">extract_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">all_pwms</span> <span class="op">&lt;-</span> <span class="fu">extract_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, prior <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">all_pwms</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2359 3110</span>
 <span class="r-in"><span><span class="va">all_pwms</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     HOMER.AARE HOMER.ABF1 HOMER.AMYB HOMER.AP_1 HOMER.AP_2alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.519177  -14.11495 -12.283872 -13.903040       -13.42671</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2  -9.653387  -15.82178 -11.785979  -9.727357       -15.27563</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3 -16.116516  -15.28141 -12.278079  -7.671080       -10.10792</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4 -16.580219  -15.59875  -9.985226  -9.701889       -17.18512</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5 -17.739439  -14.34851  -7.681047  -8.082305       -14.74181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.566072  -11.85890  -9.968434 -11.367290      -11.787250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2  -7.384280  -13.74829  -9.459547  -8.961136      -13.399783</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3 -11.629676  -12.79850  -9.740843  -7.423562       -9.786919</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4 -11.951996  -13.15680  -7.944615  -9.050082      -14.694887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5 -12.973919  -12.26226  -7.545182  -7.427249      -12.070391</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># for a specific dataset</span></span></span>
-<span class="r-in"><span><span class="va">pwms_jaspar</span> <span class="op">&lt;-</span> <span class="fu">extract_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, dataset <span class="op">=</span> <span class="va">JASPAR_motifs</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pwms_jaspar</span> <span class="op">&lt;-</span> <span class="fu">extract_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, dataset <span class="op">=</span> <span class="va">JASPAR_motifs</span>, prior <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pwms_jaspar</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ABF1.MA0265.2 ABF1.MA0570.2 ABF2.MA0266.1 ABF2.MA0941.1       ABF3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -29.04506     -10.31461 -3.402824e+36     -11.49264  -5.880356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -26.73837     -10.20146     -5.386743     -11.42229  -6.024584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ABF4       ABI3          ABI5      ABR1      ACE2      ADR1      AFT1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.165222  -7.783450 -6.089010e+00 -21.22180 -5.744257 -3.038385 -26.68394</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ABF4      ABI3       ABI5      ABR1      ACE2      ADR1      AFT1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.214046 -7.348183  -6.162449 -18.09898 -5.029874 -3.041862 -25.68082</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              AFT2        AG      AGL1         AGL13     AGL15     AGL16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -19.61325 -17.95805 -3.402824e+36 -23.00781 -17.52060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          AFT2        AG      AGL1     AGL13     AGL15     AGL16     AGL27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.564463 -19.10741 -17.85184 -22.04511 -21.28914 -16.12293 -15.13225</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             AGL27      AGL3         AGL42         AGL55      AGL6     AGL63</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.725853e+01 -16.45312 -3.191847e+00 -3.113515e+00 -25.25724 -17.57674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          AGL3     AGL42      AGL55      AGL6     AGL63     AHL12     AHL20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.55063 -3.108504 -2.6675560 -23.08261 -16.28745 -6.744496 -6.406512</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         AHL12     AHL20     AHL25        AIB      AIL6       AIL7      ALX3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.564732 -6.831953 -7.628181  -2.158895 -16.95098 -10.595651 -8.283644</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         AHL25       AIB      AIL6       AIL7      ALX3       ANL2       ANT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.913009 -2.284570 -16.53526 -10.330546 -8.089084  -9.882913 -26.50048</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ANL2           ANT       AP1       AP3       AP4 ARALYDRAFT_484486</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.33757 -3.402824e+36  -9.85716 -15.66602 -21.61811        -11.486125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            AP1       AP3       AP4 ARALYDRAFT_484486 ARALYDRAFT_493022</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.661336 -14.95468 -21.14762         -8.218543         -8.253609</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ARALYDRAFT_493022 ARALYDRAFT_495258 ARALYDRAFT_496250 ARALYDRAFT_897773</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -10.880958        -11.486125         -12.02586        -11.003409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ARALYDRAFT_495258 ARALYDRAFT_496250 ARALYDRAFT_897773      ARF1     ARF10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1         -8.218543         -8.835704         -9.594734 -6.833055 -16.75738</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ARF1     ARF10     ARF13     ARF14     ARF16     ARF18       ARF2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.601461 -17.79847 -15.77630 -16.56264 -13.52494 -14.84925  -8.028713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ARF13     ARF14     ARF16     ARF18      ARF2     ARF25      ARF27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.77765 -16.15648 -13.30153 -14.34455 -7.967239 -15.39447 -11.506107</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         ARF25      ARF27     ARF29       ARF3      ARF34     ARF35     ARF36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.17080 -11.681042 -16.19467  -6.771438 -12.531515 -15.04944 -12.31320</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ARF29      ARF3      ARF34     ARF35     ARF36     ARF39      ARF4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.72370 -6.022248 -12.300606 -14.78655 -12.20363 -10.99604 -11.41810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         ARF39      ARF4      ARF5      ARF7      ARF8     ARG80      ARG81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.69969 -11.69183 -7.393572 -15.47294 -7.024676 -1.073058 -13.522358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ARF5      ARF7      ARF8     ARG80     ARG81     ARGFX      ARNT2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.357054 -14.88987 -6.913104 -1.179544 -8.711467 -8.197562  -8.846848</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ARGFX     ARNT2 ARNT::HIF1A     ARO80 ARR1.MA0274.1 ARR1.MA0945.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.986558 -10.52439   -4.559170 -26.94863     -6.229057     -8.933300</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ARNT::HIF1A     ARO80 ARR1.MA0274.1 ARR1.MA0945.1     ARR10     ARR11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -4.512463 -25.13046     -6.045911     -8.621182 -6.800484 -7.472422</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             ARR10      ARR11      ARR14     ARR18          ARR2 ASCL1.MA1100.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36  -9.021827  -8.489884 -13.71612 -3.402824e+36      -6.882009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ARR14     ARR18       ARR2 ASCL1.MA1100.2 ASCL1.MA1631.1      ASG1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.399013 -13.40564 -10.018541      -6.899935      -12.52759 -3.991779</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ASCL1.MA1631.1          ASG1       ASH1     ASIL2      ASR1      ASR3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -13.30677 -3.402824e+36  -8.627447 -15.63588 -19.05806 -14.89348</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ASH1     ASIL2      ASR1      ASR3 AT1G14600 AT1G19000 AT1G19040</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.360263 -13.72698 -17.52314 -14.27658 -8.971649 -15.73650 -20.23316</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     AT1G14600     AT1G19000     AT1G19040 AT1G72740     AT1G74840 AT1G76870</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.269254 -2.291683e+01 -3.402824e+36 -24.41679 -1.723965e+01 -16.15354</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     AT1G72740 AT1G74840 AT1G76870 AT2G38090  AT2G38300 AT2G40260 AT3G10030</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.65941 -9.986008 -14.84854 -26.56900 -11.310408 -17.39707 -13.86595</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     AT2G38090  AT2G38300 AT2G40260 AT3G10030 AT3G10580     AT3G46070</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -30.75865 -12.415892 -20.08206 -14.65113 -19.11917 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     AT3G10580 AT3G46070 AT4G12670 AT5G04390  AT5G04760 AT5G05090 AT5G05550</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.85128 -15.96161 -48.70343 -9.803560 -11.776040 -11.31156 -13.43820</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         AT4G12670  AT5G04390  AT5G04760     AT5G05090 AT5G05550 AT5G05790</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -10.033071 -12.918605 -3.402824e+36 -15.63147 -17.58115</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     AT5G05790  AT5G47660 AT5G56840 AT5G61620      ATF2      ATF3      ATF4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.69558 -10.326427 -17.44537 -17.79889 -12.34001 -13.88145 -16.03093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      AT5G47660 AT5G56840     AT5G61620      ATF2          ATF3      ATF4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.027613 -18.93031 -2.201099e+01 -13.18132 -2.164664e+01 -18.14267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ATF6      ATF7   ATHB-12    ATHB-13   ATHB-15   ATHB-16    ATHB-20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.66593 -17.98811 -5.455591 -12.362728 -18.18839 -8.708713 -13.202516</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ATF6      ATF7   ATHB-12       ATHB-13       ATHB-15       ATHB-16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.91326 -21.96955 -5.553326 -3.402824e+36 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ATHB-23     ATHB-4   ATHB-40     ATHB-5   ATHB-51    ATHB-53    ATHB-6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.450099 -10.009344 -27.42924 -12.754789 -7.870659 -13.367857 -6.549962</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ATHB-20       ATHB-23     ATHB-4       ATHB-40     ATHB-5    ATHB-51</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -10.944655 -3.402824e+36 -13.524142  -9.803304</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ATHB-7    ATHB-9     ATHB-X   ATMYB31     ATOH7      AZF1     Abd-B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.149133 -23.96382 -12.239607 -18.62309 -7.749995 -5.615112 -2.346809</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ATHB-53    ATHB-6     ATHB-7        ATHB-9        ATHB-X   ATMYB31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.590954 -13.086040 -3.402824e+36 -3.402824e+36 -23.21949</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Ahr::Arnt      Alx1      Alx4       Antp        Ar     Arid3a     Arid3b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.222470 -17.75164 -18.43848 -5.0935760 -21.09016 -0.7550666 -10.888139</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ATOH7      AZF1     Abd-B Ahr::Arnt      Alx1      Alx4          Antp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.037208 -5.773059 -2.226629 -7.950042 -21.82410 -21.95743 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Arid5a      Arnt      Arntl       Arx     Ascl2 At3g11280      Atbf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.89276 -2.898993  -7.582379 -18.29372 -8.242393 -16.01145 -21.82912</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Ar     Arid3a     Arid3b    Arid5a          Arnt      Arntl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -28.51409 -0.6515024 -11.669604 -16.71603 -3.402824e+36  -7.684112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Atf1       Atf3 Atoh1.MA0461.2 Atoh1.MA1467.2     Atoh7       Awh</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.948373 -11.742454      -8.247229      -8.503872 -22.44890 -3.748401</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Arx      Ascl2 At3g11280      Atbf       Atf1       Atf3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.11889  -8.834449 -17.00231 -22.05223  -6.379218 -12.618895</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           B-H1       B-H2     BACH1 BACH2.MA1101.2 BACH2.MA1470.1      BAM8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.7325177 -3.8512456 -7.834742      -25.03134      -28.62388 -15.33670</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Atoh1.MA0461.2 Atoh1.MA1467.2     Atoh7       Awh       B-H1          B-H2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -8.583235      -8.882668 -22.75069 -4.046379 -5.6678314 -4.213586e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        BARHL1    BARHL2     BARX1      BARX2      BAS1       BATF      BATF3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.908794 -8.198444 -4.255355 -11.355978 -27.02311 -11.898664 -12.054807</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          BACH1 BACH2.MA1101.2 BACH2.MA1470.1      BAM8    BARHL1    BARHL2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.359441      -32.72960  -3.402824e+36 -16.91767 -6.371863 -8.372197</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      BATF::JUN      BCL6     BCL6B   BEAF-32      BEE2      BEH2      BEH3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.968540 -19.58074 -25.26772 -13.88379 -6.569064 -11.58806 -11.01995</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         BARX1      BARX2      BAS1       BATF      BATF3  BATF::JUN      BCL6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.227399 -13.122693 -28.84574 -12.920650 -13.238192 -13.063475 -20.43429</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          BEH4    BHLH104    BHLH112   BHLH122    BHLH13     BHLH3    BHLH34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.82697  -7.988433  -8.472655 -14.44678 -3.594991 -3.613336 -4.345088</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             BCL6B   BEAF-32      BEE2          BEH2          BEH3          BEH4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -15.88509 -6.490918 -3.402824e+36 -1.556012e+01 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         BHLH49    BHLH72    BHLH74     BHLH78    BHLHA15 BHLHE22.MA0818.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.833694 -14.47223 -13.57315  -3.651130  -8.399241        -9.050258</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       BHLH104       BHLH112   BHLH122     BHLH13     BHLH3        BHLH34</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.52269 -3.402824e+36 -19.89342  -3.667753 -3.628781 -4.516783e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     BHLHE22.MA1635.1   BHLHE23    BHLHE40   BHLHE41      BIM1      BIM2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -10.822495 -13.14463  -8.453642 -11.44739 -12.36328 -16.42345</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            BHLH49        BHLH72        BHLH74     BHLH78    BHLHA15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -1.862228e+01 -1.471023e+01  -4.115019  -9.627863</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           BIM3       BNC2      BPC1      BPC5      BPC6       BPE      BRN2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.670248 -13.339179 -38.48786 -69.52959 -27.89728 -13.04599 -17.12619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     BHLHE22.MA0818.2 BHLHE22.MA1635.1   BHLHE23    BHLHE40   BHLHE41      BIM1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -10.24938       -15.765808 -16.34010  -9.578566 -15.23698 -13.78925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           BSX    BZIP11    BZIP16     BZIP18     BZIP2    BZIP28     BZIP3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.376910 -17.63428 -15.82205 -10.185877 -16.71274 -13.45351 -16.18628</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          BIM2       BIM3       BNC2      BPC1          BPC5      BPC6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.22584  -6.652287 -14.188409 -42.36580 -3.402824e+36 -46.69246</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        BZIP30    BZIP42    BZIP43    BZIP44    BZIP48    BZIP52    BZIP53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.376935 -15.64717 -13.97588 -17.08285 -16.44593 -14.60216 -17.57179</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               BPE      BRN2       BSX    BZIP11        BZIP16     BZIP18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.366407e+01 -17.59022 -4.376565 -18.67068 -1.640068e+01 -12.502490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        BZIP60     BZIP63    BZIP68     BZIP69      BZR1      BZR2 Bach1::Mafk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.214110  -9.657492 -14.57897 -13.747584 -24.77652 -10.45200   -19.28737</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             BZIP2        BZIP28     BZIP3    BZIP30        BZIP42        BZIP43</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.747504e+01 -1.337684e+01 -16.84238 -8.501899 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Bcl11B   Bgb::run    Bhlha15 Brachyury       Bsx       C15      CAD1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.23764 -10.726603 -13.044297 -25.91004 -21.73609 -3.687122 -17.14938</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            BZIP44    BZIP48        BZIP52    BZIP53    BZIP60        BZIP63</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.749575e+01 -17.40641 -1.833507e+01 -18.41099 -5.462143 -9.645506e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        CAMTA1    CAMTA2    CAMTA3      CAT8      CBF1      CCA1       CDC5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.66481 -6.588164 -6.253463 -2.276772 -15.52865 -9.254111 -10.787354</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        BZIP68        BZIP69          BZR1          BZR2 Bach1::Mafk    Bcl11B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.72925 -3.402824e+36 -3.077620e+01 -3.402824e+36   -23.86364 -14.50937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          CDF2       CDF3      CDF5       CDX1       CDX2       CDX4     CEBPA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.192542  -8.097581 -35.67148  -7.822196 -10.297320  -9.997750 -14.52419</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Bgb::run    Bhlha15 Brachyury       Bsx       C15      CAD1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -14.038680 -26.21668 -21.90835 -3.873323 -19.35765</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         CEBPB     CEBPD     CEBPE CEBPG.MA0838.1 CEBPG.MA1636.1      CEP3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.10977 -13.48103 -15.18406     -10.888743      -16.87560 -7.823251</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            CAMTA1     CAMTA2     CAMTA3          CAT8      CBF1       CCA1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.518161e+01  -6.776046  -6.345574 -2.337177e+00 -15.74668 -11.834469</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        CG11085   CG11294   CG11617 CG15696-RA   CG18599   CG32105    CG32532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.7224803 -5.283237 -5.648003 -4.0781107 -4.609474 -3.988117 -4.5193582</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           CDC5      CDF2       CDF3      CDF5       CDX1       CDX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.356796 -6.115183  -8.103854 -38.95544  -8.140721 -10.460379</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        CG34031 CG4328-RA    CG9876      CHA4      CIN5      CLOCK     CREB1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.0667143 -3.736991 -4.359130 -3.347839 -15.66998  -6.861875 -11.06402</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              CDX4     CEBPA     CEBPB     CEBPD     CEBPE CEBPG.MA0838.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.147774e+01 -14.82595 -18.42045 -14.12146 -16.40906     -11.614287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         CREB3   CREB3L1 CREB3L4.MA1474.1 CREB3L4.MA1475.1      CREM      CRF2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.64184 -15.94008        -9.081589        -11.67704 -16.58975 -3.685758</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     CEBPG.MA1636.1          CEP3       CG11085       CG11294       CG11617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -17.87008 -9.816674e+00 -3.402824e+36 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           CRF4      CRZ1      CST6 CTCF.MA0139.1 CTCF.MA0531.1 CTCF.MA1929.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.694291 -5.709620 -8.014129     -20.92788     -13.48518     -41.54435</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     CG15696-RA   CG18599   CG32105       CG32532      CG34031 CG4328-RA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -4.401922 -6.884039 -4.271791 -5.717603e+00 -4.538068771 -3.854453</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     CTCF.MA1930.1      CTCFL       CUP2      CUP9       CUX1       CUX2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -46.85162 -11.167897 -10.778016 -6.991083 -11.050222 -11.310039</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        CG9876          CHA4      CIN5      CLOCK     CREB1     CREB3   CREB3L1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.001515 -3.285074e+00 -16.73804  -6.934048 -11.27508 -13.80243 -16.44603</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Cebpg        Cf2     Clamp     Creb1    Creb3l2     Creb5        Crx</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.47574  -8.943921 -11.36386 -27.90955  -3.652840 -14.16216  -9.445264</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     CREB3L4.MA1474.1 CREB3L4.MA1475.1      CREM          CRF2       CRF4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -8.985413        -12.16127 -16.93057 -3.678745e+00  -9.885069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              D     DAL80     DAL81     DAL82       DBP     DEAR3       DF1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.220306 -6.912948 -41.28998 -7.240065 -14.19474 -20.80370 -14.91901</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          CRZ1          CST6 CTCF.MA0139.1 CTCF.MA0531.1 CTCF.MA1929.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.698931 -8.342805e+00     -21.46387     -13.44263     -42.03094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          DIV1      DLX1      DLX6      DMRT3     DMRTA1     DMRTA2     DMRTC2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.01141 -4.544605 -4.972847 -12.319674 -13.652456 -12.645857 -13.860386</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     CTCF.MA1930.1      CTCFL          CUP2      CUP9       CUX1       CUX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -47.77535 -11.771942 -3.402824e+36 -7.204524 -12.336679 -13.306656</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        DOF1.5     DOF1.6    DOF1.7    DOF1.8     DOF2.2    DOF2.4    DOF2.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.15054  -8.552714 -25.47644 -7.062307  -5.711961 -3.039136 -4.087903</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Cebpg        Cf2     Clamp     Creb1   Creb3l2     Creb5        Crx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.52028  -9.075593 -11.36401 -29.85871  -3.49329 -21.32012 -10.304745</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        DOF3.2    DOF3.4     DOF3.5    DOF3.6    DOF4.2    DOF4.3    DOF4.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.48317 -20.02271  -6.178006 -24.09161 -24.18191 -17.51699 -13.44142</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 D         DAL80         DAL81         DAL82       DBP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.140416e+01 -3.402824e+36 -3.402824e+36 -7.902308e+00 -18.59636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        DOF5.1    DOF5.3    DOF5.4    DOF5.6    DOF5.7    DOF5.8      DOT6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.01071 -3.044257 -10.29052 -4.232958 -3.406525 -38.26529 -20.97879</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             DEAR3       DF1          DIV1      DLX1      DLX6         DMRT3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.526572e+01 -15.59365 -2.368146e+01 -4.565915 -5.119065 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         DPBF3       DPRX     DREB1A    DREB1B    DREB1C    DREB1D    DREB1E</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.60154  -9.082588  -8.768920 -13.84318 -15.48303 -13.69514 -5.116833</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        DMRTA1     DMRTA2     DMRTC2    DOF1.5     DOF1.6    DOF1.7    DOF1.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.37922 -13.133039 -16.796289 -25.40978  -8.779823 -28.12937 -7.010240</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        DREB1F     DREB1G    DREB2A    DREB2C    DREB2D    DREB2E    DREB2F</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.928849  -8.210302 -24.28417 -7.273622 -16.04017 -19.63630 -11.02050</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            DOF2.2    DOF2.4    DOF2.5        DOF3.2    DOF3.4        DOF3.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.624985e+00 -3.002327 -4.101783 -2.238237e+01 -19.88997 -5.995808e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        DREB2G      DRGX      DUX4      DUXA      DYT1       Dbx Ddit3::Cebpa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.66416 -5.265299 -12.44822 -16.63409 -16.18810 -3.571858   -11.835546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        DOF3.6        DOF4.2        DOF4.3    DOF4.5    DOF5.1    DOF5.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -27.59700 -2.586433e+01 -2.864450e+01 -13.57223 -19.92141 -3.008140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Deaf1        Dfd       Dll     Dlx-b     Dlx-c       Dlx2      Dlx3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.757196 -4.0276742 -3.510104 -25.37777 -25.20334 -11.327156 -4.832271</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        DOF5.4    DOF5.6    DOF5.7    DOF5.8      DOT6     DPBF3       DPRX</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.14690 -4.177178 -3.299456 -40.10612 -20.91099 -16.73389  -9.634436</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Dlx4       Dlx5     Dmbx1     Dmrt1       Dof2       Dof3        Dr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.792331 -11.507403 -18.31080 -12.45541 -1.1321120 -1.9816091 -4.429419</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         DREB1A    DREB1B    DREB1C        DREB1D     DREB1E     DREB1F</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.987836 -15.03252 -16.51859 -3.402824e+36  -6.704600  -7.684851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Dref       Dux      E2F1      E2F2      E2F3      E2F4      E2F6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.00915 -20.73257 -14.27181 -18.45222 -25.72613 -17.68360 -12.31586</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            DREB1G        DREB2A    DREB2C    DREB2D        DREB2E    DREB2F</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -2.506250e+01 -8.219305 -17.09799 -2.026705e+01 -14.39395</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          E2F7      E2F8       E2FA      E2FC      E2FD      E2FE        E5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.90745 -12.05133  -9.139344 -20.32067 -25.27580 -25.27580 -3.871519</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        DREB2G      DRGX          DUX4      DUXA          DYT1       Dbx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.68999 -5.622660 -3.402824e+36 -28.53186 -3.402824e+36 -3.609926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          EBF1      EBF3     ECM22      ECM23      EDS1       EFM      EGR1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.69463 -12.61356 -4.932092 -10.254354 -7.069057 -13.79276 -13.12181</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Ddit3::Cebpa         Deaf1           Dfd       Dll     Dlx-b     Dlx-c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -12.849012 -1.687400e+00 -4.392498e+00 -3.619423 -25.99552 -25.79400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           EGR2      EGR3      EGR4       EHF       EIL3       EIL4      ELF1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.290952 -15.33814 -15.60529 -14.35442 -12.159741 -11.129203 -12.75886</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Dlx2      Dlx3      Dlx4       Dlx5     Dmbx1     Dmrt1       Dof2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.758616 -4.905039 -4.868150 -12.119514 -18.64809 -12.72111 -1.0651644</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ELF2      ELF3      ELF4       ELK1 ELK1::HOXA1 ELK1::HOXB13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.13147 -13.62535 -13.49917  -9.755683   -15.31053    -19.68640</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Dof3            Dr          Dref       Dux      E2F1      E2F2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.100061e+00 -3.402824e+36 -3.402824e+36 -23.08504 -15.52620 -19.53471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ELK1::SREBF2      ELK3      ELK4      EMX1      EMX2       EN1       EN2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1    -18.53326 -11.62140 -11.17720 -5.313302 -8.598309 -4.454697 -4.745821</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          E2F3      E2F4      E2F6          E2F7      E2F8       E2FA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -33.74160 -19.89177 -12.52075 -3.402824e+36 -12.50799  -9.621612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         EOMES        ERF    ERF003    ERF008    ERF010    ERF011    ERF012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.62197  -7.390349 -19.05235 -4.272875 -12.59358 -15.67039 -24.38507</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              E2FC      E2FD      E2FE        E5      EBF1      EBF3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -34.93313 -34.93313 -4.141211 -15.09973 -12.95569</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF013    ERF014    ERF015    ERF017    ERF018    ERF019    ERF021</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.90908 -14.80648 -12.69894 -15.20096 -6.580454 -17.21639 -15.18226</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             ECM22     ECM23          EDS1           EFM      EGR1      EGR2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.351554e+00 -10.70852 -7.880343e+00 -3.402824e+36 -13.30601 -12.64190</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ERF023.MA1259.1 ERF023.MA2012.1    ERF025    ERF027    ERF034    ERF035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -17.20513      -11.824421 -17.16466 -16.16978 -17.74034 -17.16915</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          EGR3      EGR4       EHF          EIL3       EIL4      ELF1      ELF2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.12849 -15.84402 -14.65800 -3.402824e+36 -11.470757 -13.06337 -12.94918</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF036    ERF037    ERF038     ERF039    ERF043    ERF054    ERF055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.66719 -16.20446 -14.39533 -10.297730 -19.59990 -23.46073 -15.27020</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ELF3      ELF4      ELK1   ELK1::HOXA1 ELK1::HOXB13 ELK1::SREBF2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.99586 -15.07129 -10.63201 -1.640051e+01    -20.92106    -21.41805</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF057    ERF069    ERF073    ERF086    ERF087    ERF091    ERF094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.50259 -5.976119 -23.80766 -15.55356 -15.59375 -19.21751 -3.615283</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ELK3          ELK4       EMX1       EMX2       EN1       EN2     EOMES</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.33972 -1.321619e+01  -6.124336 -10.085550 -4.514054 -4.871418 -16.40484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF095    ERF096     ERF10    ERF104    ERF105    ERF109      ERF11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.61430 -6.458097 -23.77347 -21.28875 -14.81925 -3.910824  -9.849591</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            ERF    ERF003    ERF008    ERF010    ERF011        ERF012    ERF013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.341054 -19.33942 -4.223565 -13.73999 -16.92614 -2.599885e+01 -25.06241</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ERF112    ERF115     ERF118    ERF122     ERF13     ERF15     ERF1B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.974804 -14.61409  -9.050066 -14.10038 -4.328992 -13.44956 -4.031117</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF014    ERF015        ERF017     ERF018        ERF019    ERF021</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.29206 -13.90514 -1.647714e+01  -7.415724 -2.007680e+01 -16.18519</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ERF2       ERF3       ERF4      ERF5       ERF6      ERF7      ERF8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.09753  -9.059853  -9.561131 -15.59257  -9.277817 -7.122046 -19.14367</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ERF023.MA1259.1 ERF023.MA2012.1        ERF025    ERF027        ERF034</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -2.214546e+01      -13.744694 -2.414639e+01 -17.29766 -2.499853e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ERF9 ERF::FIGLA ERF::FOXI1 ERF::FOXO1 ERF::HOXB13 ERF::NHLH1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.11885  -22.10320  -10.98759  -12.22125   -16.95837  -22.91796</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            ERF035    ERF036        ERF037    ERF038    ERF039        ERF043</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -18.38988 -3.402824e+36 -15.74094 -10.96749 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ERF::SREBF2      ERT1      ESR1      ESR2      ESRRA      ESRRB      ESX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -20.51064 -7.935742 -22.72768 -15.41264 -14.733545 -14.095881 -5.175461</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF054        ERF055    ERF057    ERF069    ERF073    ERF086    ERF087</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.39294 -1.627517e+01 -16.91907 -5.982998 -25.22615 -16.44151 -16.44154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ETS1       ETS2      ETV1       ETV2 ETV2::DRGX ETV2::FIGLA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.839297  -6.955079 -10.98433 -10.723632  -13.28999   -19.82955</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            ERF091        ERF094    ERF095    ERF096     ERF10    ERF104</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.055983e+01 -3.529487e+00 -16.67312 -6.360668 -25.34180 -23.05714</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ETV2::FOXI1 ETV2::HOXB13       ETV3       ETV4       ETV5 ETV5::DRGX</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -12.11913    -16.81264  -7.510880  -7.897732  -9.165938  -13.00679</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ERF105     ERF109     ERF11     ERF112    ERF115     ERF118    ERF122</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.87026  -3.985015 -10.15127  -9.279914 -14.95257  -9.647732 -15.25696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ETV5::FIGLA ETV5::FOXI1 ETV5::FOXO1 ETV5::HOXA2       ETV6       ETV7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -18.86040   -9.181146   -8.096269   -12.51699  -9.692766 -10.373389</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ERF13     ERF15     ERF1B      ERF2       ERF3       ERF4      ERF5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -4.306438 -13.70873 -4.039907 -24.28583  -9.436251 -12.396777 -16.25406</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          EVX1      EVX2 EWSR1-FLI1      Ebf2  EcR::usp   Eip74EF      Elba1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.611526 -7.626105  -30.18390 -12.84783 -17.17429 -5.259223  -8.760969</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              ERF6      ERF7      ERF8      ERF9 ERF::FIGLA ERF::FOXI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.785908e+00 -7.089758 -19.76373 -23.28782  -28.08842  -10.84705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Elba2       Elf5    EmBP-1       Emx     Erf-a       Erg      Esrrg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.950844 -10.539005 -3.764037 -21.65634 -21.01225 -11.43660  -9.561463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ERF::FOXO1 ERF::HOXB13 ERF::NHLH1 ERF::SREBF2          ERT1          ESR1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -13.26254   -17.25297  -25.71545   -27.51491 -3.402824e+36 -3.470992e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Ets21C  Etv1/4/5      FAR1    FERD3L       FEV      FHL1      FHY3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.573569 -22.66924 -18.78416 -16.56605 -11.69599 -4.692641 -12.37645</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ESR2      ESRRA      ESRRB      ESX1       ETS1       ETS2      ETV1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.65669 -15.416615 -18.763407 -5.627253  -6.727432  -6.898185 -10.88373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         FIGLA      FKH1       FKH2       FLC       FLI1 FLI1::DRGX FLI1::FOXI1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.349844 -18.68146 -0.3390045 -24.37479  -7.929470  -12.94763   -10.71742</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              ETV2 ETV2::DRGX ETV2::FIGLA ETV2::FOXI1 ETV2::HOXB13       ETV3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.088495e+01  -13.80814   -20.87454   -12.00806    -21.74709  -7.558227</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     FOS.MA0476.1 FOS.MA1951.1 FOS::JUN.MA0099.3 FOS::JUN.MA1126.1  FOS::JUNB</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -13.954266    -15.51295         -9.653224         -16.76799 -13.787504</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ETV4      ETV5 ETV5::DRGX ETV5::FIGLA ETV5::FOXI1 ETV5::FOXO1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.985979 -10.10907  -13.25131   -20.34420   -9.206867   -7.901941</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ETV5::HOXA2       ETV6       ETV7      EVX1      EVX2    EWSR1-FLI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -12.99484 -10.824530 -10.901637 -7.698364 -7.720087 -3.402824e+36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Ebf2      EcR::usp       Eip74EF      Elba1      Elba2       Elf5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.19742 -3.402824e+36 -3.402824e+36  -8.794836  -9.005390 -10.886662</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            EmBP-1       Emx     Erf-a       Erg      Esrrg     Ets21C  Etv1/4/5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.711799e+00 -21.76997 -20.99460 -11.41830  -9.908195  -9.947772 -22.89995</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              FAR1    FERD3L       FEV          FHL1      FHY3      FIGLA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.497874e+01 -21.27016 -12.16894 -4.653372e+00 -13.21388 -10.452035</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          FKH1          FKH2       FLC      FLI1 FLI1::DRGX FLI1::FOXI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.60206 -1.377837e-01 -25.15765  -7.93636  -12.95242   -10.64237</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      FOS.MA0476.1 FOS.MA1951.1 FOS::JUN.MA0099.3 FOS::JUN.MA1126.1 FOS::JUNB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36    -16.75961        -10.875983         -17.08338 -16.42625</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     FOS::JUND FOSB::JUN FOSB::JUNB.MA1135.1 FOSB::JUNB.MA1136.1     FOSL1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.28448 -10.80729          -13.409527           -9.258456 -16.55077</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     FOS::JUND  FOSB::JUN FOSB::JUNB.MA1135.1 FOSB::JUNB.MA1136.1     FOSL1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.32156 -10.302137          -10.846043           -8.864887 -14.91133</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     FOSL1::JUN.MA1128.1 FOSL1::JUN.MA1129.1 FOSL1::JUNB FOSL1::JUND.MA1142.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1           -15.82765           -8.993800   -13.50126            -8.262667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1           -13.75616           -8.675548   -13.17044            -8.170035</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     FOSL1::JUND.MA1143.1         FOSL2 FOSL2::JUN.MA1130.1 FOSL2::JUN.MA1131.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1            -8.179398 -3.402824e+36          -15.053730           -11.75602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     FOSL1::JUND.MA1143.1      FOSL2 FOSL2::JUN.MA1130.1 FOSL2::JUN.MA1131.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1            -8.053839 -13.322376          -12.746359           -10.92238</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     FOSL2::JUNB.MA1138.1 FOSL2::JUNB.MA1139.1 FOSL2::JUND.MA1144.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -3.402824e+36            -13.62511        -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1           -11.210376            -12.51820           -10.714412</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     FOSL2::JUND.MA1145.1      FOXA1      FOXA2      FOXA3      FOXB1      FOXC1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1            -17.44547  -7.632401  -6.167677  -6.299078 -10.809978 -10.650660</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1            -16.55098  -7.811167  -6.360013  -6.486095 -10.490689 -10.190511</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXC2         FOXD1     FOXD2     FOXD3     FOXE1         FOXF2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.321533 -1.471837e+00 -14.26886 -14.88548 -17.57678 -1.301137e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXC2     FOXD1      FOXD2     FOXD3     FOXE1     FOXF2     FOXG1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.989802 -1.681170 -12.500245 -14.87701 -16.28464 -12.90603 -1.405086</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         FOXG1         FOXH1     FOXI1 FOXJ2::ELF1      FOXK1      FOXK2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.187386 -1.253669e+01 -0.466068   -12.28335  -9.544596  -5.952846</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXH1      FOXI1 FOXJ2::ELF1      FOXK1      FOXK2     FOXL1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.947245 -0.6610976   -12.20088  -9.749448  -6.157600 -1.308165</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         FOXL1      FOXN3 FOXO1::ELF1 FOXO1::ELK1 FOXO1::ELK3 FOXO1::FLI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.131294 -0.2193179   -9.979612   -12.22709   -12.42512   -10.74118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXN3 FOXO1::ELF1 FOXO1::ELK1 FOXO1::ELK3 FOXO1::FLI1     FOXO4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -0.4509007   -10.12513   -12.05326   -11.84133   -10.56755 -1.002501</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXO4       FOXO6      FOXP1         FOXP2     FOXP3          FUS3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -0.8170545  -0.4550209  -6.380517 -5.263039e+00 -1.563221 -5.281796e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          FOXO6      FOXP1      FOXP2     FOXP3       FUS3   FaEOBII Fli-Erg-a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -0.6494475  -6.562997  -5.475095 -1.723439  -5.417699 -9.556918 -22.60777</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       FaEOBII Fli-Erg-a Fli-Erg-b Fli-Erg-c     Fos-b    FoxA-a    FoxA-b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.926804 -22.80639 -24.15949 -22.46963 -26.53378 -23.61708 -25.72125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Fli-Erg-b Fli-Erg-c     Fos-b    FoxA-a    FoxA-b      FoxB    FoxD-b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.18608 -22.30947 -25.22413 -22.99853 -25.49542 -26.42463 -21.44803</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          FoxB    FoxD-b      FoxE      FoxF      FoxG    FoxI-a    FoxI-b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.78397 -21.47927 -21.65821 -20.03129 -21.91018 -21.30700 -18.88089</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          FoxE      FoxF      FoxG    FoxI-a    FoxI-b    FoxI-c      FoxK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.66386 -20.14687 -21.87635 -21.31215 -18.94607 -22.53352 -19.82878</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        FoxI-c      FoxK     FoxL2      FoxM      FoxO      FoxQ      Foxf1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.71376 -19.67589 -20.09627 -20.51666 -19.10107 -21.30249  -6.367311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         FoxL2      FoxM      FoxO      FoxQ      Foxf1     Foxj2     Foxj3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.18431 -20.59124 -19.29398 -21.35033  -6.557887 -1.728511 -15.15199</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Foxj2     Foxj3     Foxl2         Foxn1     Foxo1      Foxo3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -1.517272 -15.04872 -11.64727 -1.848434e+00 -6.338549  -6.806077</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Foxl2     Foxn1     Foxo1      Foxo3      Foxq1     GABPA      GAF1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.73917 -1.843518 -6.525281  -7.027206  -8.651468 -11.56595 -19.15003</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Foxq1     GABPA          GAF1          GAL4          GAT1      GAT3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.709925e+00 -11.55260 -2.583381e+01 -1.204847e+01 -3.402824e+36 -7.035007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          GAL4      GAT1      GAT3      GAT4    GATA-a      GATA1 GATA1/2/3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.21665 -8.431077 -6.908098 -11.19298 -23.09445  -9.216829 -22.29521</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          GAT4    GATA-a      GATA1 GATA1/2/3        GATA10        GATA11</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.58979 -23.34238  -9.288520 -22.34176 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        GATA10    GATA11    GATA12    GATA14    GATA15     GATA19 GATA1::TAL1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.039340 -8.681047 -5.849028 -16.40474 -6.828697 -12.213981   -23.04151</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        GATA12    GATA14    GATA15     GATA19   GATA1::TAL1      GATA2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.119178 -22.13559 -6.946666 -13.352750 -3.402824e+36 -12.098718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          GATA2    GATA20 GATA4.MA0482.2 GATA4.MA1755.1      GATA5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.523096 -9.126474     -12.848852      -8.356272 -10.488392</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            GATA20 GATA4.MA0482.2 GATA4.MA1755.1         GATA5 GATA6.MA1104.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36     -13.643740      -8.504429 -1.134897e+01     -14.434419</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATA6.MA1104.2 GATA6.MA1396.1     GATA8     GATA9      GATAd      GBF2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -14.058925      -16.41789 -7.177348 -12.75285 -10.806057 -10.65525</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     GATA6.MA1396.1     GATA8         GATA9      GATAd      GBF2       GBF3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -3.402824e+36 -7.440394 -3.402824e+36 -11.257839 -10.57956  -8.989793</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           GBF3      GBX1      GBX2       GCM1       GCM2       GCN4      GCR1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.936827 -8.067099 -8.006986 -10.954156  -8.669643 -11.888303 -5.441634</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           GBX1      GBX2       GCM1       GCM2       GCN4       GCR1       GCR2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.746660 -8.528598 -11.399450  -8.860428 -13.387282  -5.949919  -3.220646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          GCR2      GFI1      GIS1      GLI3     GLIS1     GLIS2     GLIS3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.173858 -11.04206 -6.048130 -22.53245 -24.70513 -17.82066 -20.10698</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          GFI1          GIS1      GLI3     GLIS1     GLIS2     GLIS3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.51671 -6.170310e+00 -29.00104 -48.88243 -21.53138 -29.02061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           GLN3 GLYMA-06G314400 GLYMA-07G038400 GLYMA-08G357600 GLYMA-13G317000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.3836951       -9.394407       -8.194901       -15.18243       -9.241013</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              GLN3 GLYMA-06G314400 GLYMA-07G038400 GLYMA-08G357600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.474907e+00       -9.544420       -8.159781       -15.74000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         GMEB2      GRF4       GRF6      GRF9     GRHL1     GRHL2       GSC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.507381 -10.92068  -7.332468 -15.58302 -11.92597 -10.85781 -7.858250</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     GLYMA-13G317000     GMEB2      GRF4       GRF6          GRF9     GRHL1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -9.364049 -8.617226 -11.07409  -7.534652 -1.585849e+01 -12.16063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          GSC2      GSM1      GSX1      GSX2      GT-1      GT-2     GT-3a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.802492 -24.68100 -7.279411 -4.813879 -7.751321 -13.80021 -20.50680</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         GRHL2        GSC      GSC2      GSM1      GSX1      GSX2       GT-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.10481  -7.908979 -7.847025 -25.29798 -7.296620 -5.001452 -12.028630</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           GT-4       GTL1      GZF3      Gam1      Gata3      Gfi1B      Gli1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.852327 -13.400593 -8.169965 -8.814553 -12.492722  -7.842214 -15.17238</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          GT-2         GT-3a      GT-4       GTL1          GZF3       Gam1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.93721 -3.192577e+01 -20.66030 -14.351099 -3.402824e+36  -9.012636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Gli2 Glyma19g26560.1     Gmeb1        Gsc       Gsx      H2.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.19468       -8.290892 -19.34382 -1.4080954 -21.29737 -3.853395</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Gata3      Gfi1B      Gli1      Gli2 Glyma19g26560.1     Gmeb1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.014707  -7.782824 -15.80951 -14.96859       -9.212173 -19.76820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          HAC1       HAL9     HAND2       HAP1        HAP2       HAP3      HAP5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.841685 -0.9174092 -8.204108 -11.275257 -0.93254751  -6.150676 -11.78079</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Gsc       Gsx      H2.0          HAC1          HAL9      HAND2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.299283e+00 -21.35812 -3.980995 -2.690230e+00 -9.842020e-01  -9.698073</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          HAT1       HAT2      HAT22      HAT5       HBI1      HCM1       HDG1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.914286 -12.034048 -15.314218 -19.69164  -8.621931 -3.242023 -10.358577</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              HAP1        HAP2       HAP3      HAP5          HAT1          HAT2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -0.96453029  -5.924641 -11.62080 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HDG11       HDG7       HES1       HES2       HES5       HES6      HES7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.214504  -9.425299  -7.908384  -7.624456  -6.851177  -7.182696 -15.04082</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          HAT22       HAT5          HBI1      HCM1          HDG1     HDG11</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.731203 -29.048624 -8.619199e+00 -3.081020 -3.402824e+36 -6.103615</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HESX1       HEY1       HEY2      HGTX      HHEX      HHO2      HHO3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.284287  -7.600542  -6.561687 -4.151328 -4.959630 -14.74754 -14.36566</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              HDG7      HES1       HES2       HES5       HES6      HES7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.803741e+00  -8.38826  -8.501904  -7.038731  -7.321908 -21.12517</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           HHO5      HHO6      HIC2      HIF1A     HINFP       HLF    HMBOX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.674670 -15.54560 -5.607894  -8.087640 -12.19935 -16.52492 -6.785961</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          HESX1       HEY1       HEY2          HGTX      HHEX      HHO2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.057646  -9.317868  -6.691791 -4.487387e+00 -4.968109 -15.50919</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HMRA1     HMRA2      HNF1A      HNF1B HNF4A.MA0114.4 HNF4A.MA1494.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.344345 -4.868611 -14.806442 -11.699176      -14.46462      -22.70262</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          HHO3      HHO5      HHO6      HIC2      HIF1A     HINFP       HLF</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.27821 -17.85699 -17.01806 -5.546326  -8.810391 -12.66843 -18.20207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HNF4G     HOXA1    HOXA10     HOXA2     HOXA4     HOXA5     HOXA6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.46844 -4.780406 -8.313967 -5.438220 -4.401883 -3.857996 -7.557043</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HMBOX1         HMRA1     HMRA2      HNF1A      HNF1B HNF4A.MA0114.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.781432 -3.402824e+36 -5.241820 -15.194896 -11.981529      -15.13804</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXA7     HOXA9    HOXB13     HOXB2 HOXB2::ELK1     HOXB3     HOXB4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.072357 -8.013949 -14.09061 -4.332917   -13.90971 -7.403415 -5.160304</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     HNF4A.MA1494.1     HNF4G     HOXA1    HOXA10     HOXA2     HOXA4      HOXA5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -29.30393 -15.19333 -4.877725 -8.276581 -6.205074 -4.349550  -3.763904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXB5     HOXB6     HOXB7     HOXB8     HOXB9    HOXC10     HOXC11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.692852 -4.046179 -8.174670 -3.175864 -9.296227 -7.641057 -10.255599</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXA6     HOXA7     HOXA9    HOXB13     HOXB2 HOXB2::ELK1     HOXB3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.594296 -3.998333 -8.071778 -14.30404 -4.334030   -14.30796 -7.466953</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXC12     HOXC13     HOXC4     HOXC8      HOXC9     HOXD10    HOXD11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.143262 -11.565126 -4.777495 -4.510080  -9.330536 -10.006385 -7.492410</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXB4     HOXB5     HOXB6     HOXB7     HOXB8      HOXB9    HOXC10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.333864 -4.816635 -3.958428 -8.400269 -3.014657 -12.758080 -7.671029</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXD12 HOXD12::ELK1     HOXD3     HOXD4     HOXD8     HOXD9      HRS1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.473294    -22.01951 -5.606810 -4.898463 -2.897699 -7.245780 -17.69334</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXC11     HOXC12     HOXC13     HOXC4     HOXC8      HOXC9     HOXD10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.711548  -8.151940 -12.552990 -4.829298 -4.470881 -17.771393 -10.783721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     HSF1.MA0319.1 HSF1.MA0486.2      HSF2      HSF4     HSFA1B    HSFA1E</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -4.849514     -18.82646 -17.55228 -15.61381 -12.219563 -20.13168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HOXD11     HOXD12 HOXD12::ELK1      HOXD3     HOXD4     HOXD8     HOXD9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.510136 -11.002571    -23.84784  -6.956145 -5.014619 -2.720517 -7.481102</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        HSFA4A    HSFA6A     HSFA6B     HSFB2A    HSFB2B     HSFB3      HSFB4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.54222 -18.38104 -12.585767 -15.819677 -18.86939 -14.36559 -13.108822</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              HRS1 HSF1.MA0319.1 HSF1.MA0486.2      HSF2      HSF4    HSFA1B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.344844e+01     -4.976816     -22.98793 -20.07326 -17.00694 -12.89655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          HSFC1       HY5       HYH Hand1::Tcf3     Hes-b     Hes-c       Hex</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.020812 -15.51601  -9.27934   -9.258186 -23.73377 -24.53776 -21.84311</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        HSFA1E    HSFA4A        HSFA6A    HSFA6B    HSFB2A    HSFB2B     HSFB3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.21243 -26.04922 -3.402824e+36 -13.33146 -17.28001 -20.11280 -17.43087</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Hey      Hic1    Hmbox1        Hmx      Hmx1      Hmx2      Hmx3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.24806 -7.262231 -22.14042 -4.9902439 -19.02310 -18.40612 -18.87056</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          HSFB4      HSFC1       HY5           HYH Hand1::Tcf3     Hes-b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.037149 -13.936693 -16.74578 -9.202162e+00  -10.361115 -23.79119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Hnf1     Hnf1A      Hox1      Hox3      Hox4      Hox5     Hoxa11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.00186 -12.80007 -21.73993 -21.73869 -21.86514 -21.50554 -10.900214</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Hes-c       Hex       Hey      Hic1    Hmbox1           Hmx      Hmx1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.66974 -22.10903 -23.32745 -7.581340 -22.40396 -3.402824e+36 -20.13696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Hoxa13    Hoxd13        Hsf  Hsf1-2-4      IDD4      IDD5      IDD6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.250148 -8.440442 -12.459407 -25.15100 -20.69931 -20.36748 -25.28957</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Hmx2      Hmx3      Hnf1     Hnf1A      Hox1      Hox3      Hox4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.10388 -20.46374 -22.30579 -12.90625 -21.86226 -21.83639 -22.03695</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          IDD7      IKZF1       IME1      INO2      INO4      INSM1      IRF2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.15784  -9.949830  -2.194235 -6.026662 -6.476748 -10.954823 -23.57016</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Hox5     Hoxa11     Hoxa13     Hoxd13        Hsf  Hsf1-2-4      IDD4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.59490 -11.003125 -10.302750  -9.898768 -13.344760 -25.98308 -22.24236</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          IRF3      IRF4      IRF5       IRF6      IRF7      IRF8      IRF9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -29.82007 -22.58905 -17.61800 -10.649450 -18.00159 -21.48263 -24.99328</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          IDD5      IDD6      IDD7      IKZF1          IME1       INO2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.92118 -27.38014 -25.51736 -10.152231 -2.017174e+00  -6.293616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ISL2       ISX      IXR1     Ikzf3     Irf-b      Irf1       Isl1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.715137 -5.662531 -14.33067 -12.85083 -28.98665 -16.75451  -8.667452</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              INO4         INSM1          IRF2      IRF3      IRF4      IRF5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.189123e+00 -3.402824e+36 -3.402824e+36 -34.18163 -33.41906 -18.62588</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           IRF6      IRF7          IRF8      IRF9      ISL2       ISX</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.779174 -21.89334 -4.932427e+01 -54.19248 -4.724082 -6.920784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              IXR1     Ikzf3     Irf-b      Irf1       Isl1       Isx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -12.79983 -29.75760 -17.34273  -8.758414 -22.53116</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     JDP2.MA0655.1 JDP2.MA0656.1       JKD      JUB1           JUN</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -12.03687     -17.75074 -26.14601 -14.14591 -1.782378e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Isx JDP2.MA0655.1 JDP2.MA0656.1       JKD      JUB1       JUN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.28471     -9.296734     -13.50386 -24.95981 -13.51758 -13.24345</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     JUN::JUNB.MA1132.1 JUN::JUNB.MA1133.1 JUNB.MA0490.2 JUNB.MA1140.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1          -8.683872          -11.78677     -15.68443     -15.44970</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1          -8.342207          -11.41936     -14.36264     -13.64715</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     JUND.MA0491.2 JUND.MA0492.1        Jun      KAN1          KAN2      KAN4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -15.94010 -3.402824e+36 -14.288252 -5.165019 -3.402824e+36 -9.923348</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     JUND.MA0491.2 JUND.MA0492.1        Jun      KAN1      KAN2      KAN4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -14.51700     -16.75386 -13.291471 -5.135941 -19.33295 -8.594422</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           KLF1      KLF10      KLF11      KLF12     KLF13      KLF14     KLF15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.756730  -7.812243 -11.455017  -5.760502 -37.31065  -8.189537 -10.68926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.548436  -5.676653 -10.728421  -5.091529 -18.53282  -6.016364  -9.30293</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          KLF16     KLF17       KLF2      KLF3      KLF4          KLF5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.518575 -18.59390 -10.135197 -12.99740 -11.49560 -9.739896e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          KLF16     KLF17       KLF2      KLF3      KLF4       KLF5       KLF6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.267427 -16.95185  -9.622237 -11.38217 -11.13165  -8.196103  -9.917091</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           KLF6       KLF7      KLF9       KUA1     Klf15 Klf3/8/12 Klf5-like</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.334482  -8.533323 -17.70618 -11.600252 -27.41357 -24.18154 -22.97519</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           KLF7      KLF9       KUA1     Klf15 Klf3/8/12 Klf5-like Klf6-7-like</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.337898 -16.99192 -11.003652 -26.45961 -23.44008 -22.65889   -23.81223</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Klf6-7-like            Kr     LBD13     LBD18      LBX1      LBX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -24.42539 -1.999988e+01 -12.84636 -13.13680 -7.717709 -7.171081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Kr     LBD13     LBD18      LBX1      LBX2       LEC2       LEP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.90248 -12.49712 -12.64689 -5.864126 -7.170281  -7.594457 -21.44639</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              LEC2       LEP          LEU3       LFY       LHX2      LHX5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.485844e+00 -23.16135 -3.402824e+36 -29.37539 -10.277499 -6.792355</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           LEU3       LFY       LHX2      LHX5      LHX6      LHX9        LHY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.539253 -25.28001  -9.604474 -5.764417 -7.875299 -5.508906 -12.561419</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          LHX6      LHX9           LHY         LIN54      LMX1A         LMX1B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.419597 -7.585532 -3.402824e+36 -3.402824e+36  -9.735991 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          LIN54     LMX1A      LMX1B       LOB      LRL2     LYS14      Lef1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.121308 -6.671569 -11.513947 -15.46248 -16.91269 -7.142306 -12.36984</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           LOB          LRL2      LYS14      Lef1      Lhx1          Lhx3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.57047 -1.800530e+01  -9.653056 -12.39771 -19.98918 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Lhx1       Lhx3    Lhx3/4      Lhx4      Lhx8      Lim1      Lim3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.94744 -15.294475 -21.87500 -5.499137 -4.115472 -5.599717 -3.907492</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Lhx3/4      Lhx4      Lhx8          Lim1      Lim3     Lmx-b      M1BP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.03165 -5.829485 -4.085091 -3.402824e+36 -4.190415 -22.33020 -24.27265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Lmx-b      M1BP      MAC1       MAF MAF::NFE2      MAFA      MAFF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.05090 -22.84258 -4.778295 -15.67163 -20.37751 -15.70507 -14.39191</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              MAC1       MAF MAF::NFE2      MAFA      MAFF MAFG::NFE2L1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.943133e+00 -15.85663 -24.19970 -15.89292 -14.35804    -24.47496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     MAFG::NFE2L1      MAFK MATALPHA2        MAX   MAX::MYC        MAZ      MBP1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1    -21.35909 -16.90294 -5.111592  -7.342361  -7.319856  -8.261997 -3.953128</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          MAFK MATALPHA2        MAX      MAX::MYC        MAZ      MBP1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.49642 -5.804213  -7.561135 -7.299506e+00  -8.531997 -4.040510</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     MBP1::SWI6      MCM1     MEF2A      MEF2B     MEF2C     MEF2D</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -3.367537 -10.56181 -17.19673 -16.429781 -17.71073 -16.65412</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     MBP1::SWI6      MCM1     MEF2A     MEF2B     MEF2C     MEF2D MEIS1.MA0498.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -3.458257 -11.04271 -17.80644 -25.12049 -19.22758 -24.25454      -3.210938</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     MEIS1.MA0498.2 MEIS1.MA1639.1 MEIS2.MA0774.1 MEIS2.MA1640.1     MEIS3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -3.195026     -15.081946      -5.015875     -17.317667 -5.712425</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     MEIS1.MA1639.1 MEIS2.MA0774.1 MEIS2.MA1640.1     MEIS3     MEOX1     MEOX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -15.914338      -5.378546     -18.117134 -6.461925 -8.510832 -8.092119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MEOX1     MEOX2      MET28     MET31     MET32      MET4       MGA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.145841 -7.907159 -3.6317225 -8.089982 -4.323269 -9.136062 -6.971281</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             MET28         MET31     MET32          MET4       MGA      MGA1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -4.687531 -3.402824e+36 -9.062092 -24.18602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          MGA1  MGA::EVX1       MGP      MIG1      MIG2      MIG3      MITF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.63810 -14.109987 -26.11848 -2.668444 -3.170672 -2.855687 -20.52873</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     MGA::EVX1       MGP      MIG1      MIG2      MIG3      MITF     MIXL1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.32642 -30.16879 -2.623741 -3.228703 -2.853734 -21.20195 -7.888165</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MIXL1       MLX     MLXIPL      MNB1A        MNT      MNX1      MOT2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.790009 -10.55239  -8.676798  0.1238038  -7.222484 -5.361217 -3.657708</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           MLX     MLXIPL         MNB1A        MNT      MNX1          MOT2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.44034  -9.210896  1.823216e-01  -7.514157 -5.668585 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           MOT3   MSANTD3        MSC       MSN2       MSN4      MSX1      MSX2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.7934752 -7.807193 -10.497178 -0.9202529 -1.7802136 -5.102069 -4.813221</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              MOT3   MSANTD3           MSC          MSN2          MSN4      MSX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.791759e+00 -7.941223 -1.436436e+01 -1.262915e+00 -5.329089e+00 -5.384473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          MTF1      MXI1        MYB      MYB1     MYB10    MYB101    MYB105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.69060 -5.006932 -10.890558 -24.80194 -18.11916 -18.16257 -16.17021</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          MSX2      MTF1       MXI1        MYB          MYB1     MYB10    MYB101</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.943410 -21.74307  -4.836213 -12.941710 -3.402824e+36 -21.60730 -20.18360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        MYB107    MYB108    MYB111     MYB113    MYB116    MYB118    MYB119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.64190 -19.54548 -5.753962 -12.530468 -16.29210 -20.16523 -11.57348</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            MYB105    MYB107    MYB108    MYB111        MYB113        MYB116</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -16.68189 -21.56036 -5.844339 -2.489750e+01 -2.982862e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        MYB121    MYB124     MYB13     MYB15     MYB17     MYB23     MYB24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.62847 -8.448688 -20.22082 -15.73427 -18.35991 -11.10833 -7.282037</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            MYB118    MYB119    MYB121     MYB124     MYB13         MYB15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -18.24452 -20.70390  -8.736530 -21.12180 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB27       MYB3     MYB30     MYB33     MYB39    MYB3R1    MYB3R4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.93956 -11.933044 -18.40576 -16.68521 -17.06917 -15.09717 -17.59401</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB17         MYB23     MYB24         MYB27          MYB3     MYB30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.57607 -3.402824e+36 -7.478487 -3.402824e+36 -3.402824e+36 -19.85430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        MYB3R5      MYB4     MYB40     MYB41     MYB43     MYB44     MYB46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.45525 -5.460543 -16.79697 -17.66036 -16.04359 -14.41679 -6.617168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB33     MYB39    MYB3R1        MYB3R4        MYB3R5      MYB4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.37575 -20.32270 -16.25492 -3.402824e+36 -3.305846e+01 -5.525604</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB49     MYB51     MYB52     MYB55     MYB56      MYB57     MYB58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.31842 -27.40120 -12.99304 -6.536519 -19.38220 -18.857697 -20.91659</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB40     MYB41         MYB43     MYB44     MYB46     MYB49     MYB51</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.90666 -18.41934 -1.836548e+01 -16.04740 -6.853274 -19.15603 -35.28608</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB59     MYB60     MYB61     MYB62     MYB63     MYB65     MYB67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.284864 -24.61361 -15.57646 -18.77157 -15.97564 -16.15744 -28.13457</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             MYB52     MYB55     MYB56         MYB57     MYB58     MYB59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.711162 -24.20733 -3.402824e+36 -21.74281 -8.017334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB70     MYB73     MYB74     MYB77     MYB80      MYB81      MYB83</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.35182 -14.37164 -17.25275 -16.10686 -16.92803 -11.429183 -10.282650</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB60         MYB61         MYB62     MYB63     MYB65     MYB67</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -30.37813 -3.402824e+36 -3.402824e+36 -17.19646 -18.21637 -30.71732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB88      MYB92     MYB93     MYB94     MYB96     MYB98      MYB99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.98610 -11.104567 -17.18861 -23.60403 -22.10674 -11.22129 -11.472166</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB70     MYB73     MYB74         MYB77     MYB80      MYB81      MYB83</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.51490 -15.93371 -19.69120 -3.402824e+36 -18.42824 -14.879815 -10.532816</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         MYBL1     MYBL2        MYC      MYC2      MYC3      MYC4      MYCN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.62617 -18.86706  -8.925851 -2.618436 -2.998615 -3.625872 -10.20934</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYB88         MYB92     MYB93     MYB94     MYB96     MYB98      MYB99</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.25648 -3.402824e+36 -18.21475 -28.03770 -23.37677 -11.82558 -15.188300</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           MYF5       MYF6     MYOD1       MYOG      MYR2      MZF1   Macho-1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.997923 -11.771621 -14.10684 -12.498471 -16.06457 -12.91855 -7.005013</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         MYBL1     MYBL2        MYC      MYC2      MYC3       MYC4      MYCN</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.22208 -22.02649  -8.914326 -2.476265 -2.877625  -3.645682 -10.43242</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Mad       Mafb      Mafg       Max     Mecom      Meox      Mitf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.19468  -8.337120 -17.10606 -20.44244 -16.91740 -21.62997 -21.55440</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           MYF5       MYF6      MYOD1       MYOG      MYR2      MZF1   Macho-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.068990 -13.773000 -14.831996 -13.994984 -17.62880 -13.50171 -7.364301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Mlxip       Mnx     Msgn1       Msx      Msx3    NAC002     NAC004</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.598033 -21.64985 -17.47541 -22.01872 -5.298048 -13.10504  -6.530075</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Mad       Mafb      Mafg       Max         Mecom      Meox</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36  -8.207866 -17.75628 -20.48318 -3.402824e+36 -21.78695</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC005     NAC007    NAC010    NAC011    NAC013     NAC016     NAC017</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.83336  -8.524057 -30.22791 -27.64524 -28.12866  -7.352958  -7.215231</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Mitf         Mlxip       Mnx     Msgn1       Msx      Msx3    NAC002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.66577 -3.402824e+36 -21.85595 -18.47197 -22.35746 -5.753428 -13.57217</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC018    NAC019    NAC020    NAC025     NAC028    NAC029    NAC031</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.781473 -8.125268 -29.45866 -6.872555  -7.101947 -13.39481 -28.81798</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC004        NAC005     NAC007    NAC010        NAC011    NAC013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.334089 -4.087855e+01  -8.495747 -31.41634 -3.402824e+36 -29.68057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC035     NAC037    NAC038     NAC043    NAC045    NAC046    NAC047</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.29832  -7.540392 -29.57402 -10.523606 -11.45140 -5.107317 -15.27274</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC016     NAC017        NAC018     NAC019    NAC020        NAC025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.184709  -6.999727 -1.169129e+01  -8.202594 -30.59249 -9.862716e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC050     NAC053    NAC054    NAC055     NAC057    NAC058     NAC062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.364348  -8.257162 -19.88671 -4.711478  -5.417052 -28.97187 -11.823584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC028    NAC029    NAC031    NAC035     NAC037    NAC038     NAC043</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -6.856018 -13.93561 -29.83840 -14.62451  -7.398044 -31.27729 -11.173124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC071    NAC073    NAC075     NAC076     NAC078    NAC079     NAC083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.39905 -15.69927 -32.90350  -9.587268  -8.607845 -7.194160 -10.109463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC045    NAC046    NAC047     NAC050     NAC053        NAC054    NAC055</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.41847 -5.161872 -18.42863  -9.206662  -8.084249 -2.043728e+01 -4.910721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC087     NAC096    NAC098    NAC101     NAC103    NAC105      NAC68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.35686  -5.255669 -17.58476 -10.15467  -7.361071 -10.91077  -7.467238</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC057    NAC058     NAC062    NAC071    NAC073    NAC075     NAC076</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -5.186389 -30.27111 -11.730645 -15.97720 -16.09446 -34.35611  -9.538756</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          NAC69      NAC92   NCU00019  NCU02182     NDT80    NEUROD1    NEUROG1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.337397 -10.427023  -7.885603 -4.495378 -26.31480 -11.847762  -9.671854</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NAC078     NAC079        NAC083    NAC087     NAC096        NAC098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.452131  -9.579435 -3.402824e+36 -23.10210  -5.022084 -1.822612e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     NEUROG2.MA0669.1 NEUROG2.MA1642.1    NFATC3     NFATC4       NFE2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -10.865952       -11.485936 -4.983346  -5.462654 -12.253295</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        NAC101     NAC103    NAC105      NAC68      NAC69      NAC92   NCU00019</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.04145  -7.220416 -10.83386  -7.262888  -9.252555 -10.412526  -7.684910</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           NFIA      NFIB NFIC.MA0161.2 NFIC.MA1527.1 NFIC::TLX1     NFIL3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.568707 -25.59698    -10.335184     -18.93200  -14.56191 -13.69155</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          NCU02182     NDT80    NEUROD1   NEUROG1 NEUROG2.MA0669.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.931533e+00 -27.42592 -12.519167 -10.39629       -13.425287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     NFIX.MA0671.1 NFIX.MA1528.1     NFKB1     NFKB2       NFYA       NFYB</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -6.156345     -17.56192 -15.96508 -12.89363  -4.867543  -8.152924</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     NEUROG2.MA1642.1    NFATC3     NFATC4      NFE2          NFIA      NFIB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -11.861051 -4.875493  -5.358599 -19.58687 -3.402824e+36 -26.72724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           NFYC      NFkb      NHLH1     NHLH2      NHP10      NID1      NK7.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -5.362316 -23.91480  -9.590516 -22.20133  -4.099808 -8.293047 -3.7906113</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     NFIC.MA0161.2 NFIC.MA1527.1    NFIC::TLX1     NFIL3 NFIX.MA0671.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1    -10.811659 -3.402824e+36 -3.402824e+36 -14.36961     -6.173223</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NKX2-2    NKX2-3    NKX2-4     NKX2-5    NKX2-8    NKX6-1    NKX6-2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.23624 -8.587267 -7.328055  -9.239877 -6.227890 -5.201602 -4.755886</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     NFIX.MA1528.1     NFKB1     NFKB2       NFYA       NFYB       NFYC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.803469e+01 -24.24744 -17.07538  -4.634924  -8.161779  -5.136937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        NKX6-3      NLP7      NOTO     NR1D1     NR1D2 NR1H2::RXRA NR1H4::RXRA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.603186 -15.08456 -8.543941 -19.32444 -21.61511   -29.40306   -15.92436</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          NFkb      NHLH1     NHLH2         NHP10      NID1      NK7.1    NKX2-2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -24.39690 -10.838574 -29.29067 -4.164822e+00 -8.530136 -4.0396495 -11.14535</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         NKX2-3    NKX2-4     NKX2-5    NKX2-8    NKX6-1    NKX6-2    NKX6-3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.060308 -7.330281  -9.550379 -6.249979 -5.389304 -4.789777 -5.712279</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          NLP7      NOTO     NR1D1     NR1D2   NR1H2::RXRA NR1H4::RXRA     NR1I2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.98293 -9.747689 -23.74908 -26.55422 -3.402824e+36   -16.37284 -21.99795</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          NR1I3      NR2C1 NR2C2.MA0504.1 NR2C2.MA1536.1 NR2F1.MA0017.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.730152  -7.521148      -19.10961      -5.651121  -2.506348e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         NR1I2     NR1I3     NR2C1 NR2C2.MA0504.1 NR2C2.MA1536.1 NR2F1.MA0017.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.72155 -8.770437 -7.011987      -16.33626      -5.449323     -15.137535</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     NR2F1.MA1537.1 NR2F1.MA1538.1      NR2F2     NR2F6     NR3C1     NR3C2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -22.37799      -17.32870 -11.879556 -22.14680 -28.32576 -28.57478</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -20.39125      -16.86856 -11.177008 -19.92360 -22.79072 -22.72779</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          NR4A1      NR4A2 NR4A2::RXRA     NR5A1     NR6A1          NRG1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.250212  -9.546248   -17.11670 -21.49148 -21.52071 -1.329445e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          NR4A1      NR4A2 NR4A2::RXRA     NR5A1     NR6A1      NRG1        NRL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.779292  -9.135693   -15.93693 -20.69921 -20.79601 -12.64399  -9.622463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            NRL          NSI1      NTL8       NTL9       NUC Neurod2.MA0668.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.662823 -3.402824e+36 -13.36681  -9.324633 -28.14828        -14.94946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           NSI1      NTL8      NTL9       NUC Neurod2.MA0668.2 Neurod2.MA1993.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.392241 -13.07939 -7.799433 -26.03637        -14.41404       -10.655846</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Neurod2.MA1993.1      Nfat5     Nfatc1    Nfatc2    Nfe2l2      Nk-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -14.528043  -8.210477  -7.907480 -13.92871 -22.25307 -21.68107</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Nfat5     Nfatc1    Nfatc2    Nfe2l2      Nk-1      Nk-3    Nkx2-1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.249941  -8.017311 -13.99965 -19.36679 -21.62428 -21.93150 -13.71649</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Nk-3    Nkx2-1      Nkx3     Nkx3-1    Nkx3-2     Nobox      Noto</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.15039 -14.35623 -21.84809  -5.784150 -12.21885 -5.024065 -21.77448</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Nkx3    Nkx3-1    Nkx3-2     Nobox      Noto      Npas2      Npas4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.74255 -5.803332 -11.98421 -4.777168 -21.67649  -6.883470 -10.078609</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Npas2      Npas4      Nr1H2      Nr1H4 Nr1h3::Rxra         Nr2F6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.043114 -10.302233 -10.673079 -10.041635   -24.16195 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Nr1H2     Nr1H4 Nr1h3::Rxra     Nr2F6     Nr2e1      Nr2e3     Nr2f6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.102237 -8.749872   -23.23704 -23.72620 -8.538854 -1.2459271 -17.83352</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Nr2e1         Nr2e3     Nr2f6     Nr5A2      Nrf1       O11        O2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.008837 -1.100504e+00 -19.15193 -16.22216 -15.34787 -12.33303 -16.49295</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Nr5A2      Nrf1       O11        O2      OAF1 OJ1058_F05.8 OJ1581_H09.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.21169 -14.73763 -10.61574 -15.32258 -5.952622    -5.271472    -9.499113</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              OAF1 OJ1058_F05.8  OJ1581_H09.2     OLIG1      OLIG2      OLIG3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.933348e+00    -6.549612 -1.008552e+01 -11.23694  -9.070843  -7.464202</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          OLIG1      OLIG2      OLIG3   ONECUT1   ONECUT2   ONECUT3      OPI1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.501138  -8.346542  -7.365048 -19.79871 -9.901978 -18.03304 -5.733937</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       ONECUT1       ONECUT2   ONECUT3          OPI1       OSR1       OSR2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.64794 -1.506922e+01 -22.15631 -7.595888e+00 -13.207382 -12.727395</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OSR1       OSR2      OTX1       OTX2     OVOL1     OVOL2      OdsH</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.380372 -12.185459 -4.851642 -12.406614 -19.09280 -15.92425 -4.521510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          OTX1       OTX2         OVOL1     OVOL2          OdsH      Olig2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.890702 -13.061386 -3.402824e+36 -19.49596 -3.402824e+36 -13.742515</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Optix Os05g0497200  OsI_08196    OsRR22       Otp       Otx</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.295837e+00    -10.16709  -8.706380 -11.68597 -23.41098 -23.46894</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Olig2      Optix Os05g0497200 OsI_08196     OsRR22       Otp       Otx</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.364604 -2.5681725    -7.652646 -7.177429 -10.522673 -22.94897 -23.50780</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     P0510F09.23     PATZ1      PAX1      PAX2 PAX3.MA0780.1 PAX3.MA1546.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -9.366850 -13.53039 -33.29188 -24.96124    -13.163176     -21.73347</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -9.030394 -11.57768 -23.81004 -23.15202    -10.319138     -20.24862</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          PAX4      PAX5      PAX6          PAX9        PBF          PBX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.658946 -12.92412 -15.04942 -5.366620e+01  0.2231437 -1.403277e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          PAX4      PAX5      PAX6      PAX9        PBF       PBX1       PBX2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.062305 -12.46426 -14.68119 -25.71639  0.1600122 -13.301617 -14.941835</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           PBX2      PBX3      PDR1          PDR3          PDR8      PDX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.728834 -18.07364 -17.64987 -3.402824e+36 -3.402824e+36 -5.024767</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          PBX3      PDR1       PDR3      PDR8      PDX1      PEND      PHD1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.92254 -16.29537  -8.683002 -6.415640 -4.828385 -7.408289 -5.987215</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          PEND      PHD1      PHDP      PHL1     PHL11         PHL12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.499902 -5.845453 -6.391211 -25.03311 -19.07698 -2.315197e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          PHDP      PHL1     PHL11     PHL12      PHL2      PHL4      PHL7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.719964 -19.20301 -17.53156 -18.22766 -6.283946 -22.36986 -16.34278</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              PHL2      PHL4          PHL7          PHO2       PHO4     PHOX2A</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.323467e+00 -25.69742 -1.947780e+01 -2.487272e+00  -2.908986 -11.984934</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           PHO2      PHO4     PHOX2A    PHOX2B PHYPADRAFT_140773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.4130197 -3.002465 -11.290933 -17.72922         -7.022614</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        PHOX2B PHYPADRAFT_140773 PHYPADRAFT_143875 PHYPADRAFT_153324</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.36723         -6.970869         -7.240202         -5.387233</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     PHYPADRAFT_143875 PHYPADRAFT_153324 PHYPADRAFT_173530 PHYPADRAFT_182268</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1         -7.132717         -5.453033         -7.844335        -11.212310</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     PHYPADRAFT_173530 PHYPADRAFT_182268 PHYPADRAFT_28324 PHYPADRAFT_38837</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -3.402824e+36     -3.402824e+36    -3.402824e+36        -6.928135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     PHYPADRAFT_28324 PHYPADRAFT_38837 PHYPADRAFT_48267 PHYPADRAFT_64121</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -7.992669        -6.985796        -4.549635        -14.87971</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     PHYPADRAFT_48267 PHYPADRAFT_64121 PHYPADRAFT_72483        PI          PIF1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -5.073270        -15.68109        -7.015226 -12.84891 -1.250120e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     PHYPADRAFT_72483        PI      PIF1       PIF3      PIF4      PIF5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1        -7.034613 -12.51439 -12.48234  -7.404675 -3.653751 -5.124684</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              PIF3          PIF4          PIF5     PITX1         PITX2     PITX3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.217566e+00 -3.749781e+00 -3.402824e+36 -6.670082 -8.971416e+00 -7.376931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         PITX1     PITX2     PITX3    PKNOX1    PKNOX2     PLAG1     PLAGL2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.300311 -7.327733 -7.192410 -14.65128 -18.14886 -19.53717 -10.514772</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        PKNOX1    PKNOX2         PLAG1        PLAGL2      PLT1 POPTR_0002s00440g</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.75887 -25.63583 -3.402824e+36 -3.402824e+36 -27.22212         -3.818554</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          PLT1 POPTR_0002s00440g    POU1F1    POU2F1 POU2F1::SOX2    POU2F2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.51009         -3.790685 -21.66894 -11.40812    -24.64612 -18.22099</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        POU1F1    POU2F1 POU2F1::SOX2    POU2F2    POU2F3    POU3F1    POU3F2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -25.10117 -11.57667    -27.53752 -21.95391 -14.15129 -11.55046 -12.89876</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        POU2F3    POU3F1    POU3F2    POU3F3    POU3F4    POU4F1    POU4F2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.48777 -11.36804 -12.40932 -12.75498 -8.615233 -15.31973 -20.80682</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        POU3F3     POU3F4    POU4F1    POU4F2    POU4F3     POU5F1   POU5F1B</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.94688  -9.564241 -16.38739 -25.21683 -19.11786  -9.037395 -7.703292</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        POU4F3     POU5F1   POU5F1B POU6F1.MA0628.1 POU6F1.MA1549.1    POU6F2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.02795  -9.001690 -7.426094       -7.401699       -8.721653 -8.101891</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     POU6F1.MA0628.1 POU6F1.MA1549.1     POU6F2 PPARA::RXRA     PPARD     PPARG</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -7.543439       -9.313423  -8.570119   -20.34757 -25.96244 -31.05145</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     PPARA::RXRA     PPARD     PPARG      PRDM1     PRDM9      PROP1      PROX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -20.13094 -23.22768 -27.37513 -10.633120 -30.13611 -11.418549  -7.295104</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          PRDM1     PRDM9      PROP1      PROX1     PRRX1     PRRX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.367077 -32.40522 -11.850212  -9.485425 -5.329358 -9.613100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         PRRX1     PRRX2       PUT3      Pax7       Pdp1    Plagl1 Pou5f1::Sox2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.129342 -5.704600  -2.702885 -15.54504 -12.363524 -12.56590    -16.37114</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              PUT3      Pax7       Pdp1    Plagl1 Pou5f1::Sox2 Pparg::Rxra</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.572598e+00 -16.26159 -13.073130 -12.79675    -16.94328   -13.67333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Pparg::Rxra     Pph13    Prdm14    Prdm15     Prdm4     Prdm5      Prop</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -13.45715 -4.568528 -11.68355 -15.12484 -21.25240 -11.94347 -22.35261</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Pph13    Prdm14    Prdm15     Prdm4     Prdm5      Prop</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.034955e+00 -11.98382 -16.04523 -22.62078 -11.82369 -22.55964</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Ptf1A.MA1619.1 Ptf1A.MA1620.1      Ptf1a      Ptx1   RAMOSA1      RAP1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -12.950624     -12.297899 -12.507939 -4.753712 -13.82827 -17.15070</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Ptf1A.MA1619.1 Ptf1A.MA1620.1      Ptf1a          Ptx1   RAMOSA1      RAP1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -13.898552     -12.750457 -13.004359 -5.991465e+00 -16.36237 -18.34392</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        RAP2-1   RAP2-10   RAP2-11   RAP2-12    RAP2-3    RAP2-4    RAP2-6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.78190 -12.89880 -16.78446 -22.34387 -3.562781 -7.743499 -15.77972</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        RAP2-1   RAP2-10       RAP2-11   RAP2-12    RAP2-3     RAP2-4    RAP2-6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.97917 -14.52042 -1.766877e+01 -24.28116 -3.472337  -7.764800 -17.67094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        RAP2-7    RAP2-9 RARA.MA0729.1 RARA.MA0730.1 RARA::RXRA RARA::RXRG</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.069744 -24.53703     -32.60382     -24.24069  -19.09967  -21.37482</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        RAP2-7        RAP2-9 RARA.MA0729.1 RARA.MA0730.1 RARA::RXRA RARA::RXRG</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.056921 -2.836815e+01 -3.402824e+36     -28.04233  -19.75431  -22.42781</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RARB      RARG RAV1.MA0582.1 RAV1.MA0583.1      RAV2       RAX</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.25541 -16.43525    -12.129235    -11.436868 -6.561088 -8.317517</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          RARB      RARG RAV1.MA0582.1 RAV1.MA0583.1          RAV2       RAX</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.22649 -18.24800    -12.688891    -11.887340 -3.402824e+36 -8.861676</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RAX2      RAX3      RBPJ       RDR1      RDS1      RDS2      REB1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.856435 -15.62313 -9.040589  -6.960285 -1.174458 -2.953596 -17.49701</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          RAX2          RAX3       RBPJ          RDR1          RDS1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.947624 -3.402824e+36 -10.731165 -3.402824e+36 -1.006037e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           REF6      REI1        REL       RELA       RELB      REST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.680499 -3.438544  -7.859078  -8.962341  -7.997979 -29.10317</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              RDS2      REB1       REF6          REI1        REL          RELA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.022572e+00 -18.95553  -9.467296 -3.653996e+00  -8.851718 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     RFX1.MA0365.1 RFX1.MA0509.3      RFX2      RFX3      RFX4      RFX5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -6.744533     -23.88006 -23.47494 -23.98292 -25.92848 -24.09351</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           RELB      REST RFX1.MA0365.1 RFX1.MA0509.3      RFX2      RFX3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.215479 -31.33685 -3.402824e+36     -46.20408 -30.30395 -33.67599</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RFX7       RGM1       RGT1    RHOXF1    RIM101       RIN      RLM1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.427792 -0.3030123 -10.817103 -5.650403 -5.876675 -14.96298 -27.32465</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          RFX4      RFX5      RFX7          RGM1      RGT1    RHOXF1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -32.07232 -28.20683 -7.974102 -3.856625e-01 -11.37061 -5.889419</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RME1 RORA.MA0071.1 RORA.MA0072.1       RORB      RORC       ROX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.868665    -10.423950     -19.55346 -10.750957 -11.99848  -9.712320</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            RIM101       RIN          RLM1       RME1 RORA.MA0071.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -15.00383 -3.402824e+36  -6.839666 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RPH1      RPN4     RREB1      RSC3      RSC30      RTG3     RUNX2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.940658 -5.379794 -28.70680 -5.290536  -6.354127 -21.49670 -8.990587</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     RORA.MA0072.1       RORB      RORC          ROX1          RPH1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -11.170568 -12.40124 -9.614450e+00 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RUNX3      RVE1       RVE4      RVE5      RVE6      RVE7     RVE7L</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.327183 -18.54642 -12.594536 -13.93940 -14.08102 -16.19900 -20.22986</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              RPN4         RREB1          RSC3         RSC30      RTG3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -6.436402e+00 -6.629000e+00 -21.73076</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          RVE8 RXRA::VDR RXRB.MA0855.1 RXRB.MA1555.1 RXRG.MA0856.1 RXRG.MA1556.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.93738 -22.14702     -22.69087     -15.91274     -22.42336     -16.74147</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          RUNX2      RUNX3          RVE1          RVE4          RVE5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.622701 -12.917811 -3.402824e+36 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Rarb.MA0857.1 Rarb.MA0858.1 Rarg.MA0859.1 Rarg.MA0860.1       Rax     Rbpjl</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -27.08138     -26.90248     -25.37250     -24.97618 -21.75319 -14.94201</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              RVE6          RVE7         RVE7L          RVE8     RXRA::VDR</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -3.402824e+36 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Rel       Rfx6    Rhox11     Runx1        Rx      Rxra      SATB1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.11860 -14.708407 -17.48948 -9.051776 -4.464648 -22.05621 -14.215709</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     RXRB.MA0855.1 RXRB.MA1555.1 RXRG.MA0856.1 RXRG.MA1556.1 Rarb.MA0857.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -30.66261     -17.39403     -30.94138     -20.42216     -43.69353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         SCRT1     SCRT2      SEP1       SEP3      SFL1      SFP1      SGR5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.21789 -17.32488 -18.01929  -6.892150 -23.49268 -25.95987 -18.80894</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Rarb.MA0858.1 Rarg.MA0859.1 Rarg.MA0860.1       Rax     Rbpjl       Rel</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -41.27509     -41.29897     -47.90405 -21.87934 -15.37979 -21.62889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SHOX      SIP4       SIX1      SIX2      SIZF2       SKN7      SKO1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.128469 -3.035100  -8.779025 -13.15457 -10.423449 -1.7684987 -19.27706</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Rfx6    Rhox11     Runx1            Rx      Rxra     SATB1     SCRT1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.37650 -17.80419 -9.101326 -3.402824e+36 -28.57026 -15.80266 -17.49709</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         SMAD2      SMAD3      SMAD5        SMB       SMZ     SNAI1     SNAI2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.896832 -10.473506 -10.753341  -8.465372 -5.321118 -8.594460 -13.99732</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         SCRT2          SEP1       SEP3      SFL1      SFP1      SGR5      SHOX</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.80440 -1.824201e+01  -6.804296 -23.66115 -26.61537 -21.52504 -5.314338</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SNAI3      SNT2      SOC1     SOHLH2       SOK2      SOL1      SOX10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.820141 -14.09429 -13.08810  -7.414179  -8.314540 -19.65014  -9.137030</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              SIP4       SIX1      SIX2      SIZF2          SKN7      SKO1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.985882e+00  -9.217055 -13.17303 -11.579115 -1.771339e+00 -20.19122</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SOX12      SOX13      SOX14     SOX15     SOX18       SOX2     SOX21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.135693 -11.227721 -10.739970 -8.964162 -5.355062 -10.717232 -23.96769</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          SMAD2     SMAD3      SMAD5        SMB           SMZ      SNAI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.058455 -19.20471 -13.846664  -8.420567 -3.402824e+36  -9.070413</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SOX4      SOX8      SOX9        SP1        SP2       SP3        SP4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.333410 -8.676685 -7.874604  -5.465377  -4.606037 -13.07687  -5.573233</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         SNAI2     SNAI3          SNT2      SOC1     SOHLH2       SOK2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.06826 -10.78399 -3.402824e+36 -13.29341  -8.041791  -8.265055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           SP5        SP8        SP9     SPDEF      SPIB      SPIC      SPL1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.351723 -11.058483 -10.802415 -10.52033 -15.43391 -12.42826 -13.91066</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              SOL1      SOX10      SOX12      SOX13      SOX14     SOX15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36  -9.604980 -13.051947 -12.107099 -11.746221 -9.617316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         SPL10     SPL11     SPL12    SPL13A     SPL14     SPL15      SPL3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.744237 -14.09632 -6.490048 -11.95255 -13.03780 -17.20732 -11.54862</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         SOX18       SOX2     SOX21       SOX4      SOX8      SOX9        SP1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.494143 -11.302159 -33.02958 -10.465219 -9.008202 -8.287009  -7.625558</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SPL4      SPL5      SPL7      SPL8      SPL9       SPT     SPT15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.961089 -15.08635 -6.330916 -17.34443 -11.24732 -5.615428 -28.80505</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            SP2       SP3        SP4        SP5        SP8       SP9     SPDEF</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -4.773263 -15.24514  -7.740177  -8.291956 -11.554317 -11.32662 -11.01281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SPT2     SPT23      SRD1 SREBF1.MA0595.1 SREBF1.MA0829.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.921227 -6.578572 -5.502389       -9.716613       -13.78539</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          SPIB      SPIC      SPL1      SPL10         SPL11     SPL12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.64558 -13.81092 -14.65754 -10.642753 -3.402824e+36 -6.921699</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     SREBF2.MA0596.1 SREBF2.MA0828.2       SRF      SRM1       SRY      STAT1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -9.578509       -17.69189 -16.32708 -16.96197 -5.727211 -12.134811</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            SPL13A         SPL14         SPL15      SPL3      SPL4          SPL5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -2.506232e+01 -13.00794 -7.077577 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     STAT1::STAT2      STAT3      STB3      STB4      STB5     STE12      STP1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1    -14.37480 -10.934057 -24.29851 -7.527923 -5.945079 -4.928882 -3.944841</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          SPL7          SPL8      SPL9        SPT     SPT15       SPT2     SPT23</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.631455 -3.402824e+36 -12.05052  -5.665847 -30.90392 -10.475973 -7.306494</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          STP2       STP3       STP4      SUM1      SUT1      SUT2       SVP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.99605 -10.789127 -10.487369 -8.851944 -2.723702 -23.46008 -22.08561</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          SRD1 SREBF1.MA0595.1 SREBF1.MA0829.2 SREBF2.MA0596.1 SREBF2.MA0828.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.647063   -3.402824e+36       -14.28207   -3.402824e+36       -24.90863</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          SWI4      SWI5        Scr     Shox2      Six3    Six3/6 Six4.MA0204.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.499379 -8.071825 -4.9460688 -5.373452 -20.17221 -23.23656     -3.931878</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           SRF      SRM1       SRY     STAT1 STAT1::STAT2      STAT3      STB3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.32726 -18.49081 -5.668969 -16.18538    -14.69327 -11.755916 -24.64473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Six4.MA2001.1     Smad4     Snail      Sox1      Sox11     Sox17       Sox3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -8.813077 -6.619572 -21.96080 -22.96440  -8.902253 -13.75875 -11.070288</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              STB4          STB5     STE12       STP1      STP2          STP3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.297903e+00 -5.314898  -3.867554 -25.05758 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Sox5      Sox6     SoxB1     SoxB2      SoxC      SoxF      Spi1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.46294 -8.640052 -23.40216 -22.92522 -22.20010 -22.80415 -17.60498</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              STP4       SUM1      SUT1      SUT2       SVP          SWI4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -11.302723 -2.675653 -24.19771 -24.32039 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Spz1     StBRC1      Stat2     Stat4     Stat5a Stat5a::Stat5b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.767256  -9.024670 -13.666018 -14.86598 -11.049814      -8.623687</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              SWI5           Scr     Shox2      Six3    Six3/6 Six4.MA0204.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.402824e+36 -5.882638 -20.78533 -23.61024 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Stat5b     Stat6   Stat92E     Su(H) TAL1::TCF3        TB1      TBF1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.83973 -13.35710 -17.29000 -18.89712  -9.252558 -11.647168 -19.57376</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Six4.MA2001.1         Smad4     Snail          Sox1      Sox11     Sox17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -8.977763 -3.402824e+36 -22.31590 -2.737867e+01  -9.035236 -14.02818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           TBP       TBR1      TBS1      TBX1     TBX15      TBX18     TBX19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.31699 -10.822968 -4.627303 -7.094054 -7.771399 -12.194680 -24.80628</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Sox3      Sox5          Sox6     SoxB1     SoxB2      SoxC      SoxF</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.881380 -13.77938 -3.402824e+36 -23.85289 -23.50617 -22.32290 -23.32720</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           TBX2      TBX20      TBX21       TBX3      TBX4      TBX5      TBXT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.745564 -11.568014 -12.125090 -12.024869 -6.527128 -5.954288 -20.00982</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Spi1       Spz1     StBRC1      Stat2     Stat4     Stat5a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.92719 -15.417185  -9.506227 -14.209599 -17.90510 -11.364324</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TCF12      TCF21       TCF3      TCF4       TCF7    TCF7L1    TCF7L2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.983912  -9.952511  -8.636600 -11.97341  -9.028661 -12.89840 -14.05889</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Stat5a::Stat5b    Stat5b     Stat6   Stat92E         Su(H)    TAL1::TCF3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -8.637358 -14.96971 -13.29763 -17.84490 -3.402824e+36 -9.403488e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TCFL5      TCP1     TCP13     TCP14     TCP15      TCP16     TCP17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.611602 -39.02294 -14.31339 -28.79803 -24.44810  -9.394646 -10.17104</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               TB1      TBF1       TBP       TBR1       TBS1       TBX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -20.86097 -12.13229 -12.834044  -4.581888 -11.513881</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         TCP19      TCP2     TCP20     TCP21     TCP22      TCP23     TCP24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -9.161488 -9.001269 -24.37467 -17.74123 -16.48724  -7.893668 -12.70012</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TBX15      TBX18     TBX19       TBX2      TBX20      TBX21       TBX3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.577939 -12.576384 -25.32887 -11.353531 -14.028370 -14.164058 -14.958831</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TCP3       TCP4       TCP5       TCP7      TCP8      TCP9      TCX2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.40902  -6.990522  -8.588342 -12.930558 -7.156271 -28.60398 -20.13831</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TBX4      TBX5      TBXT      TCF12     TCF21       TCF3      TCF4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.254645 -6.251960 -20.72290  -9.122859 -10.15281  -8.716936 -12.39022</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TCX3      TCX6       TDA9      TEA1      TEAD1      TEAD2     TEAD3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.84900 -19.54555  -7.132442 -5.274516 -14.095102 -13.286948 -7.812788</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           TCF7    TCF7L1    TCF7L2      TCFL5          TCP1         TCP13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.227036 -14.17235 -14.62664  -7.826163 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TEAD4      TEC1       TEF      TEM1 TFAP2A.MA0003.4 TFAP2A.MA0810.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.879814 -5.789405 -14.44078 -7.290026       -12.60385       -9.755606</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             TCP14     TCP15         TCP16     TCP17      TCP19       TCP2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -26.13896 -1.025039e+01 -15.73308  -9.742431  -9.325287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TFAP2A.MA0872.1 TFAP2B.MA0811.1 TFAP2B.MA0812.1 TFAP2B.MA0813.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -11.20378       -10.32867       -8.311389      -11.993092</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         TCP20     TCP21     TCP22      TCP23         TCP24          TCP3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.02958 -22.44858 -20.69472  -9.407413 -2.427308e+01 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TFAP2C.MA0524.2 TFAP2C.MA0814.2 TFAP2C.MA0815.1     TFAP2E TFAP4.MA0691.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -10.14615      -11.759162       -12.14212  -8.727061      -8.554792</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           TCP4       TCP5       TCP7      TCP8      TCP9          TCX2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.292414 -12.035571 -19.243248 -7.416414 -37.07574 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     TFAP4.MA1570.1 TFAP4::ETV1 TFAP4::FLI1      TFCP2     TFDP1      TFE3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -8.413199   -19.23501   -23.03034 -10.662060 -10.65188 -10.54577</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TCX3          TCX6          TDA9          TEA1      TEAD1      TEAD2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.82517 -3.402824e+36 -3.402824e+36 -5.760353e+00 -14.969744 -14.049520</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           TFEB      TFEC TFLG2-Zm00001d042777       TGA1     TGA10     TGA1A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.098027 -10.15963            -14.55412 -10.902926 -16.52205 -4.120300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TEAD3      TEAD4          TEC1       TEF          TEM1 TFAP2A.MA0003.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.489580 -12.581752 -1.409522e+01 -17.27733 -3.402824e+36       -13.03181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TGA2      TGA3       TGA4      TGA5      TGA6      TGA7       TGA9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.51595 -15.06168 -10.404275 -15.70359 -14.87202 -16.07313 -10.631717</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     TFAP2A.MA0810.1 TFAP2A.MA0872.1 TFAP2B.MA0811.1 TFAP2B.MA0812.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1       -9.752337   -1.136911e+01       -10.46038      -10.204363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         TGIF1     TGIF2   TGIF2LX    TGIF2LY      THAP1      THI2      THRA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.00563 -15.49512 -13.12658 -12.549506  -8.459185 -22.09380 -30.68407</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     TFAP2B.MA0813.1 TFAP2C.MA0524.2 TFAP2C.MA0814.2 TFAP2C.MA0815.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1   -1.291035e+01       -10.24478      -12.105779   -1.308276e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     THRB.MA1574.1 THRB.MA1575.1 THRB.MA1576.1      TINY      TLX2      TOD6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -17.89617     -21.88432     -23.46629 -17.05555 -5.983303 -21.61857</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            TFAP2E TFAP4.MA0691.1 TFAP4.MA1570.1 TFAP4::ETV1   TFAP4::FLI1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36     -17.715092  -1.009087e+01   -20.18882 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TOS8      TP53      TP63      TP73       TRB1      TRB2     TREE1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.589271 -22.13402 -25.17628 -23.25005 -12.052925 -20.20722 -7.933706</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TFCP2     TFDP1      TFE3       TFEB      TFEC TFLG2-Zm00001d042777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.697064 -11.24155 -13.18441  -8.455732 -10.57938            -15.41768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          TRP1      TRP2      TRP5      TRPS1      TSAR1      TSAR2      TSO1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -36.18354 -30.42633 -6.431841 -12.710785  -6.736176  -6.136655 -19.02899</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              TGA1     TGA10     TGA1A      TGA2      TGA3       TGA4      TGA5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -23.99641 -4.192052 -18.83023 -26.68567 -14.322135 -17.05773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         TWIST1      TYE7    Tbox-a    Tbox-b Tbx15/18/22    Tbx2/3       Tbx6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.484856 -4.446386 -25.92056 -26.12193   -26.54603 -23.80118 -12.304132</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TGA6      TGA7       TGA9     TGIF1     TGIF2   TGIF2LX   TGIF2LY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.22953 -18.38395 -14.357747 -28.09931 -17.51382 -13.93289 -13.12142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Tcf12      Tcf21 Tcf3-4-12   Tfcp2l1    Thap11       Tlx        Trl</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.578236 -17.066551 -22.70976 -15.69169 -18.79532 -21.87816 -10.036035</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         THAP1          THI2      THRA THRB.MA1574.1 THRB.MA1575.1 THRB.MA1576.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.42830 -3.402824e+36 -31.76930     -18.50503     -27.39195 -3.153880e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Twist2      UGA3      UME6      UNCX     UNE10      UPC2       URC2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.463709 -5.261737 -15.63586 -5.066865 -5.331392 -5.691506  -9.795383</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              TINY          TLX2      TOD6          TOS8      TP53          TP63</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.186948e+01 -1.002992e+01 -21.69419 -6.017746e+00 -26.19339 -3.402824e+36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TP73       TRB1          TRB2     TREE1      TRP1      TRP2      TRP5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -25.01199 -13.251259 -3.402824e+36 -7.817894 -47.20182 -44.70152 -6.311864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          TRPS1      TSAR1      TSAR2          TSO1     TWIST1          TYE7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.255047  -7.025170  -6.132691 -3.402824e+36 -12.880190 -6.177252e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Tbox-a    Tbox-b Tbx15/18/22    Tbx2/3       Tbx6      Tcf12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.34730 -26.54165   -27.14396 -24.53790 -12.943460 -13.650033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Tcf21 Tcf3-4-12   Tfcp2l1    Thap11       Tlx        Trl     Twist2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.575359e+01 -22.97263 -16.51330 -20.71114 -22.01480 -10.708935 -13.959377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              UGA3      UME6      UNCX         UNE10      UPC2          URC2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.357715e+00 -15.91651 -5.193350 -3.402824e+36 -7.082588 -3.402824e+36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          USF1      USF2      USV1           Ubx    Uncx-b       Usf      VAX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.43412 -16.65577 -25.73057 -5.103573e+00 -21.95272 -22.27149 -5.211549</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          USF1      USF2      USV1       Ubx    Uncx-b       Usf      VAX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.07985 -13.19966 -23.52140 -4.933546 -21.77805 -22.00809 -5.068930</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          VAX2     VENTX      VEZF1       VIP1      VSX1      VSX2        Vdr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.907730 -8.764030 -11.406584 -16.926815 -5.566508 -5.596797 -11.065751</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.824667 -7.404189  -9.184659 -15.741112 -5.193454 -5.085812 -10.577803</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Vsx1          Vsx2      WIN1         WRKY1    WRKY11    WRKY12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.382756e+00 -3.402824e+36 -7.442577 -3.402824e+36 -21.04051 -6.341718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Vsx1      Vsx2      WIN1      WRKY1    WRKY11    WRKY12     WRKY14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.619092 -7.524576 -7.428229 -12.456891 -15.76757 -5.929681 -14.621140</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY14    WRKY15        WRKY17     WRKY18         WRKY2     WRKY20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -19.00751 -1.954186e+01 -12.434710 -3.402824e+36 -22.746382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        WRKY15    WRKY17    WRKY18     WRKY2     WRKY20    WRKY21     WRKY22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -18.06387 -15.52136 -9.868302 -6.804219 -15.559011 -23.19215 -14.258256</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        WRKY21        WRKY22     WRKY23        WRKY24    WRKY25        WRKY26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -33.77153 -3.402824e+36  -8.710965 -2.451731e+01 -19.68147 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        WRKY23    WRKY24    WRKY25     WRKY26    WRKY27     WRKY28     WRKY29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.444532 -15.05234 -18.32820 -15.056189 -14.21440 -10.325201 -11.112762</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY27     WRKY28     WRKY29         WRKY3    WRKY30    WRKY31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.906190e+01 -11.352295 -15.433754 -3.402824e+36 -17.10798 -22.32897</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         WRKY3    WRKY30    WRKY31     WRKY33    WRKY38     WRKY40    WRKY42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.69866 -15.71871 -21.30957 -11.639686 -5.863330 -10.239161 -25.06168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY33    WRKY38        WRKY40        WRKY42    WRKY43    WRKY45</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.248603 -3.402824e+36 -2.601288e+01 -7.482242 -18.31324</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        WRKY43    WRKY45     WRKY46    WRKY47    WRKY48    WRKY50    WRKY53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.472414 -16.32583 -12.979697 -16.62984 -8.063165 -14.18139 -6.988596</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY46    WRKY47    WRKY48    WRKY50    WRKY53        WRKY55</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -18.98248 -8.154733 -22.21666 -7.297213 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         WRKY55    WRKY57    WRKY59     WRKY6     WRKY60    WRKY62    WRKY63</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.639675 -8.196859 -12.37504 -22.43475 -11.620426 -6.098912 -6.649229</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        WRKY57        WRKY59         WRKY6        WRKY60     WRKY62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.328400 -1.671316e+01 -3.402824e+36 -3.402824e+36  -8.342283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         WRKY65     WRKY7    WRKY70     WRKY71    WRKY75     WRKY8       Wt1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.179604 -15.24540 -15.10212 -11.642677 -6.158353 -17.95872 -11.96611</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY63     WRKY65     WRKY7        WRKY70        WRKY71</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -19.470455 -21.01242 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     XBP1.MA0414.1 XBP1.MA0844.1      YAB4      YAP1      YAP3       YAP5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -5.616097     -14.02113 -18.43529 -26.32983 -6.807674 -2.4816508</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            WRKY75     WRKY8       Wt1 XBP1.MA0414.1 XBP1.MA0844.1      YAB4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -20.54871 -12.17680 -3.402824e+36     -14.32698 -20.09376</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          YAP6       YAP7   YER130C   YER184C   YGR067C       YHP1   YKL222C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -22.85768 -10.735050 -6.854662 -6.380764 -13.96670 -3.3638537 -6.694502</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          YAP1          YAP3       YAP5      YAP6       YAP7       YER130C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -28.36900 -3.402824e+36 -2.6344671 -23.04108 -16.386328 -7.460796e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       YLL054C   YLR278C   YNR063W      YOX1   YPR013C   YPR015C   YPR022C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.133950 -5.048769 -7.284286 -6.912766 -6.700744 -25.44197 -5.484540</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           YER184C   YGR067C          YHP1       YKL222C       YLL054C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.978685e+00 -15.08510 -3.402824e+36 -6.874275e+00 -9.617757e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       YPR196W      YRM1       YRR1     YY1-2        YY2        Yy1      ZAP1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.093193 -6.543268  -9.422548 -26.21810  -8.683128  -7.904765 -21.45159</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           YLR278C       YNR063W          YOX1       YPR013C   YPR015C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.213595e+00 -3.402824e+36 -3.402824e+36 -6.829314e+00 -28.12137</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          ZAT10       ZAT6     ZBED1     ZBED2     ZBTB12    ZBTB14     ZBTB18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.064705 -12.633402 -19.61495 -14.63581  -9.830159  -8.89457 -15.662132</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           YPR022C    YPR196W      YRM1       YRR1     YY1-2        YY2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36  -6.218502 -7.291002  -9.482203 -26.83319  -8.826026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZBTB26     ZBTB32    ZBTB33     ZBTB6    ZBTB7A     ZBTB7B     ZBTB7C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.09971 -12.342234 -17.45498 -11.63835 -12.70089 -13.418921 -11.622002</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Yy1          ZAP1      ZAT10       ZAT6     ZBED1     ZBED2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.739655 -3.402824e+36 -10.477966 -13.308326 -26.26655 -15.06364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ZEB1     ZFP14     ZFP42     ZFP57       ZHD1     ZHD10       ZHD3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.928423 -12.04853 -24.19946 -14.37212 -13.117353 -9.755834 -16.110491</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         ZBTB12     ZBTB14     ZBTB18    ZBTB26    ZBTB32    ZBTB33     ZBTB6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.191599  -8.823833 -17.107004 -14.57516 -18.92038 -17.97308 -11.81042</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           ZHD5      ZHD6      ZHD9      ZIC1      ZIC4      ZIC5      ZIM3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.470381 -16.88879 -16.18722 -19.06069 -17.62792 -21.62237 -18.13542</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZBTB7A    ZBTB7B     ZBTB7C      ZEB1     ZFP14     ZFP42     ZFP57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.98799 -17.76383 -11.920160 -10.52854 -11.88788 -24.93093 -16.12028</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZKSCAN1   ZKSCAN3   ZKSCAN5       ZMS1    ZNF135    ZNF136    ZNF140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.523610 -24.46753 -14.19886  -6.073023 -15.96060 -17.83813 -30.00465</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ZHD1         ZHD10       ZHD3       ZHD5      ZHD6       ZHD9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.347123 -3.402824e+36 -18.796764 -11.551031 -21.28669 -18.105177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF143    ZNF148     ZNF16    ZNF189    ZNF211    ZNF214      ZNF24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.60809 -10.31715 -32.18838 -12.36009 -19.30939 -17.68610 -17.062822</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ZIC1      ZIC4      ZIC5      ZIM3    ZKSCAN1   ZKSCAN3   ZKSCAN5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -23.59877 -18.46326 -25.90623 -19.70362 -14.039089 -25.60475 -15.27404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ZNF257     ZNF263    ZNF274     ZNF281    ZNF282     ZNF317    ZNF320</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.654472 -10.849211 -19.92178 -10.993660 -21.28200 -11.862442 -34.18379</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              ZMS1    ZNF135    ZNF136    ZNF140    ZNF143    ZNF148     ZNF16</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.267514e+00 -17.72494 -18.67777 -33.03807 -38.26606 -10.79217 -33.81011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF324    ZNF331    ZNF341    ZNF343   ZNF354A   ZNF354C    ZNF382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -25.64236 -11.95134 -11.20671 -20.31002 -24.51521 -3.713219 -35.53799</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF189    ZNF211    ZNF214      ZNF24    ZNF257     ZNF263    ZNF274</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.78706 -21.37901 -18.87683 -18.695593 -13.91263 -11.262577 -21.33387</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ZNF384    ZNF410     ZNF416    ZNF417    ZNF418    ZNF449    ZNF454</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.873791 -27.10252  -8.885203 -18.22758 -17.50156 -14.23449 -21.93017</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF281    ZNF282     ZNF317    ZNF320    ZNF324    ZNF331     ZNF341</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.44319 -24.42413 -12.287700 -36.50378 -26.48227 -11.94880 -11.621281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF460    ZNF528    ZNF530     ZNF549    ZNF574    ZNF582    ZNF610</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -17.14161 -18.61633 -21.56303  -8.956040 -18.13194 -27.66820 -12.26509</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF343   ZNF354A       ZNF354C    ZNF382    ZNF384    ZNF410     ZNF416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -27.49774 -24.86190 -3.402824e+36 -38.74012 -16.19022 -37.85911  -9.429785</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ZNF652     ZNF667    ZNF669    ZNF675    ZNF680    ZNF682    ZNF684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.088605 -11.870439 -16.43462 -25.54975 -18.53592 -16.77931 -22.73145</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF417    ZNF418    ZNF449    ZNF454    ZNF460    ZNF528    ZNF530</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -21.73846 -19.10353 -14.70041 -23.44891 -18.71075 -20.77357 -23.09749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         ZNF692    ZNF701    ZNF707    ZNF708    ZNF740     ZNF75D     ZNF76</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.942177 -22.31271 -16.42878 -13.68284 -14.00021  -9.909624 -28.53625</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         ZNF549    ZNF574    ZNF582    ZNF610     ZNF652     ZNF667    ZNF669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -8.958082 -19.54531 -30.51387 -12.73816 -13.072098 -12.501935 -17.52631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF768     ZNF784      ZNF8    ZNF816     ZNF85     ZNF93    ZSCAN29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.66790 -11.894745 -28.73202 -19.12477 -15.61980 -17.66078 -11.686489</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF675    ZNF680    ZNF682    ZNF684     ZNF692    ZNF701    ZNF707</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.59113 -20.76781 -17.60460 -24.55058  -9.745271 -22.71947 -17.26189</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ZSCAN31    ZSCAN4     Zfp335       Zfx Zic1::Zic2      Zic2      Zic3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.25889 -18.30165  -9.085651 -15.29164 -11.802935 -15.01403 -13.84195</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF708    ZNF740    ZNF75D     ZNF76    ZNF768    ZNF784      ZNF8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -14.26237 -15.81204 -10.14637 -30.59101 -20.07011 -13.36066 -31.92978</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d002364 Zm00001d005692 Zm00001d005892 Zm00001d015407 Zm00001d018571</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -10.25955     -12.941717      -10.95611      -28.99943      -13.81359</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ZNF816     ZNF85     ZNF93   ZSCAN29   ZSCAN31    ZSCAN4     Zfp335</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.77176 -15.82596 -18.70312 -12.86941 -36.45190 -22.65198  -9.594729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d020267 Zm00001d020595 Zm00001d024324 Zm00001d027846 Zm00001d031796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -12.30426      -10.80916      -12.11655     -11.802562      -11.96949</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Zfx Zic1::Zic2      Zic2      Zic3 Zm00001d002364 Zm00001d005692</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -16.78004 -13.218730 -15.82635 -14.50929  -3.402824e+36     -13.866471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d034298 Zm00001d035604 Zm00001d038683 Zm00001d044409 Zm00001d044785</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -9.782520      -13.95531      -12.21149     -12.214423     -10.391736</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d005892 Zm00001d015407 Zm00001d018571 Zm00001d020267 Zm00001d020595</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -11.32133      -29.90231      -14.14394      -12.79124  -3.185653e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d049364 Zm00001d052229    Znf423     abd-A       abi4       achi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -16.80426      -8.519531 -17.95415 -3.896458  -8.402893 -2.0660782</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d024324 Zm00001d027846 Zm00001d031796 Zm00001d034298 Zm00001d035604</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -12.44691     -12.229652      -12.50035     -10.051803      -14.45657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            al        ap        ara      atf-7   bHLH130   bHLH145    bHLH18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.858398 -4.540771 -0.4311768  -8.770669 -10.18791 -12.17842 -19.84806</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Zm00001d038683 Zm00001d044409 Zm00001d044785 Zm00001d049364 Zm00001d052229</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1      -12.98910     -14.051810     -10.817840      -17.39710  -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        bHLH77    bHLH80    bZIP14   bZIP910   bZIP911       bap        bcd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -15.66772 -10.66365 -9.037688 -5.264236 -15.13614 -5.210208 -2.9401340</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Znf423     abd-A       abi4          achi            al</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -4.123888 -10.652579 -2.184518e+00 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         blmp-1 br.MA0010.1 br.MA0011.1 br.MA0012.1 br.MA0013.1       brk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.476682   -9.510454   -4.567707   -7.912227   -7.994325 -6.916490</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                ap        ara      atf-7       bHLH130   bHLH145    bHLH18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -0.4102341  -9.489356 -1.480075e+01 -12.18569 -22.26095</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            bsh        btd       btn        cad       caup    cebp-1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.5477042  -7.452864 -4.044435  -9.969175 -0.6200768 -11.79546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            bHLH77        bHLH80     bZIP14       bZIP910       bZIP911</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -1.609811e+01 -3.402824e+36  -9.476688 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ceh-10::ttx-3     ceh-22    ceh-28    ceh-38    ceh-48      ces-2     che-1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1     -15.90793 -10.002517 -12.43766 -21.55091 -6.920491  -9.760511 -3.662835</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               bap        bcd     blmp-1 br.MA0010.1 br.MA0011.1 br.MA0012.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -3.1863527  -7.402425   -9.293356   -4.559730   -7.781590</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cnc::maf-S     cre-1        ct    daf-12     daf-16 dl.MA0022.1 dl.MA0023.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -17.05177 -3.832781 -3.065290 -15.55536  -7.761951   -8.468653   -6.443079</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     br.MA0013.1           brk        bsh           btd       btn           cad</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -10.093549 -3.402824e+36 -3.7001734 -7.974455e+00 -4.296387 -1.003206e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       dmrt99B    dpy-27     dsc-1        dsx       dve     efl-1      elt-2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -20.17884 -18.87571 -7.841903 -10.230044 -6.090757 -17.49828 -11.427062</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            caup    cebp-1 ceh-10::ttx-3    ceh-22    ceh-28    ceh-38    ceh-48</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -0.63138258 -12.26996 -2.763636e+01 -10.41215 -20.39548 -25.20221 -6.987749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         elt-3     elt-6       ems         en     eor-1       eve       exd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -8.958152 -6.005401 -4.203285 -4.4118137 -14.83549 -3.999171 -6.374278</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          ces-2         che-1    cnc::maf-S     cre-1        ct        daf-12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.146842 -3.402824e+36 -3.402824e+36 -3.756752 -3.244177 -2.148950e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          exex        fkh     fkh-2     fkh-9     fos-1       ftz       gcm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.813901 -11.757285 -2.002811 -4.251130 -7.571834 -4.893739 -12.47670</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         daf-16   dl.MA0022.1   dl.MA0023.1   dmrt99B        dpy-27     dsc-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -7.574858 -1.005536e+01 -3.402824e+36 -21.15429 -3.402824e+36 -8.110563</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          gcm2       grh         gt          h        hb        hbn        hkb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.025166 -13.61374 -11.361400  -7.428543 -8.942668 -5.0980535  -9.806239</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            dsx           dve     efl-1      elt-2         elt-3     elt-6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.435671 -6.576514e+00 -18.83217 -16.375103 -3.402824e+36 -6.135457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         hlh-1    hlh-30        hth       ind       inv        kn       kni</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.22781 -11.57129 -1.3516834 -3.337909 -5.602289 -19.95738 -10.26631</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ems            en     eor-1       eve           exd          exex</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.767796 -5.717603e+00 -15.19972 -4.365926 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           lab large-Maf        lbe        lbl     lim-4     lim-7    lin-14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.088194 -21.04148 -2.2267311 -2.5360460 -6.337100 -9.245589 -1.344723</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               fkh         fkh-2     fkh-9     fos-1           ftz       gcm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -1.799520e+00 -4.195504 -9.954561 -3.402824e+36 -12.63446</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        lin-54        lms     mab-3     mab-5        mirr      mix-a     msl-1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -19.02970 -4.3025408 -17.04191 -5.937994 -0.47193906 -10.296783 -10.68285</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          gcm2       grh            gt          h         hb           hbn</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -6.432148 -14.15602 -3.402824e+36  -7.603054 -10.086954 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         msn-1   myb.Ph3      nhr-6      nit-4       nub     nuc-1         oc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.130167 -7.370039 -8.3621750  -9.308953 -12.49989 -4.361234 -2.7929423</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               hkb         hlh-1    hlh-30           hth           ind</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -1.915272e+01 -12.04925 -1.292768e+00 -3.490647e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            odd    onecut        opa       otp       ovo     pal-1       pan</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -13.553642 -3.365893 -13.608385 -4.539888 -8.516388 -5.318827 -15.75361</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               inv        kn           kni           lab large-Maf        lbe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -20.66531 -3.402824e+36 -3.402824e+36 -21.00263 -2.3300052</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            pb      pha-4        pho       pnr      pqm-1       prd      repo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.834831 -10.305964  -9.448254 -13.47481 -11.393536 -8.516388 -5.194725</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            lbl     lim-4     lim-7    lin-14    lin-54           lms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.7784414 -6.555071 -9.345457 -1.259713 -21.21972 -5.182323e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            ro       rst2   schlank         sd     skn-1      slbo       slou</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.244734  -7.171324 -5.931452 -11.228462 -17.21659 -3.583443 -4.4139757</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             mab-3     mab-5        mirr         mix-a     msl-1     msn-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.947004 -0.45266515 -3.402824e+36 -16.90897 -5.564811</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           slp1      sma-4 small-Maf       sna    snpc-4        so  squamosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -10.328889  -9.504236 -20.98296 -14.86617 -11.31851 -4.162184 -12.27278</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       myb.Ph3       nhr-6         nit-4           nub         nuc-1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -7.596044 -11.1312170 -1.065752e+01 -1.294172e+01 -4.645478e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        su(Hw)        sv        tin        tll        ttk       tup        twi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -26.80779 -24.59657  -9.484808 -10.608195  -5.106045 -3.582530  -8.871314</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                oc           odd        onecut           opa       otp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -2.944439e+00 -3.402824e+36 -3.336659e+00 -1.604665e+01 -5.549989</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        unc-30      unc-4     unc-62    unc-86      unpg        usp     vab-7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.871706 -4.8233438 -10.316213 -8.418869 -4.358808  -9.245385 -5.829192</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ovo     pal-1           pan            pb         pha-4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -6.491975 -3.402824e+36 -3.402824e+36 -3.402824e+36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            vfl        vis       vnd       vvl       wc-1         z       zen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -11.934834 -2.0130692 -7.839021 -2.510250  -6.957413 -6.465868 -4.970372</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            pho           pnr     pqm-1           prd          repo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1  -9.629251 -3.402824e+36 -12.41069 -3.402824e+36 -3.402824e+36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                ro       rst2   schlank         sd     skn-1      slbo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.822964e+00  -7.278584 -8.125552 -11.492016 -17.66188 -3.463764</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           slou       slp1      sma-4 small-Maf       sna    snpc-4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.2942958 -10.775672  -9.725101 -20.94432 -16.09878 -11.83622</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                so      squamosa    su(Hw)        sv           tin           tll</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -1.240568e+01 -28.82801 -28.84913 -3.402824e+36 -3.402824e+36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               ttk        tup        twi        unc-30         unc-4     unc-62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -5.002159e+00 -3.8422952  -9.080534 -6.134202e+00 -3.402824e+36 -10.407587</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         unc-86          unpg           usp     vab-7        vfl           vis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -12.941288 -5.157006e+00 -3.402824e+36 -6.413253 -13.155876 -2.079442e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               vnd        vvl          wc-1         z           zen      zen2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -2.6426837 -3.402824e+36 -6.339358 -3.402824e+36 -4.546001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             zfh-2     zip-8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -3.402824e+36 -13.91257</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          zen2      zfh-2     zip-8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1 -4.120689 -10.062160 -12.31258</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [ reached getOption("max.print") -- omitted 5 rows ]</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># for specific motifs</span></span></span>
+<span class="r-in"><span><span class="va">pwms_jaspar</span> <span class="op">&lt;-</span> <span class="fu">extract_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, motifs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"JASPAR.CDX1"</span>, <span class="st">"JASPAR.CDX2"</span><span class="op">)</span>, prior <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
