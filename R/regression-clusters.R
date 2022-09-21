@@ -11,7 +11,9 @@
 #' database motif predictions, and and 'db_dataset' which is similiar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
 #' Also, the match is done between the rsulting regression \emph{pssm} and the pssms in the databse - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
-#' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed.
+#' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
+#' environment before starting the parallelization, so it is better to run this function in a clean environment.
+#' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -79,6 +81,9 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
     if (use_sge) {
         if (!("misha.ext" %in% installed.packages())) {
             cli_abort("The {.field misha.ext} package is required when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
+        }
+        if (!("prego" %in% installed.packages())) {
+            cli_abort("The {.field prego} package needs to be installed when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/prego')}.")
         }
         cli_alert_info("Using SGE cluster")
         cmds <- paste0("regression_func(sequences, cluster_mat[, ", seq_len(ncol(cluster_mat)), "], match_with_db = match_with_db, parallel = parallel, ...)")

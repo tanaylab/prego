@@ -41,7 +41,9 @@ in the cluster (first number) and in the cluster (second number). If NULL -}
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
 
-\item{use_sge}{use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed.}
+\item{use_sge}{use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
+environment before starting the parallelization, so it is better to run this function in a clean environment.
+Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
