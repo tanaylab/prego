@@ -21,6 +21,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -93,37 +96,15 @@ would end at the end of the sequence.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">1032</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TTAAT*ATT***"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*AM**W*T"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8473</span>, p-value: <span style="color: #0000BB;">0</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pwm</span> <span class="op">&lt;-</span> <span class="fu">compute_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">res</span><span class="op">$</span><span class="va">pssm</span>, <span class="va">res</span><span class="op">$</span><span class="va">spat</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pwm</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -16.54865 -16.55741 -16.90154 -15.26242 -15.20133 -14.42843</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># this is similar to the prediction in the regression</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -16.54865 -16.55741 -16.90154 -15.26242 -15.20133 -14.42843</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

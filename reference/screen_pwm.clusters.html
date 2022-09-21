@@ -21,6 +21,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -121,24 +124,14 @@ with the name of best motif match for each cluster is returned (regardless of <c
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">D_mat</span> <span class="op">&lt;-</span> <span class="fu">screen_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">D_mat</span> <span class="op">&lt;-</span> <span class="fu">screen_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">D_mat</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 140   5</span>
 <span class="r-in"><span><span class="va">D_mat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> motif                  c111         c100          c29          c6           c5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Cdx2    0.751241616 1.681701e-03 0.0783135416 0.007102542 0.0015321757</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.EGL_5   0.495133438 8.740108e-02 0.1021322412 0.001941748 0.0009615899</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.ELT_3   0.004802341 5.136107e-04 0.0035294220 0.441225281 0.4028870622</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.GATA3_2 0.002747253 1.216475e-16 0.0005356186 0.555666238 0.5197909211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   HOMER.Gata1   0.004188668 1.216475e-16 0.0017168102 0.564832677 0.5661433750</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># return only the best match</span></span></span>
 <span class="r-in"><span><span class="fu">screen_pwm.clusters</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">clusters_example</span>, only_match <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  c111                  c100                   c29 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> "JOLMA.CDX1_mono_DBD"         "HOMER.HOXA2"        "JASPAR.HNF1A" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    c6                    c5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        "JASPAR.GATA5"         "HOMER.Gata2" </span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

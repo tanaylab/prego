@@ -21,6 +21,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -46,8 +49,7 @@
 <span>  <span class="va">reg</span>,</span>
 <span>  title <span class="op">=</span> <span class="fu">glue</span><span class="op">(</span><span class="st">"Motif regression results (consensus: {reg$consensus})"</span><span class="op">)</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span> </span>
-<span>    caption <span class="op">=</span> <span class="fu">glue</span><span class="op">(</span><span class="st">"# of 1: {sum(response == 1)}, # of 0: {sum(response == 0)}, seed: {reg$seed_motif}"</span><span class="op">)</span></span>
+<span>  caption <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -66,104 +68,16 @@
 
 
 <dt>caption</dt>
-<dd><p>a caption for the plot (optional)</p></dd>
+<dd><p>a caption for the plot (optional). When caption is NULL a default caption would be plotted.</p></dd>
 
 </dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span>, motif_num <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">3</span> motifs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running first regression</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">512</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***CTGATAAG****"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"GATA"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.5888</span>, p-value: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #2</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">180</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TGCTC*TCC***"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"A**TRCTC***C"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0236</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.154309069002672</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span> and <span style="color: #0000BB;">2</span>: <span style="color: #0000BB;">0.597772677601196</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.0089816317225323</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #3</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">183</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***AGGG*CCTC***"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Improve epsilon: <span style="color: #0000BB;">0.0001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Min nuc prob: <span style="color: #0000BB;">0.001</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"AGGG*CCTC"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0023</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0825770099776097</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, and <span style="color: #0000BB;">3</span>: <span style="color: #0000BB;">0.604052942210358</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.00628026460916142</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Best model: model #1 (score of <span style="color: #0000BB;">0.588791045878664</span>)</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="regress_pwm.html">regress_pwm</a></span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span>, motif_num <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plot_regression_qc_multi</span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`guides(&lt;scale&gt; = FALSE)` is deprecated. Please use `guides(&lt;scale&gt; = "none")` instead.</span>
-<span class="r-plt img"><img src="plot_regression_qc_multi-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

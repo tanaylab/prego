@@ -16,7 +16,22 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/HOMER_motifs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/JASPAR_motifs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/JOLMA_motifs.html</loc>
+  </url>
+  <url>
     <loc>/reference/all_motif_datasets.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cluster_mat_example.html</loc>
   </url>
   <url>
     <loc>/reference/compute_pwm.html</loc>
