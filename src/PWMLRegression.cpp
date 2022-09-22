@@ -13,8 +13,8 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                const string &score_metric)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
-      m_unif_prior(unif_prior), m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
-      m_imporve_epsilon(eps), m_score_metric(score_metric) {}
+      m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
+      m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric) {}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     m_rdim = stats.size();
