@@ -346,7 +346,7 @@ regress_pwm <- function(sequences,
     res$seed_motif <- motif
 
     if (is_binary_response(response)) {
-        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "greater"))
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "less"))
     }
 
     if (!is.null(kmers)) {
@@ -382,7 +382,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = ge
     reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
     reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
     if (is_binary_response(reg$response)) {
-        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = "greater"))
+        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = "less"))
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
     }
     return(reg)
