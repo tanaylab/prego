@@ -217,12 +217,6 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
         cli_abort("The regression result does not contain multiple motifs")
     }
 
-    if (is.null(caption)) {
-        caption <- glue("# of 1: {sum(response == 1)}, \\
-                        # of 0: {sum(response == 0)}, \\
-                        seed: {reg$seed_motif}")
-    }
-
     if (!is.null(reg$response)) {
         response <- reg$response
         if (!is.null(reg$sample_idxs)) {
@@ -232,6 +226,12 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
         response <- reg$models[[1]]$response
     } else {
         cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
+    }
+
+    if (is.null(caption)) {
+        caption <- glue("# of 1: {sum(response == 1)}, \\
+                        # of 0: {sum(response == 0)}, \\
+                        seed: {reg$seed_motif}")
     }
 
     models <- purrr::map(reg$models, ~ {
