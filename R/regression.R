@@ -287,7 +287,7 @@ regress_pwm <- function(sequences,
                 ))
             }
             cli_alert_info("Screening for kmers in order to initialize regression")
-            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor,...)
+            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
             if (length(motif) == 0) { # could not find any kmer
                 motif <- paste(rep("*", motif_length), collapse = "")
