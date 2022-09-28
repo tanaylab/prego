@@ -107,8 +107,8 @@ regress_multiple_motifs <- function(sequences,
             comb_scores <- c(comb_scores, ks_comb)
             scores <- c(scores, ks)
         } else {
-            r2 <- tgs_cor(e[[i]], r0)^2
-            r2_comb <- tgs_cor(e_comb, r0)^2
+            r2 <- cor(e[[i]], r0)^2
+            r2_comb <- cor(e_comb, r0)^2
             cli_alert_info("R2 for models {.val {1:i}}: {.val {r2_comb}}")
             cli_alert_info("Improvement in R2: {.val {r2_comb - comb_scores[i - 1]}}")
             comb_scores <- c(comb_scores, r2_comb)
