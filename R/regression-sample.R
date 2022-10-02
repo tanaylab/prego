@@ -74,7 +74,16 @@ regress_pwm.sample <- function(sequences,
 
     res$sample_idxs <- sample_idxs
 
+    # fill predictions for all the sequences
     res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+
+    if (motif_num > 1 && "models" %in% names(res)) {
+        res$models <- purrr::map(res$models, ~ {
+            .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+            .x
+        })
+    }
+
     if (include_response) {
         res$response <- response
     }
