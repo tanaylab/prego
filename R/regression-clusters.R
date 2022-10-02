@@ -92,7 +92,11 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
         ret_class <- purrr::map_chr(sge_res, ~ class(.x$retv))
         if (any(ret_class != "list")) {
             failed <- which(ret_class != "list")
-            cli_abort("The following regression jobs failed: {.val {failed}}.")
+            cli_warn("The following regression jobs failed: {.val {failed}}.")
+            for (i in failed) {
+                cli_alert_warning("Job {.val {i}} failed. Rerunning locally")
+                sge_res[[i]]$retv <- eval(parse(text = cmds[i]))
+            }
         }
         cluster_models <- purrr::map(sge_res, "retv")
     } else {

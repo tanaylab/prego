@@ -133,7 +133,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
 #'
 #' @export
 gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
-    if (!("misha" %in% utils::installed.packages())) {
+    if (!requireNamespace("misha", quietly = TRUE)) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
 
