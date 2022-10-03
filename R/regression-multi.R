@@ -1,4 +1,6 @@
 
+#' @export
+#' @rdname regress_pwm
 regress_multiple_motifs <- function(sequences,
                                     response,
                                     motif = NULL,
@@ -31,7 +33,9 @@ regress_multiple_motifs <- function(sequences,
                                     motif_dataset = all_motif_datasets(),
                                     parallel = getOption("prego.parallel", FALSE),
                                     ...) {
-
+    if (motif_num < 2) {
+        cli_abort("{.field motif_num} must be at least 2")
+    }
 
     # cli_alert_info("Running regression of {.val {motif_num}} motifs")
     regression_func <- purrr::partial(regress_pwm,
