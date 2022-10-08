@@ -215,6 +215,10 @@ regress_pwm <- function(sequences,
         cli_abort("The number of sequences and the number of rows in {.field response} do not match")
     }
 
+    if (any(is.na(sequences))) {
+        cli_abort("There are missing values in the sequences")
+    }
+
     n_in_train <- sum(is_train)
 
     if (is.null(spat_max)) {
@@ -431,6 +435,10 @@ regress_pwm.multi_kmers <- function(sequences,
 
     if (length(sequences) != nrow(response)) {
         cli_abort("The number of sequences and the number of rows in {.field response} do not match")
+    }
+
+    if (any(is.na(sequences))) {
+        cli_abort("There are missing values in the sequences")
     }
 
     regress_pwm_single_kmer <- purrr::partial(

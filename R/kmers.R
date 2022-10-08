@@ -66,6 +66,10 @@ screen_kmers <- function(sequences,
         cli_abort("The number of sequences and the number of rows in {.field response} do not match")
     }
 
+    if (any(is.na(sequences))) {
+        cli_abort("There are missing values in the sequences")
+    }
+
     if (length(kmer_length) > 1) {
         cli_abort("The {.field kmer_length} argument should be a single number. If you are want to run multiple kmer lengths, please set the {.field multi_kmers} to TRUE.")
     }
