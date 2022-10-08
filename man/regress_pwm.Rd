@@ -238,7 +238,7 @@ plot_regression_qc_multi(res_multi)
 res_multi2 <- regress_multiple_motifs(
     cluster_sequences_example,
     cluster_mat_example[, 1],
-    motif_num = 3,
+    motif_num = 5,
     match_with_db = TRUE
 )
 

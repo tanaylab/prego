@@ -48,6 +48,10 @@ regress_pwm.sample <- function(sequences,
         cli_abort("The number of sequences and the number of rows in {.field response} do not match")
     }
 
+    if (any(is.na(sequences))) {
+        cli_abort("There are missing values in the sequences")
+    }
+
     cli_alert_info("Performing sampled optimization")
     if (is.null(sample_idxs)) {
         sample_idxs <- sample_response(response, sample_frac, sample_ratio, seed)
