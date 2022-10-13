@@ -135,8 +135,8 @@ sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed
         samp_idx_0 <- sample(which(response[, 1] == 0), size = round(sample_frac[1] * sum(response[, 1] == 0)))
         samp_idx_1 <- sample(which(response[, 1] == 1), size = round(sample_frac[2] * sum(response[, 1] == 1)))
         sample_idxs <- c(samp_idx_0, samp_idx_1)
-    } else {
-        sample_idxs <- sample(seq_along(sequences), size = floor(sample_frac * length(sequences)))
+    } else {        
+        sample_idxs <- sample(1:nrow(response), size = floor(sample_frac * nrow(response)))
     }
 
     if (is_binary_response(response)) {
