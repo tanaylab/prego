@@ -500,7 +500,13 @@ regress_pwm.multi_kmers <- function(sequences,
 
     scores <- sapply(res_kmer_list, function(x) x$score)
 
-    res <- res_kmer_list[[which.max(scores)]]
+    if (length(which.max(scores)) == 0) {
+        cli_alert_warning("No motifs found")
+        res <- res_kmer_list[[1]]
+    } else {
+        res <- res_kmer_list[[which.max(scores)]]
+    }
+    
     res$kmers <- cand_kmers
 
     if (include_response) {
