@@ -9,11 +9,16 @@ regress_pwm.clusters(
   clusters,
   use_sample = TRUE,
   match_with_db = TRUE,
+  screen_db = FALSE,
   sample_frac = NULL,
   sample_ratio = 1,
   final_metric = "ks",
   parallel = getOption("prego.parallel", TRUE),
   use_sge = FALSE,
+  dataset = all_motif_datasets(),
+  motifs = NULL,
+  min_D = 0,
+  prior = 0.01,
   ...
 )
 }
@@ -26,9 +31,11 @@ regress_pwm.clusters(
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
 This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
-database motif predictions, and and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
+database motif predictions, and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
 Note that the closest match is returned, even if it is not similar enough in absolute terms.
-Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.}
+Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database set \code{screen_db=TRUE}.}
+
+\item{screen_db}{screen for the best motif in the database which explains the clusters. See \code{screen_pwm.clusters}.}
 
 \item{sample_frac}{a vector of two numbers, specifying the fraction of
 sequences to use in when sampling for the sequences which are not
@@ -44,6 +51,14 @@ to set the number of cores to use.}
 \item{use_sge}{use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 environment before starting the parallelization, so it is better to run this function in a clean environment.
 Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.}
+
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+
+\item{motifs}{names of specific motifs to extract from the dataset}
+
+\item{min_D}{minimum distance to consider a match}
+
+\item{prior}{a prior probability for each nucleotide.}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
@@ -105,6 +120,6 @@ plot_regression_qc(res$models[[1]], title = names(res$models)[1])
 # multiple motifs per cluster
 res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 res_multi$multi_stats
-plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
+plot_regression_qc_multi(res_multi$models[[1]], title = names(res_multi$models)[1])
 }
 }

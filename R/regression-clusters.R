@@ -8,9 +8,10 @@
 #' @param sample_ratio When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}.
 #' This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
-#' database motif predictions, and and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
+#' database motif predictions, and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
 #' Note that the closest match is returned, even if it is not similar enough in absolute terms.
-#' Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.
+#' Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database set \code{screen_db=TRUE}.
+#' @param screen_db screen for the best motif in the database which explains the clusters. See \code{screen_pwm.clusters}.
 #' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 #' environment before starting the parallelization, so it is better to run this function in a clean environment.
 #' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.
@@ -36,15 +37,16 @@
 #' # multiple motifs per cluster
 #' res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 #' res_multi$multi_stats
-#' plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
+#' plot_regression_qc_multi(res_multi$models[[1]], title = names(res_multi$models)[1])
 #' }
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
 #' @inheritDotParams regress_pwm.sample
+#' @inheritParams screen_pwm.clusters
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), use_sge = FALSE, ...) {
+regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, screen_db = FALSE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), use_sge = FALSE, dataset = all_motif_datasets(), motifs = NULL, min_D = 0, prior = 0.01, ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }
@@ -154,6 +156,13 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
             select(cluster, everything())
     }
 
+    if (screen_db) {
+        cli_alert_info("Screening motif databases for {.val {ncol(cluster_mat)}} clusters")
+        db_match <- screen_pwm.clusters(sequences, clusters, min_D = min_D, dataset = dataset, motifs = motifs, parallel = parallel, prior = prior)
+        db_match <- purrr::imap_dfr(db_match, ~ tibble(cluster = .y, ks_D_db = max(.x), db_motif = rownames(db_match)[which.max(.x)]))
+        res$stats <- res$stats %>% left_join(db_match, by = "cluster")
+    }
+
     return(res)
 }
 
@@ -211,5 +220,5 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     }
     res <- res[f, , drop = FALSE]
 
-    return(res)
+    return(as.data.frame(res))
 }

@@ -506,7 +506,7 @@ regress_pwm.multi_kmers <- function(sequences,
     } else {
         res <- res_kmer_list[[which.max(scores)]]
     }
-    
+
     res$kmers <- cand_kmers
 
     if (include_response) {
