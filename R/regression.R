@@ -4,7 +4,8 @@
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 #' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
+#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.
+#' @param init_from_dataset initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
@@ -92,6 +93,9 @@
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 #' plot_regression_qc(res_binary)
 #'
+#' # initialize with a motif from the database
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], init_from_dataset = TRUE)
+#'
 #' # use multiple kmer seeds
 #' res_multi <- regress_pwm(
 #'     cluster_sequences_example,
@@ -128,6 +132,7 @@ regress_pwm <- function(sequences,
                         response,
                         motif = NULL,
                         motif_length = 15,
+                        init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
                         spat_min = 0,
@@ -241,6 +246,13 @@ regress_pwm <- function(sequences,
     }
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    if (init_from_dataset) {
+        cli_alert_info("Initializing from dataset")
+        motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE)
+        motif <- get_motif_pssm(motif_name$motif)
+        cli_alert_info("Best motif from dataset: {.val {motif_name$motif}}")
+    }
 
     if (!is.null(motif) && multi_kmers) {
         cli_warn("Motif is provided, {.field multi_kmers} will be ignored")

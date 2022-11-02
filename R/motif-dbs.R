@@ -147,3 +147,20 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 
     return(cbind(intervals, as.data.frame(res)))
 }
+
+#' Extract pssm of sequences from a motif database
+#'
+#' @param motif name of the motif to extract from the dataset
+#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.
+#'
+#' @return a data frame with the pssm of the motif
+#'
+#' @examples
+#' get_motif_pssm("JASPAR.HNF1A")
+#'
+#' @export
+get_motif_pssm <- function(motif, dataset = all_motif_datasets()) {
+    dataset %>%
+        filter(motif == !!motif) %>%
+        select(pos, A, C, G, T)
+}
