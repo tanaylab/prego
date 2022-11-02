@@ -106,7 +106,12 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
         compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     }, .parallel = parallel)
 
-    res <- as.matrix(t(res))
+    if (is.null(dim(res))) {
+        res <- as.matrix(res)
+        colnames(res) <- dataset$motif[1]
+    } else {
+        res <- as.matrix(as.data.frame(t(res)))
+    }
 
     if (!is.null(names(sequences))) {
         rownames(res) <- names(sequences)

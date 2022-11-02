@@ -251,6 +251,7 @@ regress_pwm <- function(sequences,
         cli_alert_info("Initializing from dataset")
         motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE)
         motif <- get_motif_pssm(motif_name$motif)
+        motif <- pssm_add_prior(motif, prior = unif_prior)
         cli_alert_info("Best motif from dataset: {.val {motif_name$motif}}")
     }
 
