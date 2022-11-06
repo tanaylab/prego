@@ -85,7 +85,8 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
 
 void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_nuc_factors.resize(init_mot.size(), vector<float>('T' + 1));
-    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size + 1);
+
+    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size);
 
     m_is_wildcard.resize(init_mot.size(), false);
     m_bidirect = isbid;

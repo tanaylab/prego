@@ -38,7 +38,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -228,6 +228,18 @@ regress_pwm <- function(sequences,
 
     if (is.null(spat_max)) {
         spat_max <- nchar(sequences[1])
+    }
+
+    if (spat_min < 0) {
+        cli_abort("{.field spat_min} must be non-negative")
+    }
+
+    if ((spat_max > nchar(sequences[1])) | (spat_max < spat_min)) {
+        cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
+    }
+
+    if (as.integer((spat_max - spat_min) / spat_bin) != (spat_max - spat_min) / spat_bin) {
+        cli_abort("{.field spat_bin} must be a divisor of {.field spat_max} - {.field spat_min}")
     }
 
     if (!is.null(spat_model)) {
