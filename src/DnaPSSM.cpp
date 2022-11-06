@@ -832,7 +832,7 @@ void DnaPSSM::integrate_energy(const string &target, float &energy, vector<float
     }
     energy = -_REAL(MAX) / 100;
     int pos = 0;
-    for (string::const_iterator i = target.begin() + m_min_range; i < max_i; i++) {
+    for (string::const_iterator i = target.begin() + m_min_range; i <= max_i; i++) {
         int spat_bin = int(pos / spat_bin_size);
         pos++;
         string::const_iterator j = i;

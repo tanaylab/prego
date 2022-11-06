@@ -63,7 +63,8 @@ is returned, even if it is not similar enough in absolute terms.}
   \describe{
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.}
+    \item{\code{init_from_dataset}}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
     \item{\code{spat_bin}}{size of the spatial bin (in bp).}
@@ -92,7 +93,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}

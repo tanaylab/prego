@@ -108,12 +108,32 @@ pssm_to_mat <- function(pssm_df) {
         pssm_df <- pssm_df[, c("A", "C", "G", "T")]
         return(pssm_df)
     }
+
+    if (!is.null(rownames(pssm_df))) {
+        rownames(pssm_df) <- NULL
+    }
+
     pssm_df %>%
         arrange(as.numeric(pos)) %>%
         as.data.frame() %>%
         tibble::column_to_rownames("pos") %>%
         select(A, C, G, T) %>%
         as.matrix()
+}
+
+pssm_mat_to_df <- function(pss_mat) {
+    pssm_df <- as.data.frame(pss_mat)
+    pssm_df$pos <- rownames(pssm_df)
+    pssm_df <- pssm_df %>%
+        select(pos, A, C, G, T)
+    return(pssm_df)
+}
+
+pssm_add_prior <- function(pssm_df, prior) {
+    pssm_mat <- pssm_to_mat(pssm_df)
+    pssm_mat <- pssm_mat + prior
+    pssm_mat <- pssm_mat / rowSums(pssm_mat)
+    pssm_mat_to_df(pssm_mat)
 }
 
 #' Compute PSSM difference
