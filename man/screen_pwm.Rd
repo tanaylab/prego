@@ -29,6 +29,8 @@ screen_pwm(
 
 \item{parallel}{logical, whether to use parallel processing}
 
+\item{only_best}{return only the best motif (the one with the highest score). If FALSE, all the motifs will be returned.}
+
 \item{prior}{a prior probability for each nucleotide.}
 
 \item{...}{

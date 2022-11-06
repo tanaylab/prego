@@ -94,7 +94,11 @@
 #' plot_regression_qc(res_binary)
 #'
 #' # initialize with a motif from the database
-#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], init_from_dataset = TRUE)
+#' res_binary <- regress_pwm(
+#'     cluster_sequences_example,
+#'     cluster_mat_example[, 1],
+#'     init_from_dataset = TRUE
+#' )
 #'
 #' # use multiple kmer seeds
 #' res_multi <- regress_pwm(

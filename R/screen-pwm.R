@@ -3,6 +3,7 @@
 #' @param sequences a vector with the sequences
 #' @param response a vector of response variable for each sequence. If the response is a matrix, the average will be used.
 #' @param metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. If NULL - the default would be 'ks' for binary variables, and 'r2' for continuous variables.
+#' @param only_best return only the best motif (the one with the highest score). If FALSE, all the motifs will be returned.
 #'
 #'
 #' @inheritParams extract_pwm
