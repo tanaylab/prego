@@ -4,7 +4,8 @@
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 #' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
+#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.
+#' @param init_from_dataset initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
@@ -37,7 +38,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -92,6 +93,9 @@
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 #' plot_regression_qc(res_binary)
 #'
+#' # initialize with a motif from the database
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], init_from_dataset = TRUE)
+#'
 #' # use multiple kmer seeds
 #' res_multi <- regress_pwm(
 #'     cluster_sequences_example,
@@ -128,6 +132,7 @@ regress_pwm <- function(sequences,
                         response,
                         motif = NULL,
                         motif_length = 15,
+                        init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
                         spat_min = 0,
@@ -225,6 +230,18 @@ regress_pwm <- function(sequences,
         spat_max <- nchar(sequences[1])
     }
 
+    if (spat_min < 0) {
+        cli_abort("{.field spat_min} must be non-negative")
+    }
+
+    if ((spat_max > nchar(sequences[1])) | (spat_max < spat_min)) {
+        cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
+    }
+
+    if (as.integer((spat_max - spat_min) / spat_bin) != (spat_max - spat_min) / spat_bin) {
+        cli_abort("{.field spat_bin} must be a divisor of {.field spat_max} - {.field spat_min}")
+    }
+
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
             cli_abort("If {.field spat_model} is provided, {.field motif} must be a previously computed PSSM")
@@ -241,6 +258,14 @@ regress_pwm <- function(sequences,
     }
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    if (init_from_dataset) {
+        cli_alert_info("Initializing from dataset")
+        motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE)
+        motif <- get_motif_pssm(motif_name$motif)
+        motif <- pssm_add_prior(motif, prior = unif_prior)
+        cli_alert_info("Best motif from dataset: {.val {motif_name$motif}}")
+    }
 
     if (!is.null(motif) && multi_kmers) {
         cli_warn("Motif is provided, {.field multi_kmers} will be ignored")

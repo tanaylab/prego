@@ -171,10 +171,10 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' @param sequences a vector with the sequences
 #' @param clusters a vector with the cluster assignments
 #' @param min_D minimum distance to consider a match
-#' @param only_match if TRUE, only return the best match for each cluster
+#' @param only_best if TRUE, only return the best match for each cluster
 #'
 #' @return a matrix with the KS D statistics for each cluster (columns) and every motif (rows)
-#' that had at least one cluster with D >= min_D. If \code{only_match} is TRUE, a named vector
+#' that had at least one cluster with D >= min_D. If \code{only_best} is TRUE, a named vector
 #' with the name of best motif match for each cluster is returned (regardless of \code{min_D}).
 #'
 #' @examples
@@ -184,13 +184,13 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' D_mat[1:5, 1:5]
 #'
 #' # return only the best match
-#' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
+#' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_best = TRUE)
 #' }
 #'
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm
 #' @export
-screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, prior = 0.01, ...) {
+screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_best = FALSE, prior = 0.01, ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -207,7 +207,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     colnames(res) <- cluster_ids
     res <- as.matrix(res)
 
-    if (only_match) {
+    if (only_best) {
         best_match <- rownames(res)[apply(res, 2, which.max)]
         names(best_match) <- cluster_ids
         return(best_match)

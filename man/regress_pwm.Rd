@@ -45,6 +45,7 @@ regress_pwm(
   response,
   motif = NULL,
   motif_length = 15,
+  init_from_dataset = FALSE,
   score_metric = "r2",
   bidirect = TRUE,
   spat_min = 0,
@@ -82,7 +83,7 @@ regress_pwm(
 
 \item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.}
 
 \item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
 
@@ -150,12 +151,14 @@ to set the number of cores to use.}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
     \item{\code{return_mat}}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
   }}
+
+\item{init_from_dataset}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
 }
 \value{
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -212,6 +215,9 @@ plot_regression_qc(res_binary)
 # match with db
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 plot_regression_qc(res_binary)
+
+# initialize with a motif from the database
+res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], init_from_dataset = TRUE)
 
 # use multiple kmer seeds
 res_multi <- regress_pwm(

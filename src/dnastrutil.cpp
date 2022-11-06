@@ -815,6 +815,7 @@ int get_dinuc_code(string::const_iterator i)
 	}
 	return(cd);
 }
+
 int get_trinuc_code(string::const_iterator i)
 {
 	int cd = 0;

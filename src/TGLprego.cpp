@@ -110,6 +110,10 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         Rcpp::Rcerr << "into pwmlreg" << endl;
     }
 
+    if (float(int((smax - smin) / spat_bin)) != float((smax - smin)) / float(spat_bin)) {
+        Rcpp::stop("spat_bin must divide spat_max - spat_min");
+    }
+
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
                            improve_epsilon, 0.001, unif_prior, score_metric);
 
