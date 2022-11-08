@@ -156,6 +156,10 @@ would end at the end of the sequence.</p></dd>
 <dd><p>match the resulting PWMs with motif databases using <code>pssm_match</code>. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.</p></dd>
 
+    <dt><code>screen_db</code></dt>
+<dd><p>Screen <code>motif_dataset</code> using <code>screen_pwm</code> and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".</p></dd>
+
     <dt><code>motif_dataset</code></dt>
 <dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
 
@@ -163,7 +167,7 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <dd><p>if TRUE, different candidates of kmers would be regressed in order to find the best seed according to <code>final_metric</code>.</p></dd>
 
     <dt><code>final_metric</code></dt>
-<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.</p></dd>
+<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.</p></dd>
 
     <dt><code>kmer_length</code></dt>
 <dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>

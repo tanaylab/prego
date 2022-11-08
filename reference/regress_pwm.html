@@ -65,7 +65,7 @@
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  kmer_length <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  multi_kmers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  final_metric <span class="op">=</span> <span class="st">"r2"</span>,</span>
+<span>  final_metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_cands <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_gap <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -101,7 +101,7 @@
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  kmer_length <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  multi_kmers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  final_metric <span class="op">=</span> <span class="st">"r2"</span>,</span>
+<span>  final_metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_cands <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_gap <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -111,6 +111,7 @@
 <span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
 <span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  screen_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -199,7 +200,7 @@ would end at the end of the sequence.</p></dd>
 
 
 <dt>final_metric</dt>
-<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.</p></dd>
+<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.</p></dd>
 
 
 <dt>max_cands</dt>
@@ -267,6 +268,11 @@ to set the number of cores to use.</p></dd>
 <dt>init_from_dataset</dt>
 <dd><p>initialize the regression from the PSSM of the best motif in <code>motif_dataset</code>, using <code>final_metric</code> as the metric. If TRUE, the <code>motif</code> parameter would be ignored. See <code><a href="screen_pwm.html">screen_pwm</a></code> for more details.</p></dd>
 
+
+<dt>screen_db</dt>
+<dd><p>Screen <code>motif_dataset</code> using <code>screen_pwm</code> and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -288,6 +294,10 @@ to set the number of cores to use.</p></dd>
 <li><p>db_match_pred: The predicted PWM of the closest match in the motif database.</p></li>
 <li><p>db_match_r2: The \(r^2\) of the predicted PWM of the closest match in the motif database and the response</p></li>
 <li><p>db_match_ks: If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.</p></li>
+</ul><p>When <code>screen_db</code> is TRUE, the following additional elements are returned:</p><ul><li><p>db_motif: The best motif from the motif database.</p></li>
+<li><p>db_motif_pred: The predicted PWM of the best motif from the motif database.</p></li>
+<li><p>db_motif_pssm: The PSSM of the best motif from the motif database.</p></li>
+<li><p>db_motif_score: The score of the best motif from the motif database.</p></li>
 </ul><p>When <code>n_motifs</code> is greater than 1, the following additional elements are returned:</p><ul><li><p>models: A list (as above) of each inferred model</p></li>
 <li><p>multi_stats: A data frame with the following columns: <code>model</code>, <code>score</code> (KS for binary, r^2 otherwise), <code>comb_score</code> (score for the combined linear model for models 1:i) and additional statistics per model</p></li>
 </ul></div>
@@ -321,8 +331,16 @@ to set the number of cores to use.</p></dd>
 <span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, match_with_db <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Screen for best db motif</span></span></span>
+<span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, screen_db <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_binary</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># initialize with a motif from the database</span></span></span>
-<span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, init_from_dataset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res_binary</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">cluster_sequences_example</span>,</span></span>
+<span class="r-in"><span>    <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    init_from_dataset <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use multiple kmer seeds</span></span></span>
 <span class="r-in"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm</span><span class="op">(</span></span></span>
@@ -356,6 +374,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running first regression</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"ks"</span> as the final metric</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
@@ -383,6 +402,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #2</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"r2"</span> as the final metric</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
@@ -412,6 +432,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #3</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"r2"</span> as the final metric</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
@@ -441,6 +462,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #4</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"r2"</span> as the final metric</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
@@ -470,6 +492,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #5</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"r2"</span> as the final metric</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening for kmers in order to initialize regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>

@@ -59,8 +59,11 @@
 <span>  sample_ratio <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  screen_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
+<span>  final_metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  unif_prior <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -123,12 +126,25 @@ to set the number of cores to use.</p></dd>
 is returned, even if it is not similar enough in absolute terms.</p></dd>
 
 
+<dt>screen_db</dt>
+<dd><p>Screen <code>motif_dataset</code> using <code>screen_pwm</code> and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".</p></dd>
+
+
 <dt>motif_dataset</dt>
 <dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
 
 
 <dt>seed</dt>
 <dd><p>random seed</p></dd>
+
+
+<dt>final_metric</dt>
+<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.</p></dd>
+
+
+<dt>unif_prior</dt>
+<dd><p>uniform prior for nucleotide probabilities</p></dd>
 
 
 <dt>...</dt>
@@ -158,18 +174,12 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     <dt><code>min_nuc_prob</code></dt>
 <dd><p>minimum nucleotide probability in every iteration</p></dd>
 
-    <dt><code>unif_prior</code></dt>
-<dd><p>uniform prior for nucleotide probabilities</p></dd>
-
     <dt><code>verbose</code></dt>
 <dd><p>show verbose messages.</p></dd>
 
     <dt><code>consensus_single_thresh,consensus_double_thresh</code></dt>
 <dd><p>thresholds for the consensus sequence calculation
 (single and double nucleotides)</p></dd>
-
-    <dt><code>final_metric</code></dt>
-<dd><p>metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike <code>score_metric</code> which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.</p></dd>
 
     <dt><code>kmer_length</code></dt>
 <dd><p>a vector of kmer lengths to screen in order to find the best seed motif.</p></dd>
@@ -228,6 +238,10 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 <li><p>db_match_pred: The predicted PWM of the closest match in the motif database.</p></li>
 <li><p>db_match_r2: The \(r^2\) of the predicted PWM of the closest match in the motif database and the response</p></li>
 <li><p>db_match_ks: If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.</p></li>
+</ul><p>When <code>screen_db</code> is TRUE, the following additional elements are returned:</p><ul><li><p>db_motif: The best motif from the motif database.</p></li>
+<li><p>db_motif_pred: The predicted PWM of the best motif from the motif database.</p></li>
+<li><p>db_motif_pssm: The PSSM of the best motif from the motif database.</p></li>
+<li><p>db_motif_score: The score of the best motif from the motif database.</p></li>
 </ul><p>When <code>n_motifs</code> is greater than 1, the following additional elements are returned:</p><ul><li><p>models: A list (as above) of each inferred model</p></li>
 <li><p>multi_stats: A data frame with the following columns: <code>model</code>, <code>score</code> (KS for binary, r^2 otherwise), <code>comb_score</code> (score for the combined linear model for models 1:i) and additional statistics per model</p></li>
 </ul></div>
@@ -235,7 +249,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.sample</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, final_metric <span class="op">=</span> <span class="st">"ks"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">regress_pwm.sample</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, final_metric <span class="op">=</span> <span class="st">"ks"</span>, screen_db <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">pssm</span></span></span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">spat</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span></span>
