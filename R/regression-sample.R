@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")
+#' res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks", screen_db = TRUE)
 #' res$pssm
 #' res$spat
 #' head(res$pred)
@@ -36,8 +36,11 @@ regress_pwm.sample <- function(sequences,
                                sample_ratio = 1,
                                parallel = getOption("prego.parallel", TRUE),
                                match_with_db = FALSE,
+                               screen_db = FALSE,
                                motif_dataset = all_motif_datasets(),
                                seed = 60427,
+                               final_metric = NULL,
+                               unif_prior = 0.05,
                                ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -64,6 +67,7 @@ regress_pwm.sample <- function(sequences,
         sequences = sequences_s,
         response = response_s,
         bidirect = bidirect,
+        unif_prior = unif_prior,
         spat_min = spat_min,
         spat_max = spat_max,
         motif_num = motif_num,
@@ -72,6 +76,7 @@ regress_pwm.sample <- function(sequences,
         verbose = FALSE,
         match_with_db = FALSE,
         parallel = parallel,
+        final_metric = final_metric,
         seed = seed,
         ...
     )
@@ -100,6 +105,10 @@ regress_pwm.sample <- function(sequences,
 
     if (match_with_db) {
         res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+    }
+
+    if (screen_db) {
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
     }
 
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
