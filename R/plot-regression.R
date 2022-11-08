@@ -178,7 +178,7 @@ plot_regression_qc <- function(reg,
     p_match <- plot_pssm_logo_dataset(
         reg$db_match,
         all_motif_datasets(),
-        title = glue("Most similar to: {reg$db_match}"),
+        title = glue("Most similar to:\n{reg$db_match}"),
         subtitle = m_subtitle
     )
 
@@ -186,7 +186,7 @@ plot_regression_qc <- function(reg,
         p_db_logo <- plot_pssm_logo_dataset(
             reg$db_motif,
             all_motif_datasets(),
-            title = glue("Best motif in database: {reg$db_motif}"),
+            title = glue("Best motif in database:\n{reg$db_motif}"),
             subtitle = glue("score: {round(reg$db_motif_score, digits = 3)}")
         )
 
@@ -248,9 +248,6 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
 
     if (!is.null(reg$response)) {
         response <- reg$response
-        if (!is.null(reg$sample_idxs)) {
-            response <- response[reg$sample_idxs]
-        }
     } else if (!is.null(reg$models[[1]]$response)) {
         response <- reg$models[[1]]$response
     } else {
