@@ -39,6 +39,13 @@
 #' res_multi$multi_stats
 #' plot_regression_qc_multi(res_multi$models[[1]], title = names(res_multi$models)[1])
 #' }
+#'
+#' # screen also for the best motif in the database
+#' res_screen <- regress_pwm.clusters(cluster_sequences_example, clusters_example, screen_db = TRUE)
+#' res_screen$stats
+#'
+#' plot_regression_qc(res_screen$models[[1]], title = names(res_screen$models)[1])
+#'
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
 #' @inheritDotParams regress_pwm
@@ -161,6 +168,13 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
         db_match <- screen_pwm.clusters(sequences, clusters, min_D = min_D, dataset = dataset, motifs = motifs, parallel = parallel, prior = prior)
         db_match <- purrr::imap_dfr(db_match, ~ tibble(cluster = .y, ks_D_db = max(.x), db_motif = rownames(db_match)[which.max(.x)]))
         res$stats <- res$stats %>% left_join(db_match, by = "cluster")
+        for (clust in names(cluster_models)) {
+            motif <- res$stats$db_motif[res$stats$cluster == clust]
+            res$models[[clust]]$db_motif <- motif
+            res$models[[clust]]$db_motif_score <- res$stats$ks_D_db[res$stats$cluster == clust]
+            res$models[[clust]]$db_motif_pssm <- get_motif_pssm(motif)
+            res$models[[clust]]$db_motif_pred <- extract_pwm(sequences, motif, prior = prior)[, 1]
+        }
     }
 
     return(res)
