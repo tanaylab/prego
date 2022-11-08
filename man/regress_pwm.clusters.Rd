@@ -123,4 +123,11 @@ res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, m
 res_multi$multi_stats
 plot_regression_qc_multi(res_multi$models[[1]], title = names(res_multi$models)[1])
 }
+
+# screen also for the best motif in the database
+res_screen <- regress_pwm.clusters(cluster_sequences_example, clusters_example, screen_db = TRUE)
+res_screen$stats
+
+plot_regression_qc(res_screen$models[[1]], title = names(res_screen$models)[1])
+
 }
