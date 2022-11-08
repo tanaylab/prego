@@ -34,7 +34,7 @@ Plot QC of the regression results
 res <- regress_pwm(sequences_example, response_mat_example)
 plot_regression_qc(res)
 
-res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], screen_db = TRUE)
 plot_regression_qc(res_binary)
 }
 

@@ -43,7 +43,7 @@ in the cluster (first number) and in the cluster (second number). If NULL -}
 
 \item{sample_ratio}{When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.}
 
-\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
 
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}

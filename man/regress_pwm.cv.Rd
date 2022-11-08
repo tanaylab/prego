@@ -63,9 +63,11 @@ would end at the end of the sequence.}
 (single and double nucleotides)}
     \item{\code{match_with_db}}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.}
+    \item{\code{screen_db}}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
     \item{\code{motif_dataset}}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
     \item{\code{multi_kmers}}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
-    \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+    \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
     \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
     \item{\code{max_cands}}{maximum number of kmer candidates to try.}
     \item{\code{motif_num}}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
