@@ -10,7 +10,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks", screen_db = TRUE)
+#' res <- regress_pwm.sample(
+#'     cluster_sequences_example,
+#'     cluster_mat_example[, 1],
+#'     final_metric = "ks",
+#'     screen_db = TRUE
+#' )
+#'
 #' res$pssm
 #' res$spat
 #' head(res$pred)

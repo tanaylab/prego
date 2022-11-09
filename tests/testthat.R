@@ -9,4 +9,6 @@
 library(testthat)
 library(prego)
 
-test_check("prego")
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+    test_check("prego")
+}

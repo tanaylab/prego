@@ -19,9 +19,9 @@
 #' @export
 all_motif_datasets <- function() {
     dplyr::bind_rows(
-        HOMER_motifs %>% mutate(dataset = "HOMER"),
-        JASPAR_motifs %>% mutate(dataset = "JASPAR"),
-        JOLMA_motifs %>% mutate(dataset = "JOLMA")
+        prego::HOMER_motifs %>% mutate(dataset = "HOMER"),
+        prego::JASPAR_motifs %>% mutate(dataset = "JASPAR"),
+        prego::JOLMA_motifs %>% mutate(dataset = "JOLMA")
     ) %>%
         mutate(motif_orig = motif) %>%
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
