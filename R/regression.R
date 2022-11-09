@@ -496,6 +496,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     final_metric = "r2",
                                     parallel = getOption("prego.parallel", FALSE),
                                     match_with_db = FALSE,
+                                    screen_db = FALSE,
                                     motif_dataset = all_motif_datasets(),
                                     ...) {
     set.seed(seed)
@@ -585,6 +586,10 @@ regress_pwm.multi_kmers <- function(sequences,
 
     if (match_with_db) {
         res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+    }
+
+    if (screen_db) {
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
     }
 
     cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
