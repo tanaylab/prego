@@ -347,6 +347,7 @@ regress_pwm <- function(sequences,
                     final_metric = final_metric,
                     parallel = parallel,
                     match_with_db = match_with_db,
+                    screen_db = screen_db,
                     motif_dataset = motif_dataset,
                     ...
                 ))
