@@ -58,6 +58,7 @@ plot_regression_prediction <- function(pred, response, point_size = 0.5) {
 #'
 #' @param pred the 'pred' field from the regression result
 #' @param response the 'response' field from the regression result (the response variable). Should be binary (0/1).
+#' @param alternative parameter for ks.test (see `ks.test` documentation). Default `less` because we are biased towards activators that increase accessibility.
 #'
 #' @examples
 #' \dontrun{
@@ -66,7 +67,7 @@ plot_regression_prediction <- function(pred, response, point_size = 0.5) {
 #' }
 #'
 #' @export
-plot_regression_prediction_binary <- function(pred, response) {
+plot_regression_prediction_binary <- function(pred, response, alternative = "less") {
     if (!is_binary_response(response)) {
         cli_abort("Response is not binary")
     }
@@ -83,7 +84,7 @@ plot_regression_prediction_binary <- function(pred, response) {
     y1 <- cdf1(x0)
     # Because we inverted the CDF, we need to flip the hypothesis test
     # (alternative = 'less' instead of 'greater')
-    ks <- suppressWarnings(ks.test(pred_1, pred_0, alternative = "less"))
+    ks <- suppressWarnings(ks.test(pred_1, pred_0, alternative = alternative))
 
     tibble(response = factor(response), pred = pred) %>%
         ggplot(aes(x = pred, y = 1 - ..y.., color = response)) +

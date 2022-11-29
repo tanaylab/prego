@@ -21,6 +21,7 @@ regress_multiple_motifs <- function(sequences,
                                     kmer_length = 8,
                                     multi_kmers = FALSE,
                                     final_metric = "r2",
+                                    alternative = "two.sided",
                                     max_cands = 10,
                                     min_gap = 0,
                                     max_gap = 1,
@@ -50,6 +51,7 @@ regress_multiple_motifs <- function(sequences,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
         is_train = is_train,
+        alternative = alternative,
         multi_kmers = multi_kmers,
         include_response = include_response,
         seed = seed,
@@ -103,9 +105,9 @@ regress_multiple_motifs <- function(sequences,
         e_comb <- predict(model_comb, pred_df)
 
         if (is_binary_response(response)) {
-            ks <- suppressWarnings(ks.test(e[[i]][r0 == 1], e[[i]][r0 == 0], alternative = "less")$statistic)
+            ks <- suppressWarnings(ks.test(e[[i]][r0 == 1], e[[i]][r0 == 0], alternative = alternative)$statistic)
             cli_alert_info("KS statistic: {.val {ks}}")
-            ks_comb <- suppressWarnings(ks.test(e_comb[r0 == 1], e_comb[r0 == 0], alternative = "less")$statistic)
+            ks_comb <- suppressWarnings(ks.test(e_comb[r0 == 1], e_comb[r0 == 0], alternative = alternative)$statistic)
             cli_alert_info("KS test statistic for models {.val {1:i}}: {.val {ks_comb}}")
             cli_alert_info("Improvement in KS test statistic: {.val {ks_comb - comb_scores[i - 1]}}")
             comb_scores <- c(comb_scores, ks_comb)

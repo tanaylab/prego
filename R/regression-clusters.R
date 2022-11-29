@@ -163,6 +163,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' @param clusters a vector with the cluster assignments
 #' @param min_D minimum distance to consider a match
 #' @param only_match if TRUE, only return the best match for each cluster
+#' @param alternative parameter for ks.test (see `ks.test` documentation). Default `less` because we are biased towards activators that increase accessibility.
 #'
 #' @return a matrix with the KS D statistics for each cluster (columns) and every motif (rows)
 #' that had at least one cluster with D >= min_D. If \code{only_match} is TRUE, a named vector
@@ -174,14 +175,14 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' dim(D_mat)
 #' D_mat[1:5, 1:5]
 #'
-#' # return only the best match
+#' # return only the best matchs
 #' screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
 #' }
 #'
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm
 #' @export
-screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, prior = 0.01, ...) {
+screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, alternative = "less", parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_match = FALSE, prior = 0.01, ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -192,7 +193,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     res <- plyr::daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         purrr::map_dbl(cluster_ids, function(cl) {
-            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "less")$statistic)
+            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = alternative)$statistic)
         })
     }, .parallel = parallel)
     colnames(res) <- cluster_ids

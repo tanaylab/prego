@@ -4,12 +4,14 @@
 \alias{plot_regression_prediction_binary}
 \title{Plot the cumulative of the regression model's prediction stratified by the response variable}
 \usage{
-plot_regression_prediction_binary(pred, response)
+plot_regression_prediction_binary(pred, response, alternative = "less")
 }
 \arguments{
 \item{pred}{the 'pred' field from the regression result}
 
 \item{response}{the 'response' field from the regression result (the response variable). Should be binary (0/1).}
+
+\item{alternative}{parameter for ks.test (see \code{ks.test} documentation). Default \code{less} because we are biased towards activators that increase accessibility.}
 }
 \description{
 Plot the cumulative of the regression model's prediction stratified by the response variable

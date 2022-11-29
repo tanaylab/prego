@@ -9,6 +9,7 @@ screen_pwm.clusters(
   clusters,
   dataset = all_motif_datasets(),
   motifs = NULL,
+  alternative = "less",
   parallel = getOption("prego.parallel", TRUE),
   min_D = 0.4,
   only_match = FALSE,
@@ -24,6 +25,8 @@ screen_pwm.clusters(
 \item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
 
 \item{motifs}{names of specific motifs to extract from the dataset}
+
+\item{alternative}{parameter for ks.test (see \code{ks.test} documentation). Default \code{less} because we are biased towards activators that increase accessibility.}
 
 \item{parallel}{logical, whether to use parallel processing}
 
@@ -58,7 +61,7 @@ D_mat <- screen_pwm.clusters(cluster_sequences_example, clusters_example)
 dim(D_mat)
 D_mat[1:5, 1:5]
 
-# return only the best match
+# return only the best matchs
 screen_pwm.clusters(cluster_sequences_example, clusters_example, only_match = TRUE)
 }
 
