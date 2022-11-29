@@ -19,9 +19,9 @@
 #' @export
 all_motif_datasets <- function() {
     dplyr::bind_rows(
-        HOMER_motifs %>% mutate(dataset = "HOMER"),
-        JASPAR_motifs %>% mutate(dataset = "JASPAR"),
-        JOLMA_motifs %>% mutate(dataset = "JOLMA")
+        prego::HOMER_motifs %>% mutate(dataset = "HOMER"),
+        prego::JASPAR_motifs %>% mutate(dataset = "JASPAR"),
+        prego::JOLMA_motifs %>% mutate(dataset = "JOLMA")
     ) %>%
         mutate(motif_orig = motif) %>%
         tidyr::unite("motif", dataset, motif, sep = ".", remove = FALSE)
@@ -106,7 +106,12 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
         compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     }, .parallel = parallel)
 
-    res <- as.matrix(t(res))
+    if (is.null(dim(res))) {
+        res <- as.matrix(res)
+        colnames(res) <- dataset$motif[1]
+    } else {
+        res <- as.matrix(as.data.frame(t(res)))
+    }
 
     if (!is.null(names(sequences))) {
         rownames(res) <- names(sequences)
@@ -146,4 +151,21 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
     res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
     return(cbind(intervals, as.data.frame(res)))
+}
+
+#' Extract pssm of sequences from a motif database
+#'
+#' @param motif name of the motif to extract from the dataset
+#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.
+#'
+#' @return a data frame with the pssm of the motif
+#'
+#' @examples
+#' get_motif_pssm("JASPAR.HNF1A")
+#'
+#' @export
+get_motif_pssm <- function(motif, dataset = all_motif_datasets()) {
+    dataset %>%
+        filter(motif == !!motif) %>%
+        select(pos, A, C, G, T)
 }

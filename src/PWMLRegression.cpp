@@ -85,7 +85,8 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
 
 void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_nuc_factors.resize(init_mot.size(), vector<float>('T' + 1));
-    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size + 1);
+
+    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size);
 
     m_is_wildcard.resize(init_mot.size(), false);
     m_bidirect = isbid;
@@ -128,18 +129,11 @@ void PWMLRegression::init_pwm_spat(DnaPSSM &pwm, const vector<float>& spat_facto
     }
 }
 
-void PWMLRegression::init_pwm(DnaPSSM &pwm) {
-    Rcpp::Rcerr << "init pwm with size " << pwm.size() << endl;
-    m_nuc_factors.resize(pwm.size(), vector<float>('T' + 1));
-    Rcpp::Rcerr << "here1" << endl;
-    Rcpp::Rcerr << m_max_range << " " << m_min_range << " " << m_spat_bin_size << endl;
-    Rcpp::Rcerr << (m_max_range - m_min_range) / m_spat_bin_size + 1 << endl;
-    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size + 1);
-    Rcpp::Rcerr << "here2" << endl;
-    m_is_wildcard.resize(pwm.size(), false);
-    Rcpp::Rcerr << "here3" << endl;
-    m_bidirect = pwm.is_bidirect();
-    Rcpp::Rcerr << "here4" << endl;
+void PWMLRegression::init_pwm(DnaPSSM &pwm) {    
+    m_nuc_factors.resize(pwm.size(), vector<float>('T' + 1));        
+    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size + 1);    
+    m_is_wildcard.resize(pwm.size(), false);    
+    m_bidirect = pwm.is_bidirect();    
 
     for (int i = 0; i < pwm.size(); i++) {
         m_is_wildcard[i] = false;

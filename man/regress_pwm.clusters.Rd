@@ -9,11 +9,16 @@ regress_pwm.clusters(
   clusters,
   use_sample = TRUE,
   match_with_db = TRUE,
+  screen_db = FALSE,
   sample_frac = NULL,
   sample_ratio = 1,
   final_metric = "ks",
   parallel = getOption("prego.parallel", TRUE),
   use_sge = FALSE,
+  dataset = all_motif_datasets(),
+  motifs = NULL,
+  min_D = 0,
+  prior = 0.01,
   ...
 )
 }
@@ -26,9 +31,11 @@ regress_pwm.clusters(
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}.
 This would add a column named 'db_match' to the stats data frame, together with 'pred_mat_db' with the
-database motif predictions, and and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
+database motif predictions, and 'db_dataset' which is similar to 'motif_dataset' for the database motifs.
 Note that the closest match is returned, even if it is not similar enough in absolute terms.
-Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database which explain the clusters, use \code{screen_pwm.clusters}.}
+Also, the match is done between the resulting regression \emph{pssm} and the pssms in the database - in order to find the best motif in the database set \code{screen_db=TRUE}.}
+
+\item{screen_db}{screen for the best motif in the database which explains the clusters. See \code{screen_pwm.clusters}.}
 
 \item{sample_frac}{a vector of two numbers, specifying the fraction of
 sequences to use in when sampling for the sequences which are not
@@ -36,7 +43,7 @@ in the cluster (first number) and in the cluster (second number). If NULL -}
 
 \item{sample_ratio}{When \code{sample_frac} is NULL, the number of sequences not in the cluster would be equal to \code{sample_ratio} times the number of sequences in the cluster.}
 
-\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
+\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
 
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
@@ -45,13 +52,22 @@ to set the number of cores to use.}
 environment before starting the parallelization, so it is better to run this function in a clean environment.
 Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.}
 
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+
+\item{motifs}{names of specific motifs to extract from the dataset}
+
+\item{min_D}{minimum distance to consider a match}
+
+\item{prior}{a prior probability for each nucleotide.}
+
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}
   \describe{
     \item{\code{response}}{A matrix of response variables - number of rows should equal the number of sequences}
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.}
+    \item{\code{init_from_dataset}}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
@@ -105,6 +121,13 @@ plot_regression_qc(res$models[[1]], title = names(res$models)[1])
 # multiple motifs per cluster
 res_multi <- regress_pwm.clusters(cluster_sequences_example, clusters_example, motif_num = 3)
 res_multi$multi_stats
-plot_regression_qc_multi(res_multi$models[[1]], title = names(res$models)[1])
+plot_regression_qc_multi(res_multi$models[[1]], title = names(res_multi$models)[1])
 }
+
+# screen also for the best motif in the database
+res_screen <- regress_pwm.clusters(cluster_sequences_example, clusters_example, screen_db = TRUE)
+res_screen$stats
+
+plot_regression_qc(res_screen$models[[1]], title = names(res_screen$models)[1])
+
 }

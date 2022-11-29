@@ -21,7 +21,8 @@ reference:
   - plot_pssm_logo
   - plot_pssm_logo_dataset
   - all_motif_datasets
-  - screen_pwm.clusters
+  - starts_with("screen_pwm")
+  - get_motif_pssm
   - ends_with("motifs")  
 - title: other
   contents: 

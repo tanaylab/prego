@@ -18,8 +18,11 @@ regress_pwm.sample(
   sample_ratio = 1,
   parallel = getOption("prego.parallel", TRUE),
   match_with_db = FALSE,
+  screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
   seed = 60427,
+  final_metric = NULL,
+  unif_prior = 0.05,
   ...
 )
 }
@@ -54,27 +57,33 @@ to set the number of cores to use.}
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.}
 
+\item{screen_db}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
+
 \item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
 
 \item{seed}{random seed}
+
+\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
+
+\item{unif_prior}{uniform prior for nucleotide probabilities}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
     \item{\code{motif}}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.}
+If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.}
+    \item{\code{init_from_dataset}}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
     \item{\code{spat_bin}}{size of the spatial bin (in bp).}
     \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
-    \item{\code{unif_prior}}{uniform prior for nucleotide probabilities}
     \item{\code{verbose}}{show verbose messages.}
     \item{\code{consensus_single_thresh,consensus_double_thresh}}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
-    \item{\code{final_metric}}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.}
     \item{\code{kmer_length}}{a vector of kmer lengths to screen in order to find the best seed motif.}
     \item{\code{max_cands}}{maximum number of kmer candidates to try.}
     \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
@@ -92,7 +101,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -113,6 +122,14 @@ When \code{match_with_db} is TRUE, the following additional elements are returne
 \item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
 }
 
+When \code{screen_db} is TRUE, the following additional elements are returned:
+\itemize{
+\item{db_motif: }{The best motif from the motif database.}
+\item{db_motif_pred: }{The predicted PWM of the best motif from the motif database.}
+\item{db_motif_pssm: }{The PSSM of the best motif from the motif database.}
+\item{db_motif_score: }{The score of the best motif from the motif database.}
+}
+
 When \code{n_motifs} is greater than 1, the following additional elements are returned:
 \itemize{
 \item{models: }{A list (as above) of each inferred model}
@@ -124,7 +141,13 @@ The optimization would be performed with a sampled dataset of size \code{sample_
 }
 \examples{
 \dontrun{
-res <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")
+res <- regress_pwm.sample(
+    cluster_sequences_example,
+    cluster_mat_example[, 1],
+    final_metric = "ks",
+    screen_db = TRUE
+)
+
 res$pssm
 res$spat
 head(res$pred)

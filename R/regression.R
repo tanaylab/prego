@@ -4,7 +4,8 @@
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 #' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization.
+#' If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.
+#' @param init_from_dataset initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
@@ -23,9 +24,11 @@
 #' (single and double nucleotides)
 #' @param match_with_db match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 #' is returned, even if it is not similar enough in absolute terms.
+#' @param screen_db Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
+#' "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".
 #' @param motif_dataset  a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.
 #' @param multi_kmers if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.
-#' @param final_metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset.
+#' @param final_metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.
 #' @param kmer_length a vector of kmer lengths to screen in order to find the best seed motif.
 #' @param max_cands maximum number of kmer candidates to try.
 #' @param parallel whether to run optimization in parallel. use \code{set_parallel}
@@ -37,7 +40,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -56,6 +59,14 @@
 #' \item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
 #' \item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
 #' \item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
+#' }
+#'
+#' When \code{screen_db} is TRUE, the following additional elements are returned:
+#' \itemize{
+#' \item{db_motif: }{The best motif from the motif database.}
+#' \item{db_motif_pred: }{The predicted PWM of the best motif from the motif database.}
+#' \item{db_motif_pssm: }{The PSSM of the best motif from the motif database.}
+#' \item{db_motif_score: }{The score of the best motif from the motif database.}
 #' }
 #'
 #' When \code{n_motifs} is greater than 1, the following additional elements are returned:
@@ -91,6 +102,17 @@
 #' # match with db
 #' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], match_with_db = TRUE)
 #' plot_regression_qc(res_binary)
+#'
+#' # Screen for best db motif
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], screen_db = TRUE)
+#' plot_regression_qc(res_binary)
+#'
+#' # initialize with a motif from the database
+#' res_binary <- regress_pwm(
+#'     cluster_sequences_example,
+#'     cluster_mat_example[, 1],
+#'     init_from_dataset = TRUE
+#' )
 #'
 #' # use multiple kmer seeds
 #' res_multi <- regress_pwm(
@@ -128,6 +150,7 @@ regress_pwm <- function(sequences,
                         response,
                         motif = NULL,
                         motif_length = 15,
+                        init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
                         spat_min = 0,
@@ -143,7 +166,7 @@ regress_pwm <- function(sequences,
                         verbose = FALSE,
                         kmer_length = 8,
                         multi_kmers = FALSE,
-                        final_metric = "r2",
+                        final_metric = NULL,
                         max_cands = 10,
                         min_gap = 0,
                         max_gap = 1,
@@ -153,6 +176,7 @@ regress_pwm <- function(sequences,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
                         match_with_db = FALSE,
+                        screen_db = FALSE,
                         motif_dataset = all_motif_datasets(),
                         parallel = getOption("prego.parallel", FALSE),
                         ...) {
@@ -225,6 +249,18 @@ regress_pwm <- function(sequences,
         spat_max <- nchar(sequences[1])
     }
 
+    if (spat_min < 0) {
+        cli_abort("{.field spat_min} must be non-negative")
+    }
+
+    if ((spat_max > nchar(sequences[1])) | (spat_max < spat_min)) {
+        cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
+    }
+
+    if (as.integer((spat_max - spat_min) / spat_bin) != (spat_max - spat_min) / spat_bin) {
+        cli_abort("{.field spat_bin} must be a divisor of {.field spat_max} - {.field spat_min}")
+    }
+
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
             cli_abort("If {.field spat_model} is provided, {.field motif} must be a previously computed PSSM")
@@ -240,7 +276,24 @@ regress_pwm <- function(sequences,
         }
     }
 
+    if (is.null(final_metric)) {
+        if (is_binary_response(response)) {
+            final_metric <- "ks"
+        } else {
+            final_metric <- "r2"
+        }
+    }
+    cli_alert_info("Using {.val {final_metric}} as the final metric")
+
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    if (init_from_dataset) {
+        cli_alert_info("Initializing from dataset")
+        motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE)
+        motif <- get_motif_pssm(motif_name$motif)
+        motif <- pssm_add_prior(motif, prior = unif_prior)
+        cli_alert_info("Best motif from dataset: {.val {motif_name$motif}}")
+    }
 
     if (!is.null(motif) && multi_kmers) {
         cli_warn("Motif is provided, {.field multi_kmers} will be ignored")
@@ -294,6 +347,7 @@ regress_pwm <- function(sequences,
                     final_metric = final_metric,
                     parallel = parallel,
                     match_with_db = match_with_db,
+                    screen_db = screen_db,
                     motif_dataset = motif_dataset,
                     ...
                 ))
@@ -374,11 +428,28 @@ regress_pwm <- function(sequences,
         res <- add_regression_db_match(res, sequences, motif_dataset)
     }
 
+    if (screen_db) {
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
+    }
+
     if (is_binary_response(response)) {
         cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=4)}}, p-value: {.val {res$ks$p.value}}")
     } else {
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
+
+    return(res)
+}
+
+add_regression_db_screen <- function(res, response, sequences, motif_dataset, metric, prior, bidirect, parallel = getOption("prego.parallel", TRUE)) {
+    scr <- screen_pwm(sequences, response, motif_dataset, metric = metric, prior = prior, bidirect = bidirect, parallel = parallel, only_best = TRUE)
+
+    cli_alert_info("Best db motif: {.val {scr$motif[1]}}")
+    cli_alert_info("Best db motif score ({.val {metric}}): {.val {scr$score[1]}}")
+    res$db_motif <- scr$motif[1]
+    res$db_motif_pred <- extract_pwm(sequences, scr$motif[1], prior = prior, bidirect = bidirect)[, 1]
+    res$db_motif_pssm <- get_motif_pssm(scr$motif[1])
+    res$db_motif_score <- scr$score[1]
 
     return(res)
 }
@@ -426,6 +497,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     final_metric = "r2",
                                     parallel = getOption("prego.parallel", FALSE),
                                     match_with_db = FALSE,
+                                    screen_db = FALSE,
                                     motif_dataset = all_motif_datasets(),
                                     ...) {
     set.seed(seed)
@@ -500,7 +572,13 @@ regress_pwm.multi_kmers <- function(sequences,
 
     scores <- sapply(res_kmer_list, function(x) x$score)
 
-    res <- res_kmer_list[[which.max(scores)]]
+    if (length(which.max(scores)) == 0) {
+        cli_alert_warning("No motifs found")
+        res <- res_kmer_list[[1]]
+    } else {
+        res <- res_kmer_list[[which.max(scores)]]
+    }
+
     res$kmers <- cand_kmers
 
     if (include_response) {
@@ -509,6 +587,10 @@ regress_pwm.multi_kmers <- function(sequences,
 
     if (match_with_db) {
         res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+    }
+
+    if (screen_db) {
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
     }
 
     cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")

@@ -130,7 +130,7 @@ plot_regression_prediction_binary <- function(pred, response, alternative = "les
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_regression_qc(res)
 #'
-#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1], screen_db = TRUE)
 #' plot_regression_qc(res_binary)
 #' }
 #'
@@ -179,19 +179,48 @@ plot_regression_qc <- function(reg,
     p_match <- plot_pssm_logo_dataset(
         reg$db_match,
         all_motif_datasets(),
-        title = glue("Best match: {reg$db_match}"),
+        title = glue("Most similar to:\n{reg$db_match}"),
         subtitle = m_subtitle
     )
 
-    design <- "LS
+    if (!is.null(reg$db_motif)) {
+        p_db_logo <- plot_pssm_logo_dataset(
+            reg$db_motif,
+            all_motif_datasets(),
+            title = glue("Best motif in database:\n{reg$db_motif}"),
+            subtitle = glue("score: {round(reg$db_motif_score, digits = 3)}")
+        )
+
+        if (is_binary_response(response)) {
+            p_pred_db <- plot_regression_prediction_binary(reg$db_motif_pred, response)
+        } else {
+            p_pred_db <- plot_regression_prediction(reg$db_motif_pred, response)
+        }
+
+        design <- "LS
+                   MR
+                   DP"
+        p <- patchwork::wrap_plots(
+            L = plot_pssm_logo(reg$pssm),
+            S = plot_spat_model(reg$spat),
+            R = p_pred,
+            M = p_match,
+            D = p_db_logo,
+            P = p_pred_db,
+            design = design
+        )
+    } else {
+        design <- "LS
                MR"
-    p <- patchwork::wrap_plots(
-        L = plot_pssm_logo(reg$pssm),
-        S = plot_spat_model(reg$spat),
-        R = p_pred,
-        M = p_match,
-        design = design
-    )
+        p <- patchwork::wrap_plots(
+            L = plot_pssm_logo(reg$pssm),
+            S = plot_spat_model(reg$spat),
+            R = p_pred,
+            M = p_match,
+            design = design
+        )
+    }
+
 
     if (!is.null(title) || !is.null(subtitle) || !is.null(caption)) {
         p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle, caption = caption)
@@ -220,9 +249,6 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
 
     if (!is.null(reg$response)) {
         response <- reg$response
-        if (!is.null(reg$sample_idxs)) {
-            response <- response[reg$sample_idxs]
-        }
     } else if (!is.null(reg$models[[1]]$response)) {
         response <- reg$models[[1]]$response
     } else {
