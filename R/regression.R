@@ -49,6 +49,7 @@
 #' \item{seed_motif: }{The seed motif that started the regression.}
 #' \item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
 #' \item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
+#' \item{predict: }{a function that can be used to predict the PWM for a new sequence.}
 #' }
 #'
 #' When \code{match_with_db} is TRUE, the following additional elements are returned:
@@ -69,10 +70,13 @@
 #' \item{db_motif_score: }{The score of the best motif from the motif database.}
 #' }
 #'
-#' When \code{n_motifs} is greater than 1, the following additional elements are returned:
+#' When \code{n_motifs} is greater than 1, a list with the following elements is returned:
 #' \itemize{
 #' \item{models: }{A list (as above) of each inferred model}
 #' \item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
+#' \item{pred: }{a vector with the predicted pwm for using a linear model of the combined scores.}
+#' \item{comb_modle: }{a linear model of the combined scores.}
+#' \item{predict: }{a function that can be used to predict the PWM for a new sequence.}
 #' }
 #'
 #' @examples
@@ -438,6 +442,8 @@ regress_pwm <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+
     return(res)
 }
 
@@ -594,6 +600,8 @@ regress_pwm.multi_kmers <- function(sequences,
     }
 
     cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
+
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
 
     return(res)
 }

@@ -108,7 +108,9 @@ regress_pwm.cv <- function(sequences,
             seed = seed,
             ...
         )
-        res$test_pred <- compute_pwm(sequences[test_idxs], res$pssm, res$spat)
+
+        res$test_pred <- res$predict(sequences[test_idxs])
+
         res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred)
         return(res)
     }, .parallel = parallel)
