@@ -37,7 +37,6 @@ regress_multiple_motifs <- function(sequences,
         cli_abort("{.field motif_num} must be at least 2")
     }
 
-    # cli_alert_info("Running regression of {.val {motif_num}} motifs")
     regression_func <- purrr::partial(regress_pwm,
         sequences = sequences,
         motif_length = motif_length,
@@ -79,6 +78,7 @@ regress_multiple_motifs <- function(sequences,
     models[[1]] <- res
     e[[1]] <- res$pred
     names(e)[1] <- "e1"
+    e_comb <- e[[1]]
 
     if (is_binary_response(response)) {
         comb_scores[1] <- res$ks$statistic
@@ -89,8 +89,7 @@ regress_multiple_motifs <- function(sequences,
 
     for (i in 2:motif_num) {
         cli_h2("Running regression #{i}")
-        e_prev <- e[[i - 1]]
-        r <- r0 - pred_r_given_e(e_prev, r0, k = smooth_k)
+        r <- r0 - pred_r_given_e(e_comb, r0, k = smooth_k) # residual
         res <- regression_func(response = r, score_metric = "r2", final_metric = "r2")
         models[[i]] <- res
 
@@ -118,8 +117,6 @@ regress_multiple_motifs <- function(sequences,
             comb_scores <- c(comb_scores, r2_comb)
             scores <- c(scores, r2)
         }
-
-        e[[i]] <- e_comb
     }
 
     stats <- data.frame(
@@ -146,9 +143,24 @@ regress_multiple_motifs <- function(sequences,
 
     best_model <- which.max(scores)
     cli_alert_success("Best model: model #{best_model} (score of {.val {scores[best_model]}})")
-    res <- models[[best_model]]
-    res$models <- models
-    res$multi_stats <- stats
+    res <- list(
+        models = models,
+        multi_stats = stats,
+        model = model_comb # last combined model
+    )
+    res$predict <- function(x, ...) {
+        e <- lapply(1:motif_num, function(i) models[[i]]$predict(x, ...))
+        e <- as.data.frame(e)
+        colnames(e) <- paste0("e", 1:motif_num)
+        predict(model_comb, e, ...)
+    }
+    res$pred <- res$predict(sequences)
+
+    if (is_binary_response(response)) {
+        res$ks <- suppressWarnings(ks.test(res$pred[response == 1], res$pred[response == 0], alternative = "less"))
+    } else {
+        res$r2 <- cor(res$pred, response)^2
+    }
 
     return(res)
 }

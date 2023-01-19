@@ -125,6 +125,8 @@ regress_pwm.sample <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+
     return(res)
 }
 

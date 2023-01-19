@@ -8,7 +8,7 @@
     }
 
     # this is here in order to avoid R CMD check warnings
-    globals <- c("motif", "pos", "A", "C", "G", "T", "HOMER_motifs", "JASPAR_motifs", "JOLMA_motifs", "dataset", "max_r2", "kmer", "kmer_clust", "idx", "fold", "resp", "score", "..y..", "comb_score", "model", "label", "bin", "spat_factor", "i", "pred", "dist", "pos", ".", "cluster", "sequences", "value", "name", "cluster_ids", "clusters")
+    globals <- c("motif", "pos", "A", "C", "G", "T", "HOMER_motifs", "JASPAR_motifs", "JOLMA_motifs", "dataset", "max_r2", "kmer", "kmer_clust", "idx", "fold", "resp", "score", "comb_score", "model", "label", "bin", "spat_factor", "i", "pred", "dist", "pos", ".", "cluster", "sequences", "value", "name", "cluster_ids", "clusters")
     utils::suppressForeignCheck(globals)
     utils::globalVariables(globals)
 }

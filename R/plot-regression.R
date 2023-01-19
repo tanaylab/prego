@@ -86,7 +86,7 @@ plot_regression_prediction_binary <- function(pred, response) {
     ks <- suppressWarnings(ks.test(pred_1, pred_0, alternative = "less"))
 
     tibble(response = factor(response), pred = pred) %>%
-        ggplot(aes(x = pred, y = 1 - ..y.., color = response)) +
+        ggplot(aes(x = pred, y = 1 - after_stat(y), color = response)) +
         geom_segment(aes(x = x0[1], y = y0[1], xend = x0[1], yend = y1[1]),
             linetype = "dashed", color = "gray"
         ) +
