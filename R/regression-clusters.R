@@ -218,6 +218,9 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
             suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "less")$statistic)
         })
     }, .parallel = parallel)
+    if (is.vector(res)) {
+        res <- matrix(res, ncol = length(res), nrow = 1)
+    }
     colnames(res) <- cluster_ids
     res <- as.matrix(res)
 
