@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "DnaPSSM.h"
 #include "Random.h"
 #include "Rcpp.h"
@@ -683,8 +683,6 @@ void DnaPSSM::reset_prior(const vector<float> &prior) {
 
 // currently assuming same length profiles
 float DnaPSSM::dot_product(DnaPSSM &arg) {
-    ASSERT(arg.size() == size(),
-           "dot product support equal sized profiles, extend the code if you ment something else");
     vector<DnaProbVec>::iterator j = arg.m_chars.begin();
     float prod = 1;
     for (vector<DnaProbVec>::iterator i = m_chars.begin(); i != m_chars.end(); i++) {
@@ -694,8 +692,6 @@ float DnaPSSM::dot_product(DnaPSSM &arg) {
     return (prod);
 }
 float DnaPSSM::log_dot_product(DnaPSSM &arg) {
-    ASSERT(arg.size() == size(),
-           "dot product support equal sized profiles, extend the code if you ment something else");
     vector<DnaProbVec>::iterator j = arg.m_chars.begin();
     float prod = 1;
     for (vector<DnaProbVec>::iterator i = m_chars.begin(); i != m_chars.end(); i++) {

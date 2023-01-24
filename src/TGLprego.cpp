@@ -1,13 +1,13 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "BitVecIter.h"
 #include "LeastSquare.h"
 #include "ProgressReporter.h"
 #include "Random.h"
 #include "SpecialFunc.h"
 #include "dnastrutil.h"
-#include "options.h"
-#include "strutil.h"
+
+
 
 #include "KMerMultiStat.h"
 #include "PWMLRegression.h"

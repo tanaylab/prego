@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "SVDFit.h"
 
 //Default value for single precision and variables scaled to order unity. 
@@ -76,11 +76,11 @@ void svdcmp(vector<vector<double> > &a, int m, int n, vector<double> &w,
 	int flag,i,its,j,jj,k,l,nm;
 	double anorm,c,f,g,h,s,scale,x,y,z;
 
-//	ASSERT(a.size() == m + 1, "a size is " << a.size() << " but m " << m);
-//	ASSERT(a[1].size() == n + 1, "a[1] size is " << a[0].size() << " but n " << n);
-//	ASSERT(w.size() == n + 1, "w size is " << w.size() << " but n " << n);
-//	ASSERT(v.size() == n + 1, "v size is " << v.size() << " but n " << n);
-//	ASSERT(v[1].size() == n + 1, "v[1] size is " << v[1].size() << " but n " << n);
+//	
+//	
+//	
+//	
+//	
 
 	vector<double> rv1(n+1);
 	g=scale=anorm=0.0;
@@ -250,7 +250,7 @@ void svdcmp(vector<vector<double> > &a, int m, int n, vector<double> &w,
 				break;
 			} 
 			if(its == 30) {
-				 ASSERT(false, "no convergence in 30 svdcmp iterations");
+				 
 			}
 			x=w[l];
 			//Shift from bottom 2-by-2 minor. 

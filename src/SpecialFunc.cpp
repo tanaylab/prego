@@ -1,6 +1,6 @@
 #include <cmath>
 #include "port.h"
-BASE_CC_FILE
+
 
 #include "SpecialFunc.h"
 

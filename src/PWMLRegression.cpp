@@ -2,7 +2,7 @@
 #include <chrono>
 #include <cmath>
 
-BASE_CC_FILE
+
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
 
@@ -513,7 +513,7 @@ float PWMLRegression::compute_cur_ks(const int &pos, const vector<float> &probs)
                       probs['T'] * deriv['T'];
 
             // push predictions according to category
-            assert(*resp == 0 || *resp == 1);
+            
             float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
         }
@@ -619,7 +619,7 @@ float PWMLRegression::compute_cur_ks_spat() {
             }
 
             // push predictions according to category
-            assert(*resp == 0 || *resp == 1);
+            
             float epsilon = m_data_epsilon[seq_id];
             m_aux_preds.push_back(make_pair(-v * (1 + epsilon), *resp));
             resp++;

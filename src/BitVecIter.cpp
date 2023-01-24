@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "BitVecIter.h"
 
 ds_bitvec_iter::ds_bitvec_iter(const ds_bitvec &vec) :
@@ -64,10 +64,6 @@ void ds_bitvec_iter::seek(int to) {
                 return;
         }
 
-        DBG_ASSERT(0 <= to && to < bitvec.size(),
-                "Attempt to seek to position " << to <<
-                " for a bit vector of size " << bitvec.size());
-
         current_int = to / bitvec.IntBits;
         current_bit = to % bitvec.IntBits;
         valid = true;
@@ -84,7 +80,7 @@ static int find_set_bit(uint bits) {
 
 int ds_bitvec_iter::operator++() {
 
-        ASSERT(valid, "Invalid iterator value at ++ operator");
+        
 
         uint remaining_bits = 0;
 
@@ -130,7 +126,7 @@ int ds_bitvec_iter::find_set_bit_rev(uint bits)
 int ds_bitvec_iter::operator--()
 {
 
-        ASSERT(valid, "Invalid iterator value at -- operator");
+        
 
         uint remaining_bits = 0;
 

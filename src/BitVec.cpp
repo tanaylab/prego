@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "BitVec.h"
 
 const uint ds_bitvec::tail_mask[] = {
@@ -32,16 +32,12 @@ const uint1 ds_bitvec::ones[] = {
 };
 
 
-#define DBG_ASSERTEqualSizes \
-        DBG_ASSERT(size_ == other.size_, \
-                    "Binary op on sets with different universe sizes.")
-
 ds_bitvec::ds_bitvec(int init_size) :
         size_(init_size),
         on_bits_(0),
         bits((init_size + IntBits - 1) / IntBits, uint(0))
 {
-//        ASSERT(size_ % IntBits <= int(numof(tail_mask)),
+//        
 //                           "Private tail_mask array is not large enough");
 }
 ds_bitvec::ds_bitvec(const ds_bitvec &other, int offset, int init_size) :
@@ -118,10 +114,6 @@ ds_bitvec::flip_ind(int ind) {
 bool
 ds_bitvec::get_ind(int ind) const {
 
-        // (
-        ASSERT(0 <= ind && ind < size_,
-                "Bit index " << ind << " out of bounds [0.." << size_ << ")");
-        // ]
         return((bits[int_index(ind)] >> int_offset(ind)) & 1);
 }
 void
@@ -129,9 +121,6 @@ ds_bitvec::set_size(int new_size) {
 
         if(new_size == size_)
                 return;
-
-//        DBG_ASSERT(new_size % IntBits <= int(numof(tail_mask)),
-//                            "Private tail_mask array is not large enough");
 
         int old_bits_size = int(bits.size());
         int new_bits_size = (new_size + IntBits - 1) / IntBits;
@@ -253,12 +242,6 @@ ds_bitvec &ds_bitvec::noteq() {
 }
 ds_bitvec &ds_bitvec::restrict(const ds_bitvec &other, int offset) {
 
-        DBG_ASSERT(offset + size_ <= other.size_,
-                    "restricted range out of bounds:" << endl <<
-                    "offset = " << offset <<
-                    " size_ = " << size_ <<
-                    " other.size_ = " << other.size_);
-
         int bit_shift = offset % IntBits;
         int j = offset / IntBits;
 
@@ -285,12 +268,6 @@ ds_bitvec &ds_bitvec::restrict(const ds_bitvec &other, int offset) {
         return(*this);
 }
 ds_bitvec &ds_bitvec::embed(int offset, const ds_bitvec &other) {
-
-        DBG_ASSERT(offset + other.size_ <= size_,
-                    "restricted range out of bounds:" << endl <<
-                    "offset = " << offset <<
-                    " size_ = " << size_ <<
-                    " other.size_ = " << other.size_);
 
 	fill_n(bits.begin(), bits.size(), 0);
 
@@ -321,7 +298,7 @@ ds_bitvec &ds_bitvec::embed(int offset, const ds_bitvec &other) {
 }
 ds_bitvec &ds_bitvec::andeq(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++) {
                 bits[i] &= other.bits[i];
@@ -331,7 +308,7 @@ ds_bitvec &ds_bitvec::andeq(const ds_bitvec &other) {
 }
 ds_bitvec &ds_bitvec::oreq(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 bits[i] |= other.bits[i];
@@ -340,7 +317,7 @@ ds_bitvec &ds_bitvec::oreq(const ds_bitvec &other) {
 }
 ds_bitvec &ds_bitvec::xoreq(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 bits[i] ^= other.bits[i];
@@ -350,7 +327,7 @@ ds_bitvec &ds_bitvec::xoreq(const ds_bitvec &other) {
 }
 ds_bitvec &ds_bitvec::minus(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 bits[i] &= ~other.bits[i];
@@ -361,7 +338,7 @@ ds_bitvec &ds_bitvec::minus(const ds_bitvec &other) {
 ds_bitvec &
 ds_bitvec::nand(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++) 
                 bits[i] = ~(bits[i] & other.bits[i]);
@@ -373,7 +350,7 @@ ds_bitvec::nand(const ds_bitvec &other) {
 ds_bitvec &
 ds_bitvec::nor(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++) 
                 bits[i] = ~(bits[i] | other.bits[i]);
@@ -385,7 +362,7 @@ ds_bitvec::nor(const ds_bitvec &other) {
 ds_bitvec &
 ds_bitvec::nxor(const ds_bitvec &other) {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++) 
                 bits[i] = ~(bits[i] ^ other.bits[i]);
@@ -397,7 +374,7 @@ ds_bitvec::nxor(const ds_bitvec &other) {
 ds_bitvec &ds_bitvec::nminus(const ds_bitvec &other) 
 {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++) 
                 bits[i] = ~bits[i] | other.bits[i];
@@ -409,7 +386,7 @@ ds_bitvec &ds_bitvec::nminus(const ds_bitvec &other)
 ds_bitvec &ds_bitvec::copy(const ds_bitvec &other) 
 {
         
-        DBG_ASSERTEqualSizes;
+        ;
 
         size_ = other.size_;
         on_bits_ = other.on_bits_;
@@ -420,7 +397,7 @@ ds_bitvec &ds_bitvec::copy(const ds_bitvec &other)
 ds_bitvec &ds_bitvec::ncopy(const ds_bitvec &other) 
 {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         bits.resize(other.bits.size());
         for(int i = 0; i < int(bits.size()); i++)
@@ -438,7 +415,7 @@ ds_bitvec &ds_bitvec::ncopy(const ds_bitvec &other)
 ds_bitvec &ds_bitvec::sub(const ds_bitvec &other) 
 {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 bits[i] = ~bits[i] & other.bits[i];
@@ -449,7 +426,7 @@ ds_bitvec &ds_bitvec::sub(const ds_bitvec &other)
 ds_bitvec &ds_bitvec::nsub(const ds_bitvec &other) 
 {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 bits[i] |= ~other.bits[i];
@@ -461,7 +438,7 @@ ds_bitvec &ds_bitvec::nsub(const ds_bitvec &other)
 bool ds_bitvec::operator<=(const ds_bitvec &other) const
 {
 
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 if((bits[i] & ~other.bits[i]) != 0)
@@ -475,7 +452,7 @@ bool ds_bitvec::operator>=(const ds_bitvec &other) const
 }
 bool ds_bitvec::operator==(const ds_bitvec &other) const
 {
-        DBG_ASSERTEqualSizes;
+        ;
 
         for(int i = 0; i < int(bits.size()); i++)
                 if(other.bits[i] != bits[i])

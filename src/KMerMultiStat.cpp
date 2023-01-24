@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "KMerMultiStat.h"
 
 KMerMultiStat::KMerMultiStat(int k, int max_degen, int gap_min_size, int gap_max_size,

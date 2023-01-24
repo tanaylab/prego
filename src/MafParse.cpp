@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "MafParse.h"
 #include "PhyloTree.h"
 
@@ -19,7 +19,7 @@ bool MafParse::next()
 		return(false);
 	}
 	getline(m_file, slack, '\n');//eat a line
-	ASSERT(code == 'a', "Bad code " << code << " instead a when parsing maf, line was " << slack << "\n");
+	
 
 	bool not_blank = 1;
 	int si = 0;
@@ -41,7 +41,7 @@ bool MafParse::next()
 		}
 		if(code != 's') {
 			getline(m_file, slack, '\n');//eat a line
-			ASSERT(code == 'e' || code == 'i', "Bad code " << code << " instead s when parsing maf line " << slack << "\n");
+			
 		} else {
     		m_file >> m_desc[si] >> m_pos[si] >> size >> m_strand[si] >> m_src_size[si] >> m_seq[si];
     		m_max_pos[si] = m_pos[si] + size;
