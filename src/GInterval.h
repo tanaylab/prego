@@ -65,13 +65,13 @@ struct GInterval : public Segment {
 
 	char *debug_str(const GenomeChromKey &chromkey) const {
 		static char str[200];
-		sprintf(str, "(%s, %lld, %lld)", chromkey.id2chrom(chromid).c_str(), start, end);
+		snprintf(str, sizeof(str), "(%s, %lld, %lld)", chromkey.id2chrom(chromid).c_str(), start, end);
 		return str;
 	}
 
 	char *debug_str() const {
 		static char str[200];
-		sprintf(str, "(%d, %lld, %lld)", chromid, start, end);
+		snprintf(str, sizeof(str), "(%d, %lld, %lld)", chromid, start, end);
 		return str;
 	}
 };
