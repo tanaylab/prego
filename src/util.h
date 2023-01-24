@@ -33,8 +33,6 @@ inline void log_minus_log(float &l1, float l2) {
 			l1 = -_REAL(MAX);
 				
 		} else {
-//			Rcpp::Rcerr << "NAN at log minus log " 
-//			<< l1 << " " << l2 << " " << l2 - l1 << endl;
 			l1 = -_REAL(MAX);
 		}
 	} else {

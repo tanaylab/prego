@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "Random.h"
 
 int Random::bits_num = 0;
@@ -60,7 +60,6 @@ void Random::reset(int seed) {
 #endif // INT_MAX
 
 uint Random::bits() {
-        DBG_ASSERT(state1 || state2, "You forgot to reset the Random seed");
         int k = state1 / IQ1;
         state1 = IA1 * (state1 - k * IQ1) - k * IR1;
         if(state1 < 0)
@@ -87,9 +86,6 @@ int Random::time_seed() {
         return(int(now));
 }
 uint Random::bits(int num) {
-
-        DBG_ASSERT(0 <= num && num <= 32,
-                "asked for invalid number of bits (" << num << ')');
 
         if(bits_num < num) {
                 bits_num = 32;
