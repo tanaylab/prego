@@ -43,7 +43,7 @@ void GenomeSeqIntervSet::read(ifstream &tab, int marg, int generic_format)
 
 GenomeSeqIntervSet::~GenomeSeqIntervSet()
 {
-	for(int i = 0; i < m_seq_repository.size(); i++) {
+	for(size_t i = 0; i < m_seq_repository.size(); i++) {
 		delete m_seq_repository[i];
 	}
 }

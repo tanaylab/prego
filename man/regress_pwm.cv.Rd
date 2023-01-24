@@ -11,7 +11,7 @@ regress_pwm.cv(
   metric = NULL,
   folds = NULL,
   categories = NULL,
-  use_sample = TRUE,
+  use_sample = FALSE,
   seed = 60427,
   parallel = getOption("prego.parallel", FALSE),
   add_full_model = TRUE,

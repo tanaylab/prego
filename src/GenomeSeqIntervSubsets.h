@@ -42,7 +42,7 @@ public:
 	}
 	
 	void subset(int i, const ds_bitvec &set) {
-		if(i >= m_subsets.size()) {
+		if((size_t)i >= m_subsets.size()) {
 			m_subsets.resize(i + 1);
 		}
 		m_subsets[i] = set;

@@ -135,7 +135,7 @@ double BinomFuncTable::dbl_binom_ln(int n, int k)
 float BinomFuncTable::binom(int n, int k)
 {
 	int ndx = n + k * m_max_cache_n;
-	if(ndx >= m_bin_table.size()) {
+	if((size_t)ndx >= m_bin_table.size()) {
 		return(exp(gamma_ln(n+1) - gamma_ln(k+1) - gamma_ln(n-k+1)));
 	}
 	float &bico = m_bin_table[n + k * m_max_cache_n];

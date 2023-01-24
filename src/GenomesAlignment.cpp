@@ -264,7 +264,7 @@ void GAlignsMafsCache::read_chrom_global_aln_coord(const string &chrom){
 //		}
 		int ref_spid = get_ref_sp_id(maf , max_spi);
 		int base_chr_coord = maf.get_pos(ref_spid);	//this is the coordinate of the entry start in the reference genome coordinate system
-		if(m_base_global_aln_coord != -1 && m_curr_global_aln_coord +base_chr_coord - m_max_chr_coord> m_max_global_aln_coord) {	//if the position in the ref is larger than our current focus interval - terminate
+		if(m_base_global_aln_coord != -1 && m_curr_global_aln_coord + base_chr_coord - m_max_chr_coord > m_max_global_aln_coord) {	//if the position in the ref is larger than our current focus interval - terminate
 			if (m_curr_global_aln_coord < m_max_global_aln_coord){
 				int num_of_N = m_max_global_aln_coord - m_curr_global_aln_coord;
 				for (int sp=0; sp<max_sp; sp++){
@@ -274,7 +274,7 @@ void GAlignsMafsCache::read_chrom_global_aln_coord(const string &chrom){
 			break;	//this means that we assume the maf to be sorted!
 		}
 
-		if(m_base_global_aln_coord != -1 && m_curr_global_aln_coord + base_chr_coord - m_max_chr_coord + maf.get_seq(0).size() < m_base_global_aln_coord) {	//if the max global position of the current entry is smaller than the begining of our windows, skip it
+		if(m_base_global_aln_coord != -1 && m_curr_global_aln_coord + base_chr_coord - m_max_chr_coord + maf.get_seq(0).size() < (size_t)m_base_global_aln_coord) {	//if the max global position of the current entry is smaller than the begining of our windows, skip it
 			m_curr_global_aln_coord += (base_chr_coord - m_max_chr_coord);
 			m_max_chr_coord = maf.get_max_pos(ref_spid);
 			m_curr_global_aln_coord += maf.get_seq(0).size();
@@ -343,7 +343,7 @@ void GAlignsMafsCache::append_seq_by_maf_entry(MafParse& maf , int max_spi , int
 		}
 		m_frag_to_genome[sp].push_back(AlnFrag(maf.get_desc(spi), maf.get_pos(spi), maf.get_strand(spi)));
 
-		if(m_max_missing_align < m_seq.size() - active_sp) {//if we have too few active speceis, put N's instead of the original alignment
+		if((size_t)m_max_missing_align < m_seq.size() - active_sp) {//if we have too few active speceis, put N's instead of the original alignment
 			//int len = maf.get_seq(0).size() - offset - suffix_offset ;
 			//m_seq[sp].append(len , 'N');
 			append_seq_of_N(m_seq[sp] , maf.get_seq(spi).substr(offset , maf.get_seq(spi).size() - offset - suffix_offset) );
@@ -424,7 +424,7 @@ int GAlignsMafsCache::get_refgenome_pos(int pos) const
 {
 	//Rcpp::Rcerr << "GAlignsMafsCache::get_refgenome_pos (" << pos << ")" << endl;
 	//check to see that this if max align pos
-	if (pos == m_seq[0].length()) {
+	if ((size_t)pos == m_seq[0].length()) {
 		//Rcpp::Rcerr << "pos is last pos, returning " << m_max_ref_coord << endl;
 		return(m_max_ref_coord);
 	}

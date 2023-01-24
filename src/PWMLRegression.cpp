@@ -3,6 +3,7 @@
 #include <cmath>
 
 BASE_CC_FILE
+#include "util.h"
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
 
@@ -10,11 +11,25 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                int min_range, int max_range, float min_prob, int spat_bin_size,
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
                                float eps, float min_improv_for_star, float unif_prior,
-                               const string &score_metric)
+                               const string &score_metric, const int &num_folds)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
-      m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric) {}
+      m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds) {
+    if (m_num_folds < 1) {
+        Rcpp::stop("number of folds must be at least 1");
+    } else if (m_num_folds > 1) {
+        // generate an indicator vector the length of the number of sequences
+        m_folds.resize(m_sequences.size());
+        for (size_t i = 0; i < m_sequences.size(); i++) {
+            m_folds[i] = i % m_num_folds;
+        }
+        // shuffle the vector to randomize the folds            
+        std::random_shuffle(m_folds.begin(), m_folds.end(), rand_wrapper);
+    } else {
+        m_folds.resize(m_sequences.size(), 0);
+    }
+}
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
     m_rdim = stats.size();
@@ -107,7 +122,7 @@ void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_aux_upds.resize(pos);
 
     m_derivs.resize(m_sequences.size());
-    for (int seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
+    for (size_t seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
         m_derivs[seq_id].resize(pos, vector<float>('T' + 1));
     }
     int max_spat_bin = m_spat_factors.size();
@@ -135,7 +150,7 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
     m_is_wildcard.resize(pwm.size(), false);    
     m_bidirect = pwm.is_bidirect();    
 
-    for (int i = 0; i < pwm.size(); i++) {
+    for (size_t i = 0; i < pwm.size(); i++) {
         m_is_wildcard[i] = false;
         m_nuc_factors[i]['A'] = pwm[i].get_prob('A');
         m_nuc_factors[i]['C'] = pwm[i].get_prob('C');
@@ -150,9 +165,9 @@ void PWMLRegression::init_pwm(DnaPSSM &pwm) {
 
     m_derivs.resize(m_sequences.size(), vector<vector<float>>(pwm.size(), vector<float>('T' + 1)));
     m_derivs.resize(m_sequences.size());
-    for (int seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
+    for (size_t seq_id = 0; seq_id < m_sequences.size(); seq_id++) {
         m_derivs[seq_id].resize(pwm.size());
-        for (int pos = 0; pos < pwm.size(); pos++) {
+        for (size_t pos = 0; pos < pwm.size(); pos++) {
             m_derivs[seq_id][pos].resize('T' + 1);
         }
     }
@@ -218,7 +233,7 @@ void PWMLRegression::optimize() {
     float prev_score = 0;
     m_cur_score = 0;
 
-    for (int phase = 0; phase < m_resolutions.size(); phase++) {
+    for (size_t phase = 0; phase < m_resolutions.size(); phase++) {
         if (m_logit) {
             Rcpp::Rcerr << "Start phase " << phase << " resol " << m_resolutions[phase] << endl;
         }
@@ -476,7 +491,7 @@ void PWMLRegression::take_best_step() {
         m_spat_factors[best_spat_bin] += best_spat_diff;
 
         // normalize
-        for (int bin = 0; bin < m_spat_factors.size(); bin++) {
+        for (size_t bin = 0; bin < m_spat_factors.size(); bin++) {
             m_spat_factors[bin] /= (1 + best_spat_diff);
         }
         m_cur_score = best_spat_score;
@@ -527,7 +542,7 @@ float PWMLRegression::compute_cur_ks(const int &pos, const vector<float> &probs)
     float cur_diff = 0;
     float n_0 = m_train_n - m_ncat;
     float n_1 = m_ncat;
-    for (int i = 0; i < m_aux_preds.size(); i++) {
+    for (size_t i = 0; i < m_aux_preds.size(); i++) {
         if (m_aux_preds[i].second == 0) {
             cur_diff -= 1 / n_0;
         } else {
@@ -633,7 +648,7 @@ float PWMLRegression::compute_cur_ks_spat() {
     float cur_diff = 0;
     float n_0 = m_train_n - m_ncat;
     float n_1 = m_ncat;
-    for (int i = 0; i < m_aux_preds.size(); i++) {
+    for (size_t i = 0; i < m_aux_preds.size(); i++) {
         if (m_aux_preds[i].second == 0) {
             cur_diff -= 1 / n_0;
         } else {
@@ -697,7 +712,7 @@ void PWMLRegression::report_cur_lpwm() {
                  m_nuc_factors[pos]['C'], m_nuc_factors[pos]['T']);
     }
     Rcpp::Rcerr << " ";
-    for (int sbin = 0; sbin < m_spat_factors.size(); sbin++) {
+    for (size_t sbin = 0; sbin < m_spat_factors.size(); sbin++) {
         REprintf("%.2f ", m_spat_factors[sbin]);
     }
 }
@@ -765,7 +780,7 @@ float PWMLRegression::get_r2() {
 void PWMLRegression::get_model(DnaPWML &model) {
     model.get_pssm().resize(m_nuc_factors.size());
     model.get_pssm().set_range(m_min_range, m_max_range);
-    for (int i = 0; i < m_nuc_factors.size(); i++) {
+    for (size_t i = 0; i < m_nuc_factors.size(); i++) {
         model.get_pssm()[i].set_weight('A', m_nuc_factors[i]['A']);
         model.get_pssm()[i].set_weight('C', m_nuc_factors[i]['C']);
         model.get_pssm()[i].set_weight('G', m_nuc_factors[i]['G']);
@@ -773,7 +788,7 @@ void PWMLRegression::get_model(DnaPWML &model) {
     }
     model.get_pssm().normalize();
     model.set_spat_bin_size(m_spat_bin_size);
-    for (int bin = 0; bin < m_spat_factors.size(); bin++) {
+    for (size_t bin = 0; bin < m_spat_factors.size(); bin++) {
         model.set_spat_factor(bin, m_spat_factors[bin]);
     }
     model.get_pssm().set_bidirect(m_bidirect);
@@ -791,7 +806,7 @@ void PWMLRegression::fill_predictions(vector<float> &preds) {
     vector<vector<vector<float>>>::iterator seq_deriv = m_derivs.begin();
     vector<float>::iterator resp = m_interv_stat.begin();
     vector<float> &factors = m_nuc_factors[0];
-    for (int seq_id = 0; seq_id < m_interv_stat.size(); seq_id++) {
+    for (size_t seq_id = 0; seq_id < m_interv_stat.size(); seq_id++) {
         if (m_train_mask[seq_id]) {
             vector<float> &deriv = (*seq_deriv)[0];
 

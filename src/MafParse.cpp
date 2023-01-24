@@ -31,7 +31,7 @@ bool MafParse::next()
 			not_blank = 0;
 			continue;
 		}
-		if(si >= m_desc.size()) {
+		if((size_t)si >= m_desc.size()) {
 			m_pos.resize(si + 1);
 			m_max_pos.resize(si + 1);
 			m_desc.resize(si + 1);

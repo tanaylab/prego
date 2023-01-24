@@ -82,6 +82,8 @@ inline double log_one_minus(double l1) {
 	}
 }
 
+inline int rand_wrapper(const int n) { return floor(unif_rand()*n); }
+
 template<class T, class T1, class T2>
 class triplet {
 

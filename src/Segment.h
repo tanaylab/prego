@@ -43,7 +43,7 @@ struct Segment {
 
 	char *debug_str() const {
 		static char str[200];
-		sprintf(str, "(%lld - %lld)", start, end);
+		sprintf(str, "(%ld - %ld)", start, end);
 		return str;
 	}
 };

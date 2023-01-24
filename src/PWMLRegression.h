@@ -85,6 +85,10 @@ class PWMLRegression {
     // score metric
     string m_score_metric;
 
+    // number of folds for cross validation
+    int m_num_folds;
+    vector<int> m_folds;
+
     // random number for each sequence in order to break ties
     vector<float> m_data_epsilon;
 
@@ -100,7 +104,7 @@ class PWMLRegression {
     PWMLRegression(const vector<string> &loci, const vector<int> &train_mask, int min_range,
                    int max_range, float min_prob, int spat_bin_size,
                    const vector<float> &resolutions, const vector<float> &s_resolutions, float eps,
-                   float min_improv_for_star, float unif_prior, const string &score_metric);
+                   float min_improv_for_star, float unif_prior, const string &score_metric, const int &num_folds);
 
     void add_responses(const vector<vector<float>> &stats);
 

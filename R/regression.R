@@ -169,7 +169,7 @@ regress_pwm <- function(sequences,
                         seed = 60427,
                         verbose = FALSE,
                         kmer_length = 8,
-                        multi_kmers = FALSE,
+                        multi_kmers = TRUE,
                         final_metric = NULL,
                         max_cands = 10,
                         min_gap = 0,
@@ -237,6 +237,10 @@ regress_pwm <- function(sequences,
 
     if (is.null(nrow(response))) {
         response <- matrix(response, ncol = 1)
+    }
+
+    if (!all(is.numeric(response))) {
+        cli_abort("{.field response} must be numeric")
     }
 
     if (length(sequences) != nrow(response)) {
@@ -404,7 +408,8 @@ regress_pwm <- function(sequences,
         seed = seed,
         pssm_mat = pssm,
         consensus_single_thresh = consensus_single_thresh,
-        consensus_double_thresh = consensus_double_thresh
+        consensus_double_thresh = consensus_double_thresh,
+        num_folds = 1
     )
 
 

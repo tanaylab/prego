@@ -60,7 +60,7 @@ regress_pwm(
   seed = 60427,
   verbose = FALSE,
   kmer_length = 8,
-  multi_kmers = FALSE,
+  multi_kmers = TRUE,
   final_metric = NULL,
   max_cands = 10,
   min_gap = 0,

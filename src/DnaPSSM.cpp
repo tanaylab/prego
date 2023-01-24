@@ -808,11 +808,11 @@ string DnaPSSM::get_consensus(const float &single_thresh, const float& double_th
 ostream &operator<<(ostream &out, const DnaPSSM &pssm) {
     Rcpp::Rcerr << "[" << pssm.get_min_range() << "," << pssm.get_max_range()
          << "] dir=" << pssm.is_bidirect() << endl;
-    for (int i = 0; i < pssm.size(); i++) {
+    for (size_t i = 0; i < pssm.size(); i++) {
         out << pssm[i];
     }
     out << endl;
-    for (int i = 0; i < pssm.size(); i++) {
+    for (size_t i = 0; i < pssm.size(); i++) {
         out << pssm[i].get_log_prob('A') << "\t" << pssm[i].get_log_prob('C') << "\t"
             << pssm[i].get_log_prob('G') << "\t" << pssm[i].get_log_prob('T') << endl;
     }

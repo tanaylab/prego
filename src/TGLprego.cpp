@@ -63,7 +63,7 @@ Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
     DnaPWML pwml(pssm, spat_fac, bin_size);
     Rcpp::NumericVector preds(seqs.size());
 
-    for (int i = 0; i < seqs.size(); i++) {
+    for (size_t i = 0; i < seqs.size(); i++) {
         float energy;
         pwml.integrate_energy(seqs[i], energy);
         preds[i] = energy;
@@ -82,7 +82,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const Rcpp::NumericMatrix &pssm_mat,
                            const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor, 
                            const float &consensus_single_thresh,
-                           const float &consensus_double_thresh) {
+                           const float &consensus_double_thresh, const int &num_folds = 1) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
@@ -115,7 +115,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     }
 
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
-                           improve_epsilon, 0.001, unif_prior, score_metric);
+                           improve_epsilon, 0.001, unif_prior, score_metric, num_folds);
 
     pwmlreg.m_logit = verbose;
 
@@ -161,7 +161,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     vector<float> preds(seqs.size());
 
-    for (int i = 0; i < seqs.size(); i++) {
+    for (size_t i = 0; i < seqs.size(); i++) {
         float energy;
         pwml.integrate_energy(seqs[i], energy);
         preds[i] = energy;
@@ -248,7 +248,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
         float tot_multi2 = 0;
         // compute cov over the rdim
         const vector<pair<int, vector<float>>> &multi = k->second;
-        for (int m = 1; m < multi.size(); m++) {
+        for (size_t m = 1; m < multi.size(); m++) {
             avg_multi += multi[m].first * m;
             tot_multi2 += multi[m].first * m * m;
             for (int ri = 0; ri < resp_dim; ri++) {
