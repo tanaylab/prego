@@ -16,7 +16,7 @@ regress_multiple_motifs(
   spat_max = NULL,
   spat_bin = 50,
   spat_model = NULL,
-  improve_epsilon = 1e-04,
+  improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
   is_train = NULL,
@@ -34,6 +34,7 @@ regress_multiple_motifs(
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
+  internal_num_folds = 1,
   match_with_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
@@ -52,7 +53,7 @@ regress_pwm(
   spat_max = NULL,
   spat_bin = 50,
   spat_model = NULL,
-  improve_epsilon = 1e-04,
+  improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
   is_train = NULL,
@@ -70,6 +71,7 @@ regress_pwm(
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
+  internal_num_folds = 1,
   match_with_db = FALSE,
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
@@ -133,6 +135,8 @@ would end at the end of the sequence.}
 
 \item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
 (single and double nucleotides)}
+
+\item{internal_num_folds}{number of folds to use in the internal cross-validation.}
 
 \item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
 is returned, even if it is not similar enough in absolute terms.}

@@ -36,6 +36,7 @@
 #' @param motif_num Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.
 #' @param smooth_k k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.
 #' @param min_kmer_cor minimal correlation between the kmer and the response in order to use it as a seed.
+#' @param internal_num_folds number of folds to use in the internal cross-validation.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -179,6 +180,7 @@ regress_pwm <- function(sequences,
                         smooth_k = 100,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
+                        internal_num_folds = 1,
                         match_with_db = FALSE,
                         screen_db = FALSE,
                         motif_dataset = all_motif_datasets(),
@@ -215,6 +217,7 @@ regress_pwm <- function(sequences,
                 smooth_k = smooth_k,
                 consensus_single_thresh = consensus_single_thresh,
                 consensus_double_thresh = consensus_double_thresh,
+                internal_num_folds = internal_num_folds,
                 match_with_db = match_with_db,
                 motif_dataset = motif_dataset,
                 parallel = parallel,
@@ -352,6 +355,7 @@ regress_pwm <- function(sequences,
                     min_kmer_cor = min_kmer_cor,
                     consensus_single_thresh = consensus_single_thresh,
                     consensus_double_thresh = consensus_double_thresh,
+                    internal_num_folds = internal_num_folds,
                     final_metric = final_metric,
                     parallel = parallel,
                     match_with_db = match_with_db,
@@ -409,7 +413,7 @@ regress_pwm <- function(sequences,
         pssm_mat = pssm,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
-        num_folds = 1
+        num_folds = internal_num_folds
     )
 
 
@@ -505,6 +509,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     min_kmer_cor = 0.1,
                                     consensus_single_thresh = 0.6,
                                     consensus_double_thresh = 0.85,
+                                    internal_num_folds = 1,
                                     final_metric = "r2",
                                     parallel = getOption("prego.parallel", FALSE),
                                     match_with_db = FALSE,
@@ -543,6 +548,7 @@ regress_pwm.multi_kmers <- function(sequences,
         verbose = FALSE,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
+        internal_num_folds = internal_num_folds,
         match_with_db = FALSE
     )
 

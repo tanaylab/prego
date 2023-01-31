@@ -29,6 +29,7 @@ class PWMLRegression {
     const vector<string> &m_sequences;
     const vector<int> &m_train_mask;
     int m_train_n = 0;
+    int m_step_num = 0;
 
     // response dimension
     int m_rdim;
@@ -38,8 +39,10 @@ class PWMLRegression {
 
     // epigenomic readouts to fit to (blocks of m_rdim in the vector)
     vector<float> m_interv_stat;
-    vector<double> m_data_avg;
-    vector<double> m_data_var;
+    vector<float> m_data_avg;
+    vector<float> m_data_var;
+    vector<vector<double> > m_data_avg_fold;
+    vector<vector<double> > m_data_var_fold;
 
     int m_min_range;
     int m_max_range;
@@ -88,6 +91,7 @@ class PWMLRegression {
     // number of folds for cross validation
     int m_num_folds;
     vector<int> m_folds;
+    vector<int> m_fold_sizes;
 
     // random number for each sequence in order to break ties
     vector<float> m_data_epsilon;
@@ -132,15 +136,21 @@ class PWMLRegression {
     void update_seq_interval(int seq_id, string::const_iterator min_i, string::const_iterator max_i,
                              int sign, int pos);
 
+    void compute_step_probs(const int &pos, const int& step, vector<float> &probs);
+    tuple<int, int, float> choose_best_move();
     void take_best_step();
+    void apply_move(const int &best_pos, const int &best_step, const float &best_score);
 
     float compute_cur_spat_score();
     float compute_cur_score(const int &pos, const vector<float> &probs);
+    float compute_cur_fold_score(const int &pos, const vector<float> &probs, const int &fold);
 
     float compute_cur_r2(const int &pos, const vector<float> &probs);
+    float compute_cur_r2_fold(const int &pos, const vector<float> &probs, const int &fold);
     float compute_cur_r2_spat();
 
     float compute_cur_ks(const int &pos, const vector<float> &probs);
+    float compute_cur_ks_fold(const int &pos, const vector<float> &probs, const int &fold);
     float compute_cur_ks_spat();
 };
 
