@@ -186,6 +186,7 @@ regress_pwm <- function(sequences,
                         motif_dataset = all_motif_datasets(),
                         parallel = getOption("prego.parallel", FALSE),
                         ...) {
+    set.seed(seed)
     if (motif_num > 1) {
         return(
             regress_multiple_motifs(
