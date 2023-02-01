@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "KMerMultiStat.h"
 
 KMerMultiStat::KMerMultiStat(int k, int max_degen, int gap_min_size, int gap_max_size,
@@ -51,7 +51,7 @@ void KMerMultiStat::init_flat_stat(const vector<vector<float>> &stats) {
     }
     vector<float>::iterator i_multi = m_interv_flat_stat.begin();
 
-    for (int seq_i = 0; seq_i < m_is_train->size(); seq_i++) {
+    for (size_t seq_i = 0; seq_i < m_is_train->size(); seq_i++) {
         for (int rd = 0; rd < m_resp_dim; rd++) {
             *i_multi = stats[rd][seq_i];
             ++i_multi;

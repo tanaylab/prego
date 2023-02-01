@@ -9,8 +9,8 @@ compute_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max
     .Call('_prego_compute_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size)
 }
 
-regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh) {
-    .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh)
+regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds = 1L) {
+    .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds)
 }
 
 screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose) {

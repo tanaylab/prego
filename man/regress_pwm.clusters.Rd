@@ -91,6 +91,7 @@ would end at the end of the sequence.}
     \item{\code{motif_num}}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
     \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
     \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
+    \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}

@@ -1,6 +1,6 @@
 #include "port.h"
-BASE_CC_FILE
-#include "strutil.h"
+
+
 #include "dnastrutil.h"
 #include "Random.h"
 

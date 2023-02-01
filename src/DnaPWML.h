@@ -65,7 +65,7 @@ public:
 	}
 
 	void set_spat_factor(int bin, float f) {
-		if(bin >= m_spat_factors.size()) {
+		if((size_t)bin >= m_spat_factors.size()) {
 			m_spat_factors.resize(bin + 1, 0);
 		}
 		m_spat_factors[bin] = f;

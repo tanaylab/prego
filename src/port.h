@@ -1,15 +1,5 @@
-#ifndef TGLUtil_port_h
-#define TGLUtil_port_h 1
-
-#ifndef TRACE
-# define  TRACE    1
-#endif
-#ifndef DBG_ON
-# define DBG_ON 0
-#endif
-#ifndef FUNCS
-# define FUNCS     DBG_ON
-#endif // FUNCS
+#ifndef Prego_port_h
+#define Prego_port_h 1
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -35,11 +25,7 @@ using namespace std;
 #include "Rcpp.h"
 
 #include "config.h"
-#include "modes.h"
-#include "error.h"
-#include "init.h"
-#include "trace.h"
-#include "dbg.h"
+
 #include "util.h"
 
-#endif //  TGLUtil_port_h
+#endif //  Prego_port_h
