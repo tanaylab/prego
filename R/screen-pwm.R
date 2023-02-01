@@ -4,6 +4,7 @@
 #' @param response a vector of response variable for each sequence. If the response is a matrix, the average will be used.
 #' @param metric metric to use in order to choose the best motif. One of 'ks' or 'r2'. If NULL - the default would be 'ks' for binary variables, and 'r2' for continuous variables.
 #' @param only_best return only the best motif (the one with the highest score). If FALSE, all the motifs will be returned.
+#' @param alternative alternative hypothesis for the KS test. One of 'two.sided', 'less' or 'greater'.
 #'
 #'
 #' @inheritParams extract_pwm
@@ -29,7 +30,7 @@
 #' head(res_screen)
 #'
 #' @export
-screen_pwm <- function(sequences, response, metric = NULL, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), only_best = FALSE, prior = 0.01, ...) {
+screen_pwm <- function(sequences, response, metric = NULL, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), only_best = FALSE, prior = 0.01, alternative = "two.sided", ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -63,12 +64,12 @@ screen_pwm <- function(sequences, response, metric = NULL, dataset = all_motif_d
     res <- plyr::daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         if (metric == "ks") {
-            return(suppressWarnings(ks.test(pwm[as.logical(response)], pwm[!as.logical(response)])$statistic))
+            return(suppressWarnings(ks.test(pwm[as.logical(response)], pwm[!as.logical(response)], alternative = alternative)$statistic))
         } else {
             return(cor(pwm, response)^2)
         }
         purrr::map_dbl(cluster_ids, function(cl) {
-            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "less")$statistic)
+            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = alternative)$statistic)
         })
     }, .parallel = parallel)
 

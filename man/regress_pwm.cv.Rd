@@ -15,6 +15,7 @@ regress_pwm.cv(
   seed = 60427,
   parallel = getOption("prego.parallel", FALSE),
   add_full_model = TRUE,
+  alternative = "two.sided",
   ...
 )
 }
@@ -38,6 +39,8 @@ regress_pwm.cv(
 \item{parallel}{whether to run the cross-validation in parallel.}
 
 \item{add_full_model}{whether to add the full model (without cross-validation) to the results.}
+
+\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}

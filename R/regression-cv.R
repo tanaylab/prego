@@ -65,6 +65,7 @@ regress_pwm.cv <- function(sequences,
                            seed = 60427,
                            parallel = getOption("prego.parallel", FALSE),
                            add_full_model = TRUE,
+                           alternative = "two.sided",
                            ...) {
     set.seed(seed)
     if (is.null(folds)) {
@@ -91,7 +92,7 @@ regress_pwm.cv <- function(sequences,
 
     if (use_sample) {
         cli_alert_info("Using sampled optimization")
-        regression_func <- purrr::partial(regress_pwm.sample, parallel = FALSE)
+        regression_func <- purrr::partial(regress_pwm.sample, alternative = alternative, parallel = FALSE)
         if ("sample_idxs" %in% names(list(...))) {
             cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.cv}")
         }
@@ -111,7 +112,7 @@ regress_pwm.cv <- function(sequences,
 
         res$test_pred <- res$predict(sequences[test_idxs])
 
-        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred)
+        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred, alternative = alternative)
         return(res)
     }, .parallel = parallel)
 
@@ -120,7 +121,7 @@ regress_pwm.cv <- function(sequences,
         tibble(idx = which(folds == .x), pred = cv_res[[paste0("fold", .x)]]$test_pred)) %>%
         arrange(idx) %>%
         pull(pred)
-    score <- score_model(metric, response, cv_pred)
+    score <- score_model(metric, response, cv_pred, alternative = alternative)
 
     cli_alert_success("Cross-validation score: {.val {score}}")
 
@@ -136,6 +137,7 @@ regress_pwm.cv <- function(sequences,
         res$full_model <- regression_func(sequences,
             response,
             seed = seed,
+            alternative = alternative,
             ...
         )
     }
@@ -143,9 +145,9 @@ regress_pwm.cv <- function(sequences,
     return(res)
 }
 
-score_model <- function(metric, response, pred) {
+score_model <- function(metric, response, pred, alternative = "two.sided") {
     if (metric == "ks") {
-        score <- suppressWarnings(ks.test(pred[response == 1], pred[response == 0], alternative = "less")$statistic)
+        score <- suppressWarnings(ks.test(pred[response == 1], pred[response == 0], alternative = alternative)$statistic)
     } else if (metric == "r2") {
         score <- cor(response, pred)^2
     } else {
