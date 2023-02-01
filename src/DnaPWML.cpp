@@ -1,5 +1,5 @@
 #include "port.h"
-BASE_CC_FILE
+
 #include "DnaPWML.h"
 #include "Random.h"
 
@@ -8,7 +8,7 @@ void DnaPWML::write_tab(ostream &pssmd, ostream &spat, int id) const
 {
 	m_pssm.write_tab(pssmd, id);
 
-	for(int i = 0; i < m_spat_factors.size(); i++) {
+	for(size_t i = 0; i < m_spat_factors.size(); i++) {
 		spat << id << "\t" << i * m_spat_bin_size << "\t" << m_spat_factors[i] << endl;
 	}
 }

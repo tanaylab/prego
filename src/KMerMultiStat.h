@@ -5,7 +5,7 @@
 =================================================*/
 
 #include "BitVec.h"
-#include "options.h"
+
 #include <Rcpp.h>
 #include <map>
 #include <set>
