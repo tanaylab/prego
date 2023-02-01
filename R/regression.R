@@ -186,7 +186,7 @@ regress_pwm <- function(sequences,
                         screen_db = FALSE,
                         motif_dataset = all_motif_datasets(),
                         parallel = getOption("prego.parallel", FALSE),
-                        alternative = "two.sided",
+                        alternative = "less",
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -461,7 +461,7 @@ regress_pwm <- function(sequences,
     return(res)
 }
 
-add_regression_db_screen <- function(res, response, sequences, motif_dataset, metric, prior, bidirect, parallel = getOption("prego.parallel", TRUE)) {
+add_regression_db_screen <- function(res, response, sequences, motif_dataset, metric, prior, bidirect, alternative, parallel = getOption("prego.parallel", TRUE)) {
     scr <- screen_pwm(sequences, response, motif_dataset, metric = metric, prior = prior, bidirect = bidirect, parallel = parallel, alternative = alternative, only_best = TRUE)
 
     cli_alert_info("Best db motif: {.val {scr$motif[1]}}")

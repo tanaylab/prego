@@ -33,7 +33,7 @@ regress_multiple_motifs <- function(sequences,
                                     match_with_db = FALSE,
                                     motif_dataset = all_motif_datasets(),
                                     parallel = getOption("prego.parallel", FALSE),
-                                    alternative = "two.sided",
+                                    alternative = "less",
                                     ...) {
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")

@@ -65,7 +65,7 @@ regress_pwm.cv <- function(sequences,
                            seed = 60427,
                            parallel = getOption("prego.parallel", FALSE),
                            add_full_model = TRUE,
-                           alternative = "two.sided",
+                           alternative = "less",
                            ...) {
     set.seed(seed)
     if (is.null(folds)) {

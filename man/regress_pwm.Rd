@@ -38,7 +38,7 @@ regress_multiple_motifs(
   match_with_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
-  alternative = "two.sided",
+  alternative = "less",
   ...
 )
 
@@ -77,7 +77,7 @@ regress_pwm(
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
-  alternative = "two.sided",
+  alternative = "less",
   ...
 )
 }
