@@ -8,6 +8,7 @@ pssm_match(
   pssm,
   motifs,
   best = FALSE,
+  method = "spearman",
   parallel = getOption("prego.parallel", TRUE)
 )
 }
@@ -17,6 +18,8 @@ pssm_match(
 \item{motifs}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name}
 
 \item{best}{return the best match only}
+
+\item{method}{method to use for computing the correlation. See \code{\link[stats]{cor}} for details.}
 
 \item{parallel}{use parallel processing. Set the number of cores using \code{set_parallel}.}
 }

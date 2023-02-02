@@ -4,12 +4,14 @@
 \alias{pssm_cor}
 \title{Compute the correlation between two given PSSMs}
 \usage{
-pssm_cor(pssm1, pssm2)
+pssm_cor(pssm1, pssm2, method = "spearman")
 }
 \arguments{
 \item{pssm1}{first PSSM matrix or data frame}
 
 \item{pssm2}{second PSSM matrix or data frame}
+
+\item{method}{method to use for computing the correlation. See \code{\link[stats]{cor}} for details.}
 }
 \value{
 Correlation between the two PSSMs

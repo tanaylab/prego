@@ -197,6 +197,7 @@ pssm_diff <- function(pssm1, pssm2) {
 #'
 #' @param pssm1 first PSSM matrix or data frame
 #' @param pssm2 second PSSM matrix or data frame
+#' @param method method to use for computing the correlation. See \code{\link[stats]{cor}} for details.
 #'
 #' @return Correlation between the two PSSMs
 #'
@@ -207,7 +208,7 @@ pssm_diff <- function(pssm1, pssm2) {
 #' }
 #'
 #' @export
-pssm_cor <- function(pssm1, pssm2) {
+pssm_cor <- function(pssm1, pssm2, method = "spearman") {
     pssm1 <- pssm_to_mat(pssm1)
     pssm2 <- pssm_to_mat(pssm2)
     n_pos1 <- nrow(pssm1)
@@ -235,7 +236,7 @@ pssm_cor <- function(pssm1, pssm2) {
     pssm_l <- pssm_l / rowSums(pssm_l)
 
     scores <- purrr::map_dbl(1:(max_pos - window_size + 1), ~ {
-        cor(as.vector(t(pssm_l[.x:(.x + window_size - 1), ])), as.vector(t(pssm_s)))
+        cor(as.vector(t(pssm_l[.x:(.x + window_size - 1), ])), as.vector(t(pssm_s)), method = method)
     })
 
     return(max(scores))
@@ -259,8 +260,10 @@ pssm_cor <- function(pssm1, pssm2) {
 #' pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
 #' }
 #'
+#' @inheritParams pssm_cor
+#'
 #' @export
-pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.parallel", TRUE)) {
+pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel = getOption("prego.parallel", TRUE)) {
     if (!is.data.frame(motifs)) {
         cli_abort("The {.field motifs} argument should be a data frame")
     }
@@ -272,7 +275,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.p
     }
 
     res <- plyr::ddply(motifs, "motif", function(x) {
-        tibble(cor = pssm_cor(pssm, x))
+        tibble(cor = pssm_cor(pssm, x, method = method))
     }, .parallel = parallel)
 
     res <- res %>% arrange(desc(cor))
