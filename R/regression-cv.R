@@ -8,6 +8,7 @@
 #' @param categories vector of categories for each sequence (optional)
 #' @param use_sample whether to use sampled optimization or not.
 #' @param parallel whether to run the cross-validation in parallel.
+#' @param fold_parallel whether to run the optimization in each fold in parallel. It is recommended to set this to FALSE if \code{parallel} is TRUE.
 #' @param add_full_model whether to add the full model (without cross-validation) to the results.
 #'
 #' @return a list with the following elements:
@@ -64,6 +65,7 @@ regress_pwm.cv <- function(sequences,
                            use_sample = FALSE,
                            seed = 60427,
                            parallel = getOption("prego.parallel", FALSE),
+                           fold_parallel = !parallel && getOption("prego.parallel", FALSE),
                            add_full_model = TRUE,
                            alternative = "less",
                            ...) {
@@ -92,13 +94,15 @@ regress_pwm.cv <- function(sequences,
 
     if (use_sample) {
         cli_alert_info("Using sampled optimization")
-        regression_func <- purrr::partial(regress_pwm.sample, alternative = alternative, parallel = FALSE)
+        func <- regress_pwm.sample
         if ("sample_idxs" %in% names(list(...))) {
             cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.cv}")
         }
     } else {
-        regression_func <- regress_pwm
+        func <- regress_pwm
     }
+
+    regression_func <- purrr::partial(func, alternative = alternative, parallel = fold_parallel)
 
     cv_res <- plyr::llply(unique(folds), function(f) {
         cli_h1("Cross-validation fold {.val {f}}")
@@ -112,7 +116,7 @@ regress_pwm.cv <- function(sequences,
 
         res$test_pred <- res$predict(sequences[test_idxs])
 
-        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred, alternative = alternative)
+        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred)
         return(res)
     }, .parallel = parallel)
 
@@ -136,8 +140,7 @@ regress_pwm.cv <- function(sequences,
     if (add_full_model) {
         res$full_model <- regression_func(sequences,
             response,
-            seed = seed,
-            alternative = alternative,
+            seed = seed,            
             ...
         )
     }
