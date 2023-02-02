@@ -47,6 +47,7 @@ regress_pwm.sample <- function(sequences,
                                seed = 60427,
                                final_metric = NULL,
                                unif_prior = 0.05,
+                               alternative = "two.sided",
                                ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -84,6 +85,7 @@ regress_pwm.sample <- function(sequences,
         parallel = parallel,
         final_metric = final_metric,
         seed = seed,
+        alternative = alternative,
         ...
     )
 
@@ -106,15 +108,15 @@ regress_pwm.sample <- function(sequences,
     res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
 
     if (is_binary_response(response)) {
-        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "less"))
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
     }
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+        res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel, alternative = alternative)
     }
 
     if (screen_db) {
-        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel, alternative = alternative)
     }
 
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
