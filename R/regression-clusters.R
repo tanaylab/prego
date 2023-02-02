@@ -151,7 +151,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
     if (match_with_db) {
         cli_alert_info("Matching with motif databases")
         res$stats$db_match <- purrr::map_chr(cluster_models, "db_match")
-        res$stats$db_match_dist <- purrr::map_chr(cluster_models, "db_match_dist")
+        res$stats$db_match_cor <- purrr::map_chr(cluster_models, "db_match_cor")
         res$pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
         colnames(res$pred_mat_db) <- names(res$stats$db_match)
         rownames(res$pred_mat_db) <- names(sequences)
