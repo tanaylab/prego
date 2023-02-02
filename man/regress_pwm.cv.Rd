@@ -14,6 +14,7 @@ regress_pwm.cv(
   use_sample = FALSE,
   seed = 60427,
   parallel = getOption("prego.parallel", FALSE),
+  fold_parallel = !parallel && getOption("prego.parallel", FALSE),
   add_full_model = TRUE,
   alternative = "less",
   ...
@@ -37,6 +38,8 @@ regress_pwm.cv(
 \item{seed}{random seed}
 
 \item{parallel}{whether to run the cross-validation in parallel.}
+
+\item{fold_parallel}{whether to run the optimization in each fold in parallel. It is recommended to set this to FALSE if \code{parallel} is TRUE.}
 
 \item{add_full_model}{whether to add the full model (without cross-validation) to the results.}
 
