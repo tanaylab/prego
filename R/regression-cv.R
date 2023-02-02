@@ -140,7 +140,7 @@ regress_pwm.cv <- function(sequences,
     if (add_full_model) {
         res$full_model <- regression_func(sequences,
             response,
-            seed = seed,            
+            seed = seed,
             ...
         )
     }
