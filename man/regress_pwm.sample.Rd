@@ -23,6 +23,7 @@ regress_pwm.sample(
   seed = 60427,
   final_metric = NULL,
   unif_prior = 0.05,
+  alternative = "two.sided",
   ...
 )
 }
@@ -67,6 +68,8 @@ is returned, even if it is not similar enough in absolute terms.}
 \item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
 
 \item{unif_prior}{uniform prior for nucleotide probabilities}
+
+\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}

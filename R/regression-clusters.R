@@ -15,6 +15,7 @@
 #' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 #' environment before starting the parallelization, so it is better to run this function in a clean environment.
 #' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.
+#' @param alternative alternative hypothesis for the KS test. Can be "two.sided", "less" or "greater"
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -53,7 +54,7 @@
 #' @inheritParams screen_pwm.clusters
 #'
 #' @export
-regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, screen_db = FALSE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), use_sge = FALSE, dataset = all_motif_datasets(), motifs = NULL, min_D = 0, prior = 0.01, ...) {
+regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_with_db = TRUE, screen_db = FALSE, sample_frac = NULL, sample_ratio = 1, final_metric = "ks", parallel = getOption("prego.parallel", TRUE), use_sge = FALSE, dataset = all_motif_datasets(), motifs = NULL, min_D = 0, prior = 0.01, alternative = "two.sided", ...) {
     if (length(clusters) != length(sequences)) {
         cli_abort("The {.field clusters} vector should have the same length as the {.field sequences} vector")
     }
@@ -165,7 +166,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 
     if (screen_db) {
         cli_alert_info("Screening motif databases for {.val {ncol(cluster_mat)}} clusters")
-        db_match <- screen_pwm.clusters(sequences, clusters, min_D = min_D, dataset = dataset, motifs = motifs, parallel = parallel, prior = prior)
+        db_match <- screen_pwm.clusters(sequences, clusters, min_D = min_D, dataset = dataset, motifs = motifs, parallel = parallel, prior = prior, alternative = alternative)
         db_match <- purrr::imap_dfr(db_match, ~ tibble(cluster = .y, ks_D_db = max(.x), db_motif = rownames(db_match)[which.max(.x)]))
         res$stats <- res$stats %>% left_join(db_match, by = "cluster")
         for (clust in names(cluster_models)) {
@@ -186,6 +187,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' @param clusters a vector with the cluster assignments
 #' @param min_D minimum distance to consider a match
 #' @param only_best if TRUE, only return the best match for each cluster
+#' @param alternative alternative hypothesis for the KS test. Can be "two.sided", "less" or "greater"
 #'
 #' @return a matrix with the KS D statistics for each cluster (columns) and every motif (rows)
 #' that had at least one cluster with D >= min_D. If \code{only_best} is TRUE, a named vector
@@ -204,7 +206,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 #' @inheritParams extract_pwm
 #' @inheritDotParams compute_pwm
 #' @export
-screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_best = FALSE, prior = 0.01, ...) {
+screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), min_D = 0.4, only_best = FALSE, prior = 0.01, alternative = "two.sided", ...) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -215,7 +217,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     res <- plyr::daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         purrr::map_dbl(cluster_ids, function(cl) {
-            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = "less")$statistic)
+            suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = alternative)$statistic)
         })
     }, .parallel = parallel)
     if (is.vector(res)) {

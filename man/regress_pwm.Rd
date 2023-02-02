@@ -38,6 +38,7 @@ regress_multiple_motifs(
   match_with_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
+  alternative = "less",
   ...
 )
 
@@ -76,6 +77,7 @@ regress_pwm(
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
+  alternative = "less",
   ...
 )
 }
@@ -145,6 +147,8 @@ is returned, even if it is not similar enough in absolute terms.}
 
 \item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
 to set the number of cores to use.}
+
+\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}

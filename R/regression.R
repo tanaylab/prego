@@ -37,6 +37,7 @@
 #' @param smooth_k k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.
 #' @param min_kmer_cor minimal correlation between the kmer and the response in order to use it as a seed.
 #' @param internal_num_folds number of folds to use in the internal cross-validation.
+#' @param alternative alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -185,6 +186,7 @@ regress_pwm <- function(sequences,
                         screen_db = FALSE,
                         motif_dataset = all_motif_datasets(),
                         parallel = getOption("prego.parallel", FALSE),
+                        alternative = "less",
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -222,6 +224,7 @@ regress_pwm <- function(sequences,
                 match_with_db = match_with_db,
                 motif_dataset = motif_dataset,
                 parallel = parallel,
+                alternative = alternative,
                 ...
             )
         )
@@ -301,7 +304,7 @@ regress_pwm <- function(sequences,
 
     if (init_from_dataset) {
         cli_alert_info("Initializing from dataset")
-        motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE)
+        motif_name <- screen_pwm(sequences, response, metric = final_metric, prior = unif_prior, bidirect = bidirect, only_best = TRUE, alternative = alternative)
         motif <- get_motif_pssm(motif_name$motif)
         motif <- pssm_add_prior(motif, prior = unif_prior)
         cli_alert_info("Best motif from dataset: {.val {motif_name$motif}}")
@@ -362,6 +365,7 @@ regress_pwm <- function(sequences,
                     match_with_db = match_with_db,
                     screen_db = screen_db,
                     motif_dataset = motif_dataset,
+                    alternative = alternative,
                     ...
                 ))
             }
@@ -426,7 +430,7 @@ regress_pwm <- function(sequences,
     res$seed_motif <- motif
 
     if (is_binary_response(response)) {
-        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = "less"))
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
     }
 
     if (!is.null(kmers)) {
@@ -439,11 +443,11 @@ regress_pwm <- function(sequences,
 
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset)
+        res <- add_regression_db_match(res, sequences, motif_dataset, alternative = alternative)
     }
 
     if (screen_db) {
-        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, alternative = alternative, parallel = parallel)
     }
 
     if (is_binary_response(response)) {
@@ -457,8 +461,8 @@ regress_pwm <- function(sequences,
     return(res)
 }
 
-add_regression_db_screen <- function(res, response, sequences, motif_dataset, metric, prior, bidirect, parallel = getOption("prego.parallel", TRUE)) {
-    scr <- screen_pwm(sequences, response, motif_dataset, metric = metric, prior = prior, bidirect = bidirect, parallel = parallel, only_best = TRUE)
+add_regression_db_screen <- function(res, response, sequences, motif_dataset, metric, prior, bidirect, alternative, parallel = getOption("prego.parallel", TRUE)) {
+    scr <- screen_pwm(sequences, response, motif_dataset, metric = metric, prior = prior, bidirect = bidirect, parallel = parallel, alternative = alternative, only_best = TRUE)
 
     cli_alert_info("Best db motif: {.val {scr$motif[1]}}")
     cli_alert_info("Best db motif score ({.val {metric}}): {.val {scr$score[1]}}")
@@ -470,7 +474,7 @@ add_regression_db_screen <- function(res, response, sequences, motif_dataset, me
     return(res)
 }
 
-add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = getOption("prego.parallel", TRUE)) {
+add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, parallel = getOption("prego.parallel", TRUE)) {
     best_match <- pssm_match(reg$pssm, motif_dataset, parallel = parallel)[1, ]
     reg$db_match <- best_match$motif
     reg$db_match_dist <- best_match$dist
@@ -481,7 +485,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, parallel = ge
     reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
     reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
     if (is_binary_response(reg$response)) {
-        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = "less"))
+        reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = alternative))
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
     }
     return(reg)
@@ -516,6 +520,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     match_with_db = FALSE,
                                     screen_db = FALSE,
                                     motif_dataset = all_motif_datasets(),
+                                    alternative = "two.sided",
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -550,7 +555,8 @@ regress_pwm.multi_kmers <- function(sequences,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
         internal_num_folds = internal_num_folds,
-        match_with_db = FALSE
+        match_with_db = FALSE,
+        alternative = alternative
     )
 
     cli_h3("Generate candidate kmers")
@@ -604,11 +610,11 @@ regress_pwm.multi_kmers <- function(sequences,
     }
 
     if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel)
+        res <- add_regression_db_match(res, sequences, motif_dataset, alternative = alternative, parallel = parallel)
     }
 
     if (screen_db) {
-        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, parallel = parallel)
+        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, alternative = alternative, prior = unif_prior, bidirect = bidirect, parallel = parallel)
     }
 
     cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")

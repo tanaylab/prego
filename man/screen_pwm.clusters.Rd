@@ -13,6 +13,7 @@ screen_pwm.clusters(
   min_D = 0.4,
   only_best = FALSE,
   prior = 0.01,
+  alternative = "two.sided",
   ...
 )
 }
@@ -32,6 +33,8 @@ screen_pwm.clusters(
 \item{only_best}{if TRUE, only return the best match for each cluster}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{alternative}{alternative hypothesis for the KS test. Can be "two.sided", "less" or "greater"}
 
 \item{...}{
   Arguments passed on to \code{\link[=compute_pwm]{compute_pwm}}

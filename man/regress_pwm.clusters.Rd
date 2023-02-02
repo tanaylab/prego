@@ -19,6 +19,7 @@ regress_pwm.clusters(
   motifs = NULL,
   min_D = 0,
   prior = 0.01,
+  alternative = "two.sided",
   ...
 )
 }
@@ -59,6 +60,8 @@ Also, Note that 'prego' needs to be installed in order for this to work, i.e. yo
 \item{min_D}{minimum distance to consider a match}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{alternative}{alternative hypothesis for the KS test. Can be "two.sided", "less" or "greater"}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=regress_pwm.sample]{regress_pwm.sample}}

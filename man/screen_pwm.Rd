@@ -13,6 +13,7 @@ screen_pwm(
   parallel = getOption("prego.parallel", TRUE),
   only_best = FALSE,
   prior = 0.01,
+  alternative = "two.sided",
   ...
 )
 }
@@ -32,6 +33,8 @@ screen_pwm(
 \item{only_best}{return only the best motif (the one with the highest score). If FALSE, all the motifs will be returned.}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{alternative}{alternative hypothesis for the KS test. One of 'two.sided', 'less' or 'greater'.}
 
 \item{...}{
   Arguments passed on to \code{\link[=compute_pwm]{compute_pwm}}
