@@ -116,7 +116,7 @@ regress_pwm.cv <- function(sequences,
 
         res$test_pred <- res$predict(sequences[test_idxs])
 
-        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred)
+        res$test_score <- score_model(metric, response[test_idxs, , drop = FALSE], res$test_pred, alternative = alternative)
         return(res)
     }, .parallel = parallel)
 
