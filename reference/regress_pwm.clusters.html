@@ -268,18 +268,18 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening motif databases for <span style="color: #0000BB;">5</span> clusters</span>
 <span class="r-in"><span><span class="va">res_screen</span><span class="op">$</span><span class="va">stats</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 5 x 9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif            db_match</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   AT***TC 0.6761136 0.3393595 ***ATCCATCA****       JASPAR.WRKY43</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111    Y*RTAA 0.8448837 0.4916430 ***CCATAAAA**** JOLMA.CDX1_mono_DBD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 T*A***W*Y 0.8344155 0.5294243 ***TAATCATT****       JASPAR.Lhx3/4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      GATA 0.6025883 0.2055520 ***CTGATAAG****    JASPAR.GATA1/2/3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6       ATC 0.6026546 0.2715390 ***ATCTTATC****         JASPAR.NID1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   db_match_dist   ks_D_db     db_motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      0.288080 0.6337245  HOMER.HOXA2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0.186615 0.7803839  JASPAR.CDX1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0.351993 0.8510730 JASPAR.HNF1A</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      0.185342 0.5793942  HOMER.Gata2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      0.239715 0.5790557 JASPAR.GATA5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif              db_match</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100  WGA***AT 0.6654275 0.3109461 ***TGA*GGATG***           HOMER.Hoxb4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111    TTAY*R 0.8373912 0.4980948 ***TTTACAAC****          JASPAR.Abd-B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29       T*A 0.8299106 0.5407746 ***TTA*TCATT*** JOLMA.HNF1B_di_full_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      GATA 0.6001505 0.1872173 ***CTGA*AAGG***  JOLMA.GATA3_mono_DBD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6       ATC 0.6108239 0.2729334 ***TCTTATCT****           HOMER.Gata2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   db_match_cor   ks_D_db     db_motif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     0.790131 0.6337245  HOMER.HOXA2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     0.825818 0.7803839  JASPAR.CDX1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     0.754056 0.8510730 JASPAR.HNF1A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     0.937572 0.5793942  HOMER.Gata2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     0.834088 0.5790557 JASPAR.GATA5</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_regression_qc.html">plot_regression_qc</a></span><span class="op">(</span><span class="va">res_screen</span><span class="op">$</span><span class="va">models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res_screen</span><span class="op">$</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="regress_pwm.clusters-1.png" alt="" width="700" height="433"></span>
