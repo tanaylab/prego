@@ -2,7 +2,7 @@
 % Please edit documentation in R/pssm-utils.R
 \name{pssm_diff}
 \alias{pssm_diff}
-\title{Compute PSSM difference}
+\title{Compute KL divergence between two PSSMs}
 \usage{
 pssm_diff(pssm1, pssm2)
 }
@@ -15,7 +15,7 @@ pssm_diff(pssm1, pssm2)
 KL divergence between the two PSSMs
 }
 \description{
-Compute PSSM difference
+Compute KL divergence between two PSSMs
 }
 \examples{
 \dontrun{

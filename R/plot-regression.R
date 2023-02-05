@@ -156,22 +156,22 @@ plot_regression_qc <- function(reg,
         p_pred <- plot_regression_prediction(reg$pred, response)
     }
 
-    if (is.null(reg$db_match) || is.null(reg$db_match_dist)) {
+    if (is.null(reg$db_match) || is.null(reg$db_match_cor)) {
         match_df <- pssm_match(reg$pssm, all_motif_datasets())
         best_motif <- match_df[1, ]
         reg$db_match <- best_motif$motif
-        reg$db_match_dist <- best_motif$dist
+        reg$db_match_cor <- best_motif$cor
     }
 
-    m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}")
+    m_subtitle <- glue("cor: {round(reg$db_match_cor, digits = 3)}")
 
     if (is_binary_response(response)) {
         if (!is.null(reg$db_match_ks)) {
-            m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}, KS D: {round(reg$db_match_ks$statistic, digits = 3)}")
+            m_subtitle <- glue("cor: {round(reg$db_match_cor, digits = 3)}, KS D: {round(reg$db_match_ks$statistic, digits = 3)}")
         }
     } else {
         if (!is.null(reg$db_match_r2)) {
-            m_subtitle <- glue("dist: {round(reg$db_match_dist, digits = 3)}, R2: {round(reg$db_match_r2, digits = 3)}")
+            m_subtitle <- glue("cor: {round(reg$db_match_cor, digits = 3)}, R2: {round(reg$db_match_r2, digits = 3)}")
         }
     }
 

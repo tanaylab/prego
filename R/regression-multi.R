@@ -135,7 +135,7 @@ regress_multiple_motifs <- function(sequences,
     if (match_with_db) {
         stats <- stats %>% mutate(
             db_match = sapply(models, function(x) x$db_match),
-            db_match_dist = sapply(models, function(x) x$db_match_dist),
+            db_match_cor = sapply(models, function(x) x$db_match_cor),
             db_match_r2 = sapply(models, function(x) x$db_match_r2)
         )
         if (is_binary_response(response)) {

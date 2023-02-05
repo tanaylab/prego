@@ -120,7 +120,7 @@ a list with the following elements:
 When \code{match_with_db} is TRUE, the following additional elements are returned:
 \itemize{
 \item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
-\item{db_match_dist: }{The distance between the resulting PSSM and the closest match in the motif database (KL divergence).}
+\item{db_match_cor: }{The correlation between the resulting PSSM and the closest match in the motif database.}
 \item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
 \item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
 \item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
