@@ -8,6 +8,7 @@ pssm_match(
   pssm,
   motifs,
   best = FALSE,
+  method = "spearman",
   parallel = getOption("prego.parallel", TRUE)
 )
 }
@@ -18,13 +19,15 @@ pssm_match(
 
 \item{best}{return the best match only}
 
+\item{method}{method to use for computing the correlation. See \code{\link[stats]{cor}} for details.}
+
 \item{parallel}{use parallel processing. Set the number of cores using \code{set_parallel}.}
 }
 \value{
-if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'dist' with its distance from \code{pssm}. The data frame is sorted by increasing distance.
+if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'cor' with its correlation to \code{pssm}. The data frame is sorted by descreasing correlation.
 }
 \description{
-Match PSSM to a directory of motifs
+Match a PSSM to a directory of motifs. The PSSM is matched to each motif in the directory by computing the correlation between the two PSSMs.
 }
 \examples{
 \dontrun{

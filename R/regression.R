@@ -57,7 +57,7 @@
 #' When \code{match_with_db} is TRUE, the following additional elements are returned:
 #' \itemize{
 #' \item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
-#' \item{db_match_dist: }{The distance between the resulting PSSM and the closest match in the motif database (KL divergence).}
+#' \item{db_match_cor: }{The correlation between the resulting PSSM and the closest match in the motif database.}
 #' \item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
 #' \item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
 #' \item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
@@ -477,8 +477,8 @@ add_regression_db_screen <- function(res, response, sequences, motif_dataset, me
 add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, parallel = getOption("prego.parallel", TRUE)) {
     best_match <- pssm_match(reg$pssm, motif_dataset, parallel = parallel)[1, ]
     reg$db_match <- best_match$motif
-    reg$db_match_dist <- best_match$dist
-    cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$dist, digits = 3)}}")
+    reg$db_match_cor <- best_match$cor
+    cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$cor, digits = 3)}}")
     reg$db_match_pssm <- motif_dataset %>%
         filter(motif == best_match$motif) %>%
         select(pos, A, C, G, T)

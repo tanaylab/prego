@@ -136,7 +136,7 @@ pssm_add_prior <- function(pssm_df, prior) {
     pssm_mat_to_df(pssm_mat)
 }
 
-#' Compute PSSM difference
+#' Compute KL divergence between two PSSMs
 #'
 #' @param pssm1 first PSSM matrix or data frame
 #' @param pssm2 second PSSM matrix or data frame
@@ -155,6 +155,10 @@ pssm_diff <- function(pssm1, pssm2) {
     pssm2 <- pssm_to_mat(pssm2)
     n_pos1 <- nrow(pssm1)
     n_pos2 <- nrow(pssm2)
+
+    if (n_pos1 == 0 || n_pos2 == 0) {
+        cli::cli_abort("PSSM matrices cannot be empty")
+    }
 
     window_size <- min(n_pos1, n_pos2)
     max_pos <- max(n_pos1, n_pos2)
@@ -186,14 +190,68 @@ pssm_diff <- function(pssm1, pssm2) {
     return(min(kl_scores))
 }
 
+#' Compute the correlation between two given PSSMs
+#'
+#' @description The correlation is computed by shifting the shorter PSSM along the longer one
+#' and computing the correlation at each position. The maximum correlation is returned.
+#'
+#' @param pssm1 first PSSM matrix or data frame
+#' @param pssm2 second PSSM matrix or data frame
+#' @param method method to use for computing the correlation. See \code{\link[stats]{cor}} for details.
+#'
+#' @return Correlation between the two PSSMs
+#'
+#' @examples
+#' \dontrun{
+#' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' pssm_cor(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
+#' }
+#'
+#' @export
+pssm_cor <- function(pssm1, pssm2, method = "spearman") {
+    pssm1 <- pssm_to_mat(pssm1)
+    pssm2 <- pssm_to_mat(pssm2)
+    n_pos1 <- nrow(pssm1)
+    n_pos2 <- nrow(pssm2)
+
+    if (n_pos1 == 0 || n_pos2 == 0) {
+        cli::cli_abort("PSSM matrices cannot be empty")
+    }
+
+    window_size <- min(n_pos1, n_pos2)
+    max_pos <- max(n_pos1, n_pos2)
+
+    if (n_pos1 > n_pos2) {
+        pssm_s <- pssm2
+        pssm_l <- pssm1
+    } else {
+        pssm_s <- pssm1
+        pssm_l <- pssm2
+    }
+
+    epsilon <- 1e-10 # to avoid division by 0 or log(0)
+    pssm_s <- pssm_s + epsilon
+    pssm_s <- pssm_s / rowSums(pssm_s) # renormalize
+    pssm_l <- pssm_l + epsilon
+    pssm_l <- pssm_l / rowSums(pssm_l)
+
+    scores <- purrr::map_dbl(1:(max_pos - window_size + 1), ~ {
+        cor(as.vector(t(pssm_l[.x:(.x + window_size - 1), ])), as.vector(t(pssm_s)), method = method)
+    })
+
+    return(max(scores))
+}
+
 #' Match PSSM to a directory of motifs
+#'
+#' @description Match a PSSM to a directory of motifs. The PSSM is matched to each motif in the directory by computing the correlation between the two PSSMs.
 #'
 #' @param pssm PSSM matrix or data frame
 #' @param motifs a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name
 #' @param best return the best match only
 #' @param parallel use parallel processing. Set the number of cores using \code{set_parallel}.
 #'
-#' @return if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'dist' with its distance from \code{pssm}. The data frame is sorted by increasing distance.
+#' @return if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'cor' with its correlation to \code{pssm}. The data frame is sorted by descreasing correlation.
 #'
 #' @examples
 #' \dontrun{
@@ -202,8 +260,10 @@ pssm_diff <- function(pssm1, pssm2) {
 #' pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
 #' }
 #'
+#' @inheritParams pssm_cor
+#'
 #' @export
-pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.parallel", TRUE)) {
+pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel = getOption("prego.parallel", TRUE)) {
     if (!is.data.frame(motifs)) {
         cli_abort("The {.field motifs} argument should be a data frame")
     }
@@ -215,10 +275,10 @@ pssm_match <- function(pssm, motifs, best = FALSE, parallel = getOption("prego.p
     }
 
     res <- plyr::ddply(motifs, "motif", function(x) {
-        tibble(dist = pssm_diff(pssm, x))
+        tibble(cor = pssm_cor(pssm, x, method = method))
     }, .parallel = parallel)
 
-    res <- res %>% arrange(dist)
+    res <- res %>% arrange(desc(cor))
 
     if (best) {
         return(res$motif[1])
