@@ -600,6 +600,9 @@ regress_pwm.multi_kmers <- function(sequences,
         cli_alert_warning("No motifs found")
         res <- res_kmer_list[[1]]
     } else {
+        if (is.matrix(scores) && nrow(scores) > 1) {
+            scores <- colMeans(scores)
+        }
         res <- res_kmer_list[[which.max(scores)]]
     }
 
