@@ -478,7 +478,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
     best_match <- pssm_match(reg$pssm, motif_dataset, parallel = parallel)[1, ]
     reg$db_match <- best_match$motif
     reg$db_match_cor <- best_match$cor
-    cli_alert_info("Best match in the database: {.val {best_match$motif}}, KL: {.val {round(best_match$cor, digits = 3)}}")
+    cli_alert_info("Best match in the database: {.val {best_match$motif}}, cor: {.val {round(best_match$cor, digits = 3)}}")
     reg$db_match_pssm <- motif_dataset %>%
         filter(motif == best_match$motif) %>%
         select(pos, A, C, G, T)
