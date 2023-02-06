@@ -190,22 +190,15 @@ plot_regression_qc <- function(reg,
             subtitle = glue("score: {round(reg$db_motif_score, digits = 3)}")
         )
 
-        if (is_binary_response(response)) {
-            p_pred_db <- plot_regression_prediction_binary(reg$db_motif_pred, response)
-        } else {
-            p_pred_db <- plot_regression_prediction(reg$db_motif_pred, response)
-        }
-
         design <- "LS
                    MR
-                   DP"
+                   DN"
         p <- patchwork::wrap_plots(
             L = plot_pssm_logo(reg$pssm),
             S = plot_spat_model(reg$spat),
             R = p_pred,
             M = p_match,
             D = p_db_logo,
-            P = p_pred_db,
             design = design
         )
     } else {
