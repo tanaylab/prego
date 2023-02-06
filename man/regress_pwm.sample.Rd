@@ -17,7 +17,7 @@ regress_pwm.sample(
   sample_idxs = NULL,
   sample_ratio = 1,
   parallel = getOption("prego.parallel", TRUE),
-  match_with_db = FALSE,
+  match_with_db = TRUE,
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
   seed = 60427,
