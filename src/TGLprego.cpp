@@ -337,6 +337,10 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     }
 
     for (auto k = multi.get_pat_begin(); k != multi.get_pat_end(); k++) {
+        // if pattern has 'N' skip
+        if (k->first.find('N') != string::npos) {
+            continue;
+        }
         vector<float> cov(resp_dim, 0);
         vector<float> corr(resp_dim, 0);
         float avg_multi = 0;
