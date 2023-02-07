@@ -61,6 +61,64 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
     return(pwm)
 }
 
+#' Compute local PWMs for a set of sequences given a PSSM matrix
+#'
+#' @description compute the local PWM for each position in every sequence. The edges of each sequences would become NA.
+#'
+#' @return a matrix with \code{length(sequences)} rows and \code{ncol(pssm)} columns with the local PWM for each sequence in each position.
+#'
+#' @examples
+#' \dontrun{
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#'
+#' pwm <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat)
+#' head(pwm)
+#' }
+#'
+#' @inheritParams compute_pwm
+#' @export
+compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+    if (is.null(spat)) {
+        spat <- data.frame(bin = 0, spat_factor = 1)
+        binsize <- nchar(sequences[[1]])
+    } else {
+        validate_spat(spat)
+        binsize <- unique(diff(spat$bin))
+    }
+
+    if (is.null(spat_max)) {
+        spat_max <- nchar(sequences[1])
+    }
+
+    if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
+        cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
+    }
+
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
+    pwm <- compute_local_pwm_cpp(
+        sequences = toupper(sequences),
+        pssm_mat = pssm_mat,
+        is_bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_factor = spat$spat_factor,
+        bin_size = binsize
+    )
+
+    return(pwm)
+}
+
+
+
 validate_spat <- function(spat) {
     if (!is.data.frame(spat)) {
         cli_abort("The {.field spat} argument should be a data frame")
@@ -75,6 +133,63 @@ validate_spat <- function(spat) {
     if (length(binsize) > 1) {
         cli_abort("The bins in {.field spat} should be of equal size")
     }
+}
+
+#' Mask sequences by thresholding the PWM
+#'
+#' @description Mask sequences by thresholding the PWM. Sequences with a PWM above the threshold will be masked by 'N'.
+#' Sequences at the edges of the sequences will also be masked by 'N'.
+#'
+#' @param mask_thresh Threshold for masking. Sequences with a PWM above this threshold will be masked by 'N'.
+#'
+#' @return A vector with the masked sequences.
+#'
+#' @examples
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' new_sequences <- mask_sequences_by_pwm(cluster_sequences_example, res$pssm, quantile(res$pred, 0.95), spat = res$spat)
+#' head(new_sequences)
+#'
+#' @inheritParams compute_pwm
+#' @export
+mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+    if (is.null(spat)) {
+        spat <- data.frame(bin = 0, spat_factor = 1)
+        binsize <- nchar(sequences[[1]])
+    } else {
+        validate_spat(spat)
+        binsize <- unique(diff(spat$bin))
+    }
+
+    if (is.null(spat_max)) {
+        spat_max <- nchar(sequences[1])
+    }
+
+    if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
+        cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
+    }
+
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
+    res <- mask_sequences_cpp(
+        sequences = toupper(sequences),
+        pssm_mat = pssm_mat,
+        is_bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_factor = spat$spat_factor,
+        bin_size = binsize,
+        mask_thresh = mask_thresh
+    )
+
+    return(res)
 }
 
 

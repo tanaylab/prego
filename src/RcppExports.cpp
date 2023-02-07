@@ -40,6 +40,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_local_pwm_cpp
+Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size);
+RcppExport SEXP _prego_compute_local_pwm_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type pssm_mat(pssm_matSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type is_bidirect(is_bidirectSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_min(spat_minSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type spat_factor(spat_factorSEXP);
+    Rcpp::traits::input_parameter< const int& >::type bin_size(bin_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_local_pwm_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mask_sequences_cpp
+Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size, const float& mask_thresh);
+RcppExport SEXP _prego_mask_sequences_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP, SEXP mask_threshSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type pssm_mat(pssm_matSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type is_bidirect(is_bidirectSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_min(spat_minSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type spat_factor(spat_factorSEXP);
+    Rcpp::traits::input_parameter< const int& >::type bin_size(bin_sizeSEXP);
+    Rcpp::traits::input_parameter< const float& >::type mask_thresh(mask_threshSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_sequences_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh));
+    return rcpp_result_gen;
+END_RCPP
+}
 // regress_pwm_cpp
 Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const float& improve_epsilon, const bool& is_bidirect, const float& unif_prior, const std::string& score_metric, const int& verbose, const int& seed, const Rcpp::NumericMatrix& pssm_mat, const Rcpp::Nullable<Rcpp::NumericVector>& spat_factor, const float& consensus_single_thresh, const float& consensus_double_thresh, const int& num_folds);
 RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP improve_epsilonSEXP, SEXP is_bidirectSEXP, SEXP unif_priorSEXP, SEXP score_metricSEXP, SEXP verboseSEXP, SEXP seedSEXP, SEXP pssm_matSEXP, SEXP spat_factorSEXP, SEXP consensus_single_threshSEXP, SEXP consensus_double_threshSEXP, SEXP num_foldsSEXP) {
@@ -96,6 +131,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 7},
+    {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
+    {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 8},
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 19},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 13},
     {NULL, NULL, 0}

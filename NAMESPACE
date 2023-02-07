@@ -2,11 +2,13 @@
 
 export("%>%")
 export(all_motif_datasets)
+export(compute_local_pwm)
 export(compute_pwm)
 export(consensus_from_pssm)
 export(extract_pwm)
 export(get_motif_pssm)
 export(gextract_pwm)
+export(mask_sequences_by_pwm)
 export(plot_pssm_logo)
 export(plot_pssm_logo_dataset)
 export(plot_regression_prediction)
