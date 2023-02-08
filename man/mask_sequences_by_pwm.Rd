@@ -24,7 +24,7 @@ mask_sequences_by_pwm(
 \item{mask_thresh}{Threshold for masking. Sequences with a PWM above this threshold will be masked by 'N'.}
 
 \item{pos_bits_thresh}{Mask only positions with amount of information contributed (Shannon entropy, measured in bits) above this threshold.
-This is the same as the y axis in the pssm logo plots.}
+The scale is the same as the y axis in the pssm logo plots.}
 
 \item{spat}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
 
