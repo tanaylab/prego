@@ -120,14 +120,15 @@ Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
 
 // [[Rcpp::export]]
 Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector &sequences,
-                                    const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
-                                    const int &spat_min, const int &spat_max,
-                                    const Rcpp::NumericVector &spat_factor, const int &bin_size, const float &mask_thresh) {    
+                                      const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
+                                      const int &spat_min, const int &spat_max,
+                                      const Rcpp::NumericVector &spat_factor, const int &bin_size,
+                                      const float &mask_thresh, const Rcpp::LogicalVector &pos_mask) {
     vector<string> seqs = Rcpp::as<vector<string>>(sequences);
     vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
     int smin = spat_min;
     int smax = spat_max;
-    int motif_len = pssm_mat.nrow();
+    int motif_len = pssm_mat.nrow();    
 
     // clone sequences
     vector<string> output = seqs;
@@ -154,7 +155,12 @@ Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector &sequences,
             float energy;
             pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
             if (energy > mask_thresh) {
-                output[i].replace(j, motif_len, motif_len, 'N');
+                // replace only the positions that are not masked (i.e. are informative)
+                for (int k = 0; k < motif_len; k++) {
+                    if (pos_mask[k]) {
+                        output[i][j + k] = 'N';
+                    }
+                }                
             }
         }    
 

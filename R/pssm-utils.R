@@ -117,8 +117,6 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
     return(pwm)
 }
 
-
-
 validate_spat <- function(spat) {
     if (!is.data.frame(spat)) {
         cli_abort("The {.field spat} argument should be a data frame")
@@ -135,12 +133,22 @@ validate_spat <- function(spat) {
     }
 }
 
+bits_per_pos <- function(pssm) {
+    pssm <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    pssm <- pssm / rowSums(pssm)
+    bits <- log2(4) + rowSums(pssm * log2(pssm))
+    bits <- pmax(bits, 0)
+    return(bits)
+}
+
 #' Mask sequences by thresholding the PWM
 #'
 #' @description Mask sequences by thresholding the PWM. Sequences with a PWM above the threshold will be masked by 'N'.
 #' Sequences at the edges of the sequences will also be masked by 'N'.
 #'
 #' @param mask_thresh Threshold for masking. Sequences with a PWM above this threshold will be masked by 'N'.
+#' @param pos_bits_thresh Mask only positions with amount of information contributed (Shannon entropy, measured in bits) above this threshold.
+#' The scale is the same as the y axis in the pssm logo plots.
 #'
 #' @return A vector with the masked sequences.
 #'
@@ -151,7 +159,7 @@ validate_spat <- function(spat) {
 #'
 #' @inheritParams compute_pwm
 #' @export
-mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, pos_bits_thresh = 0.2, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -178,6 +186,14 @@ mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, spat = NULL, spa
         pssm_mat <- pssm_mat + prior
     }
 
+    bits <- bits_per_pos(pssm)
+    pos_mask <- bits > pos_bits_thresh
+    if (sum(pos_mask) == 0) {
+        cli_warn("No positions with information content above {.val {pos_bits_thresh}} were found")
+    } else {
+        cli_alert_info("The following positions will be masked: {.val {which(pos_mask)}}. Overall {.val {sum(pos_mask)}} positions will be masked")
+    }
+
     res <- mask_sequences_cpp(
         sequences = toupper(sequences),
         pssm_mat = pssm_mat,
@@ -186,7 +202,8 @@ mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, spat = NULL, spa
         spat_max = spat_max,
         spat_factor = spat$spat_factor,
         bin_size = binsize,
-        mask_thresh = mask_thresh
+        mask_thresh = mask_thresh,
+        pos_mask = pos_mask
     )
 
     return(res)

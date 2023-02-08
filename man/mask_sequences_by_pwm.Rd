@@ -8,6 +8,7 @@ mask_sequences_by_pwm(
   sequences,
   pssm,
   mask_thresh,
+  pos_bits_thresh = 0.2,
   spat = NULL,
   spat_min = 0,
   spat_max = NULL,
@@ -21,6 +22,9 @@ mask_sequences_by_pwm(
 \item{pssm}{a PSSM matrix or data frame. The columns of the matrix or data frame should be named with the nucleotides ('A', 'C', 'G' and 'T').}
 
 \item{mask_thresh}{Threshold for masking. Sequences with a PWM above this threshold will be masked by 'N'.}
+
+\item{pos_bits_thresh}{Mask only positions with amount of information contributed (Shannon entropy, measured in bits) above this threshold.
+This is the same as the y axis in the pssm logo plots.}
 
 \item{spat}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
 

@@ -6,6 +6,6 @@ test_that("Mask sequences by PWM", {
         G = c(0.30, 0.30, 0.30, 0.30),
         T = c(0.30, 0.30, 0.30, 0.30)
     )
-    res <- mask_sequences_by_pwm(seq, pwm, -4.6)
+    res <- mask_sequences_by_pwm(seq, pwm, -4.6, pos_bits_thresh = 0)
     expect_equal(res, c("NNNNGNNNNNNN", "TTTTTTTTNNNN", "TTTTTTTTNNNN", "NNNNGNNNNNNN", "TTTTTTTTNNNN", "TTTTTTTTNNNN"))
 })

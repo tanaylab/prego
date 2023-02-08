@@ -58,8 +58,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // mask_sequences_cpp
-Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size, const float& mask_thresh);
-RcppExport SEXP _prego_mask_sequences_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP, SEXP mask_threshSEXP) {
+Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size, const float& mask_thresh, const Rcpp::LogicalVector& pos_mask);
+RcppExport SEXP _prego_mask_sequences_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP, SEXP mask_threshSEXP, SEXP pos_maskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -71,7 +71,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type spat_factor(spat_factorSEXP);
     Rcpp::traits::input_parameter< const int& >::type bin_size(bin_sizeSEXP);
     Rcpp::traits::input_parameter< const float& >::type mask_thresh(mask_threshSEXP);
-    rcpp_result_gen = Rcpp::wrap(mask_sequences_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh));
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type pos_mask(pos_maskSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_sequences_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh, pos_mask));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -132,7 +133,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 7},
     {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
-    {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 8},
+    {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 9},
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 19},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 13},
     {NULL, NULL, 0}
