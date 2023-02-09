@@ -424,6 +424,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' @param pssm the 'pssm' field from the regression result
 #' @param title title of the plot
 #' @param subtitle subtitle of the plot
+#' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
 #'
 #' @return a ggplot object
 #'
@@ -434,10 +435,22 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' }
 #'
 #' @export
-plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver()) {
+plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
     pfm <- t(pssm_to_mat(pssm))
-    ggseqlogo::ggseqlogo(pfm) +
+    p <- ggseqlogo::ggseqlogo(pfm) +
         ggtitle(title, subtitle = subtitle)
+    if (!is.null(pos_bits_thresh)) {
+        bits <- bits_per_pos(t(pfm))
+        pos_mask <- bits > pos_bits_thresh
+        rect_data <- tibble(
+            x = which(pos_mask) - 0.5,
+            xend = x + 1,
+            y = 0,
+            yend = max(bits)
+        )
+        p <- p + geom_rect(data = rect_data, aes(xmin = x, xmax = xend, ymin = y, ymax = yend), fill = "red", alpha = 0.1)
+    }
+    return(p)
 }
 
 #' Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
@@ -455,11 +468,11 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #'
 #' @inheritParams plot_pssm_logo
 #' @export
-plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver()) {
+plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
     motif_dataset <- dataset %>%
         filter(motif == !!motif)
     if (nrow(motif_dataset) == 0) {
         cli_abort("The motif {.val {motif}} was not found in the dataset")
     }
-    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle)
+    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh)
 }

@@ -4,7 +4,12 @@
 \alias{plot_pssm_logo}
 \title{Plot LOGO of the pssm result from the regression}
 \usage{
-plot_pssm_logo(pssm, title = "Sequence model", subtitle = ggplot2::waiver())
+plot_pssm_logo(
+  pssm,
+  title = "Sequence model",
+  subtitle = ggplot2::waiver(),
+  pos_bits_thresh = NULL
+)
 }
 \arguments{
 \item{pssm}{the 'pssm' field from the regression result}
@@ -12,6 +17,8 @@ plot_pssm_logo(pssm, title = "Sequence model", subtitle = ggplot2::waiver())
 \item{title}{title of the plot}
 
 \item{subtitle}{subtitle of the plot}
+
+\item{pos_bits_thresh}{Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.}
 }
 \value{
 a ggplot object
