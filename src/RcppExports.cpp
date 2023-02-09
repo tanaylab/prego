@@ -106,8 +106,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // screen_kmers_cpp
-Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const int& L, const int& from_range, const int& to_range, const float& min_cor, const int& min_n, const int& min_gap, const int& max_gap, const int& n_in_train, const int& seed, const bool& verbose);
-RcppExport SEXP _prego_screen_kmers_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP LSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP, SEXP min_corSEXP, SEXP min_nSEXP, SEXP min_gapSEXP, SEXP max_gapSEXP, SEXP n_in_trainSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
+Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const int& L, const int& from_range, const int& to_range, const float& min_cor, const int& min_gap, const int& max_gap, const int& n_in_train, const int& seed, const bool& verbose);
+RcppExport SEXP _prego_screen_kmers_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP LSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP, SEXP min_corSEXP, SEXP min_gapSEXP, SEXP max_gapSEXP, SEXP n_in_trainSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -118,13 +118,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type from_range(from_rangeSEXP);
     Rcpp::traits::input_parameter< const int& >::type to_range(to_rangeSEXP);
     Rcpp::traits::input_parameter< const float& >::type min_cor(min_corSEXP);
-    Rcpp::traits::input_parameter< const int& >::type min_n(min_nSEXP);
     Rcpp::traits::input_parameter< const int& >::type min_gap(min_gapSEXP);
     Rcpp::traits::input_parameter< const int& >::type max_gap(max_gapSEXP);
     Rcpp::traits::input_parameter< const int& >::type n_in_train(n_in_trainSEXP);
     Rcpp::traits::input_parameter< const int& >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< const bool& >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(screen_kmers_cpp(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose));
+    rcpp_result_gen = Rcpp::wrap(screen_kmers_cpp(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -135,7 +134,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
     {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 9},
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 19},
-    {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 13},
+    {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {NULL, NULL, 0}
 };
 

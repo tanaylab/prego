@@ -5,7 +5,6 @@
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param kmer_length The number of non-gap characters in motifs that will be screened
 #' @param min_cor Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported
-#' @param min_n Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported
 #' @param is_train a boolean vector that determine which subset of sequences to use when screening
 #' @param min_gap,max_gap the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).
 #' @param from_range Sequences will be considered only from position from_range (default 0)
@@ -41,7 +40,6 @@ screen_kmers <- function(sequences,
                          response,
                          kmer_length = 6,
                          min_cor = 0.08,
-                         min_n = 50,
                          is_train = NULL,
                          min_gap = 0,
                          max_gap = 0,
@@ -95,7 +93,7 @@ screen_kmers <- function(sequences,
     }
 
 
-    cli_alert_info("minimal correlation: {.val {min_cor}}, minimal number of occurrences: {.val {min_n}}")
+    cli_alert_info("minimal correlation: {.val {min_cor}}")
 
     res <- screen_kmers_cpp(
         toupper(sequences),
@@ -105,7 +103,6 @@ screen_kmers <- function(sequences,
         from_range,
         to_range,
         min_cor,
-        min_n,
         min_gap,
         max_gap,
         n_in_train,

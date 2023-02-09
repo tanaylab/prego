@@ -282,7 +282,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
                                  const Rcpp::DataFrame &response,
                                  const Rcpp::LogicalVector &is_train_logical, const int &L,
                                  const int &from_range, const int &to_range, const float &min_cor,
-                                 const int &min_n, const int &min_gap, const int &max_gap,
+                                 const int &min_gap, const int &max_gap,
                                  const int &n_in_train, const int &seed, const bool &verbose) {
 
     Random::reset(seed);
@@ -383,7 +383,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             foc_mots.push_back(k->first);
             foc_scores.push_back(max_r2);
             foc_ids.push_back(foc_ids.size());
-            if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
+            if (max_r2 > best_r2) {
                 best_r2 = max_r2;
                 best_mot = k->first;
                 if (verbose) {
