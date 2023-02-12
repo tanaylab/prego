@@ -9,11 +9,19 @@ compute_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max
     .Call('_prego_compute_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size)
 }
 
+compute_local_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size) {
+    .Call('_prego_compute_local_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size)
+}
+
+mask_sequences_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh, pos_mask) {
+    .Call('_prego_mask_sequences_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh, pos_mask)
+}
+
 regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds = 1L) {
     .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds)
 }
 
-screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose) {
-    .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_n, min_gap, max_gap, n_in_train, seed, verbose)
+screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose) {
+    .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose)
 }
 

@@ -73,6 +73,107 @@ Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
 }
 
 // [[Rcpp::export]]
+Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
+                                    const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
+                                    const int &spat_min, const int &spat_max,
+                                    const Rcpp::NumericVector &spat_factor, const int &bin_size){
+    vector<string> seqs = Rcpp::as<vector<string>>(sequences);
+    vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
+    int smin = spat_min;
+    int smax = spat_max;
+    int motif_len = pssm_mat.nrow();
+
+    DnaPSSM pssm;
+
+    pssm.set_bidirect(is_bidirect);
+    pssm.resize(motif_len);
+    pssm.set_range(smin, smax);
+    for (int i = 0; i < motif_len; i++) {
+        pssm[i].set_weight('A', pssm_mat(i, 0));
+        pssm[i].set_weight('C', pssm_mat(i, 1));
+        pssm[i].set_weight('G', pssm_mat(i, 2));
+        pssm[i].set_weight('T', pssm_mat(i, 3));
+    }
+    pssm.normalize();
+
+    DnaPWML pwml(pssm, spat_fac, bin_size);
+    Rcpp::NumericVector preds(seqs.size());
+
+    Rcpp::NumericMatrix local_preds(seqs.size(), seqs[0].length());
+
+    for (size_t i = 0; i < seqs.size(); i++) {
+        // go over windows of motif_len and compute local scores
+        for (size_t j = 0; j < seqs[i].length() - motif_len + 1; j++) {
+            float energy;
+            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+            local_preds(i, j) = energy;
+        }
+
+        // fill in the rest with NA
+        for (size_t j = seqs[i].length() - motif_len + 1; j < seqs[i].length(); j++) {
+            local_preds(i, j) = Rcpp::NumericVector::get_na();
+        }
+    }
+
+    return (local_preds);
+}
+
+// [[Rcpp::export]]
+Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector &sequences,
+                                      const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
+                                      const int &spat_min, const int &spat_max,
+                                      const Rcpp::NumericVector &spat_factor, const int &bin_size,
+                                      const float &mask_thresh, const Rcpp::LogicalVector &pos_mask) {
+    vector<string> seqs = Rcpp::as<vector<string>>(sequences);
+    vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
+    int smin = spat_min;
+    int smax = spat_max;
+    int motif_len = pssm_mat.nrow();    
+
+    // clone sequences
+    vector<string> output = seqs;
+
+    DnaPSSM pssm;
+
+    pssm.set_bidirect(is_bidirect);
+    pssm.resize(pssm_mat.nrow());
+    pssm.set_range(smin, smax);
+    for (int i = 0; i < pssm_mat.nrow(); i++) {
+        pssm[i].set_weight('A', pssm_mat(i, 0));
+        pssm[i].set_weight('C', pssm_mat(i, 1));
+        pssm[i].set_weight('G', pssm_mat(i, 2));
+        pssm[i].set_weight('T', pssm_mat(i, 3));
+    }
+    pssm.normalize();    
+
+    DnaPWML pwml(pssm, spat_fac, bin_size);
+    Rcpp::StringVector preds(seqs.size());
+
+    for (size_t i = 0; i < seqs.size(); i++) {
+        // go over windows of motif_len and mask if the score is above the threshold
+        for (int j = 0; j < (int)seqs[i].size() - motif_len; j++) {
+            float energy;
+            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+            if (energy > mask_thresh) {
+                // replace only the positions that are not masked (i.e. are informative)
+                for (int k = 0; k < motif_len; k++) {
+                    if (pos_mask[k]) {
+                        output[i][j + k] = 'N';
+                    }
+                }                
+            }
+        }    
+
+        // mask the few bases that were shorter than motif_len
+        for (int j = (int)seqs[i].size() - motif_len; j < (int)seqs[i].size(); j++) {
+            output[i][j] = 'N';
+        }
+    }
+
+    return (Rcpp::wrap(output));
+}
+
+// [[Rcpp::export]]
 Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
                            const Rcpp::LogicalVector &is_train_logical, const std::string &motif,
                            const int &spat_min, const int &spat_max, const float &min_nuc_prob,
@@ -181,7 +282,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
                                  const Rcpp::DataFrame &response,
                                  const Rcpp::LogicalVector &is_train_logical, const int &L,
                                  const int &from_range, const int &to_range, const float &min_cor,
-                                 const int &min_n, const int &min_gap, const int &max_gap,
+                                 const int &min_gap, const int &max_gap,
                                  const int &n_in_train, const int &seed, const bool &verbose) {
 
     Random::reset(seed);
@@ -242,6 +343,10 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     }
 
     for (auto k = multi.get_pat_begin(); k != multi.get_pat_end(); k++) {
+        // if pattern has 'N' skip
+        if (k->first.find('N') != string::npos) {
+            continue;
+        }
         vector<float> cov(resp_dim, 0);
         vector<float> corr(resp_dim, 0);
         float avg_multi = 0;
@@ -278,7 +383,7 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
             foc_mots.push_back(k->first);
             foc_scores.push_back(max_r2);
             foc_ids.push_back(foc_ids.size());
-            if (max_r2 > best_r2 && (avg_multi * n_in_train) > min_n) {
+            if (max_r2 > best_r2) {
                 best_r2 = max_r2;
                 best_mot = k->first;
                 if (verbose) {
