@@ -181,7 +181,7 @@ regress_pwm <- function(sequences,
                         smooth_k = 100,
                         consensus_single_thresh = 0.6,
                         consensus_double_thresh = 0.85,
-                        internal_num_folds = 1,
+                        internal_num_folds = 10,
                         match_with_db = TRUE,
                         screen_db = FALSE,
                         motif_dataset = all_motif_datasets(),
@@ -268,7 +268,7 @@ regress_pwm <- function(sequences,
         cli_abort("{.field spat_min} must be non-negative")
     }
 
-    if ((spat_max > nchar(sequences[1])) | (spat_max < spat_min)) {
+    if ((spat_max > nchar(sequences[1])) || (spat_max < spat_min)) {
         cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
     }
 
@@ -514,7 +514,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     min_kmer_cor = 0.1,
                                     consensus_single_thresh = 0.6,
                                     consensus_double_thresh = 0.85,
-                                    internal_num_folds = 1,
+                                    internal_num_folds = 10,
                                     final_metric = "r2",
                                     parallel = getOption("prego.parallel", FALSE),
                                     match_with_db = TRUE,
@@ -569,6 +569,9 @@ regress_pwm.multi_kmers <- function(sequences,
         "Spat min: {.val {spat_min}}",
         "Spat max: {.val {spat_max}}",
         "Spat bin: {.val {spat_bin}}",
+        "Min gap: {.val {min_gap}}",
+        "Max gap: {.val {max_gap}}",
+        "Kmer length: {.val {kmer_length}}",
         "Improve epsilon: {.val {improve_epsilon}}",
         "Min nuc prob: {.val {min_nuc_prob}}",
         "Uniform prior: {.val {unif_prior}}",
@@ -595,6 +598,10 @@ regress_pwm.multi_kmers <- function(sequences,
     }, .parallel = parallel)
 
     scores <- sapply(res_kmer_list, function(x) x$score)
+
+    purrr::walk2(cand_kmers, scores, ~ {
+        cli::cli_ul("kmer: {.val {.x}}, score ({final_metric}): {.val {.y}}")
+    })
 
     if (length(which.max(scores)) == 0) {
         cli_alert_warning("No motifs found")

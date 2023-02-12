@@ -61,6 +61,62 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
     return(pwm)
 }
 
+#' Compute local PWMs for a set of sequences given a PSSM matrix
+#'
+#' @description compute the local PWM for each position in every sequence. The edges of each sequences would become NA.
+#'
+#' @return a matrix with \code{length(sequences)} rows and \code{ncol(pssm)} columns with the local PWM for each sequence in each position.
+#'
+#' @examples
+#' \dontrun{
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#'
+#' pwm <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat)
+#' head(pwm)
+#' }
+#'
+#' @inheritParams compute_pwm
+#' @export
+compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+    if (is.null(spat)) {
+        spat <- data.frame(bin = 0, spat_factor = 1)
+        binsize <- nchar(sequences[[1]])
+    } else {
+        validate_spat(spat)
+        binsize <- unique(diff(spat$bin))
+    }
+
+    if (is.null(spat_max)) {
+        spat_max <- nchar(sequences[1])
+    }
+
+    if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
+        cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
+    }
+
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
+    pwm <- compute_local_pwm_cpp(
+        sequences = toupper(sequences),
+        pssm_mat = pssm_mat,
+        is_bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_factor = spat$spat_factor,
+        bin_size = binsize
+    )
+
+    return(pwm)
+}
+
 validate_spat <- function(spat) {
     if (!is.data.frame(spat)) {
         cli_abort("The {.field spat} argument should be a data frame")
@@ -75,6 +131,82 @@ validate_spat <- function(spat) {
     if (length(binsize) > 1) {
         cli_abort("The bins in {.field spat} should be of equal size")
     }
+}
+
+bits_per_pos <- function(pssm) {
+    pssm <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    pssm <- pssm / rowSums(pssm)
+    bits <- log2(4) + rowSums(pssm * log2(pssm))
+    bits <- pmax(bits, 0)
+    return(bits)
+}
+
+#' Mask sequences by thresholding the PWM
+#'
+#' @description Mask sequences by thresholding the PWM. Sequences with a PWM above the threshold will be masked by 'N'.
+#' Sequences at the edges of the sequences will also be masked by 'N'.
+#'
+#' @param mask_thresh Threshold for masking. Sequences with a PWM above this threshold will be masked by 'N'.
+#' @param pos_bits_thresh Mask only positions with amount of information contributed (Shannon entropy, measured in bits) above this threshold.
+#' The scale is the same as the y axis in the pssm logo plots.
+#'
+#' @return A vector with the masked sequences.
+#'
+#' @examples
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#' new_sequences <- mask_sequences_by_pwm(cluster_sequences_example, res$pssm, quantile(res$pred, 0.95), spat = res$spat)
+#' head(new_sequences)
+#'
+#' @inheritParams compute_pwm
+#' @export
+mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, pos_bits_thresh = 0.2, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+    if (is.null(spat)) {
+        spat <- data.frame(bin = 0, spat_factor = 1)
+        binsize <- nchar(sequences[[1]])
+    } else {
+        validate_spat(spat)
+        binsize <- unique(diff(spat$bin))
+    }
+
+    if (is.null(spat_max)) {
+        spat_max <- nchar(sequences[1])
+    }
+
+    if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
+        cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
+    }
+
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
+    bits <- bits_per_pos(pssm)
+    pos_mask <- bits > pos_bits_thresh
+    if (sum(pos_mask) == 0) {
+        cli_warn("No positions with information content above {.val {pos_bits_thresh}} were found")
+    } else {
+        cli_alert_info("The following positions will be masked: {.val {which(pos_mask)}}. Overall {.val {sum(pos_mask)}} positions will be masked")
+    }
+
+    res <- mask_sequences_cpp(
+        sequences = toupper(sequences),
+        pssm_mat = pssm_mat,
+        is_bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_factor = spat$spat_factor,
+        bin_size = binsize,
+        mask_thresh = mask_thresh,
+        pos_mask = pos_mask
+    )
+
+    return(res)
 }
 
 
@@ -292,6 +424,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' @param pssm the 'pssm' field from the regression result
 #' @param title title of the plot
 #' @param subtitle subtitle of the plot
+#' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
 #'
 #' @return a ggplot object
 #'
@@ -302,10 +435,22 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' }
 #'
 #' @export
-plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver()) {
+plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
     pfm <- t(pssm_to_mat(pssm))
-    ggseqlogo::ggseqlogo(pfm) +
+    p <- ggseqlogo::ggseqlogo(pfm) +
         ggtitle(title, subtitle = subtitle)
+    if (!is.null(pos_bits_thresh)) {
+        bits <- bits_per_pos(t(pfm))
+        pos_mask <- bits > pos_bits_thresh
+        rect_data <- tibble(
+            x = which(pos_mask) - 0.5,
+            xend = x + 1,
+            y = 0,
+            yend = max(bits)
+        )
+        p <- p + geom_rect(data = rect_data, aes(xmin = x, xmax = xend, ymin = y, ymax = yend), fill = "red", alpha = 0.1)
+    }
+    return(p)
 }
 
 #' Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
@@ -323,11 +468,11 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #'
 #' @inheritParams plot_pssm_logo
 #' @export
-plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver()) {
+plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
     motif_dataset <- dataset %>%
         filter(motif == !!motif)
     if (nrow(motif_dataset) == 0) {
         cli_abort("The motif {.val {motif}} was not found in the dataset")
     }
-    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle)
+    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh)
 }
