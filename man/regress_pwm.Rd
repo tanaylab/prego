@@ -34,7 +34,7 @@ regress_multiple_motifs(
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
-  internal_num_folds = 1,
+  internal_num_folds = 10,
   match_with_db = TRUE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
@@ -72,7 +72,7 @@ regress_pwm(
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
-  internal_num_folds = 1,
+  internal_num_folds = 10,
   match_with_db = TRUE,
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
@@ -154,7 +154,6 @@ to set the number of cores to use.}
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
-    \item{\code{min_n}}{Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{from_range}}{Sequences will be considered only from position from_range (default 0)}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}

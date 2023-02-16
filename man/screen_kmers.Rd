@@ -9,7 +9,6 @@ screen_kmers(
   response,
   kmer_length = 6,
   min_cor = 0.08,
-  min_n = 50,
   is_train = NULL,
   min_gap = 0,
   max_gap = 0,
@@ -28,8 +27,6 @@ screen_kmers(
 \item{kmer_length}{The number of non-gap characters in motifs that will be screened}
 
 \item{min_cor}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
-
-\item{min_n}{Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported}
 
 \item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 

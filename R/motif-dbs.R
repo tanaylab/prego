@@ -132,38 +132,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
     return(res)
 }
 
-#' Extract pwm of intervals from a motif database
-#'
-#' @param intervals misha intervals set
-#'
-#' @return The intervals set with additional columns per motif, containing the pwm of each interval for each motif
-#'
-#' @inheritParams extract_pwm
-#'
-#' @examples
-#' \dontrun{
-#' library(misha)
-#' gdb.init_examples()
-#' pwms <- gextract_pwm("annotations")
-#' pwms[, 1:20]
-#' }
-#'
-#' @export
-gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
-    if (!requireNamespace("misha", quietly = TRUE)) {
-        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
-    }
 
-    if (is.character(intervals)) {
-        intervals <- misha::gintervals.load(intervals)
-    }
-
-    sequences <- misha::gseq.extract(intervals)
-
-    res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
-
-    return(cbind(intervals, as.data.frame(res)))
-}
 
 #' Extract pssm of sequences from a motif database
 #'

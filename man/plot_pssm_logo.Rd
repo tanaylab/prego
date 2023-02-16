@@ -12,7 +12,7 @@ plot_pssm_logo(
 )
 }
 \arguments{
-\item{pssm}{the 'pssm' field from the regression result}
+\item{pssm}{PSSM matrix or data frame}
 
 \item{title}{title of the plot}
 
