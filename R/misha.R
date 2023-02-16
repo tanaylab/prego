@@ -39,6 +39,8 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #' @param intervals misha intervals set
 #' @param percision the percision of the quantiles. Default is 0.01, which means that the quantiles will be computed for every 1% of the pwm.
 #'
+#' @return a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form "{motif}.q"
+#'
 #' @examples
 #' \dontrun{
 #' library(misha)
@@ -70,6 +72,22 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
         cli_ul("Please consider using {.code misha.ext::gintervals.normalize} to normalize the intervals to the same length before running this function.")
     }
 
+    n_motifs <- length(unique(dataset$motif))
+    n_lengths <- length(unique(pwms$l))
+
+    if (parallel) {
+        if (n_motifs > n_lengths) {
+            motif_p <- TRUE
+            len_p <- FALSE
+        } else {
+            motif_p <- FALSE
+            len_p <- TRUE
+        }
+    } else {
+        motif_p <- FALSE
+        len_p <- FALSE
+    }
+
     # go over every length and compute quantiles
     pwm_q <- plyr::ddply(pwms, "l", function(pwms_l) {
         pwms_l <- tibble::as_tibble(pwms_l)
@@ -78,13 +96,26 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
             quantiles <- gpwm_quantiles(size = pwms_l$l[1], quantiles = breaks, pssm = x, n_sequences = n_sequences, dist_from_edge = dist_from_edge, chromosomes = chromosomes)
             val2quant <- approxfun(x = quantiles, y = breaks, rule = 2)
             val2quant(pwms_l[[x$motif[1]]])
-        }, .parallel = parallel)
-        res <- as.matrix(as.data.frame(t(res)))
+        }, .parallel = motif_p)
+
+        if (is.null(dim(res))) {
+            res <- as.matrix(res)
+            colnames(res) <- dataset$motif[1]
+        } else {
+            res <- as.matrix(as.data.frame(t(res)))
+        }
+
         res
-    })
+    }, .parallel = len_p)
 
     pwm_q <- pwm_q %>%
         select(-l)
+
+    if (n_motifs == 1) {
+        colnames(pwm_q) <- dataset$motif[1]
+    }
+
+    colnames(pwm_q) <- paste0(colnames(pwm_q), ".q")
 
     return(cbind(intervals, as.data.frame(pwm_q)))
 }
@@ -99,6 +130,8 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
 #' @param pssm PSSM matrix or data frame
 #' @param quantiles quantiles to compute. See \code{quantile} for more details.
 #' @param n_sequences number of sequences to sample in order to compute the quantiles. The default is 1e4.
+#'
+#' @return a named vector with the quantiles of the pwm for the given interval size.
 #'
 #' @inheritParams compute_pwm
 #' @inheritParams misha.ext::grandom_genome

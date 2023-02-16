@@ -42,6 +42,9 @@ would end at the end of the sequence.}
 
 \item{chromosomes}{The chromosomes to sample from (default: all chromosomes)}
 }
+\value{
+a named vector with the quantiles of the pwm for the given interval size.
+}
 \description{
 Computes the quantile of the pwm for a given interval size by sampling random intervals from the genome. The number of sequences to sample can be specified with \code{n_sequences}.
 }

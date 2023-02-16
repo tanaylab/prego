@@ -48,6 +48,9 @@ would end at the end of the sequence.}
 
 \item{parallel}{logical, whether to use parallel processing}
 }
+\value{
+a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form "{motif}.q"
+}
 \description{
 Extract for each interval its quantile in the genome for each motif given its length. Note
 that the quantiles are computed for each motif separately, and therefore this might be slow for intervals with un-normalized lengths.
