@@ -421,7 +421,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 
 #' Plot LOGO of the pssm result from the regression
 #'
-#' @param pssm the 'pssm' field from the regression result
+#' @param pssm PSSM matrix or data frame
 #' @param title title of the plot
 #' @param subtitle subtitle of the plot
 #' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
