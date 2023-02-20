@@ -253,15 +253,29 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
                         seed: {reg$seed_motif}")
     }
 
-    models <- purrr::map(reg$models, ~ {
-        m <- .x
-        m$response <- response
-        m
+    models <- reg$models
+
+    spatial_p <- purrr::imap(models, ~ plot_spat_model(.x$spat))
+    motifs_p <- purrr::imap(models, ~ plot_pssm_logo(.x$pssm, title = paste0("Motif #", .y), subtitle = glue("score = {round(.x$score, digits=3)}, combined score = {round(reg$multi_stats$comb_score[.y], digits=3)}")))
+    motifs_match_p <- purrr::imap(models, ~ {
+        if (is.null(.x$db_match_pssm)) {
+            return(NULL)
+        }
+        if (!is.null(.x$db_match_ks)) {
+            plot_pssm_logo(.x$db_match_pssm, title = .x$db_match, subtitle = glue("KS D: {round(.x$db_match_ks$statistic, digits = 3)}"))
+        } else {
+            plot_pssm_logo(.x$db_match_pssm, title = .x$db_match, subtitle = glue("R^2: {round(.x$db_match_r2, digits = 3)}"))
+        }
     })
 
-    model_plots <- purrr::imap(models, ~ plot_regression_qc(.x, title = paste0("model ", .y), subtitle = NULL, caption = NULL))
+    prediction_p <- purrr::imap(models, ~ {
+        if (is_binary_response(response)) {
+            plot_regression_prediction_binary(.x$pred, response)
+        } else {
+            plot_regression_prediction(.x$pred, response)
+        }
+    })
 
-    p_models <- patchwork::wrap_plots(model_plots)
 
     p_scores <- reg$multi_stats %>%
         dplyr::rename(`Score` = score, `Combined score` = comb_score) %>%
@@ -275,7 +289,16 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
         ylab("Score") +
         facet_wrap(. ~ name, scales = "free_y", ncol = 2)
 
-    p <- p_models / p_scores
+    p <- patchwork::wrap_plots(
+        A = patchwork::wrap_plots(spatial_p, ncol = 1),
+        B = patchwork::wrap_plots(motifs_p, ncol = 1),
+        C = patchwork::wrap_plots(motifs_match_p, ncol = 1),
+        D = patchwork::wrap_plots(prediction_p, ncol = 1),
+        E = p_scores,
+        design = "ABCD
+                  EEEE",
+        heights = c(0.8, 0.2)
+    )
 
     if (!is.null(title) || !is.null(subtitle) || !is.null(caption)) {
         p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle, caption = caption)
