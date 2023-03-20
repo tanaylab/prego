@@ -94,6 +94,10 @@ public:
 		m_pssm.integrate_energy(target, energy, m_spat_factors, m_spat_bin_size);
 	}
 
+	void integrate_energy_max(const string &target, float &energy) {
+		m_pssm.integrate_energy_max(target, energy, m_spat_factors, m_spat_bin_size);
+	}
+
 	void randomize_pos(int pos);
 		
 	void write_tab(ostream &pssmd, ostream &spat, int id) const;

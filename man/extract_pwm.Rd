@@ -13,6 +13,7 @@ extract_pwm(
   spat_max = NULL,
   bidirect = TRUE,
   prior = 0,
+  func = "logSumExp",
   parallel = getOption("prego.parallel", TRUE)
 )
 }
@@ -33,6 +34,8 @@ would end at the end of the sequence.}
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{func}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
 
 \item{parallel}{logical, whether to use parallel processing}
 }

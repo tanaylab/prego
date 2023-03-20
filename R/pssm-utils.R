@@ -5,6 +5,7 @@
 #' @param spat a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param prior a prior probability for each nucleotide.
+#' @param func the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.
 #'
 #' @return a vector with the predicted pwm for each sequence.
 #'
@@ -21,7 +22,7 @@
 #'
 #' @inheritParams regress_pwm
 #' @export
-compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp") {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -48,6 +49,14 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
         pssm_mat <- pssm_mat + prior
     }
 
+    if (func == "max") {
+        use_max <- TRUE
+    } else if (func == "logSumExp") {
+        use_max <- FALSE
+    } else {
+        cli_abort("The {.field func} argument should be either {.val max} or {.val logSumExp}")
+    }
+
     pwm <- compute_pwm_cpp(
         sequences = toupper(sequences),
         pssm_mat = pssm_mat,
@@ -55,7 +64,8 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
         spat_min = spat_min,
         spat_max = spat_max,
         spat_factor = spat$spat_factor,
-        bin_size = binsize
+        bin_size = binsize,
+        use_max = use_max
     )
 
     return(pwm)

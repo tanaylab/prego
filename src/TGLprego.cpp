@@ -41,7 +41,7 @@ std::string get_consensus_cpp(const Rcpp::NumericMatrix &pssm_mat, const float &
 Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
                                     const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
                                     const int &spat_min, const int &spat_max,
-                                    const Rcpp::NumericVector &spat_factor, const int &bin_size) {
+                                    const Rcpp::NumericVector &spat_factor, const int &bin_size, const bool &use_max = false) {
     vector<string> seqs = Rcpp::as<vector<string>>(sequences);
     vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
     int smin = spat_min;
@@ -65,7 +65,12 @@ Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
 
     for (size_t i = 0; i < seqs.size(); i++) {
         float energy;
-        pwml.integrate_energy(seqs[i], energy);
+        if (use_max){
+            pwml.integrate_energy_max(seqs[i], energy);
+        } else {
+            pwml.integrate_energy(seqs[i], energy);
+        }
+        
         preds[i] = energy;
     }
 
