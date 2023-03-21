@@ -79,6 +79,7 @@
 #' \item{pred: }{a vector with the predicted pwm for using a linear model of the combined scores.}
 #' \item{comb_modle: }{a linear model of the combined scores.}
 #' \item{predict: }{a function that can be used to predict the PWM for a new sequence.}
+#' \item{predict_multi: }{a function that can be used to predict the PWM for the different models for a new sequence}
 #' }
 #'
 #' @examples
