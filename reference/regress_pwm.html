@@ -74,8 +74,8 @@
 <span>  smooth_k <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
-<span>  internal_num_folds <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  internal_num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  match_with_db <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  alternative <span class="op">=</span> <span class="st">"less"</span>,</span>
@@ -112,8 +112,8 @@
 <span>  smooth_k <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  consensus_single_thresh <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  consensus_double_thresh <span class="op">=</span> <span class="fl">0.85</span>,</span>
-<span>  internal_num_folds <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  internal_num_folds <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  match_with_db <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  screen_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
@@ -258,9 +258,6 @@ to set the number of cores to use.</p></dd>
 <dd><p>Arguments passed on to <code><a href="screen_kmers.html">screen_kmers</a></code></p><dl><dt><code>min_cor</code></dt>
 <dd><p>Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported</p></dd>
 
-    <dt><code>min_n</code></dt>
-<dd><p>Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported</p></dd>
-
     <dt><code>min_gap,max_gap</code></dt>
 <dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).</p></dd>
 
@@ -316,6 +313,7 @@ to set the number of cores to use.</p></dd>
 <li><p>pred: a vector with the predicted pwm for using a linear model of the combined scores.</p></li>
 <li><p>comb_modle: a linear model of the combined scores.</p></li>
 <li><p>predict: a function that can be used to predict the PWM for a new sequence.</p></li>
+<li><p>predict_multi: a function that can be used to predict the PWM for the different models for a new sequence</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -396,7 +394,7 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">431</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TTAAT*ATT***"</span></span>
@@ -411,10 +409,10 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"T*AM**W*Y"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JOLMA.HNF1B_di_full_1"</span>, KL: <span style="color: #0000BB;">0.789</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">"JOLMA.HNF1B_di_full_1"</span> KS test D: <span style="color: #0000BB;">0.8512</span>, p-value: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8522</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TTAA**A*T"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"HOMER.Hnf1"</span>, cor: <span style="color: #0000BB;">0.814</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">"HOMER.Hnf1"</span> KS test D: <span style="color: #0000BB;">0.8133</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> KS test D: <span style="color: #0000BB;">0.8364</span>, p-value: <span style="color: #0000BB;">0</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #2</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -424,10 +422,10 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">838</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">298</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***GTTAATTG****"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TGC*TAACT***"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
@@ -439,12 +437,12 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"R*TTGATTG***Y"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.YHP1"</span>, KL: <span style="color: #0000BB;">0.71</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0225</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0386984467059453</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span> and <span style="color: #0000BB;">2</span>: <span style="color: #0000BB;">0.872621831467377</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.0204210049599156</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TGC*TAACT"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.MYB116"</span>, cor: <span style="color: #0000BB;">0.775</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0034</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0697414660274079</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span> and <span style="color: #0000BB;">2</span>: <span style="color: #0000BB;">0.835362587691222</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">-0.00107123727905722</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #3</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -454,10 +452,10 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">460</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">311</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***AGCG*AACC***"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***GCAA*ATAC***"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
@@ -469,12 +467,12 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"Y*AGCG*AACCK"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.STP3"</span>, KL: <span style="color: #0000BB;">0.703</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.008</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0471420608689214</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, and <span style="color: #0000BB;">3</span>: <span style="color: #0000BB;">0.878087972095575</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.00546614062819795</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"GCAA*ATAC"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.SPL12"</span>, cor: <span style="color: #0000BB;">0.73</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0054</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0770180412034436</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, and <span style="color: #0000BB;">3</span>: <span style="color: #0000BB;">0.83953758257454</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.00417499488331785</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #4</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -484,10 +482,10 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">466</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">217</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TAGCG*TTT***"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TGC*TAACT***"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
@@ -499,12 +497,13 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"MTAG*G*KTTYS"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.MOT2"</span>, KL: <span style="color: #0000BB;">0.758</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.0055</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.053707743826233</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, <span style="color: #0000BB;">3</span>, and <span style="color: #0000BB;">4</span>: <span style="color: #0000BB;">0.878609438210076</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0.000521466114500435</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TGC*TAACT"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.MYB116"</span>, cor: <span style="color: #0000BB;">0.775</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.001</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>prediction from a rank-deficient fit may be misleading</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0697414660274079</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, <span style="color: #0000BB;">3</span>, and <span style="color: #0000BB;">4</span>: <span style="color: #0000BB;">0.83953758257454</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Running regression #5</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -514,10 +513,10 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">8</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">1</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">437</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">217</span> kmers in <span style="color: #0000BB;">2359</span> sequences.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Motif is shorter than <span style="color: #0000BB;">15</span>, extending with wildcards</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TAGCG*TTT***"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Initializing regression with the following motif: <span style="color: #0000BB;">"***TGC*TAACT***"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Motif length: <span style="color: #0000BB;">15</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
@@ -529,13 +528,15 @@ to set the number of cores to use.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"MTAGCG*TTT"</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.MOT2"</span>, KL: <span style="color: #0000BB;">0.704</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0393494628572423</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, <span style="color: #0000BB;">3</span>, <span style="color: #0000BB;">4</span>, and <span style="color: #0000BB;">5</span>: <span style="color: #0000BB;">0.877662307688958</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">-0.000947130521117723</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Best model: model #1 (score of <span style="color: #0000BB;">0.852200826507462</span>)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finished running regression. Consensus: <span style="color: #0000BB;">"TGC*TAACT"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JASPAR.MYB116"</span>, cor: <span style="color: #0000BB;">0.775</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> R^2: <span style="color: #0000BB;">0.001</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>prediction from a rank-deficient fit may be misleading</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS statistic: <span style="color: #0000BB;">0.0697414660274079</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> KS test statistic for models <span style="color: #0000BB;">1</span>, <span style="color: #0000BB;">2</span>, <span style="color: #0000BB;">3</span>, <span style="color: #0000BB;">4</span>, and <span style="color: #0000BB;">5</span>: <span style="color: #0000BB;">0.83953758257454</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Improvement in KS test statistic: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Best model: model #1 (score of <span style="color: #0000BB;">0.83643382497028</span>)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>prediction from a rank-deficient fit may be misleading</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

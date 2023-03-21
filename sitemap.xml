@@ -19,6 +19,9 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/HOCOMOCO_motifs.html</loc>
+  </url>
+  <url>
     <loc>/reference/HOMER_motifs.html</loc>
   </url>
   <url>
@@ -32,6 +35,9 @@
   </url>
   <url>
     <loc>/reference/cluster_mat_example.html</loc>
+  </url>
+  <url>
+    <loc>/reference/compute_local_pwm.html</loc>
   </url>
   <url>
     <loc>/reference/compute_pwm.html</loc>
@@ -49,7 +55,16 @@
     <loc>/reference/gextract_pwm.html</loc>
   </url>
   <url>
+    <loc>/reference/gextract_pwm.quantile.html</loc>
+  </url>
+  <url>
+    <loc>/reference/gpwm_quantiles.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/mask_sequences_by_pwm.html</loc>
   </url>
   <url>
     <loc>/reference/pipe.html</loc>

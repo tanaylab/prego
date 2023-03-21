@@ -50,7 +50,6 @@
 <span>  <span class="va">response</span>,</span>
 <span>  kmer_length <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  min_cor <span class="op">=</span> <span class="fl">0.08</span>,</span>
-<span>  min_n <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  is_train <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_gap <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -78,10 +77,6 @@
 
 <dt>min_cor</dt>
 <dd><p>Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported</p></dd>
-
-
-<dt>min_n</dt>
-<dd><p>Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported</p></dd>
 
 
 <dt>is_train</dt>
@@ -131,7 +126,7 @@ If no kmer is found, an empty data frame is returned.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">575</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     kmer     max_r2 avg_n    avg_var          c1          c2         c3</span>
@@ -152,7 +147,7 @@ If no kmer is found, an empty data frame is returned.</p>
 <span class="r-in"><span><span class="va">kmers</span> <span class="op">&lt;-</span> <span class="fu">screen_kmers</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span>, return_mat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">575</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 c1          c2         c3           c4          c5</span>
@@ -167,7 +162,7 @@ If no kmer is found, an empty data frame is returned.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Number of response variables: <span style="color: #0000BB;">5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening kmers of length <span style="color: #0000BB;">6</span>, from position <span style="color: #0000BB;">0</span> to position <span style="color: #0000BB;">300</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Gaps of length <span style="color: #0000BB;">0</span>:<span style="color: #0000BB;">3</span> are allowed</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span>, minimal number of occurrences: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> minimal correlation: <span style="color: #0000BB;">0.08</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found <span style="color: #0000BB;">4884</span> kmers in <span style="color: #0000BB;">1000</span> sequences.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kmers</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       kmer     max_r2 avg_n    avg_var           c1           c2         c3</span>

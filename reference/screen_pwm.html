@@ -107,6 +107,9 @@
     <dt><code>bidirect</code></dt>
 <dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
 
+    <dt><code>func</code></dt>
+<dd><p>the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.</p></dd>
+
     <dt><code>spat_min</code></dt>
 <dd><p>start of the spatial model from the beginning of the sequence (in bp)</p></dd>
 
@@ -133,26 +136,26 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing PWM screening</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res_screen</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 6 x 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   motif     score</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          JASPAR.HNF1A 0.8510730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   JOLMA.HNF1A_di_full 0.8505374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 JOLMA.HNF1B_di_full_1 0.8484232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 JOLMA.HNF1B_di_full_2 0.8484090</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          JASPAR.HNF1B 0.8479834</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6            HOMER.Hnf1 0.8127850</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                            motif     score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 HOCOMOCO.HNF1B_HUMAN.H11MO.0.A 0.8606183</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 HOCOMOCO.HNF1B_MOUSE.H11MO.0.A 0.8510730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   JASPAR.HNF1A 0.8510730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            JOLMA.HNF1A_di_full 0.8505374</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          JOLMA.HNF1B_di_full_1 0.8484232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          JOLMA.HNF1B_di_full_2 0.8484090</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># only best match</span></span></span>
 <span class="r-in"><span><span class="fu">screen_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">cluster_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing PWM screening</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 3,110 x 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   motif     score</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          JASPAR.HNF1A 0.8510730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   JOLMA.HNF1A_di_full 0.8505374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 JOLMA.HNF1B_di_full_1 0.8484232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 JOLMA.HNF1B_di_full_2 0.8484090</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          JASPAR.HNF1B 0.8479834</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6            HOMER.Hnf1 0.8127850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # ... with 3,104 more rows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 3,867 x 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                            motif     score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 HOCOMOCO.HNF1B_HUMAN.H11MO.0.A 0.8606183</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 HOCOMOCO.HNF1B_MOUSE.H11MO.0.A 0.8510730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   JASPAR.HNF1A 0.8510730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            JOLMA.HNF1A_di_full 0.8505374</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          JOLMA.HNF1B_di_full_1 0.8484232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          JOLMA.HNF1B_di_full_2 0.8484090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # ... with 3,861 more rows</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with r^2 metric</span></span></span>
 <span class="r-in"><span><span class="va">res_screen</span> <span class="op">&lt;-</span> <span class="fu">screen_pwm</span><span class="op">(</span><span class="va">sequences_example</span>, <span class="va">response_mat_example</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, metric <span class="op">=</span> <span class="st">"r2"</span><span class="op">)</span></span></span>

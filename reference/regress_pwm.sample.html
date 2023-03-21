@@ -58,7 +58,7 @@
 <span>  sample_idxs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_ratio <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"prego.parallel"</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  match_with_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  match_with_db <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  screen_db <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  motif_dataset <span class="op">=</span> <span class="fu"><a href="all_motif_datasets.html">all_motif_datasets</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">60427</span>,</span>
@@ -210,9 +210,6 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     <dt><code>min_cor</code></dt>
 <dd><p>Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported</p></dd>
 
-    <dt><code>min_n</code></dt>
-<dd><p>Only patterns for which the average number of occurrences in the sequences is larger than min_n will be reported</p></dd>
-
     <dt><code>from_range</code></dt>
 <dd><p>Sequences will be considered only from position from_range (default 0)</p></dd>
 
@@ -256,6 +253,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 <li><p>pred: a vector with the predicted pwm for using a linear model of the combined scores.</p></li>
 <li><p>comb_modle: a linear model of the combined scores.</p></li>
 <li><p>predict: a function that can be used to predict the PWM for a new sequence.</p></li>
+<li><p>predict_multi: a function that can be used to predict the PWM for the different models for a new sequence</p></li>
 </ul></div>
 
     <div class="section level2">
