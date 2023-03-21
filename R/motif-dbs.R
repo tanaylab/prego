@@ -107,7 +107,7 @@ all_motif_datasets <- function() {
 #'
 #' @inheritParams compute_pwm
 #' @export
-extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, parallel = getOption("prego.parallel", TRUE)) {
+extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
     if (!is.null(motifs)) {
         dataset <- dataset %>% filter(motif %in% motifs)
     }
@@ -115,7 +115,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
     sequences <- toupper(sequences)
 
     res <- plyr::daply(dataset, "motif", function(x) {
-        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
     }, .parallel = parallel)
 
     if (is.null(dim(res))) {

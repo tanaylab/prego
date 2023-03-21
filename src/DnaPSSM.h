@@ -183,6 +183,8 @@ class DnaPSSM {
     void integrate_like(const string &target, float &energy, vector<float> *spat_dist = 0) const;
     void integrate_energy(const string &target, float &energy, vector<float> &spat_func,
                           int spat_bin_size) const;
+    void integrate_energy_max(const string &target, float &energy, vector<float> &spat_func,
+                          int spat_bin_size) const;
     float get_max_ll() const;
 
     void calc_like(const std::string &target, float &logp) const;

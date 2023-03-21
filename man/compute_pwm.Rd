@@ -11,7 +11,8 @@ compute_pwm(
   spat_min = 0,
   spat_max = NULL,
   bidirect = TRUE,
-  prior = 0
+  prior = 0,
+  func = "logSumExp"
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ would end at the end of the sequence.}
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{func}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
 }
 \value{
 a vector with the predicted pwm for each sequence.
