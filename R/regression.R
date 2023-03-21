@@ -557,7 +557,8 @@ regress_pwm.multi_kmers <- function(sequences,
         consensus_double_thresh = consensus_double_thresh,
         internal_num_folds = internal_num_folds,
         match_with_db = FALSE,
-        alternative = alternative
+        alternative = alternative,
+        multi_kmers = FALSE
     )
 
     cli_h3("Generate candidate kmers")
