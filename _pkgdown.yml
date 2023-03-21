@@ -25,6 +25,10 @@ reference:
   - starts_with("screen_pwm")
   - get_motif_pssm
   - ends_with("motifs")  
+  - compute_local_pwm
+  - gextract_pwm.quantile
+  - gpwm_quantiles 
+  - mask_sequences_by_pwm
 - title: other
   contents: 
   - set_parallel
