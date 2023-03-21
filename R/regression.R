@@ -79,6 +79,7 @@
 #' \item{pred: }{a vector with the predicted pwm for using a linear model of the combined scores.}
 #' \item{comb_modle: }{a linear model of the combined scores.}
 #' \item{predict: }{a function that can be used to predict the PWM for a new sequence.}
+#' \item{predict_multi: }{a function that can be used to predict the PWM for the different models for a new sequence}
 #' }
 #'
 #' @examples
@@ -556,7 +557,8 @@ regress_pwm.multi_kmers <- function(sequences,
         consensus_double_thresh = consensus_double_thresh,
         internal_num_folds = internal_num_folds,
         match_with_db = FALSE,
-        alternative = alternative
+        alternative = alternative,
+        multi_kmers = FALSE
     )
 
     cli_h3("Generate candidate kmers")

@@ -5,8 +5,8 @@ get_consensus_cpp <- function(pssm_mat, single_thresh, double_thresh) {
     .Call('_prego_get_consensus_cpp', PACKAGE = 'prego', pssm_mat, single_thresh, double_thresh)
 }
 
-compute_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size) {
-    .Call('_prego_compute_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size)
+compute_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, use_max = FALSE) {
+    .Call('_prego_compute_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, use_max)
 }
 
 compute_local_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size) {
