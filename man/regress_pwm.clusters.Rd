@@ -24,7 +24,7 @@ regress_pwm.clusters(
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
 
 \item{clusters}{a vector with the cluster assignments for each sequence}
 
@@ -74,10 +74,8 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
-    \item{\code{spat_min}}{start of the spatial model from the beginning of the sequence (in bp)}
-    \item{\code{spat_max}}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
-    \item{\code{spat_bin}}{size of the spatial bin (in bp).}
+    \item{\code{spat_bin_size}}{size of the spatial bin (in bp).}
+    \item{\code{spat_num_bins}}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
     \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}

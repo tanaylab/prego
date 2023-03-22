@@ -1,6 +1,6 @@
 #' Perform a PWM regression
 #'
-#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
+#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 #' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
@@ -9,10 +9,8 @@
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
-#' @param spat_min start of the spatial model from the beginning of the sequence (in bp)
-#' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-#' would end at the end of the sequence.
-#' @param spat_bin size of the spatial bin (in bp).
+#' @param spat_bin_size size of the spatial bin (in bp).
+#' @param spat_num_bins number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.
 #' @param spat_model a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.
 #' @param improve_epsilon minimum improve in the objective function to continue the optimization
 #' @param min_nuc_prob minimum nucleotide probability in every iteration
@@ -42,7 +40,7 @@
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -160,9 +158,8 @@ regress_pwm <- function(sequences,
                         init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
-                        spat_min = 0,
-                        spat_max = NULL,
-                        spat_bin = 50,
+                        spat_bin_size = 40,
+                        spat_num_bins = 7,
                         spat_model = NULL,
                         improve_epsilon = 0.0001,
                         min_nuc_prob = 0.001,
@@ -199,9 +196,8 @@ regress_pwm <- function(sequences,
                 motif_length = motif_length,
                 score_metric = score_metric,
                 bidirect = bidirect,
-                spat_min = spat_min,
-                spat_max = spat_max,
-                spat_bin = spat_bin,
+                spat_bin_size = spat_bin_size,
+                spat_num_bins = spat_num_bins,
                 spat_model = spat_model,
                 improve_epsilon = improve_epsilon,
                 min_nuc_prob = min_nuc_prob,
@@ -261,21 +257,7 @@ regress_pwm <- function(sequences,
 
     n_in_train <- sum(is_train)
 
-    if (is.null(spat_max)) {
-        spat_max <- nchar(sequences[1])
-    }
-
-    if (spat_min < 0) {
-        cli_abort("{.field spat_min} must be non-negative")
-    }
-
-    if ((spat_max > nchar(sequences[1])) || (spat_max < spat_min)) {
-        cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
-    }
-
-    if (as.integer((spat_max - spat_min) / spat_bin) != (spat_max - spat_min) / spat_bin) {
-        cli_abort("{.field spat_bin} must be a divisor of {.field spat_max} - {.field spat_min}")
-    }
+    max_seq_len <- nchar(sequences[1])
 
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
@@ -302,6 +284,8 @@ regress_pwm <- function(sequences,
     cli_alert_info("Using {.val {final_metric}} as the final metric")
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, max_seq_len)
 
     if (init_from_dataset) {
         cli_alert_info("Initializing from dataset")
@@ -342,9 +326,8 @@ regress_pwm <- function(sequences,
                     motif_length = motif_length,
                     score_metric = score_metric,
                     bidirect = bidirect,
-                    spat_min = spat_min,
-                    spat_max = spat_max,
-                    spat_bin = spat_bin,
+                    spat_bin_size = spat_bin_size,
+                    spat_num_bins = spat_num_bins,
                     spat_model = spat_model,
                     improve_epsilon = improve_epsilon,
                     min_nuc_prob = min_nuc_prob,
@@ -386,22 +369,16 @@ regress_pwm <- function(sequences,
         cli_alert_info("Initializing regression with the following motif: {.val {motif}}")
     }
 
-    n_bins <- as.integer((spat_max - spat_min) / spat_bin)
 
-    # if number of bins is even and bideirect is TRUE - change the spatial bin size
-    if (bidirect && (n_bins %% 2 == 0)) {
-        # change the number of bins to be odd
-        spat_bin <- find_largest_odd_divisor(spat_max - spat_min, spat_bin)
-        cli_alert_warning("{.field spat_bin} was changed to {.val {spat_bin}} to make the number of bins odd when {.code bidirect=TRUE}")
-    }
 
     cli_alert_info("Running regression")
     cli_ul(c(
         "Motif length: {.val {motif_length}}",
         "Bidirectional: {.val {bidirect}}",
-        "Spat min: {.val {spat_min}}",
-        "Spat max: {.val {spat_max}}",
-        "Spat bin: {.val {spat_bin}}",
+        "Spat min: {.val {spat$spat_min}}",
+        "Spat max: {.val {spat$spat_max}}",
+        "Spat bin size: {.val {spat_bin_size}}",
+        "Number of bins: {.val {spat_num_bins}}",
         "Improve epsilon: {.val {improve_epsilon}}",
         "Min nuc prob: {.val {min_nuc_prob}}",
         "Uniform prior: {.val {unif_prior}}",
@@ -409,15 +386,17 @@ regress_pwm <- function(sequences,
         "Seed: {.val {seed}}"
     ))
 
+    sequences <- stringr::str_sub(sequences, start = spat$spat_min, end = spat$spat_max - 1)
+
     res <- regress_pwm_cpp(
         toupper(sequences),
         response,
         is_train,
         motif = motif,
-        spat_min = spat_min,
-        spat_max = spat_max,
+        spat_bin = spat_bin_size,
+        spat_min = 0,
+        spat_max = nchar(sequences[1]),
         min_nuc_prob = min_nuc_prob,
-        spat_bin = spat_bin,
         spat_factor = spat_model,
         improve_epsilon = improve_epsilon,
         is_bidirect = bidirect,
@@ -466,7 +445,7 @@ regress_pwm <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
 
     return(res)
 }
@@ -506,9 +485,8 @@ regress_pwm.multi_kmers <- function(sequences,
                                     motif_length = 15,
                                     score_metric = "r2",
                                     bidirect = TRUE,
-                                    spat_min = 0,
-                                    spat_max = NULL,
-                                    spat_bin = 50,
+                                    spat_bin_size = 40,
+                                    spat_num_bins = 7,
                                     spat_model = NULL,
                                     improve_epsilon = 0.0001,
                                     min_nuc_prob = 0.001,
@@ -552,9 +530,8 @@ regress_pwm.multi_kmers <- function(sequences,
         motif_length = motif_length,
         score_metric = score_metric,
         bidirect = bidirect,
-        spat_min = spat_min,
-        spat_max = spat_max,
-        spat_bin = spat_bin,
+        spat_bin_size = spat_bin_size,
+        spat_num_bins = spat_num_bins,
         improve_epsilon = improve_epsilon,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
@@ -577,9 +554,8 @@ regress_pwm.multi_kmers <- function(sequences,
     cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
     cli_ul(c(
         "Bidirectional: {.val {bidirect}}",
-        "Spat min: {.val {spat_min}}",
-        "Spat max: {.val {spat_max}}",
-        "Spat bin: {.val {spat_bin}}",
+        "Spat bin size: {.val {spat_bin_size}}",
+        "Number of spatial bins {.val {spat_num_bins}}",
         "Min gap: {.val {min_gap}}",
         "Max gap: {.val {max_gap}}",
         "Kmer length: {.val {kmer_length}}",
@@ -686,4 +662,31 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
     cands <- unique(c(best_kmer, cands))
 
     return(cands)
+}
+
+
+calc_spat_min_max <- function(spat_bin_size, spat_num_bins, max_seq_len) {
+    if (spat_bin_size %% 2 != 0) {
+        cli_abort("The {.field spat_bin_size} must be an even number")
+    }
+    if (spat_num_bins %% 2 != 1) {
+        cli_abort("The {.field spat_num_bins} must be an odd number")
+    }
+    if (spat_bin_size * spat_num_bins > max_seq_len) {
+        cli_abort("The {.field spat_bin_size} ({.val {spat_bin_size}}) times the {.field spat_num_bins} ({.val {spat_num_bins}}) must be smaller than the maximum sequence length ({.val {max_seq_len}})")
+    }
+
+    center <- round(max_seq_len / 2)
+
+    if (spat_num_bins == 1) {
+        spat_min <- center - spat_bin_size / 2
+        spat_max <- center + spat_bin_size / 2
+    } else {
+        # position one bin at the center, and then add bins to the left and to the right
+        spat_min <- center - ((spat_num_bins - 1) / 2) * spat_bin_size - spat_bin_size / 2
+        spat_max <- center + ((spat_num_bins - 1) / 2) * spat_bin_size + spat_bin_size / 2
+    }
+
+
+    return(list(spat_min = round(spat_min), spat_max = round(spat_max)))
 }

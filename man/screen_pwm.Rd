@@ -43,9 +43,6 @@ screen_pwm(
     \item{\code{spat}}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
     \item{\code{func}}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
-    \item{\code{spat_min}}{start of the spatial model from the beginning of the sequence (in bp)}
-    \item{\code{spat_max}}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
   }}
 }
 \value{

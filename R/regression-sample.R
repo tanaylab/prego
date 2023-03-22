@@ -31,9 +31,9 @@
 #' @export
 regress_pwm.sample <- function(sequences,
                                response,
+                               spat_bin_size = 40,
+                               spat_num_bins = 7,
                                bidirect = TRUE,
-                               spat_min = 0,
-                               spat_max = NULL,
                                include_response = TRUE,
                                motif_num = 1,
                                multi_kmers = TRUE,
@@ -75,8 +75,8 @@ regress_pwm.sample <- function(sequences,
         response = response_s,
         bidirect = bidirect,
         unif_prior = unif_prior,
-        spat_min = spat_min,
-        spat_max = spat_max,
+        spat_bin_size = spat_bin_size,
+        spat_num_bins = spat_num_bins,
         motif_num = motif_num,
         multi_kmers = multi_kmers,
         include_response = FALSE,
@@ -91,12 +91,14 @@ regress_pwm.sample <- function(sequences,
 
     res$sample_idxs <- sample_idxs
 
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences_s[1]))
+
     # fill predictions for all the sequences
-    res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+    res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
 
     if (motif_num > 1 && "models" %in% names(res)) {
         res$models <- purrr::map(res$models, ~ {
-            .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+            .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
             .x
         })
     }
@@ -127,7 +129,7 @@ regress_pwm.sample <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
 
     return(res)
 }

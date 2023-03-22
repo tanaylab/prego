@@ -128,18 +128,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// find_largest_odd_divisor
-int find_largest_odd_divisor(int num, int max_n);
-RcppExport SEXP _prego_find_largest_odd_divisor(SEXP numSEXP, SEXP max_nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type num(numSEXP);
-    Rcpp::traits::input_parameter< int >::type max_n(max_nSEXP);
-    rcpp_result_gen = Rcpp::wrap(find_largest_odd_divisor(num, max_n));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
@@ -148,7 +136,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 9},
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 19},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
-    {"_prego_find_largest_odd_divisor", (DL_FUNC) &_prego_find_largest_odd_divisor, 2},
     {NULL, NULL, 0}
 };
 

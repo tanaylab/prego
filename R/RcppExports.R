@@ -25,7 +25,3 @@ screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_rang
     .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose)
 }
 
-find_largest_odd_divisor <- function(num, max_n) {
-    .Call('_prego_find_largest_odd_divisor', PACKAGE = 'prego', num, max_n)
-}
-

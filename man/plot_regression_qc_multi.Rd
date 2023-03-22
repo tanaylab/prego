@@ -9,7 +9,7 @@ plot_regression_qc_multi(
   title = glue("Motif regression results (consensus: {reg$consensus})"),
   subtitle = NULL,
   caption = NULL,
-  point_size = 0.1,
+  point_size = 0.01,
   alpha = 0.5
 )
 }

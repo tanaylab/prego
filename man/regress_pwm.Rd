@@ -12,9 +12,8 @@ regress_multiple_motifs(
   motif_length = 15,
   score_metric = "r2",
   bidirect = TRUE,
-  spat_min = 0,
-  spat_max = NULL,
-  spat_bin = 50,
+  spat_bin_size = 40,
+  spat_num_bins = 7,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
@@ -50,9 +49,8 @@ regress_pwm(
   init_from_dataset = FALSE,
   score_metric = "r2",
   bidirect = TRUE,
-  spat_min = 0,
-  spat_max = NULL,
-  spat_bin = 50,
+  spat_bin_size = 40,
+  spat_num_bins = 7,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
@@ -82,7 +80,7 @@ regress_pwm(
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
@@ -96,12 +94,9 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
-\item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
+\item{spat_bin_size}{size of the spatial bin (in bp).}
 
-\item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
-
-\item{spat_bin}{size of the spatial bin (in bp).}
+\item{spat_num_bins}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
 
 \item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
 
@@ -169,7 +164,7 @@ to set the number of cores to use.}
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}

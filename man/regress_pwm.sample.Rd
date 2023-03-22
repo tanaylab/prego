@@ -7,9 +7,9 @@
 regress_pwm.sample(
   sequences,
   response,
+  spat_bin_size = 40,
+  spat_num_bins = 7,
   bidirect = TRUE,
-  spat_min = 0,
-  spat_max = NULL,
   include_response = TRUE,
   motif_num = 1,
   multi_kmers = TRUE,
@@ -28,16 +28,15 @@ regress_pwm.sample(
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
+\item{spat_bin_size}{size of the spatial bin (in bp).}
+
+\item{spat_num_bins}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
+
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
-
-\item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
-
-\item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
 
 \item{include_response}{include the response in the resulting list (default: TRUE)}
 
@@ -80,7 +79,6 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{init_from_dataset}}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
-    \item{\code{spat_bin}}{size of the spatial bin (in bp).}
     \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
@@ -104,7 +102,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
