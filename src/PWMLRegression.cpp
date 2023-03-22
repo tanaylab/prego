@@ -290,13 +290,7 @@ void PWMLRegression::optimize() {
             m_step_num++;
         } while (m_cur_score > prev_score + m_imporve_epsilon);
 
-        if (m_bidirect){
-            // symmetrize m_spat_factors
-            int center_bin = int(m_spat_bins_num / 2);
-            for (int bin = center_bin + 1; bin < m_spat_bins_num; bin++){
-                m_spat_factors[bin] = m_spat_factors[bin - (bin - center_bin) * 2];
-            }
-        }
+        symmetrize_spat_factors();
     }
 }
 
@@ -420,6 +414,16 @@ void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_
             for (upds = m_aux_upds.begin(); upds != m_aux_upds.end(); upds++) {
                 *(upds->p) += rprod / upds->factor;
             }
+        }
+    }
+    symmetrize_spat_factors();
+}
+
+void PWMLRegression::symmetrize_spat_factors(){
+    if (m_bidirect){
+        int center_bin = int(m_spat_bins_num / 2);
+        for (int bin = center_bin + 1; bin < m_spat_bins_num; bin++){
+            m_spat_factors[bin] = m_spat_factors[bin - (bin - center_bin) * 2];
         }
     }
 }

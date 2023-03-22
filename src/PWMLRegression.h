@@ -155,6 +155,7 @@ class PWMLRegression {
     float compute_cur_ks_spat();
 
     int pos_to_spat_bin(const int &pos);
+    void symmetrize_spat_factors();
 };
 
 #endif // PWMLRegression_h
