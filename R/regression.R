@@ -386,6 +386,15 @@ regress_pwm <- function(sequences,
         cli_alert_info("Initializing regression with the following motif: {.val {motif}}")
     }
 
+    n_bins <- as.integer((spat_max - spat_min) / spat_bin)
+
+    # if number of bins is even and bideirect is TRUE - change the spatial bin size
+    if (bidirect && (n_bins %% 2 == 0)){        
+        # change the number of bins to be odd 
+        spat_bin <- find_largest_odd_divisor(spat_max - spat_min, spat_bin)
+        cli_alert_warning("{.field spat_bin} was changed to {.val {spat_bin}} to make the number of bins odd when {.code bidirect=TRUE}")
+    }  
+
     cli_alert_info("Running regression")
     cli_ul(c(
         "Motif length: {.val {motif_length}}",

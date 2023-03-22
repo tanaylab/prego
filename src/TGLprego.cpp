@@ -421,3 +421,15 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
     }
     return res;
 }
+
+// [[Rcpp::export]]
+int find_largest_odd_divisor(int num, int max_n) {
+    int x = max_n;
+    while (x <= num) {
+        if (num % x == 0 && (num / x) % 2 == 1) {
+            return x;
+        }
+        x++;
+    }
+    return 1;
+}

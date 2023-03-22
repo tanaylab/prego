@@ -66,6 +66,7 @@ class PWMLRegression {
     vector<vector<float>> m_spat_derivs; // deriv[vid][pos][char]
     int m_spat_bin_size;
     float m_spat_factor_step;
+    int m_spat_bins_num;
 
     float m_cur_score;
 
@@ -152,6 +153,8 @@ class PWMLRegression {
     float compute_cur_ks(const int &pos, const vector<float> &probs);
     float compute_cur_ks_fold(const int &pos, const vector<float> &probs, const int &fold);
     float compute_cur_ks_spat();
+
+    int pos_to_spat_bin(const int &pos);
 };
 
 #endif // PWMLRegression_h
