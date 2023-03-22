@@ -27,6 +27,7 @@ plot_spat_model <- function(spat) {
 #' @param pred the 'pred' field from the regression result
 #' @param response the 'response' field from the regression result (the response variable)
 #' @param point_size the size of the points in the plot (default: 0.5)
+#' @param alpha the transparency of the points in the plot (default: 1)
 #'
 #' @examples
 #' \dontrun{
@@ -35,20 +36,22 @@ plot_spat_model <- function(spat) {
 #' }
 #'
 #' @export
-plot_regression_prediction <- function(pred, response, point_size = 0.5) {
+plot_regression_prediction <- function(pred, response, point_size = 0.5, alpha = 1) {
     if (is.matrix(response)) {
         response <- rowMeans(response)
     }
-    r2 <- cor(response, pred)^2
+    correlation <- cor(response, pred)
+    r2 <- correlation^2
+
     tibble(resp = response, pred = pred) %>%
         ggplot(aes(x = resp, y = pred)) +
-        geom_point(size = point_size) +
+        geom_point(size = point_size, alpha = alpha) +
         theme_classic() +
         xlab("Response") +
         ylab("Prediction") +
         labs(
             title = "Regression prediction",
-            subtitle = as.expression(substitute(italic(r)^2 ~ "=" ~ r2, list(r2 = round(r2, digits = 3))))
+            subtitle = as.expression(substitute(italic(r)^2 ~ "=" ~ r2 ~ "," ~ italic(r) ~ "=" ~ correlation, list(r2 = round(r2, digits = 3), correlation = round(correlation, digits = 3))))
         ) +
         theme(aspect.ratio = 1)
 }
@@ -120,6 +123,8 @@ plot_regression_prediction_binary <- function(pred, response) {
 #' @param title a title for the plot (optional)
 #' @param subtitle a subtitle for the plot (optional)
 #' @param caption a caption for the plot (optional). When caption is NULL a default caption would be plotted.
+#' @param point_size the size of the points in the scatter plot
+#' @param alpha the transparency of the points in the scatter plot
 #'
 #'
 #' @return a patchwork object
@@ -138,7 +143,9 @@ plot_regression_qc <- function(reg,
                                response = NULL,
                                title = glue("Motif regression results (consensus: {reg$consensus})"),
                                subtitle = NULL,
-                               caption = NULL) {
+                               caption = NULL,
+                               point_size = 0.5,
+                               alpha = 0.5) {
     if (is.null(response)) {
         if (!("response" %in% names(reg))) {
             cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
@@ -153,7 +160,7 @@ plot_regression_qc <- function(reg,
     if (is_binary_response(response)) {
         p_pred <- plot_regression_prediction_binary(reg$pred, response)
     } else {
-        p_pred <- plot_regression_prediction(reg$pred, response)
+        p_pred <- plot_regression_prediction(reg$pred, response, point_size = point_size, alpha = alpha)
     }
 
     if (is.null(reg$db_match) || is.null(reg$db_match_cor)) {
@@ -234,7 +241,9 @@ plot_regression_qc <- function(reg,
 #' @export
 plot_regression_qc_multi <- function(reg, title = glue("Motif regression results (consensus: {reg$consensus})"),
                                      subtitle = NULL,
-                                     caption = NULL) {
+                                     caption = NULL,
+                                     point_size = 0.01,
+                                     alpha = 0.5) {
     if (!("models" %in% names(reg)) || !("multi_stats" %in% names(reg))) {
         cli_abort("The regression result does not contain multiple motifs")
     }
@@ -272,7 +281,7 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
         if (is_binary_response(response)) {
             plot_regression_prediction_binary(.x$pred, response)
         } else {
-            plot_regression_prediction(.x$pred, response)
+            plot_regression_prediction(.x$pred, response, point_size = point_size, alpha = alpha)
         }
     })
 
@@ -285,6 +294,7 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
         geom_col() +
         theme_classic() +
         geom_text(vjust = -0.5) +
+        scale_y_continuous(expand = expansion(mult = 0.1)) +
         xlab("Model") +
         ylab("Score") +
         facet_wrap(. ~ name, scales = "free_y", ncol = 2)
