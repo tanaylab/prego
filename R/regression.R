@@ -174,7 +174,7 @@ regress_pwm <- function(sequences,
                         max_cands = 10,
                         min_gap = 0,
                         max_gap = 1,
-                        min_kmer_cor = 0.1,
+                        min_kmer_cor = 0.08,
                         motif_num = 1,
                         smooth_k = 100,
                         consensus_single_thresh = 0.6,
@@ -357,8 +357,13 @@ regress_pwm <- function(sequences,
             kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
             if (length(motif) == 0) { # could not find any kmer
-                motif <- paste(rep("*", motif_length), collapse = "")
-                cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+                cli_alert_info("Could not find any kmer with correlation above {.val {min_kmer_cor}}. Trying with a threshold of {.val {min_kmer_cor / 2}}")
+                kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...)
+                motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
+                if (length(motif) == 0) {
+                    motif <- paste(rep("*", motif_length), collapse = "")
+                    cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+                }
             }
         }
         if (stringr::str_length(motif) < motif_length) {
@@ -499,7 +504,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     max_cands = 10,
                                     min_gap = 0,
                                     max_gap = 1,
-                                    min_kmer_cor = 0.1,
+                                    min_kmer_cor = 0.08,
                                     consensus_single_thresh = 0.6,
                                     consensus_double_thresh = 0.85,
                                     internal_num_folds = 1,
@@ -556,6 +561,7 @@ regress_pwm.multi_kmers <- function(sequences,
         "Bidirectional: {.val {bidirect}}",
         "Spat bin size: {.val {spat_bin_size}}",
         "Number of spatial bins {.val {spat_num_bins}}",
+        "Length of sequence: {.val {spat_bin_size*spat_num_bins}}",
         "Min gap: {.val {min_gap}}",
         "Max gap: {.val {max_gap}}",
         "Kmer length: {.val {kmer_length}}",
@@ -623,7 +629,7 @@ regress_pwm.multi_kmers <- function(sequences,
 
 get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
     all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
-        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, ...) %>%
+        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...) %>%
             mutate(len = kmer_length[i], verbose = FALSE) %>%
             suppressMessages()
     }, .parallel = parallel)
@@ -631,9 +637,18 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
     best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
 
     if (length(best_kmer) == 0) { # could not find any kmer
-        res <- paste(rep("*", kmer_length), collapse = "")
-        cli_alert_info("Could not find any kmer. Initializing with {.val {res}}")
-        return(res)
+        cli::cli_alert_info("Could not find any kmer when using a threshold of {.val {min_kmer_cor}}. Trying with {.val {min_kmer_cor/2}}")
+        all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
+            screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...) %>%
+                mutate(len = kmer_length[i], verbose = FALSE) %>%
+                suppressMessages()
+        }, .parallel = parallel)
+        best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))]
+        if (length(best_kmer) == 0) { # could not find any kmer
+            res <- paste(rep("*", kmer_length), collapse = "")
+            cli_alert_info("Could not find any kmer. Initializing with {.val {res}}")
+            return(res)
+        }
     }
 
     all_kmers <- all_kmers %>%
