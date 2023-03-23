@@ -123,6 +123,9 @@ regress_pwm.multi_kmers <- function(sequences,
     }, .parallel = parallel)
 
     scores <- sapply(res_kmer_list, function(x) x$score)
+    if (is.matrix(scores) && nrow(scores) > 1) {
+        scores <- colMeans(scores)
+    }
 
     purrr::walk2(cand_kmers, scores, ~ {
         cli::cli_ul("kmer: {.val {.x}}, score ({final_metric}): {.val {.y}}")
@@ -137,9 +140,6 @@ regress_pwm.multi_kmers <- function(sequences,
             res <- res_kmer_list[[1]]
         }
     } else {
-        if (is.matrix(scores) && nrow(scores) > 1) {
-            scores <- colMeans(scores)
-        }
         if (sample_for_kmers) {
             cli_alert_info("Performing regression on full data")
             res <- regress_pwm_single_kmer(motif = cand_kmers[which.max(scores)], sequences = sequences, response = response)
