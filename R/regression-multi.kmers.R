@@ -164,7 +164,7 @@ regress_pwm.multi_kmers <- function(sequences,
 
     cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
 
-    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences_s[1]))
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences[1]))
 
     res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
 
