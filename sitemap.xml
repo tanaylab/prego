@@ -46,6 +46,12 @@
     <loc>/reference/consensus_from_pssm.html</loc>
   </url>
   <url>
+    <loc>/reference/export_multi_regression.html</loc>
+  </url>
+  <url>
+    <loc>/reference/export_regression_model.html</loc>
+  </url>
+  <url>
     <loc>/reference/extract_pwm.html</loc>
   </url>
   <url>
@@ -62,6 +68,12 @@
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/load_multi_regression.html</loc>
+  </url>
+  <url>
+    <loc>/reference/load_regression_model.html</loc>
   </url>
   <url>
     <loc>/reference/mask_sequences_by_pwm.html</loc>

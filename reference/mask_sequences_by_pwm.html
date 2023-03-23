@@ -12,7 +12,7 @@ Sequences at the edges of the sequences will also be masked by 'N'."><!-- mathja
     
     <a class="navbar-brand me-2" href="../index.html">prego</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,12 +85,11 @@ The scale is the same as the y axis in the pssm logo plots.</p></dd>
 
 
 <dt>spat_min</dt>
-<dd><p>start of the spatial model from the beginning of the sequence (in bp)</p></dd>
+<dd><p>the minimum position to use from the sequences. The default is 1.</p></dd>
 
 
 <dt>spat_max</dt>
-<dd><p>end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.</p></dd>
+<dd><p>the maximum position to use from the sequences. The default is the length of the sequences.</p></dd>
 
 
 <dt>bidirect</dt>
@@ -116,12 +115,12 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Generate candidate kmers </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Regress each candidate kmer on sampled data </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Regress each candidate kmer </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression on <span style="color: #0000BB;">10</span> candidate kmers</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Bidirectional: <span style="color: #0000BB;">TRUE</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat min: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat max: <span style="color: #0000BB;">300</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin: <span style="color: #0000BB;">50</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Spat bin size: <span style="color: #0000BB;">40</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Number of spatial bins <span style="color: #0000BB;">7</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Length of sequence: <span style="color: #0000BB;">280</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Min gap: <span style="color: #0000BB;">0</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Max gap: <span style="color: #0000BB;">1</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Kmer length: <span style="color: #0000BB;">8</span></span>
@@ -130,19 +129,19 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Uniform prior: <span style="color: #0000BB;">0.05</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Score metric: <span style="color: #0000BB;">"r2"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • Seed: <span style="color: #0000BB;">60427</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTAAT*ATT"</span>, score (ks): <span style="color: #0000BB;">0.83643382497028</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AAT*ATTAA"</span>, score (ks): <span style="color: #0000BB;">0.836887794426953</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAAT*ATTA"</span>, score (ks): <span style="color: #0000BB;">0.599012153753032</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"GTTAAT*AT"</span>, score (ks): <span style="color: #0000BB;">0.831847318205373</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AT*ATTAAC"</span>, score (ks): <span style="color: #0000BB;">0.834099746996399</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AA*CATTAA"</span>, score (ks): <span style="color: #0000BB;">0.837065245317692</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTAA*CATT"</span>, score (ks): <span style="color: #0000BB;">0.84834154179785</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAATCATT"</span>, score (ks): <span style="color: #0000BB;">0.818609264025152</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTA*TCATT"</span>, score (ks): <span style="color: #0000BB;">0.835405045266307</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAA*CATTA"</span>, score (ks): <span style="color: #0000BB;">0.554155181348278</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"HOMER.Hnf1"</span>, cor: <span style="color: #0000BB;">0.819</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">"HOMER.Hnf1"</span> KS test D: <span style="color: #0000BB;">0.8133</span>, p-value: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best motif: <span style="color: #0000BB;">"***TTAA*CATT***"</span>, score (ks): <span style="color: #0000BB;">0.84834154179785</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTAAT*ATT"</span>, score (ks): <span style="color: #0000BB;">0.854878919705105</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AAT*ATTAA"</span>, score (ks): <span style="color: #0000BB;">0.854878919705105</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAAT*ATTA"</span>, score (ks): <span style="color: #0000BB;">0.843301065576269</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"GTTAAT*AT"</span>, score (ks): <span style="color: #0000BB;">0.844482257088238</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AT*ATTAAC"</span>, score (ks): <span style="color: #0000BB;">0.844482257088238</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"AA*CATTAA"</span>, score (ks): <span style="color: #0000BB;">0.84950858078479</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTAA*CATT"</span>, score (ks): <span style="color: #0000BB;">0.849192870611084</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAATCATT"</span>, score (ks): <span style="color: #0000BB;">0.841995767306361</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TTA*TCATT"</span>, score (ks): <span style="color: #0000BB;">0.845127829960678</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • kmer: <span style="color: #0000BB;">"TAA*CATTA"</span>, score (ks): <span style="color: #0000BB;">0.833248418183164</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best match in the database: <span style="color: #0000BB;">"JOLMA.HNF1B_di_full_1"</span>, cor: <span style="color: #0000BB;">0.8</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">"JOLMA.HNF1B_di_full_1"</span> KS test D: <span style="color: #0000BB;">0.8512</span>, p-value: <span style="color: #0000BB;">0</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Best motif: <span style="color: #0000BB;">"***TTAAT*ATT***"</span>, score (ks): <span style="color: #0000BB;">0.854878919705105</span></span>
 <span class="r-in"><span><span class="va">new_sequences</span> <span class="op">&lt;-</span> <span class="fu">mask_sequences_by_pwm</span><span class="op">(</span><span class="va">cluster_sequences_example</span>, <span class="va">res</span><span class="op">$</span><span class="va">pssm</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pred</span>, <span class="fl">0.95</span><span class="op">)</span>, spat <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">spat</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The following positions will be masked: <span style="color: #0000BB;">3</span>, <span style="color: #0000BB;">4</span>, <span style="color: #0000BB;">5</span>, <span style="color: #0000BB;">6</span>, <span style="color: #0000BB;">7</span>, <span style="color: #0000BB;">8</span>, <span style="color: #0000BB;">10</span>, <span style="color: #0000BB;">11</span>, and <span style="color: #0000BB;">12</span>. Overall <span style="color: #0000BB;">9</span> positions will be masked</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">new_sequences</span><span class="op">)</span></span></span>

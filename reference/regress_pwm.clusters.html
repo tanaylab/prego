@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">prego</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sequences</dt>
-<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through <code>toupper</code>)</p></dd>
+<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through <code>toupper</code>). Please make sure that the sequences are long enough to cover <code>spat_num_bins</code> * <code>spat_bin_size</code> bp, and that they are centered around the motif/signal.</p></dd>
 
 
 <dt>clusters</dt>
@@ -157,15 +157,11 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     <dt><code>bidirect</code></dt>
 <dd><p>is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.</p></dd>
 
-    <dt><code>spat_min</code></dt>
-<dd><p>start of the spatial model from the beginning of the sequence (in bp)</p></dd>
-
-    <dt><code>spat_max</code></dt>
-<dd><p>end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.</p></dd>
-
-    <dt><code>spat_bin</code></dt>
+    <dt><code>spat_bin_size</code></dt>
 <dd><p>size of the spatial bin (in bp).</p></dd>
+
+    <dt><code>spat_num_bins</code></dt>
+<dd><p>number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If <code>bidirect</code> is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.</p></dd>
 
     <dt><code>spat_model</code></dt>
 <dd><p>a previously computed spatial model (see <code>spat</code>) in the return value of this function. This can only be used when <code>motif</code> is a previously computed PSSM.</p></dd>
@@ -216,14 +212,14 @@ would end at the end of the sequence.</p></dd>
     <dt><code>internal_num_folds</code></dt>
 <dd><p>number of folds to use in the internal cross-validation.</p></dd>
 
-    <dt><code>is_train</code></dt>
-<dd><p>a boolean vector that determine which subset of sequences to use when screening</p></dd>
+    <dt><code>sample_for_kmers</code></dt>
+<dd><p>Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when <code>multi_kmers</code> is TRUE.</p></dd>
+
+    <dt><code>sample_idxs</code></dt>
+<dd><p>indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.</p></dd>
 
     <dt><code>min_gap,max_gap</code></dt>
 <dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).</p></dd>
-
-    <dt><code>sample_idxs</code></dt>
-<dd><p>indices of the sequences to use. If NULL, the indices would be sampled using <code>sample_frac</code>.</p></dd>
 
   
 </dl></dd>
@@ -261,25 +257,21 @@ would end at the end of the sequence.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using sampled optimization</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running regression for <span style="color: #0000BB;">5</span> clusters</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Matching with motif databases</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Automatic coercion from double to character was deprecated in purrr 1.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">prego</span> package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue to the authors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Screening motif databases for <span style="color: #0000BB;">5</span> clusters</span>
 <span class="r-in"><span><span class="va">res_screen</span><span class="op">$</span><span class="va">stats</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # A tibble: 5 x 9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster consensus      ks_D        r2      seed_motif</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   GA***AT 0.6541368 0.3444935 ***TGA*GGATG***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111   Y**TAAA 0.8281219 0.5084934 ***GG*CATAAA***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29   A*T***T 0.8325887 0.5428873 ***TAAT*ATTA***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      GATA 0.6084138 0.1911232 ***CTGATAAG****</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6      TATC 0.5959543 0.2645249 ***TA*CTTATC***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         db_match db_match_cor   ks_D_db</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    HOMER.Hoxb4     0.817471 0.6337245</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            JOLMA.CDX2_mono_DBD     0.898667 0.7803839</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                     HOMER.Hnf1     0.776298 0.8606183</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 HOCOMOCO.GATA6_MOUSE.H11MO.0.A     0.910209 0.5793942</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                    HOMER.Gata2     0.896695 0.5790557</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    c100   GA***AT 0.6682274 0.3263735 ***TGATGG*TG***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    c111   Y**TAAA 0.8359569 0.5140420 ***GC*ATAAAA***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     c29 T*A***W*Y 0.8297190 0.5515333 ***TTAA*CATT***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      c5      &lt;NA&gt; 0.5692638 0.1944192 ***TGAT*GATG***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      c6       ATC 0.6059779 0.2617247 ***TCTTATCT****</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        db_match db_match_cor   ks_D_db</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 HOCOMOCO.PDX1_HUMAN.H11MO.0.A    0.7864178 0.6337245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           JOLMA.CDX2_mono_DBD    0.8889318 0.7803839</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         JOLMA.HNF1B_di_full_1    0.7453199 0.8606183</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             JASPAR.CG15696-RA    0.7248332 0.5793942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   HOMER.Gata2    0.8636602 0.5790557</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         db_motif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                    HOMER.HOXA2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2                    JASPAR.CDX1</span>

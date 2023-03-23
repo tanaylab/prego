@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">prego</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@
 <span>  <span class="va">quantiles</span>,</span>
 <span>  <span class="va">pssm</span>,</span>
 <span>  spat <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  spat_min <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  spat_min <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  spat_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bidirect <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  prior <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -79,12 +79,11 @@
 
 
 <dt>spat_min</dt>
-<dd><p>start of the spatial model from the beginning of the sequence (in bp)</p></dd>
+<dd><p>the minimum position to use from the sequences. The default is 1.</p></dd>
 
 
 <dt>spat_max</dt>
-<dd><p>end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.</p></dd>
+<dd><p>the maximum position to use from the sequences. The default is the length of the sequences.</p></dd>
 
 
 <dt>bidirect</dt>
