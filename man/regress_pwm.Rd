@@ -12,14 +12,12 @@ regress_multiple_motifs(
   motif_length = 15,
   score_metric = "r2",
   bidirect = TRUE,
-  spat_min = 0,
-  spat_max = NULL,
-  spat_bin = 50,
+  spat_bin_size = 40,
+  spat_num_bins = 7,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
-  is_train = NULL,
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
@@ -29,16 +27,20 @@ regress_multiple_motifs(
   max_cands = 10,
   min_gap = 0,
   max_gap = 1,
-  min_kmer_cor = 0.1,
+  min_kmer_cor = 0.08,
   motif_num = 2,
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
-  internal_num_folds = 10,
+  internal_num_folds = 1,
   match_with_db = TRUE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
   alternative = "less",
+  sample_for_kmers = FALSE,
+  sample_frac = NULL,
+  sample_idxs = NULL,
+  sample_ratio = 1,
   ...
 )
 
@@ -50,14 +52,12 @@ regress_pwm(
   init_from_dataset = FALSE,
   score_metric = "r2",
   bidirect = TRUE,
-  spat_min = 0,
-  spat_max = NULL,
-  spat_bin = 50,
+  spat_bin_size = 40,
+  spat_num_bins = 7,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
-  is_train = NULL,
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
@@ -67,22 +67,26 @@ regress_pwm(
   max_cands = 10,
   min_gap = 0,
   max_gap = 1,
-  min_kmer_cor = 0.1,
+  min_kmer_cor = 0.08,
   motif_num = 1,
   smooth_k = 100,
   consensus_single_thresh = 0.6,
   consensus_double_thresh = 0.85,
-  internal_num_folds = 10,
+  internal_num_folds = 1,
   match_with_db = TRUE,
   screen_db = FALSE,
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
   alternative = "less",
+  sample_for_kmers = FALSE,
+  sample_frac = NULL,
+  sample_idxs = NULL,
+  sample_ratio = 1,
   ...
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
 
 \item{response}{A matrix of response variables - number of rows should equal the number of sequences}
 
@@ -96,12 +100,9 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
-\item{spat_min}{start of the spatial model from the beginning of the sequence (in bp)}
+\item{spat_bin_size}{size of the spatial bin (in bp).}
 
-\item{spat_max}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
-
-\item{spat_bin}{size of the spatial bin (in bp).}
+\item{spat_num_bins}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
 
 \item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
 
@@ -110,8 +111,6 @@ would end at the end of the sequence.}
 \item{min_nuc_prob}{minimum nucleotide probability in every iteration}
 
 \item{unif_prior}{uniform prior for nucleotide probabilities}
-
-\item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 
 \item{include_response}{include the response in the resulting list (default: TRUE)}
 
@@ -150,10 +149,19 @@ to set the number of cores to use.}
 
 \item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
+\item{sample_for_kmers}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+
+\item{sample_frac}{fraction of the dataset to use for the kmer screen. Default: 0.1.}
+
+\item{sample_idxs}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+
+\item{sample_ratio}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
+
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
+    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{from_range}}{Sequences will be considered only from position from_range (default 0)}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
@@ -169,7 +177,7 @@ to set the number of cores to use.}
 a list with the following elements:
 \itemize{
 \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
+\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 \item{pred: }{a vector with the predicted pwm for each sequence.}
 \item{consensus: }{Consensus sequence based on the PSSM.}
 \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}

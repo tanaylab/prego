@@ -31,7 +31,8 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
         
         // shuffle the vector to randomize the folds
         std::random_shuffle(m_folds.begin(), m_folds.end(), rand_wrapper);        
-    }    
+    }
+
 }
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
@@ -124,11 +125,17 @@ void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
 
 void PWMLRegression::init_seed(const string &init_mot, int isbid) {
     m_nuc_factors.resize(init_mot.size(), vector<float>('T' + 1));
-
-    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size);
-
     m_is_wildcard.resize(init_mot.size(), false);
     m_bidirect = isbid;
+
+    m_spat_bins_num = (m_max_range - m_min_range) / m_spat_bin_size;    
+
+    // abort if the number of bins is even and bidirect
+    if (m_bidirect && m_spat_bins_num % 2 == 0) {
+        Rcpp::stop("number of spatial bins must be odd when bidirect is true");
+    }
+
+    m_spat_factors.resize(m_spat_bins_num);
 
     int pos = 0;
     for (string::const_iterator i = init_mot.begin(); i != init_mot.end(); i++) {
@@ -282,6 +289,8 @@ void PWMLRegression::optimize() {
             }
             m_step_num++;
         } while (m_cur_score > prev_score + m_imporve_epsilon);
+
+        symmetrize_spat_factors();
     }
 }
 
@@ -315,10 +324,23 @@ void PWMLRegression::init_energies() {
     }
 }
 
+int PWMLRegression::pos_to_spat_bin(const int& pos) {
+    int bin = int(pos / m_spat_bin_size);
+    if (m_bidirect){        
+        int center_bin = int(m_spat_bins_num / 2);
+
+        // if bin is in the right side of the center symmetrize it
+        if (bin > center_bin){
+            bin = bin - (bin - center_bin) * 2;
+        }
+    }
+    return bin;
+}
+
 void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_i,
                                          string::const_iterator max_i, int sign, int pos) {
     for (string::const_iterator i = min_i; i < max_i; i++) {
-        int spat_bin = int(pos / m_spat_bin_size);
+        int spat_bin = pos_to_spat_bin(pos);        
         pos++;
         string::const_iterator j = i;
         double prod = sign;
@@ -392,6 +414,16 @@ void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_
             for (upds = m_aux_upds.begin(); upds != m_aux_upds.end(); upds++) {
                 *(upds->p) += rprod / upds->factor;
             }
+        }
+    }
+    symmetrize_spat_factors();
+}
+
+void PWMLRegression::symmetrize_spat_factors(){
+    if (m_bidirect){
+        int center_bin = int(m_spat_bins_num / 2);
+        for (int bin = center_bin + 1; bin < m_spat_bins_num; bin++){
+            m_spat_factors[bin] = m_spat_factors[bin - (bin - center_bin) * 2];
         }
     }
 }
@@ -524,6 +556,7 @@ void PWMLRegression::take_best_step() {
         Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score
                     << endl;
     }
+
     for (int spat_bin = 0; spat_bin < max_spat_bin; spat_bin++) {
         m_spat_factors[spat_bin] += m_spat_factor_step;
         float spat_score = compute_cur_spat_score();

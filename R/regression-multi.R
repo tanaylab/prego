@@ -7,14 +7,12 @@ regress_multiple_motifs <- function(sequences,
                                     motif_length = 15,
                                     score_metric = "r2",
                                     bidirect = TRUE,
-                                    spat_min = 0,
-                                    spat_max = NULL,
-                                    spat_bin = 50,
+                                    spat_bin_size = 40,
+                                    spat_num_bins = 7,
                                     spat_model = NULL,
                                     improve_epsilon = 0.0001,
                                     min_nuc_prob = 0.001,
                                     unif_prior = 0.05,
-                                    is_train = NULL,
                                     include_response = TRUE,
                                     seed = 60427,
                                     verbose = FALSE,
@@ -24,7 +22,7 @@ regress_multiple_motifs <- function(sequences,
                                     max_cands = 10,
                                     min_gap = 0,
                                     max_gap = 1,
-                                    min_kmer_cor = 0.1,
+                                    min_kmer_cor = 0.08,
                                     motif_num = 2,
                                     smooth_k = 100,
                                     consensus_single_thresh = 0.6,
@@ -34,6 +32,10 @@ regress_multiple_motifs <- function(sequences,
                                     motif_dataset = all_motif_datasets(),
                                     parallel = getOption("prego.parallel", FALSE),
                                     alternative = "less",
+                                    sample_for_kmers = FALSE,
+                                    sample_frac = NULL,
+                                    sample_idxs = NULL,
+                                    sample_ratio = 1,
                                     ...) {
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")
@@ -43,14 +45,12 @@ regress_multiple_motifs <- function(sequences,
         sequences = sequences,
         motif_length = motif_length,
         bidirect = bidirect,
-        spat_min = spat_min,
-        spat_max = spat_max,
-        spat_bin = spat_bin,
+        spat_bin_size = spat_bin_size,
+        spat_num_bins = spat_num_bins,
         spat_model = spat_model,
         improve_epsilon = improve_epsilon,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
-        is_train = is_train,
         multi_kmers = multi_kmers,
         include_response = include_response,
         seed = seed,
@@ -67,6 +67,10 @@ regress_multiple_motifs <- function(sequences,
         match_with_db = match_with_db,
         motif_dataset = motif_dataset,
         alternative = alternative,
+        sample_for_kmers = sample_for_kmers,
+        sample_frac = sample_frac,
+        sample_idxs = sample_idxs,
+        sample_ratio = sample_ratio,
         ...
     )
 
@@ -172,6 +176,18 @@ regress_multiple_motifs <- function(sequences,
         res$ks <- suppressWarnings(ks.test(res$pred[response == 1], res$pred[response == 0], alternative = alternative))
     } else {
         res$r2 <- cor(res$pred, response)^2
+    }
+
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences[1]))
+
+    res$spat_min <- spat$spat_min
+    res$spat_max <- spat$spat_max
+    res$spat_bin_size <- spat_bin_size
+    res$bidirect <- bidirect
+    res$seq_length <- nchar(sequences[1])
+
+    res$export <- function(fn) {
+        export_multi_regression(res, fn)
     }
 
     return(res)

@@ -1,6 +1,6 @@
 #' Run PWM regression on a sample of the data
 #'
-#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}. Note that \code{multi_kmers} is TRUE by default.
+#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}.
 #'
 #' @param sample_frac fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
 #' If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.
@@ -31,9 +31,9 @@
 #' @export
 regress_pwm.sample <- function(sequences,
                                response,
+                               spat_bin_size = 40,
+                               spat_num_bins = 7,
                                bidirect = TRUE,
-                               spat_min = 0,
-                               spat_max = NULL,
                                include_response = TRUE,
                                motif_num = 1,
                                multi_kmers = TRUE,
@@ -75,28 +75,32 @@ regress_pwm.sample <- function(sequences,
         response = response_s,
         bidirect = bidirect,
         unif_prior = unif_prior,
-        spat_min = spat_min,
-        spat_max = spat_max,
+        spat_bin_size = spat_bin_size,
+        spat_num_bins = spat_num_bins,
         motif_num = motif_num,
         multi_kmers = multi_kmers,
         include_response = FALSE,
         verbose = FALSE,
         match_with_db = FALSE,
+        screen_db = FALSE,
         parallel = parallel,
         final_metric = final_metric,
         seed = seed,
         alternative = alternative,
+        sample_for_kmers = FALSE,
         ...
     )
 
     res$sample_idxs <- sample_idxs
 
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences_s[1]))
+
     # fill predictions for all the sequences
-    res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+    res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
 
     if (motif_num > 1 && "models" %in% names(res)) {
         res$models <- purrr::map(res$models, ~ {
-            .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect)
+            .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
             .x
         })
     }
@@ -127,7 +131,13 @@ regress_pwm.sample <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+
+    res$spat_min <- spat$spat_min
+    res$spat_max <- spat$spat_max
+    res$spat_bin_size <- spat_bin_size
+    res$bidirect <- bidirect
+    res$seq_length <- nchar(sequences[1])
 
     return(res)
 }
