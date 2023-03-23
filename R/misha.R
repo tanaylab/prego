@@ -15,7 +15,7 @@
 #' }
 #'
 #' @export
-gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
     if (!requireNamespace("misha", quietly = TRUE)) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
@@ -52,7 +52,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #' @inheritParams gpwm_quantiles
 #'
 #' @export
-gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
     pwms <- gextract_pwm(intervals, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
     if (!is.null(motifs)) {
@@ -148,7 +148,7 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
 #' }
 #'
 #' @export
-gpwm_quantiles <- function(size, quantiles, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL) {
+gpwm_quantiles <- function(size, quantiles, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL) {
     if (!requireNamespace("misha.ext", quietly = TRUE)) {
         cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
     }

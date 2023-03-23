@@ -24,7 +24,7 @@ regress_pwm.clusters(
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
 
 \item{clusters}{a vector with the cluster assignments for each sequence}
 
@@ -74,10 +74,8 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
-    \item{\code{spat_min}}{start of the spatial model from the beginning of the sequence (in bp)}
-    \item{\code{spat_max}}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
-    \item{\code{spat_bin}}{size of the spatial bin (in bp).}
+    \item{\code{spat_bin_size}}{size of the spatial bin (in bp).}
+    \item{\code{spat_num_bins}}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
     \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
@@ -95,9 +93,9 @@ would end at the end of the sequence.}
     \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
     \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
-    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
+    \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+    \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
-    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
   }}
 }
 \value{

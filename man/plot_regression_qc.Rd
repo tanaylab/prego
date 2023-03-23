@@ -9,7 +9,9 @@ plot_regression_qc(
   response = NULL,
   title = glue("Motif regression results (consensus: {reg$consensus})"),
   subtitle = NULL,
-  caption = NULL
+  caption = NULL,
+  point_size = 0.5,
+  alpha = 0.5
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ plot_regression_qc(
 \item{subtitle}{a subtitle for the plot (optional)}
 
 \item{caption}{a caption for the plot (optional). When caption is NULL a default caption would be plotted.}
+
+\item{point_size}{the size of the points in the scatter plot}
+
+\item{alpha}{the transparency of the points in the scatter plot}
 }
 \value{
 a patchwork object

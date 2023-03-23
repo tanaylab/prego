@@ -1,6 +1,6 @@
 #' Perform a PWM regression
 #'
-#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
+#' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.
 #' @param response A matrix of response variables - number of rows should equal the number of sequences
 #' @param motif Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
 #' wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
@@ -9,10 +9,8 @@
 #' @param motif_length Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.
 #' @param score_metric metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
-#' @param spat_min start of the spatial model from the beginning of the sequence (in bp)
-#' @param spat_max end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-#' would end at the end of the sequence.
-#' @param spat_bin size of the spatial bin (in bp).
+#' @param spat_bin_size size of the spatial bin (in bp).
+#' @param spat_num_bins number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.
 #' @param spat_model a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.
 #' @param improve_epsilon minimum improve in the objective function to continue the optimization
 #' @param min_nuc_prob minimum nucleotide probability in every iteration
@@ -38,11 +36,15 @@
 #' @param min_kmer_cor minimal correlation between the kmer and the response in order to use it as a seed.
 #' @param internal_num_folds number of folds to use in the internal cross-validation.
 #' @param alternative alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".
+#' @param sample_for_kmers Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.
+#' @param sample_frac fraction of the dataset to use for the kmer screen. Default: 0.1.
+#' @param sample_idxs indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.
+#' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
 #'
 #' @return a list with the following elements:
 #' \itemize{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin. The bins are defined such that the first bin starts at \code{spat_min} and the last bin ends at \code{spat_max}, with a bin size of \code{spat_bin}.}
+#' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
 #' \item{consensus: }{Consensus sequence based on the PSSM.}
 #' \item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
@@ -160,14 +162,12 @@ regress_pwm <- function(sequences,
                         init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
-                        spat_min = 0,
-                        spat_max = NULL,
-                        spat_bin = 50,
+                        spat_bin_size = 40,
+                        spat_num_bins = 7,
                         spat_model = NULL,
                         improve_epsilon = 0.0001,
                         min_nuc_prob = 0.001,
                         unif_prior = 0.05,
-                        is_train = NULL,
                         include_response = TRUE,
                         seed = 60427,
                         verbose = FALSE,
@@ -177,7 +177,7 @@ regress_pwm <- function(sequences,
                         max_cands = 10,
                         min_gap = 0,
                         max_gap = 1,
-                        min_kmer_cor = 0.1,
+                        min_kmer_cor = 0.08,
                         motif_num = 1,
                         smooth_k = 100,
                         consensus_single_thresh = 0.6,
@@ -188,6 +188,10 @@ regress_pwm <- function(sequences,
                         motif_dataset = all_motif_datasets(),
                         parallel = getOption("prego.parallel", FALSE),
                         alternative = "less",
+                        sample_for_kmers = FALSE,
+                        sample_frac = NULL,
+                        sample_idxs = NULL,
+                        sample_ratio = 1,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -199,14 +203,12 @@ regress_pwm <- function(sequences,
                 motif_length = motif_length,
                 score_metric = score_metric,
                 bidirect = bidirect,
-                spat_min = spat_min,
-                spat_max = spat_max,
-                spat_bin = spat_bin,
+                spat_bin_size = spat_bin_size,
+                spat_num_bins = spat_num_bins,
                 spat_model = spat_model,
                 improve_epsilon = improve_epsilon,
                 min_nuc_prob = min_nuc_prob,
                 unif_prior = unif_prior,
-                is_train = is_train,
                 include_response = include_response,
                 seed = seed,
                 verbose = verbose,
@@ -226,6 +228,10 @@ regress_pwm <- function(sequences,
                 motif_dataset = motif_dataset,
                 parallel = parallel,
                 alternative = alternative,
+                sample_for_kmers = sample_for_kmers,
+                sample_frac = sample_frac,
+                sample_idxs = sample_idxs,
+                sample_ratio = sample_ratio,
                 ...
             )
         )
@@ -233,14 +239,6 @@ regress_pwm <- function(sequences,
 
     if (!(score_metric %in% c("r2", "ks"))) {
         cli_abort("score_metric must be one of {.val r2} or {.val ks}")
-    }
-
-    if (is.null(is_train)) {
-        is_train <- rep(TRUE, length(sequences))
-    }
-
-    if (length(sequences) != length(is_train)) {
-        cli_abort("The number of sequences and the length of {.field is_train} vector do not match")
     }
 
     if (is.null(nrow(response))) {
@@ -259,23 +257,7 @@ regress_pwm <- function(sequences,
         cli_abort("There are missing values in the sequences")
     }
 
-    n_in_train <- sum(is_train)
-
-    if (is.null(spat_max)) {
-        spat_max <- nchar(sequences[1])
-    }
-
-    if (spat_min < 0) {
-        cli_abort("{.field spat_min} must be non-negative")
-    }
-
-    if ((spat_max > nchar(sequences[1])) || (spat_max < spat_min)) {
-        cli_abort("{.field spat_max} must be between {.field spat_min} and the length of the sequences")
-    }
-
-    if (as.integer((spat_max - spat_min) / spat_bin) != (spat_max - spat_min) / spat_bin) {
-        cli_abort("{.field spat_bin} must be a divisor of {.field spat_max} - {.field spat_min}")
-    }
+    max_seq_len <- nchar(sequences[1])
 
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
@@ -302,6 +284,8 @@ regress_pwm <- function(sequences,
     cli_alert_info("Using {.val {final_metric}} as the final metric")
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, max_seq_len)
 
     if (init_from_dataset) {
         cli_alert_info("Initializing from dataset")
@@ -342,14 +326,12 @@ regress_pwm <- function(sequences,
                     motif_length = motif_length,
                     score_metric = score_metric,
                     bidirect = bidirect,
-                    spat_min = spat_min,
-                    spat_max = spat_max,
-                    spat_bin = spat_bin,
+                    spat_bin_size = spat_bin_size,
+                    spat_num_bins = spat_num_bins,
                     spat_model = spat_model,
                     improve_epsilon = improve_epsilon,
                     min_nuc_prob = min_nuc_prob,
                     unif_prior = unif_prior,
-                    is_train = is_train,
                     include_response = include_response,
                     seed = seed,
                     verbose = verbose,
@@ -367,6 +349,10 @@ regress_pwm <- function(sequences,
                     screen_db = screen_db,
                     motif_dataset = motif_dataset,
                     alternative = alternative,
+                    sample_for_kmers = sample_for_kmers,
+                    sample_frac = sample_frac,
+                    sample_idxs = sample_idxs,
+                    sample_ratio = sample_ratio,
                     ...
                 ))
             }
@@ -374,8 +360,13 @@ regress_pwm <- function(sequences,
             kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
             if (length(motif) == 0) { # could not find any kmer
-                motif <- paste(rep("*", motif_length), collapse = "")
-                cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+                cli_alert_info("Could not find any kmer with correlation above {.val {min_kmer_cor}}. Trying with a threshold of {.val {min_kmer_cor / 2}}")
+                kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...)
+                motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
+                if (length(motif) == 0) {
+                    motif <- paste(rep("*", motif_length), collapse = "")
+                    cli_alert_info("Could not find any kmer. Initializing with {.val {motif}}")
+                }
             }
         }
         if (stringr::str_length(motif) < motif_length) {
@@ -386,13 +377,16 @@ regress_pwm <- function(sequences,
         cli_alert_info("Initializing regression with the following motif: {.val {motif}}")
     }
 
+
+
     cli_alert_info("Running regression")
     cli_ul(c(
         "Motif length: {.val {motif_length}}",
         "Bidirectional: {.val {bidirect}}",
-        "Spat min: {.val {spat_min}}",
-        "Spat max: {.val {spat_max}}",
-        "Spat bin: {.val {spat_bin}}",
+        "Spat min: {.val {spat$spat_min}}",
+        "Spat max: {.val {spat$spat_max}}",
+        "Spat bin size: {.val {spat_bin_size}}",
+        "Number of bins: {.val {spat_num_bins}}",
         "Improve epsilon: {.val {improve_epsilon}}",
         "Min nuc prob: {.val {min_nuc_prob}}",
         "Uniform prior: {.val {unif_prior}}",
@@ -400,15 +394,19 @@ regress_pwm <- function(sequences,
         "Seed: {.val {seed}}"
     ))
 
+    sequences <- stringr::str_sub(sequences, start = spat$spat_min, end = spat$spat_max - 1)
+
+    is_train <- rep(TRUE, length(sequences))
+
     res <- regress_pwm_cpp(
         toupper(sequences),
         response,
         is_train,
         motif = motif,
-        spat_min = spat_min,
-        spat_max = spat_max,
+        spat_bin = spat_bin_size,
+        spat_min = 0,
+        spat_max = nchar(sequences[1]),
         min_nuc_prob = min_nuc_prob,
-        spat_bin = spat_bin,
         spat_factor = spat_model,
         improve_epsilon = improve_epsilon,
         is_bidirect = bidirect,
@@ -457,7 +455,15 @@ regress_pwm <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
+    res$spat_min <- spat$spat_min
+    res$spat_max <- spat$spat_max
+    res$spat_bin_size <- spat_bin_size
+    res$bidirect <- bidirect
+    res$seq_length <- nchar(sequences[1])
+
+    res$predict <- function(x) {
+        compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+    }
 
     return(res)
 }
@@ -492,189 +498,30 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
     return(reg)
 }
 
-regress_pwm.multi_kmers <- function(sequences,
-                                    response,
-                                    motif_length = 15,
-                                    score_metric = "r2",
-                                    bidirect = TRUE,
-                                    spat_min = 0,
-                                    spat_max = NULL,
-                                    spat_bin = 50,
-                                    spat_model = NULL,
-                                    improve_epsilon = 0.0001,
-                                    min_nuc_prob = 0.001,
-                                    unif_prior = 0.05,
-                                    is_train = NULL,
-                                    include_response = TRUE,
-                                    seed = 60427,
-                                    verbose = FALSE,
-                                    kmer_length = 6:8,
-                                    max_cands = 10,
-                                    min_gap = 0,
-                                    max_gap = 1,
-                                    min_kmer_cor = 0.1,
-                                    consensus_single_thresh = 0.6,
-                                    consensus_double_thresh = 0.85,
-                                    internal_num_folds = 1,
-                                    final_metric = "r2",
-                                    parallel = getOption("prego.parallel", FALSE),
-                                    match_with_db = TRUE,
-                                    screen_db = FALSE,
-                                    motif_dataset = all_motif_datasets(),
-                                    alternative = "two.sided",
-                                    ...) {
-    set.seed(seed)
-    if (is.null(nrow(response))) {
-        response <- matrix(response, ncol = 1)
+
+
+calc_spat_min_max <- function(spat_bin_size, spat_num_bins, max_seq_len) {
+    if (spat_bin_size %% 2 != 0) {
+        cli_abort("The {.field spat_bin_size} must be an even number")
+    }
+    if (spat_num_bins %% 2 != 1) {
+        cli_abort("The {.field spat_num_bins} must be an odd number")
+    }
+    if (spat_bin_size * spat_num_bins > max_seq_len) {
+        cli_abort("The {.field spat_bin_size} ({.val {spat_bin_size}}) times the {.field spat_num_bins} ({.val {spat_num_bins}}) must be smaller than the maximum sequence length ({.val {max_seq_len}})")
     }
 
-    if (length(sequences) != nrow(response)) {
-        cli_abort("The number of sequences and the number of rows in {.field response} do not match")
-    }
+    center <- round(max_seq_len / 2)
 
-    if (any(is.na(sequences))) {
-        cli_abort("There are missing values in the sequences")
-    }
-
-    regress_pwm_single_kmer <- purrr::partial(
-        regress_pwm,
-        sequences = sequences,
-        response = response,
-        motif_length = motif_length,
-        score_metric = score_metric,
-        bidirect = bidirect,
-        spat_min = spat_min,
-        spat_max = spat_max,
-        spat_bin = spat_bin,
-        improve_epsilon = improve_epsilon,
-        min_nuc_prob = min_nuc_prob,
-        unif_prior = unif_prior,
-        is_train = is_train,
-        include_response = FALSE,
-        seed = seed,
-        verbose = FALSE,
-        consensus_single_thresh = consensus_single_thresh,
-        consensus_double_thresh = consensus_double_thresh,
-        internal_num_folds = internal_num_folds,
-        match_with_db = FALSE,
-        alternative = alternative,
-        multi_kmers = FALSE
-    )
-
-    cli_h3("Generate candidate kmers")
-    cand_kmers <- get_cand_kmers(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
-
-    cli_h3("Regress each candidate kmer on sampled data")
-    cli_alert_info("Running regression on {.val {length(cand_kmers)}} candidate kmers")
-    cli_ul(c(
-        "Bidirectional: {.val {bidirect}}",
-        "Spat min: {.val {spat_min}}",
-        "Spat max: {.val {spat_max}}",
-        "Spat bin: {.val {spat_bin}}",
-        "Min gap: {.val {min_gap}}",
-        "Max gap: {.val {max_gap}}",
-        "Kmer length: {.val {kmer_length}}",
-        "Improve epsilon: {.val {improve_epsilon}}",
-        "Min nuc prob: {.val {min_nuc_prob}}",
-        "Uniform prior: {.val {unif_prior}}",
-        "Score metric: {.val {score_metric}}",
-        "Seed: {.val {seed}}"
-    ))
-    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
-        motif <- cand_kmers[i]
-        cli_alert("regressing with seed: {.val {motif}}")
-        r <- regress_pwm_single_kmer(motif = motif) %>%
-            suppressMessages()
-        if (final_metric == "ks") {
-            if (!is_binary_response(response)) {
-                cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
-            }
-            r$score <- r[[final_metric]]$statistic
-        } else if (final_metric == "r2") {
-            r$score <- r[[final_metric]]
-        } else {
-            cli_abort("Unknown {.field final_metric} (can be 'ks' or 'r2')")
-        }
-        cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
-        return(r)
-    }, .parallel = parallel)
-
-    scores <- sapply(res_kmer_list, function(x) x$score)
-
-    purrr::walk2(cand_kmers, scores, ~ {
-        cli::cli_ul("kmer: {.val {.x}}, score ({final_metric}): {.val {.y}}")
-    })
-
-    if (length(which.max(scores)) == 0) {
-        cli_alert_warning("No motifs found")
-        res <- res_kmer_list[[1]]
+    if (spat_num_bins == 1) {
+        spat_min <- center - spat_bin_size / 2
+        spat_max <- center + spat_bin_size / 2
     } else {
-        if (is.matrix(scores) && nrow(scores) > 1) {
-            scores <- colMeans(scores)
-        }
-        res <- res_kmer_list[[which.max(scores)]]
+        # position one bin at the center, and then add bins to the left and to the right
+        spat_min <- center - ((spat_num_bins - 1) / 2) * spat_bin_size - spat_bin_size / 2
+        spat_max <- center + ((spat_num_bins - 1) / 2) * spat_bin_size + spat_bin_size / 2
     }
 
-    res$kmers <- cand_kmers
 
-    if (include_response) {
-        res$response <- response
-    }
-
-    if (match_with_db) {
-        res <- add_regression_db_match(res, sequences, motif_dataset, alternative = alternative, parallel = parallel)
-    }
-
-    if (screen_db) {
-        res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, alternative = alternative, prior = unif_prior, bidirect = bidirect, parallel = parallel)
-    }
-
-    cli_alert_info("Best motif: {.val {res$seed_motif}}, score ({final_metric}): {.val {max(scores)}}")
-
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect)
-
-    return(res)
-}
-
-get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
-    all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
-        screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, ...) %>%
-            mutate(len = kmer_length[i], verbose = FALSE) %>%
-            suppressMessages()
-    }, .parallel = parallel)
-
-    best_kmer <- all_kmers$kmer[which.max(abs(all_kmers$max_r2))] # return at least one kmer
-
-    if (length(best_kmer) == 0) { # could not find any kmer
-        res <- paste(rep("*", kmer_length), collapse = "")
-        cli_alert_info("Could not find any kmer. Initializing with {.val {res}}")
-        return(res)
-    }
-
-    all_kmers <- all_kmers %>%
-        # filter by correlation
-        filter(sqrt(max_r2) > min_kmer_cor) %>%
-        dplyr::distinct(kmer, .keep_all = TRUE)
-
-    cands <- all_kmers %>%
-        slice_max(n = min(nrow(all_kmers), max_cands), order_by = abs(max_r2)) %>%
-        arrange(desc(abs(max_r2)))
-
-
-    dist_mat <- stringdist::stringdistmatrix(cands$kmer, cands$kmer, method = "osa", nthread = 1)
-    dist_mat[dist_mat != 1] <- NA
-    if (ncol(dist_mat) == nrow(dist_mat)) {
-        g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
-        cands <- cands %>%
-            mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%
-            group_by(kmer_clust) %>%
-            slice(1) %>%
-            pull(kmer)
-    } else {
-        cands <- cands$kmer
-    }
-
-    cands <- unique(c(best_kmer, cands))
-
-    return(cands)
+    return(list(spat_min = round(spat_min), spat_max = round(spat_max)))
 }

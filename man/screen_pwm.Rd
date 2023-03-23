@@ -41,11 +41,10 @@ screen_pwm(
   \describe{
     \item{\code{pssm}}{a PSSM matrix or data frame. The columns of the matrix or data frame should be named with the nucleotides ('A', 'C', 'G' and 'T').}
     \item{\code{spat}}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
+    \item{\code{spat_min}}{the minimum position to use from the sequences. The default is 1.}
+    \item{\code{spat_max}}{the maximum position to use from the sequences. The default is the length of the sequences.}
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
     \item{\code{func}}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
-    \item{\code{spat_min}}{start of the spatial model from the beginning of the sequence (in bp)}
-    \item{\code{spat_max}}{end of the spatial model from the beginning of the sequence (in bp). If NULL - the spatial model
-would end at the end of the sequence.}
   }}
 }
 \value{

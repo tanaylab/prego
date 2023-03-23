@@ -4,7 +4,10 @@ log_sum_log_vec <- function(x) {
     max_x + log(sum(exp(x - max_x)))
 }
 
-res_samp <- regress_pwm.sample(cluster_sequences_example, cluster_mat_example[, 1], final_metric = "ks")
+res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
+    final_metric = "ks", spat_bin_size = 40,
+    spat_num_bins = 7,
+)
 
 s <- "CAGTAAAAGCTTTAATGCGTCTTGAGAGGGAGAGCATCAGCTTACAGAGCGAAGACCCCGAATGGCAAAACCCCGTCCCTTTTATGGAGAATTGCCCTCCGCCTCAGACACGTCGCTCCCTGATTGGCTGCAGCCCATCGGCCGAGTTGTCCTCACGGGGAAGGCAGAGCACATGGAGTGGAAAACTACCCCGGGCACATGCACAGATTACTTGTTTACTACTTAGAACACAGGATGTCAGCACCATCTTGTAATGGCGAATGTGAGGGCGGCTCCTCATACTTAGTTCCCTTTTTATGA"
 pssm <- data.frame(pos = 0:14, A = c(
@@ -36,7 +39,12 @@ pssm <- data.frame(pos = 0:14, A = c(
 windows <- purrr::map_chr(1:(nchar(s) - 14), function(i) substr(s, i, i + 14))
 
 test_that("regression result is the same as the one from regress_pwm()$pred", {
-    expect_equal(res_samp$pred, compute_pwm(cluster_sequences_example, pssm = res_samp$pssm, spat = res_samp$spat))
+    spat <- calc_spat_min_max(40, 7, 300)
+    expect_equal(res$pred, compute_pwm(cluster_sequences_example, pssm = res$pssm, spat = res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max - 1))
+})
+
+test_that("regression predict() function works", {
+    expect_equal(res$predict(cluster_sequences_example), res$pred)
 })
 
 test_that("compute_pwm works with logSumExp function", {

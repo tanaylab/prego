@@ -7,6 +7,8 @@ reference:
   - starts_with("regress_pwm")
   - starts_with("plot_regression")  
   - plot_spat_model
+  - starts_with("export")
+  - starts_with("load")
 - title: kmers  
   contents:
   - screen_kmers

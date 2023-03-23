@@ -3,6 +3,8 @@
 #' @param sequences a vector of sequences
 #' @param pssm a PSSM matrix or data frame. The columns of the matrix or data frame should be named with the nucleotides ('A', 'C', 'G' and 'T').
 #' @param spat a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.
+#' @param spat_min the minimum position to use from the sequences. The default is 1.
+#' @param spat_max the maximum position to use from the sequences. The default is the length of the sequences.
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param prior a prior probability for each nucleotide.
 #' @param func the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.
@@ -20,9 +22,8 @@
 #' head(res$pred)
 #' }
 #'
-#' @inheritParams regress_pwm
 #' @export
-compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp") {
+compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp") {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -32,7 +33,11 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
     }
 
     if (is.null(spat_max)) {
-        spat_max <- nchar(sequences[1])
+        spat_max <- nchar(sequences[[1]])
+    }
+
+    if (!(spat_min == 1 && spat_max == nchar(sequences[[1]]))) {
+        sequences <- stringr::str_sub(sequences, start = spat_min, end = spat_max)
     }
 
     if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
@@ -61,8 +66,8 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = N
         sequences = toupper(sequences),
         pssm_mat = pssm_mat,
         is_bidirect = bidirect,
-        spat_min = spat_min,
-        spat_max = spat_max,
+        spat_min = 0,
+        spat_max = nchar(sequences[1]),
         spat_factor = spat$spat_factor,
         bin_size = binsize,
         use_max = use_max
