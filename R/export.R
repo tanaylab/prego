@@ -1,3 +1,69 @@
+#' Export a motif regression model
+#'
+#' @param model a motif regression model, as returned by \code{regress_pwm} with \code{motif_num = 1}
+#' @param fn a file name to save the model to
+#'
+#' @return None
+#'
+#' @examples
+#' \dontrun{
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
+#'     final_metric = "ks", spat_bin_size = 40,
+#'     spat_num_bins = 7
+#' )
+#' export_fn <- tempfile()
+#' export_regression_model(export_fn)
+#' r <- load_regression(export_fn)
+#' }
+#'
+#' @export
+export_regression_model <- function(model, fn) {
+    r <- list(
+        pssm = model$pssm,
+        spat = model$spat,
+        spat_min = model$spat_min,
+        spat_max = model$spat_max,
+        bidirect = model$bidirect,
+        seq_length = model$seq_length
+    )
+    readr::write_rds(r, fn)
+}
+
+#' Load a motif regression model from a file
+#'
+#' @param fn file name
+#'
+#' @return a list with the following elements:
+#'
+#' \itemize{
+#' \item{pssm:}{a data frame with the PSSM}
+#' \item{spat:}{a data frame with the spatial profile}
+#' \item{spat_min:}{a numeric value with the minimum value of the spatial profile}
+#' \item{spat_max:}{a numeric value with the maximum value of the spatial profile}
+#' \item{bidirect:}{a boolean value indicating whether the model is bidirectional}
+#' \item{seq_length:}{a numeric value with the length of the sequences}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
+#'     final_metric = "ks", spat_bin_size = 40,
+#'     spat_num_bins = 7
+#' )
+#' export_fn <- tempfile()
+#' export_regression_model(export_fn)
+#' r <- load_regression(export_fn)
+#' }
+#'
+#' @export
+load_regression_model <- function(fn) {
+    r <- readr::read_rds(fn)
+    r$predict <- function(x, ...) {
+        compute_pwm(x, r$pssm, spat = r$spat, bidirect = r$bidirect, spat_min = r$spat_min, spat_max = r$spat_max - 1, ...)
+    }
+    return(r)
+}
+
 #' Export a multiple motif regression model
 #'
 #' @param reg a multiple motif regression model, as returned by \code{regress_pwm} with \code{motif_num > 1}
@@ -50,7 +116,7 @@ export_multi_regression <- function(reg, fn) {
     readr::write_rds(new_reg, fn)
 }
 
-#' Load a multiple motif regression model
+#' Load a multiple motif regression model from a file
 #'
 #' @param fn file name
 #'

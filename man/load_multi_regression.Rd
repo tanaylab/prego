@@ -2,7 +2,7 @@
 % Please edit documentation in R/export.R
 \name{load_multi_regression}
 \alias{load_multi_regression}
-\title{Load a multiple motif regression model}
+\title{Load a multiple motif regression model from a file}
 \usage{
 load_multi_regression(fn)
 }
@@ -26,7 +26,7 @@ a list with the following elements:
 }
 }
 \description{
-Load a multiple motif regression model
+Load a multiple motif regression model from a file
 }
 \examples{
 \dontrun{

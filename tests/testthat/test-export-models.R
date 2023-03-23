@@ -17,3 +17,17 @@ test_that("export multi motifs regression works", {
     expect_equal(r$model$pssm, res_multi$model$pssm)
     expect_equal(r$model$spat, res_multi$model$spat)
 })
+
+res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
+    final_metric = "ks", spat_bin_size = 40,
+    spat_num_bins = 7
+)
+
+test_that("export a single motif regression works", {
+    export_fn <- tempfile()
+    export_regression_model(res, export_fn)
+    r <- load_regression_model(export_fn)
+    expect_equal(r$predict(cluster_sequences_example), res$predict(cluster_sequences_example))
+    expect_equal(r$pssm, res$pssm)
+    expect_equal(r$spat, res$spat)
+})
