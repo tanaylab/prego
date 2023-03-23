@@ -178,6 +178,18 @@ regress_multiple_motifs <- function(sequences,
         res$r2 <- cor(res$pred, response)^2
     }
 
+    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences[1]))
+
+    res$spat_min <- spat$spat_min
+    res$spat_max <- spat$spat_max
+    res$spat_bin_size <- spat_bin_size
+    res$bidirect <- bidirect
+    res$seq_length <- nchar(sequences[1])
+
+    res$export <- function(fn) {
+        export_multi_regression(res, fn)
+    }
+
     return(res)
 }
 

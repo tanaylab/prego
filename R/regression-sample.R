@@ -133,6 +133,12 @@ regress_pwm.sample <- function(sequences,
 
     res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
 
+    res$spat_min <- spat$spat_min
+    res$spat_max <- spat$spat_max
+    res$spat_bin_size <- spat_bin_size
+    res$bidirect <- bidirect
+    res$seq_length <- nchar(sequences[1])
+
     return(res)
 }
 
