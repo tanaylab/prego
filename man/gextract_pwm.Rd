@@ -9,7 +9,7 @@ gextract_pwm(
   motifs = NULL,
   dataset = all_motif_datasets(),
   spat = NULL,
-  spat_min = 0,
+  spat_min = 1,
   spat_max = NULL,
   bidirect = TRUE,
   prior = 0,
@@ -25,6 +25,10 @@ gextract_pwm(
 \item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
 
 \item{spat}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
+
+\item{spat_min}{the minimum position to use from the sequences. The default is 1.}
+
+\item{spat_max}{the maximum position to use from the sequences. The default is the length of the sequences.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 

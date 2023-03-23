@@ -10,7 +10,7 @@ gextract_pwm.quantile(
   dataset = all_motif_datasets(),
   percision = 0.01,
   spat = NULL,
-  spat_min = 0,
+  spat_min = 1,
   spat_max = NULL,
   bidirect = TRUE,
   prior = 0,
@@ -30,6 +30,10 @@ gextract_pwm.quantile(
 \item{percision}{the percision of the quantiles. Default is 0.01, which means that the quantiles will be computed for every 1\% of the pwm.}
 
 \item{spat}{a data frame with the spatial model (as returned from the \code{$spat} slot from the regression). Should contain a column called 'bin' and a column called 'spat_factor'.}
+
+\item{spat_min}{the minimum position to use from the sequences. The default is 1.}
+
+\item{spat_max}{the maximum position to use from the sequences. The default is the length of the sequences.}
 
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
