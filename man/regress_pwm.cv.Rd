@@ -78,12 +78,11 @@ is returned, even if it is not similar enough in absolute terms.}
     \item{\code{smooth_k}}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
     \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
-    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
+    \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+    \item{\code{sample_frac}}{fraction of the dataset to use for the kmer screen. Default: 0.1.}
+    \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+    \item{\code{sample_ratio}}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
-    \item{\code{sample_frac}}{fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
-If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.}
-    \item{\code{sample_idxs}}{indices of the sequences to use. If NULL, the indices would be sampled using \code{sample_frac}.}
-    \item{\code{sample_ratio}}{ratio between the '1' category and the '0' category in the sampled dataset. Relevant only when \code{sample_frac} is NULL.}
   }}
 }
 \value{

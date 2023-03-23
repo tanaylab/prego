@@ -1,6 +1,6 @@
 #' Run PWM regression on a sample of the data
 #'
-#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}. Note that \code{multi_kmers} is TRUE by default.
+#' @description The optimization would be performed with a sampled dataset of size \code{sample_frac}, or explicit sampled indices \code{sample_idxs}.
 #'
 #' @param sample_frac fraction of the dataset to sample. When \code{response} is categorical (0 and 1), the sampling would be stratified by the category, i.e. \code{sample_frac} can be a vector of length 2 with the fraction of 0 and 1 responses to sample respectively.
 #' If NULL - the default would be 0.1 for continuous variables, and for binary variables - the number of 0 responses would be equal to \code{sample_ratio} times the number of 1 responses.
@@ -82,10 +82,12 @@ regress_pwm.sample <- function(sequences,
         include_response = FALSE,
         verbose = FALSE,
         match_with_db = FALSE,
+        screen_db = FALSE,
         parallel = parallel,
         final_metric = final_metric,
         seed = seed,
         alternative = alternative,
+        sample_for_kmers = FALSE,
         ...
     )
 

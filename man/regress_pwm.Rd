@@ -18,7 +18,6 @@ regress_multiple_motifs(
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
-  is_train = NULL,
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
@@ -28,7 +27,7 @@ regress_multiple_motifs(
   max_cands = 10,
   min_gap = 0,
   max_gap = 1,
-  min_kmer_cor = 0.1,
+  min_kmer_cor = 0.08,
   motif_num = 2,
   smooth_k = 100,
   consensus_single_thresh = 0.6,
@@ -38,6 +37,10 @@ regress_multiple_motifs(
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
   alternative = "less",
+  sample_for_kmers = FALSE,
+  sample_frac = NULL,
+  sample_idxs = NULL,
+  sample_ratio = 1,
   ...
 )
 
@@ -55,7 +58,6 @@ regress_pwm(
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
-  is_train = NULL,
   include_response = TRUE,
   seed = 60427,
   verbose = FALSE,
@@ -65,7 +67,7 @@ regress_pwm(
   max_cands = 10,
   min_gap = 0,
   max_gap = 1,
-  min_kmer_cor = 0.1,
+  min_kmer_cor = 0.08,
   motif_num = 1,
   smooth_k = 100,
   consensus_single_thresh = 0.6,
@@ -76,6 +78,10 @@ regress_pwm(
   motif_dataset = all_motif_datasets(),
   parallel = getOption("prego.parallel", FALSE),
   alternative = "less",
+  sample_for_kmers = FALSE,
+  sample_frac = NULL,
+  sample_idxs = NULL,
+  sample_ratio = 1,
   ...
 )
 }
@@ -105,8 +111,6 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 \item{min_nuc_prob}{minimum nucleotide probability in every iteration}
 
 \item{unif_prior}{uniform prior for nucleotide probabilities}
-
-\item{is_train}{a boolean vector that determine which subset of sequences to use when screening}
 
 \item{include_response}{include the response in the resulting list (default: TRUE)}
 
@@ -145,10 +149,19 @@ to set the number of cores to use.}
 
 \item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
+\item{sample_for_kmers}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+
+\item{sample_frac}{fraction of the dataset to use for the kmer screen. Default: 0.1.}
+
+\item{sample_idxs}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+
+\item{sample_ratio}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
+
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
+    \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{from_range}}{Sequences will be considered only from position from_range (default 0)}
     \item{\code{to_range}}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences)}
