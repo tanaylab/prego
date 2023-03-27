@@ -91,6 +91,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{min_kmer_cor}}{minimal correlation between the kmer and the response in order to use it as a seed.}
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+    \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}

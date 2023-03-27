@@ -82,6 +82,7 @@ is returned, even if it is not similar enough in absolute terms.}
     \item{\code{sample_frac}}{fraction of the dataset to use for the kmer screen. Default: 0.1.}
     \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
     \item{\code{sample_ratio}}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
+    \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
   }}
 }
