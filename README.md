@@ -31,7 +31,7 @@ remotes::install_github("tanaylab/prego")
 
 ``` r
 library(prego)
-#> ℹ Parallelization enabled. Using 77 threads.
+#> ℹ Parallelization enabled. Using 77 threads. 
 ```
 
 For a set of continuous variables:
