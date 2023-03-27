@@ -95,6 +95,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
     \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+    \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
   }}
 }

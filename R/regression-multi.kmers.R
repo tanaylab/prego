@@ -30,6 +30,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     sample_frac = NULL,
                                     sample_idxs = NULL,
                                     sample_ratio = 1,
+                                    log_energy = FALSE,
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -76,7 +77,8 @@ regress_pwm.multi_kmers <- function(sequences,
         match_with_db = FALSE,
         alternative = alternative,
         multi_kmers = FALSE,
-        sample_for_kmers = FALSE
+        sample_for_kmers = FALSE,
+        log_energy = log_energy
     )
 
     cli_h3("Generate candidate kmers")

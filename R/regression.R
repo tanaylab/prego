@@ -40,6 +40,7 @@
 #' @param sample_frac fraction of the dataset to use for the kmer screen. Default: 0.1.
 #' @param sample_idxs indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
+#' @param log_energy transform the energy to log scale on each iteration.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -192,6 +193,7 @@ regress_pwm <- function(sequences,
                         sample_frac = NULL,
                         sample_idxs = NULL,
                         sample_ratio = 1,
+                        log_energy = FALSE,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -232,6 +234,7 @@ regress_pwm <- function(sequences,
                 sample_frac = sample_frac,
                 sample_idxs = sample_idxs,
                 sample_ratio = sample_ratio,
+                log_energy = log_energy,
                 ...
             )
         )
@@ -353,6 +356,7 @@ regress_pwm <- function(sequences,
                     sample_frac = sample_frac,
                     sample_idxs = sample_idxs,
                     sample_ratio = sample_ratio,
+                    log_energy = log_energy,
                     ...
                 ))
             }
@@ -417,7 +421,8 @@ regress_pwm <- function(sequences,
         pssm_mat = pssm,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
-        num_folds = internal_num_folds
+        num_folds = internal_num_folds,
+        log_energy = log_energy
     )
 
 
