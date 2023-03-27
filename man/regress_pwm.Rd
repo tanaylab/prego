@@ -41,6 +41,7 @@ regress_multiple_motifs(
   sample_frac = NULL,
   sample_idxs = NULL,
   sample_ratio = 1,
+  log_energy = FALSE,
   ...
 )
 
@@ -82,6 +83,7 @@ regress_pwm(
   sample_frac = NULL,
   sample_idxs = NULL,
   sample_ratio = 1,
+  log_energy = FALSE,
   ...
 )
 }
@@ -156,6 +158,8 @@ to set the number of cores to use.}
 \item{sample_idxs}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
 
 \item{sample_ratio}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
+
+\item{log_energy}{transform the energy to log scale on each iteration.}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}

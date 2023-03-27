@@ -188,7 +188,8 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const Rcpp::NumericMatrix &pssm_mat,
                            const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor, 
                            const float &consensus_single_thresh,
-                           const float &consensus_double_thresh, const int &num_folds = 1) {
+                           const float &consensus_double_thresh, const int &num_folds = 1, 
+                           const float &energy_epsilon = 0, const bool &log_energy = false) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
@@ -221,7 +222,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     }
 
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
-                           improve_epsilon, 0.001, unif_prior, score_metric, num_folds);
+                           improve_epsilon, 0.001, unif_prior, score_metric, num_folds, log_energy, energy_epsilon);
 
     pwmlreg.m_logit = verbose;
 

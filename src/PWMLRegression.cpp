@@ -9,11 +9,12 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                int min_range, int max_range, float min_prob, int spat_bin_size,
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
                                float eps, float min_improv_for_star, float unif_prior,
-                               const string &score_metric, const int &num_folds)
+                               const string &score_metric, const int &num_folds, const bool &log_energy, const float &energy_epsilon)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
-      m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds) {
+      m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
+      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon) {
     if (m_num_folds < 1) {
         Rcpp::stop("number of folds must be at least 1");
     } 
@@ -732,6 +733,9 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
             const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
+            if (m_log_energy) {
+                v = log(v + m_energy_epsilon);
+            }            
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
@@ -781,12 +785,15 @@ float PWMLRegression::compute_cur_r2_fold(const int &pos, const vector<float> &p
             const vector<float> &deriv = (*seq_deriv)[pos];
             float v = probs['A'] * deriv['A'] + probs['C'] * deriv['C'] + probs['G'] * deriv['G'] +
                       probs['T'] * deriv['T'];
+            if (m_log_energy) {
+                v = log(v + m_energy_epsilon);
+            }      
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {                
                 if (m_folds[seq_id] == fold) {
                     xy[rd] += v * *resp;
-                }                
+                }
                 resp++;
             }
         }
