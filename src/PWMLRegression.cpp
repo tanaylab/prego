@@ -899,6 +899,9 @@ float PWMLRegression::compute_cur_r2_spat() {
                 v += *bin * *fact;
                 fact++;
             }
+            if (m_log_energy) {
+                v = log(v + m_energy_epsilon);
+            }
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
