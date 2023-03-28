@@ -78,8 +78,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // regress_pwm_cpp
-Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const float& improve_epsilon, const bool& is_bidirect, const float& unif_prior, const std::string& score_metric, const int& verbose, const int& seed, const Rcpp::NumericMatrix& pssm_mat, const Rcpp::Nullable<Rcpp::NumericVector>& spat_factor, const float& consensus_single_thresh, const float& consensus_double_thresh, const int& num_folds, const float& energy_epsilon, const bool& log_energy);
-RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP improve_epsilonSEXP, SEXP is_bidirectSEXP, SEXP unif_priorSEXP, SEXP score_metricSEXP, SEXP verboseSEXP, SEXP seedSEXP, SEXP pssm_matSEXP, SEXP spat_factorSEXP, SEXP consensus_single_threshSEXP, SEXP consensus_double_threshSEXP, SEXP num_foldsSEXP, SEXP energy_epsilonSEXP, SEXP log_energySEXP) {
+Rcpp::List regress_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::DataFrame& response, const Rcpp::LogicalVector& is_train_logical, const std::string& motif, const int& spat_min, const int& spat_max, const float& min_nuc_prob, const int& spat_bin, const float& improve_epsilon, const bool& is_bidirect, const float& unif_prior, const std::string& score_metric, const int& verbose, const int& seed, const Rcpp::NumericMatrix& pssm_mat, const Rcpp::Nullable<Rcpp::NumericVector>& spat_factor, const float& consensus_single_thresh, const float& consensus_double_thresh, const int& num_folds, const float& energy_epsilon, const bool& log_energy, Rcpp::Nullable<Rcpp::Function> energy_func);
+RcppExport SEXP _prego_regress_pwm_cpp(SEXP sequencesSEXP, SEXP responseSEXP, SEXP is_train_logicalSEXP, SEXP motifSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP min_nuc_probSEXP, SEXP spat_binSEXP, SEXP improve_epsilonSEXP, SEXP is_bidirectSEXP, SEXP unif_priorSEXP, SEXP score_metricSEXP, SEXP verboseSEXP, SEXP seedSEXP, SEXP pssm_matSEXP, SEXP spat_factorSEXP, SEXP consensus_single_threshSEXP, SEXP consensus_double_threshSEXP, SEXP num_foldsSEXP, SEXP energy_epsilonSEXP, SEXP log_energySEXP, SEXP energy_funcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -104,7 +104,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type num_folds(num_foldsSEXP);
     Rcpp::traits::input_parameter< const float& >::type energy_epsilon(energy_epsilonSEXP);
     Rcpp::traits::input_parameter< const bool& >::type log_energy(log_energySEXP);
-    rcpp_result_gen = Rcpp::wrap(regress_pwm_cpp(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds, energy_epsilon, log_energy));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::Function> >::type energy_func(energy_funcSEXP);
+    rcpp_result_gen = Rcpp::wrap(regress_pwm_cpp(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds, energy_epsilon, log_energy, energy_func));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -136,7 +137,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
     {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
     {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 9},
-    {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 21},
+    {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 22},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {NULL, NULL, 0}
 };

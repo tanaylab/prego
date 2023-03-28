@@ -84,6 +84,7 @@ regress_pwm(
   sample_idxs = NULL,
   sample_ratio = 1,
   log_energy = FALSE,
+  energy_func = NULL,
   ...
 )
 }
@@ -176,6 +177,8 @@ to set the number of cores to use.}
 
 \item{screen_db}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
 "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
+
+\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
 }
 \value{
 a list with the following elements:
