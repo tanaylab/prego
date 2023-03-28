@@ -9,12 +9,13 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                int min_range, int max_range, float min_prob, int spat_bin_size,
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
                                float eps, float min_improv_for_star, float unif_prior,
-                               const string &score_metric, const int &num_folds, const bool &log_energy, const float &energy_epsilon)
+                               const string &score_metric, const int &num_folds, const bool &log_energy, 
+                               const float &energy_epsilon, Rcpp::Nullable<Rcpp::Function> energy_func)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
       m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
-      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon) {
+      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_energy_func(energy_func) {
     if (m_num_folds < 1) {
         Rcpp::stop("number of folds must be at least 1");
     } 
@@ -720,14 +721,12 @@ float PWMLRegression::compute_cur_ks_fold(const int &pos, const vector<float> &p
 }
 
 float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs) {
-    vector<double> xy(m_rdim, 0);
-
-    double ex = 0;
-    double ex2 = 0;
     int max_seq_id = m_sequences.size();
 
+    // calculate energies
     vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
-    vector<float>::const_iterator resp = m_interv_stat.begin();
+    
+    vector<float> energies(max_seq_id, 0);   
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             const vector<float> &deriv = (*seq_deriv)[pos];
@@ -735,7 +734,27 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
                       probs['T'] * deriv['T'];
             if (m_log_energy) {
                 v = log(v + m_energy_epsilon);
-            }            
+            }  
+            energies[seq_id] = v;            
+        }
+        seq_deriv++;
+    }
+
+    if (m_energy_func.isNotNull()){                
+        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+    }
+
+
+    // calculate statistics
+    vector<double> xy(m_rdim, 0);
+    double ex = 0;
+    double ex2 = 0;
+    seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {            
+            float v = energies[seq_id];
+          
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
@@ -771,15 +790,11 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
 }
 
 float PWMLRegression::compute_cur_r2_fold(const int &pos, const vector<float> &probs, const int &fold) {
-    vector<double> xy(m_rdim, 0);
-
-    double ex = 0;
-    double ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();
-    vector<float>::const_iterator resp = m_interv_stat.begin();
-    
+    // calculate energies
+    vector<vector<vector<float>>>::const_iterator seq_deriv = m_derivs.begin();    
+    vector<float> energies(max_seq_id, 0);   
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             const vector<float> &deriv = (*seq_deriv)[pos];
@@ -787,7 +802,25 @@ float PWMLRegression::compute_cur_r2_fold(const int &pos, const vector<float> &p
                       probs['T'] * deriv['T'];
             if (m_log_energy) {
                 v = log(v + m_energy_epsilon);
-            }      
+            }  
+            energies[seq_id] = v;            
+        }
+        seq_deriv++;
+    }
+
+    if (m_energy_func.isNotNull()){                
+        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+    }
+
+    // calculate statistics
+    vector<double> xy(m_rdim, 0);
+    double ex = 0;
+    double ex2 = 0;
+    seq_deriv = m_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {            
+            float v = energies[seq_id];
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {                
@@ -883,13 +916,10 @@ float PWMLRegression::compute_cur_ks_spat() {
 }
 
 float PWMLRegression::compute_cur_r2_spat() {
-    vector<double> xy(m_rdim, 0);
-    float ex = 0;
-    float ex2 = 0;
     int max_seq_id = m_sequences.size();
 
-    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();
-    vector<float>::const_iterator resp = m_interv_stat.begin();
+    vector<vector<float>>::const_iterator seq_derivs = m_spat_derivs.begin();    
+    vector<float> energies(max_seq_id, 0);   
     for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
         if (m_train_mask[seq_id]) {
             float v = 0;
@@ -902,6 +932,23 @@ float PWMLRegression::compute_cur_r2_spat() {
             if (m_log_energy) {
                 v = log(v + m_energy_epsilon);
             }
+            energies[seq_id] = v;            
+        }
+        seq_derivs++;
+    }
+
+    if (m_energy_func.isNotNull()){                
+        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+    }
+
+    vector<double> xy(m_rdim, 0);
+    float ex = 0;
+    float ex2 = 0;
+    seq_derivs = m_spat_derivs.begin();
+    vector<float>::const_iterator resp = m_interv_stat.begin();
+    for (int seq_id = 0; seq_id < max_seq_id; seq_id++) {
+        if (m_train_mask[seq_id]) {
+            float v = energies[seq_id];            
             ex += v;
             ex2 += v * v;
             for (int rd = 0; rd < m_rdim; rd++) {
