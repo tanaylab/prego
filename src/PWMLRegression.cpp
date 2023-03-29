@@ -741,7 +741,11 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
     }
 
     if (m_energy_func.isNotNull()){                
-        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
+
+        if (energies.size() != (size_t)max_seq_id){
+            Rcpp::stop("Energy function must return a vector of the same length as the number of sequences");
+        }
     }
 
 
