@@ -95,6 +95,15 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
     \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
+    \item{\code{energy_func_generator}}{a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
+function(prev_reg, resp) {
+       df <- data.frame(x = prev_reg$pred, y = resp)
+       fn_gam <- as.formula("y ~ s(x, k=3, bs='cr')")
+       model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+       function(z){
+           mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+}}}. \r
+When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}

@@ -42,6 +42,15 @@
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
 #' @param log_energy transform the energy to log scale on each iteration.
 #' @param energy_func a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.
+#' @param energy_func_generator a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
+#' function(prev_reg, resp) {
+#'        df <- data.frame(x = prev_reg$pred, y = resp)
+#'        fn_gam <- as.formula("y ~ s(x, k=3, bs='cr')")
+#'        model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+#'        function(z){
+#'            mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+#' }}}. \r
+#' When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -196,6 +205,7 @@ regress_pwm <- function(sequences,
                         sample_ratio = 1,
                         log_energy = FALSE,
                         energy_func = NULL,
+                        energy_func_generator = NULL,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -238,6 +248,7 @@ regress_pwm <- function(sequences,
                 sample_ratio = sample_ratio,
                 log_energy = log_energy,
                 energy_func = energy_func,
+                energy_func_generator = energy_func_generator,
                 ...
             )
         )
@@ -440,6 +451,9 @@ regress_pwm <- function(sequences,
 
     if (is_binary_response(response)) {
         res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
+        res$score <- res$ks$statistic
+    } else {
+        res$score <- res$r2
     }
 
     if (!is.null(kmers)) {
