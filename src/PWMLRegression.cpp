@@ -178,8 +178,16 @@ void PWMLRegression::init_pwm_spat(DnaPSSM &pwm, const vector<float>& spat_facto
 }
 
 void PWMLRegression::init_pwm(DnaPSSM &pwm) {    
-    m_nuc_factors.resize(pwm.size(), vector<float>('T' + 1));        
-    m_spat_factors.resize((m_max_range - m_min_range) / m_spat_bin_size + 1);    
+    m_nuc_factors.resize(pwm.size(), vector<float>('T' + 1));    
+
+    m_spat_bins_num = (m_max_range - m_min_range) / m_spat_bin_size;    
+    // abort if the number of bins is even and bidirect
+    if (m_bidirect && m_spat_bins_num % 2 == 0) {
+        Rcpp::stop("number of spatial bins must be odd when bidirect is true");
+    }
+
+    m_spat_factors.resize(m_spat_bins_num);
+
     m_is_wildcard.resize(pwm.size(), false);    
     m_bidirect = pwm.is_bidirect();    
 
