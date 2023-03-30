@@ -37,18 +37,19 @@ regress_multiple_motifs <- function(sequences,
                                     sample_idxs = NULL,
                                     sample_ratio = 1,
                                     log_energy = FALSE,
+                                    energy_func_generator = NULL,
+                                    energy_func = NULL,
                                     ...) {
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")
-    }
+    }    
 
     regression_func <- purrr::partial(regress_pwm,
         sequences = sequences,
         motif_length = motif_length,
         bidirect = bidirect,
         spat_bin_size = spat_bin_size,
-        spat_num_bins = spat_num_bins,
-        spat_model = spat_model,
+        spat_num_bins = spat_num_bins,        
         improve_epsilon = improve_epsilon,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
@@ -73,6 +74,7 @@ regress_multiple_motifs <- function(sequences,
         sample_idxs = sample_idxs,
         sample_ratio = sample_ratio,
         log_energy = log_energy,
+        motif_num = 1,
         ...
     )
 
@@ -84,7 +86,19 @@ regress_multiple_motifs <- function(sequences,
     comb_scores <- c()
 
     cli_h2("Running first regression")
-    res <- regression_func(response = response, motif = motif, score_metric = score_metric, final_metric = final_metric)
+    res <- regression_func(response = response, motif = motif, score_metric = score_metric, final_metric = final_metric, spat_model = spat_model, energy_func = energy_func)
+    if (!is.null(energy_func_generator)) {
+        res_efunc <- apply_energy_func(
+            prev_reg = res, 
+            response = response, 
+            regression_func = regression_func, 
+            score_metric = score_metric, 
+            final_metric = final_metric, 
+            energy_func_generator = energy_func_generator
+        )     
+        cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")        
+        res <- res_efunc
+    }
     models[[1]] <- res
     e[[1]] <- res$pred
     names(e)[1] <- "e1"
@@ -100,7 +114,19 @@ regress_multiple_motifs <- function(sequences,
     for (i in 2:motif_num) {
         cli_h2("Running regression #{i}")
         r <- r0 - pred_r_given_e(e_comb, r0, k = smooth_k) # residual
-        res <- regression_func(response = r, score_metric = "r2", final_metric = "r2")
+        res <- regression_func(response = r, score_metric = "r2", final_metric = "r2", spat_model = spat_model, energy_func = energy_func)
+        if (!is.null(energy_func_generator)) {
+            res_efunc <- apply_energy_func(
+                prev_reg = res, 
+                response = response, 
+                regression_func = regression_func, 
+                score_metric = "r2", 
+                final_metric = "r2", 
+                energy_func_generator = energy_func_generator
+            )
+            cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")        
+            res <- res_efunc
+        }
         models[[i]] <- res
 
         e[[i]] <- res$pred
@@ -203,4 +229,10 @@ pred_r_given_e <- function(e, r, k = 100) {
         mutate(pred = zoo::rollapply(r, k, mean, partial = TRUE)) %>%
         arrange(i) %>%
         pull(pred)
+}
+
+apply_energy_func <- function(prev_reg, response, regression_func, score_metric, final_metric, energy_func_generator) {
+    energy_func <- energy_func_generator(prev_reg, response)
+    cli::cli_alert_info("Running a second regression with energy function, initialized by the first regression")
+    regression_func(response = response, motif = prev_reg$pssm, spat_model = prev_reg$spat, score_metric = score_metric, final_metric = final_metric, energy_func = energy_func, energy_func_generator = NULL)
 }
