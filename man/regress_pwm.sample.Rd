@@ -24,6 +24,7 @@ regress_pwm.sample(
   final_metric = NULL,
   unif_prior = 0.05,
   alternative = "two.sided",
+  energy_func = NULL,
   ...
 )
 }
@@ -70,6 +71,8 @@ is returned, even if it is not similar enough in absolute terms.}
 
 \item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
+\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
+
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
@@ -92,7 +95,6 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
     \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
-    \item{\code{energy_func}}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}
