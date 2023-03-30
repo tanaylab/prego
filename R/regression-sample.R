@@ -48,6 +48,7 @@ regress_pwm.sample <- function(sequences,
                                final_metric = NULL,
                                unif_prior = 0.05,
                                alternative = "two.sided",
+                               energy_func = NULL,
                                ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -88,6 +89,7 @@ regress_pwm.sample <- function(sequences,
         seed = seed,
         alternative = alternative,
         sample_for_kmers = FALSE,
+        energy_func = energy_func,
         ...
     )
 
@@ -131,7 +133,13 @@ regress_pwm.sample <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+    res$predict <- function(x) {
+        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        if (!is.null(energy_func)) {
+            e <- energy_func(e)
+        }
+        return(e)
+    }
 
     res$spat_min <- spat$spat_min
     res$spat_max <- spat$spat_max
