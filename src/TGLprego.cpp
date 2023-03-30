@@ -276,6 +276,15 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         preds[i] = energy;
     }
 
+    if (energy_func.isNotNull()) {
+        preds = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(energy_func)(preds));
+
+        if (preds.size() != seqs.size()) {
+            Rcpp::stop("Energy function must return a vector of the same length as the number of "
+                       "sequences");
+        }
+    }
+
     // prepare output
     Rcpp::List res_list = Rcpp::List::create(
         Rcpp::Named("pssm") = pwmlreg.output_pssm_df(0),
