@@ -43,6 +43,7 @@ regress_multiple_motifs(
   sample_ratio = 1,
   log_energy = FALSE,
   energy_func_generator = NULL,
+  energy_func = NULL,
   ...
 )
 
@@ -86,6 +87,9 @@ regress_pwm(
   sample_ratio = 1,
   log_energy = FALSE,
   energy_func = NULL,
+  xmin = -100,
+  xmax = 100,
+  npts = 10000,
   energy_func_generator = NULL,
   ...
 )
@@ -174,6 +178,8 @@ function(prev_reg, resp) {
 }}}. \r
 When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
 
+\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}
+
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
   \describe{
@@ -190,7 +196,7 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 \item{screen_db}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
 "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
 
-\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
+\item{xmin, xmax, npts}{range for the energy function and the number of points to use for its interpolation.}
 }
 \value{
 a list with the following elements:
