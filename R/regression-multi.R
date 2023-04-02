@@ -42,14 +42,14 @@ regress_multiple_motifs <- function(sequences,
                                     ...) {
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")
-    }    
+    }
 
     regression_func <- purrr::partial(regress_pwm,
         sequences = sequences,
         motif_length = motif_length,
         bidirect = bidirect,
         spat_bin_size = spat_bin_size,
-        spat_num_bins = spat_num_bins,        
+        spat_num_bins = spat_num_bins,
         improve_epsilon = improve_epsilon,
         min_nuc_prob = min_nuc_prob,
         unif_prior = unif_prior,
@@ -89,14 +89,14 @@ regress_multiple_motifs <- function(sequences,
     res <- regression_func(response = response, motif = motif, score_metric = score_metric, final_metric = final_metric, spat_model = spat_model, energy_func = energy_func)
     if (!is.null(energy_func_generator)) {
         res_efunc <- apply_energy_func(
-            prev_reg = res, 
-            response = response, 
-            regression_func = regression_func, 
-            score_metric = score_metric, 
-            final_metric = final_metric, 
+            prev_reg = res,
+            response = response,
+            regression_func = regression_func,
+            score_metric = score_metric,
+            final_metric = final_metric,
             energy_func_generator = energy_func_generator
-        )     
-        cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")        
+        )
+        cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")
         res <- res_efunc
     }
     models[[1]] <- res
@@ -117,14 +117,14 @@ regress_multiple_motifs <- function(sequences,
         res <- regression_func(response = r, score_metric = "r2", final_metric = "r2", spat_model = spat_model, energy_func = energy_func)
         if (!is.null(energy_func_generator)) {
             res_efunc <- apply_energy_func(
-                prev_reg = res, 
-                response = response, 
-                regression_func = regression_func, 
-                score_metric = "r2", 
-                final_metric = "r2", 
+                prev_reg = res,
+                response = response,
+                regression_func = regression_func,
+                score_metric = "r2",
+                final_metric = "r2",
                 energy_func_generator = energy_func_generator
             )
-            cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")        
+            cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")
             res <- res_efunc
         }
         models[[i]] <- res

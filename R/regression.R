@@ -41,7 +41,8 @@
 #' @param sample_idxs indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
 #' @param log_energy transform the energy to log scale on each iteration.
-#' @param energy_func a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.
+#' @param energy_func a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.
+#' @param xmin,xmax,npts range for the energy function and the number of points to use for its interpolation.
 #' @param energy_func_generator a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
 #' function(prev_reg, resp) {
 #'        df <- data.frame(x = prev_reg$pred, y = resp)
@@ -205,6 +206,9 @@ regress_pwm <- function(sequences,
                         sample_ratio = 1,
                         log_energy = FALSE,
                         energy_func = NULL,
+                        xmin = -100,
+                        xmax = 100,
+                        npts = 1e4,
                         energy_func_generator = NULL,
                         ...) {
     set.seed(seed)
@@ -249,6 +253,9 @@ regress_pwm <- function(sequences,
                 log_energy = log_energy,
                 energy_func = energy_func,
                 energy_func_generator = energy_func_generator,
+                xmin = xmin,
+                xmax = xmax,
+                npts = npts,
                 ...
             )
         )
@@ -301,6 +308,10 @@ regress_pwm <- function(sequences,
     cli_alert_info("Using {.val {final_metric}} as the final metric")
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    if (!is.null(energy_func) && !log_energy) {
+        cli_warn("Energy function was provided, but {.field log_energy} is {.val FALSE}. Note that the energies during the regression are not log-transformed.")
+    }
 
     spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, max_seq_len)
 
@@ -372,6 +383,9 @@ regress_pwm <- function(sequences,
                     sample_ratio = sample_ratio,
                     log_energy = log_energy,
                     energy_func = energy_func,
+                    xmin = xmin,
+                    xmax = xmax,
+                    npts = npts,
                     ...
                 ))
             }
@@ -438,7 +452,10 @@ regress_pwm <- function(sequences,
         consensus_double_thresh = consensus_double_thresh,
         num_folds = internal_num_folds,
         log_energy = log_energy,
-        energy_func = energy_func
+        energy_func = energy_func,
+        xmin = xmin,
+        xmax = xmax,
+        npts = npts
     )
 
 

@@ -17,11 +17,15 @@ mask_sequences_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_
     .Call('_prego_mask_sequences_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh, pos_mask)
 }
 
-regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds = 1L, energy_epsilon = 0, log_energy = FALSE, energy_func = NULL) {
-    .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds, energy_epsilon, log_energy, energy_func)
+regress_pwm_cpp <- function(sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds = 1L, energy_epsilon = 0, log_energy = FALSE, energy_func = NULL, xmin = -100, xmax = 100, npts = 1000L) {
+    .Call('_prego_regress_pwm_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, motif, spat_min, spat_max, min_nuc_prob, spat_bin, improve_epsilon, is_bidirect, unif_prior, score_metric, verbose, seed, pssm_mat, spat_factor, consensus_single_thresh, consensus_double_thresh, num_folds, energy_epsilon, log_energy, energy_func, xmin, xmax, npts)
 }
 
 screen_kmers_cpp <- function(sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose) {
     .Call('_prego_screen_kmers_cpp', PACKAGE = 'prego', sequences, response, is_train_logical, L, from_range, to_range, min_cor, min_gap, max_gap, n_in_train, seed, verbose)
+}
+
+interpolateFunction <- function(func, xmin, xmax, npts, x) {
+    .Call('_prego_interpolateFunction', PACKAGE = 'prego', func, xmin, xmax, npts, x)
 }
 

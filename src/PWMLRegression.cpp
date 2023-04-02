@@ -10,12 +10,13 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                const vector<float> &resolutions, const vector<float> &s_resolutions,
                                float eps, float min_improv_for_star, float unif_prior,
                                const string &score_metric, const int &num_folds, const bool &log_energy, 
-                               const float &energy_epsilon, Rcpp::Nullable<Rcpp::Function> energy_func)
+                               const float &energy_epsilon, Rcpp::Nullable<Rcpp::Function> energy_func, 
+                               const float &xmin, const float &xmax, const int &npts)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
       m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
-      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_energy_func(energy_func) {
+      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon) {
     if (m_num_folds < 1) {
         Rcpp::stop("number of folds must be at least 1");
     } 
@@ -35,6 +36,9 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
         std::random_shuffle(m_folds.begin(), m_folds.end(), rand_wrapper);        
     }
 
+    if (energy_func.isNotNull()) {
+        m_energy_func.init(Rcpp::as<Rcpp::Function>(energy_func), xmin, xmax, npts);
+    }
 }
 
 void PWMLRegression::add_responses(const vector<vector<float>> &stats) {
@@ -748,8 +752,12 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
         seq_deriv++;
     }
 
-    if (m_energy_func.isNotNull()){                
-        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
+    if (m_energy_func.is_initialized()){                
+        Rcpp::Rcerr << "energies before " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+        energies = m_energy_func.interpolate(energies);
+        // energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
+        Rcpp::Rcerr << "energies after " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+        
 
         if (energies.size() != (size_t)max_seq_id){
             Rcpp::stop("Energy function must return a vector of the same length as the number of sequences");
@@ -820,8 +828,9 @@ float PWMLRegression::compute_cur_r2_fold(const int &pos, const vector<float> &p
         seq_deriv++;
     }
 
-    if (m_energy_func.isNotNull()){                
-        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+    if (m_energy_func.is_initialized()) {
+        energies = m_energy_func.interpolate(energies);
+        // energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
     }
 
     // calculate statistics
@@ -949,8 +958,9 @@ float PWMLRegression::compute_cur_r2_spat() {
         seq_derivs++;
     }
 
-    if (m_energy_func.isNotNull()){                
-        energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));                
+    if (m_energy_func.is_initialized()) {
+        energies = m_energy_func.interpolate(energies);
+        // energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
     }
 
     vector<double> xy(m_rdim, 0);
