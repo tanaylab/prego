@@ -67,7 +67,7 @@ load_regression_model <- function(fn) {
 #' Export a multiple motif regression model
 #'
 #' @param reg a multiple motif regression model, as returned by \code{regress_pwm} with \code{motif_num > 1}
-#' @param fn a file name to save the model to
+#' @param fn a file name to save the model to. If NULL - the model is returned as a list
 #'
 #' @return None
 #'
@@ -81,12 +81,14 @@ load_regression_model <- function(fn) {
 #' export_fn <- tempfile()
 #' export_multi_regression(res_multi, export_fn)
 #'
+#' light_res <- export_multi_regression(res_multi)
+#'
 #' # loading can be done by:
 #' r <- load_multi_regression(export_fn)
 #' }
 #'
 #' @export
-export_multi_regression <- function(reg, fn) {
+export_multi_regression <- function(reg, fn = NULL) {
     export_model <- function(pssm, spat, spat_min, spat_max, bidirect, seq_length) {
         list(
             pssm = pssm,
@@ -113,7 +115,11 @@ export_multi_regression <- function(reg, fn) {
         motif_num = length(models)
     )
 
-    readr::write_rds(new_reg, fn)
+    if (!is.null(fn)) {
+        readr::write_rds(new_reg, fn)
+    } else {
+        return(new_reg)
+    }
 }
 
 #' Load a multiple motif regression model from a file
