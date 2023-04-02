@@ -752,11 +752,16 @@ float PWMLRegression::compute_cur_r2(const int &pos, const vector<float> &probs)
         seq_deriv++;
     }
 
-    if (m_energy_func.is_initialized()){                
-        Rcpp::Rcerr << "energies before " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+    if (m_energy_func.is_initialized()){           
+        if (m_logit) {
+            Rcpp::Rcerr << "energies before " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+        }
+        
         energies = m_energy_func.interpolate(energies);
         // energies = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(m_energy_func)(energies));
-        Rcpp::Rcerr << "energies after " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+        if (m_logit) {
+            Rcpp::Rcerr << "energies after " << energies[0] << " " << energies[1] << " " << energies[2] << " " << energies[3] << " " << energies[4] << " " << energies[5] << endl;
+        }        
         
 
         if (energies.size() != (size_t)max_seq_id){
