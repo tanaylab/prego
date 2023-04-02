@@ -71,7 +71,7 @@ is returned, even if it is not similar enough in absolute terms.}
 
 \item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 
-\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
+\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=regress_pwm]{regress_pwm}}, \code{\link[=screen_kmers]{screen_kmers}}
@@ -95,6 +95,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
     \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
+    \item{\code{xmin,xmax,npts}}{range for the energy function and the number of points to use for its interpolation.}
     \item{\code{energy_func_generator}}{a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
 function(prev_reg, resp) {
        df <- data.frame(x = prev_reg$pred, y = resp)

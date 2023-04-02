@@ -83,7 +83,8 @@ is returned, even if it is not similar enough in absolute terms.}
     \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
     \item{\code{sample_ratio}}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
     \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
-    \item{\code{energy_func}}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}.}
+    \item{\code{energy_func}}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}
+    \item{\code{xmin,xmax,npts}}{range for the energy function and the number of points to use for its interpolation.}
     \item{\code{energy_func_generator}}{a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
 function(prev_reg, resp) {
        df <- data.frame(x = prev_reg$pred, y = resp)

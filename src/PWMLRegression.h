@@ -4,6 +4,7 @@
 /*=================================================
 =================================================*/
 
+#include "FunctionInterpolator.h"
 #include "BitVec.h"
 #include "DnaPWML.h"
 #include <Rcpp.h>
@@ -106,7 +107,7 @@ class PWMLRegression {
     float m_energy_epsilon;
 
     // energy function callback
-    Rcpp::Nullable<Rcpp::Function> m_energy_func;
+    FunctionInterpolator m_energy_func;
 
   public:
     bool m_logit;
@@ -119,7 +120,8 @@ class PWMLRegression {
                    const vector<float> &resolutions, const vector<float> &s_resolutions, float eps,
                    float min_improv_for_star, float unif_prior, const string &score_metric,
                    const int &num_folds, const bool &log_energy, const float &energy_epsilon,
-                   Rcpp::Nullable<Rcpp::Function> m_energy_func = R_NilValue);
+                   Rcpp::Nullable<Rcpp::Function> m_energy_func = R_NilValue, const float &xmin = -100,
+                   const float &xmax = 100, const int &npts = 1000);
 
     void add_responses(const vector<vector<float>> &stats);
 
