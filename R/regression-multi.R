@@ -97,7 +97,12 @@ regress_multiple_motifs <- function(sequences,
             energy_func_generator = energy_func_generator
         )
         cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")
-        res <- res_efunc
+        if (res_efunc$score > res$score) {
+            res <- res_efunc
+            cli::cli_alert_info("Taking the second run")
+        } else {
+            cli::cli_alert_info("Taking the first run")
+        }
     }
     models[[1]] <- res
     e[[1]] <- res$pred
@@ -125,7 +130,12 @@ regress_multiple_motifs <- function(sequences,
                 energy_func_generator = energy_func_generator
             )
             cli::cli_alert_info("The second run changed the score from {.val {res$score}} to {.val {res_efunc$score}}")
-            res <- res_efunc
+            if (res_efunc$score > res$score) {
+                res <- res_efunc
+                cli::cli_alert_info("Taking the second run")
+            } else {
+                cli::cli_alert_info("Taking the first run")
+            }
         }
         models[[i]] <- res
 
