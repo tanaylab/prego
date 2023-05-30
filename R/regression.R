@@ -535,7 +535,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
         filter(motif == best_match$motif) %>%
         select(pos, A, C, G, T)
     reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
-    reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
+    reg$db_match_r2 <- tgs_cor(as.matrix(reg$response), as.matrix(reg$db_match_pred))[, 1]^2
     if (is_binary_response(reg$response)) {
         reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = alternative))
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
