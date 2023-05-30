@@ -14,7 +14,7 @@ gpwm_quantiles(
   bidirect = TRUE,
   prior = 0,
   n_sequences = 10000,
-  dist_from_edge = 3000000,
+  dist_from_edge = 3e+06,
   chromosomes = NULL
 )
 }
