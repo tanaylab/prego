@@ -15,7 +15,7 @@ gextract_pwm.quantile(
   bidirect = TRUE,
   prior = 0,
   n_sequences = 10000,
-  dist_from_edge = 3e+06,
+  dist_from_edge = 3000000,
   chromosomes = NULL,
   parallel = getOption("prego.parallel", TRUE)
 )
