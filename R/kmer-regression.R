@@ -85,6 +85,8 @@ kmer_matrix <- function(sequences, kmer_length, max_gap = 0, min_gap = 0, from_r
     if (length(sequences) == 0) {
         cli::cli_abort("{.field sequences} must have at least one element")
     }
+    
+    sequences <- toupper(sequences)
 
     if (from_range < 1) {
         cli::cli_abort("{.field from_range} must be greater than 0")
