@@ -45,7 +45,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_multi_regression</span><span class="op">(</span><span class="va">reg</span>, <span class="va">fn</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_multi_regression</span><span class="op">(</span><span class="va">reg</span>, fn <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -55,7 +55,7 @@
 
 
 <dt>fn</dt>
-<dd><p>a file name to save the model to</p></dd>
+<dd><p>a file name to save the model to. If NULL - the model is returned as a list</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -75,6 +75,8 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">export_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">export_multi_regression</span><span class="op">(</span><span class="va">res_multi</span>, <span class="va">export_fn</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">light_res</span> <span class="op">&lt;-</span> <span class="fu">export_multi_regression</span><span class="op">(</span><span class="va">res_multi</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># loading can be done by:</span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="load_multi_regression.html">load_multi_regression</a></span><span class="op">(</span><span class="va">export_fn</span><span class="op">)</span></span></span>

@@ -65,6 +65,7 @@
 <span>  final_metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  unif_prior <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
+<span>  energy_func <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -151,6 +152,10 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
 <dd><p>alternative hypothesis for the p-value calculation when using <code>ks.test</code>. One of "two.sided", "less" or "greater".</p></dd>
 
 
+<dt>energy_func</dt>
+<dd><p>a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. <code>log</code> or <code>function(x) x^2</code>. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using <code>log_energy=TRUE</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed on to <code><a href="regress_pwm.html">regress_pwm</a></code>, <code><a href="screen_kmers.html">screen_kmers</a></code></p><dl><dt><code>motif</code></dt>
 <dd><p>Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
@@ -199,6 +204,23 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
     <dt><code>sample_for_kmers</code></dt>
 <dd><p>Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when <code>multi_kmers</code> is TRUE.</p></dd>
+
+    <dt><code>log_energy</code></dt>
+<dd><p>transform the energy to log scale on each iteration.</p></dd>
+
+    <dt><code>xmin,xmax,npts</code></dt>
+<dd><p>range for the energy function and the number of points to use for its interpolation.</p></dd>
+
+    <dt><code>energy_func_generator</code></dt>
+<dd><p>a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to <code>energy_func</code>. e.g. <code>
+function(prev_reg, resp) {
+       df &lt;- data.frame(x = prev_reg$pred, y = resp)
+       fn_gam &lt;- as.formula("y ~ s(x, k=3, bs='cr')")
+       model &lt;- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+       function(z){
+           mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+}}</code>. 
+When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with <code>energy_func</code> as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.</p></dd>
 
     <dt><code>min_gap,max_gap</code></dt>
 <dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).</p></dd>

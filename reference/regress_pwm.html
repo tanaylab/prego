@@ -81,6 +81,9 @@
 <span>  sample_frac <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_idxs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_ratio <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  log_energy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  energy_func_generator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  energy_func <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -122,6 +125,12 @@
 <span>  sample_frac <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_idxs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_ratio <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  log_energy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  energy_func <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xmin <span class="op">=</span> <span class="op">-</span><span class="fl">100</span>,</span>
+<span>  xmax <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  npts <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  energy_func_generator <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -265,6 +274,26 @@ to set the number of cores to use.</p></dd>
 <dd><p>ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when <code>sample_frac</code> is NULL.</p></dd>
 
 
+<dt>log_energy</dt>
+<dd><p>transform the energy to log scale on each iteration.</p></dd>
+
+
+<dt>energy_func_generator</dt>
+<dd><p>a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to <code>energy_func</code>. e.g. <code>
+function(prev_reg, resp) {
+       df &lt;- data.frame(x = prev_reg$pred, y = resp)
+       fn_gam &lt;- as.formula("y ~ s(x, k=3, bs='cr')")
+       model &lt;- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+       function(z){
+           mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+}}</code>. 
+When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with <code>energy_func</code> as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.</p></dd>
+
+
+<dt>energy_func</dt>
+<dd><p>a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. <code>log</code> or <code>function(x) x^2</code>. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using <code>log_energy=TRUE</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed on to <code><a href="screen_kmers.html">screen_kmers</a></code></p><dl><dt><code>min_cor</code></dt>
 <dd><p>Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported</p></dd>
@@ -295,6 +324,10 @@ to set the number of cores to use.</p></dd>
 <dt>screen_db</dt>
 <dd><p>Screen <code>motif_dataset</code> using <code>screen_pwm</code> and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
 "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".</p></dd>
+
+
+<dt>xmin, xmax, npts</dt>
+<dd><p>range for the energy function and the number of points to use for its interpolation.</p></dd>
 
 </dl></div>
     <div class="section level2">

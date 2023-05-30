@@ -205,6 +205,26 @@ is returned, even if it is not similar enough in absolute terms.</p></dd>
     <dt><code>sample_ratio</code></dt>
 <dd><p>ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when <code>sample_frac</code> is NULL.</p></dd>
 
+    <dt><code>log_energy</code></dt>
+<dd><p>transform the energy to log scale on each iteration.</p></dd>
+
+    <dt><code>energy_func</code></dt>
+<dd><p>a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. <code>log</code> or <code>function(x) x^2</code>. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using <code>log_energy=TRUE</code>.</p></dd>
+
+    <dt><code>xmin,xmax,npts</code></dt>
+<dd><p>range for the energy function and the number of points to use for its interpolation.</p></dd>
+
+    <dt><code>energy_func_generator</code></dt>
+<dd><p>a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to <code>energy_func</code>. e.g. <code>
+function(prev_reg, resp) {
+       df &lt;- data.frame(x = prev_reg$pred, y = resp)
+       fn_gam &lt;- as.formula("y ~ s(x, k=3, bs='cr')")
+       model &lt;- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+       function(z){
+           mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+}}</code>. 
+When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with <code>energy_func</code> as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.</p></dd>
+
     <dt><code>min_gap,max_gap</code></dt>
 <dd><p>the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).</p></dd>
 
