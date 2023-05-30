@@ -67,7 +67,7 @@ load_regression_model <- function(fn) {
 #' Export a multiple motif regression model
 #'
 #' @param reg a multiple motif regression model, as returned by \code{regress_pwm} with \code{motif_num > 1}
-#' @param fn a file name to save the model to
+#' @param fn a file name to save the model to. If NULL - the model is returned as a list
 #'
 #' @return None
 #'
@@ -81,12 +81,14 @@ load_regression_model <- function(fn) {
 #' export_fn <- tempfile()
 #' export_multi_regression(res_multi, export_fn)
 #'
+#' light_res <- export_multi_regression(res_multi)
+#'
 #' # loading can be done by:
 #' r <- load_multi_regression(export_fn)
 #' }
 #'
 #' @export
-export_multi_regression <- function(reg, fn) {
+export_multi_regression <- function(reg, fn = NULL) {
     export_model <- function(pssm, spat, spat_min, spat_max, bidirect, seq_length) {
         list(
             pssm = pssm,
@@ -110,15 +112,20 @@ export_multi_regression <- function(reg, fn) {
         bidirect = reg$bidirect,
         spat_bin_size = reg$spat_bin_size,
         seq_length = reg$seq_length,
-        motif_num = length(models)
+        motif_num = length(models),
+        multi_stats = reg$multi_stats
     )
 
-    readr::write_rds(new_reg, fn)
+    if (!is.null(fn)) {
+        readr::write_rds(new_reg, fn)
+    } else {
+        return(new_reg)
+    }
 }
 
 #' Load a multiple motif regression model from a file
 #'
-#' @param fn file name
+#' @param fn file name or a list with the model
 #'
 #' @return a list with the following elements:
 #'
@@ -147,21 +154,41 @@ export_multi_regression <- function(reg, fn) {
 #' r <- load_multi_regression(tmp)
 #' }
 #'
+#' @inheritParams regress_pwm
 #' @export
-load_multi_regression <- function(fn) {
-    r <- readr::read_rds(fn)
+load_multi_regression <- function(fn, response = NULL, sequences = NULL, motif_dataset = all_motif_datasets(), parallel = getOption("prego.parallel", FALSE), alternative = "two.sided") {
+    if (is.character(fn)) {
+        r <- readr::read_rds(fn)
+    } else {
+        r <- fn
+    }
+
     r$models <- purrr::map(r$models, function(.x) {
         .x$predict <- function(x, ...) {
             compute_pwm(x, .x$pssm, spat = .x$spat, bidirect = .x$bidirect, spat_min = .x$spat_min, spat_max = .x$spat_max - 1, ...)
         }
+
+        if (!is.null(response)) {
+            .x$response <- response
+        }
+
+        if (is.null(.x[["pred"]]) && !is.null(sequences)) {
+            .x[["pred"]] <- .x$predict(sequences)
+        }
+
+        if (is.null(.x$db_match) && !is.null(response) && !is.null(sequences) && !is.null(motif_dataset)) {
+            .x <- add_regression_db_match(.x, sequences, motif_dataset, alternative = alternative, parallel = parallel)
+        }
         return(.x)
     })
+
     r$predict <- function(x, ...) {
         e <- lapply(1:r$motif_num, function(i) r$models[[i]]$predict(x, ...))
         e <- as.data.frame(e)
         colnames(e) <- paste0("e", 1:r$motif_num)
         predict(r$model, e, ...)
     }
+
     r$predict_multi <- function(x, parallel = getOption("prego.parallel", FALSE)) {
         e <- plyr::llply(r$models, function(.x) .x$predict(x), .parallel = parallel) %>%
             do.call(cbind, .) %>%
