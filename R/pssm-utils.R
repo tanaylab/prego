@@ -169,7 +169,13 @@ bits_per_pos <- function(pssm) {
 #'
 #' @examples
 #' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
-#' new_sequences <- mask_sequences_by_pwm(cluster_sequences_example, res$pssm, quantile(res$pred, 0.95), spat = res$spat)
+#' new_sequences <- mask_sequences_by_pwm(
+#'     cluster_sequences_example,
+#'     res$pssm,
+#'     quantile(res$pred, 0.95),
+#'     spat = res$spat
+#' )
+#'
 #' head(new_sequences)
 #'
 #' @inheritParams compute_pwm

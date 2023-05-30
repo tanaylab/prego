@@ -80,7 +80,7 @@ void KMerMultiStat::build_kmers(int range_min, int range_max) {
         }
         m_cur_locid = locid;
         if (m_logit && locid % 20 == 0) {
-            Rcpp::Rcerr << "Processing id " << locid << "\r";
+            Rcpp::Rcerr << "Processing id " << locid << "\n";
         }
         string::const_iterator seq = (*m_sequences)[locid].begin() + range_min;
         string::const_iterator seq_end =

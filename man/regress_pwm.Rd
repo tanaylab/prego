@@ -15,7 +15,7 @@ regress_multiple_motifs(
   spat_bin_size = 40,
   spat_num_bins = 7,
   spat_model = NULL,
-  improve_epsilon = 0.0001,
+  improve_epsilon = 1e-04,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
   include_response = TRUE,
@@ -58,7 +58,7 @@ regress_pwm(
   spat_bin_size = 40,
   spat_num_bins = 7,
   spat_model = NULL,
-  improve_epsilon = 0.0001,
+  improve_epsilon = 1e-04,
   min_nuc_prob = 0.001,
   unif_prior = 0.05,
   include_response = TRUE,
@@ -175,7 +175,7 @@ function(prev_reg, resp) {
        model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
        function(z){
            mgcv::predict.gam(object = model, newdata = data.frame(x = z))
-}}}. \r
+}}}.
 When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
 
 \item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}

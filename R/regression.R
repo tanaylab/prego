@@ -50,7 +50,7 @@
 #'        model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
 #'        function(z){
 #'            mgcv::predict.gam(object = model, newdata = data.frame(x = z))
-#' }}}. \r
+#' }}}.
 #' When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.
 #'
 #' @return a list with the following elements:
