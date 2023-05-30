@@ -40,6 +40,18 @@
 #' @param sample_frac fraction of the dataset to use for the kmer screen. Default: 0.1.
 #' @param sample_idxs indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
+#' @param log_energy transform the energy to log scale on each iteration.
+#' @param energy_func a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.
+#' @param xmin,xmax,npts range for the energy function and the number of points to use for its interpolation.
+#' @param energy_func_generator a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
+#' function(prev_reg, resp) {
+#'        df <- data.frame(x = prev_reg$pred, y = resp)
+#'        fn_gam <- as.formula("y ~ s(x, k=3, bs='cr')")
+#'        model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
+#'        function(z){
+#'            mgcv::predict.gam(object = model, newdata = data.frame(x = z))
+#' }}}. \r
+#' When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -192,6 +204,12 @@ regress_pwm <- function(sequences,
                         sample_frac = NULL,
                         sample_idxs = NULL,
                         sample_ratio = 1,
+                        log_energy = FALSE,
+                        energy_func = NULL,
+                        xmin = -100,
+                        xmax = 100,
+                        npts = 1e4,
+                        energy_func_generator = NULL,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -232,6 +250,12 @@ regress_pwm <- function(sequences,
                 sample_frac = sample_frac,
                 sample_idxs = sample_idxs,
                 sample_ratio = sample_ratio,
+                log_energy = log_energy,
+                energy_func = energy_func,
+                energy_func_generator = energy_func_generator,
+                xmin = xmin,
+                xmax = xmax,
+                npts = npts,
                 ...
             )
         )
@@ -284,6 +308,10 @@ regress_pwm <- function(sequences,
     cli_alert_info("Using {.val {final_metric}} as the final metric")
 
     cli_alert_info("Number of response variables: {.val {ncol(response)}}")
+
+    if (!is.null(energy_func) && !log_energy) {
+        cli_warn("Energy function was provided, but {.field log_energy} is {.val FALSE}. Note that the energies during the regression are not log-transformed.")
+    }
 
     spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, max_seq_len)
 
@@ -353,6 +381,11 @@ regress_pwm <- function(sequences,
                     sample_frac = sample_frac,
                     sample_idxs = sample_idxs,
                     sample_ratio = sample_ratio,
+                    log_energy = log_energy,
+                    energy_func = energy_func,
+                    xmin = xmin,
+                    xmax = xmax,
+                    npts = npts,
                     ...
                 ))
             }
@@ -417,7 +450,12 @@ regress_pwm <- function(sequences,
         pssm_mat = pssm,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
-        num_folds = internal_num_folds
+        num_folds = internal_num_folds,
+        log_energy = log_energy,
+        energy_func = energy_func,
+        xmin = xmin,
+        xmax = xmax,
+        npts = npts
     )
 
 
@@ -430,6 +468,9 @@ regress_pwm <- function(sequences,
 
     if (is_binary_response(response)) {
         res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
+        res$score <- res$ks$statistic
+    } else {
+        res$score <- res$r2
     }
 
     if (!is.null(kmers)) {
@@ -462,7 +503,11 @@ regress_pwm <- function(sequences,
     res$seq_length <- nchar(sequences[1])
 
     res$predict <- function(x) {
-        compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        if (!is.null(energy_func)) {
+            e <- energy_func(e)
+        }
+        return(e)
     }
 
     return(res)
@@ -490,7 +535,7 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
         filter(motif == best_match$motif) %>%
         select(pos, A, C, G, T)
     reg$db_match_pred <- compute_pwm(sequences, reg$db_match_pssm)
-    reg$db_match_r2 <- tgs_cor(reg$response, as.matrix(reg$db_match_pred))[, 1]^2
+    reg$db_match_r2 <- tgs_cor(as.matrix(reg$response), as.matrix(reg$db_match_pred))[, 1]^2
     if (is_binary_response(reg$response)) {
         reg$db_match_ks <- suppressWarnings(ks.test(reg$db_match_pred[as.logical(reg$response[, 1])], reg$db_match_pred[!as.logical(reg$response[, 1])], alternative = alternative))
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")

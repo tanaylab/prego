@@ -6,6 +6,7 @@
 #include "Random.h"
 #include "SpecialFunc.h"
 #include "dnastrutil.h"
+#include "FunctionInterpolator.h"
 
 
 
@@ -186,9 +187,13 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
                            const bool &is_bidirect, const float &unif_prior,
                            const std::string &score_metric, const int &verbose, const int &seed,
                            const Rcpp::NumericMatrix &pssm_mat,
-                           const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor, 
+                           const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor,
                            const float &consensus_single_thresh,
-                           const float &consensus_double_thresh, const int &num_folds = 1) {
+                           const float &consensus_double_thresh, const int &num_folds = 1,
+                           const float &energy_epsilon = 0, const bool &log_energy = false,
+                           Rcpp::Nullable<Rcpp::Function> energy_func = R_NilValue, 
+                           const float &xmin = -100,
+                           const float &xmax = 100, const int &npts = 1000 ) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
@@ -221,7 +226,8 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
     }
 
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
-                           improve_epsilon, 0.001, unif_prior, score_metric, num_folds);
+                           improve_epsilon, 0.001, unif_prior, score_metric, num_folds, log_energy,
+                           energy_epsilon, energy_func, xmin, xmax, npts);
 
     pwmlreg.m_logit = verbose;
 
@@ -271,6 +277,15 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
         float energy;
         pwml.integrate_energy(seqs[i], energy);
         preds[i] = energy;
+    }
+
+    if (energy_func.isNotNull()) {
+        preds = Rcpp::as<vector<float>>(Rcpp::as<Rcpp::Function>(energy_func)(preds));
+
+        if (preds.size() != seqs.size()) {
+            Rcpp::stop("Energy function must return a vector of the same length as the number of "
+                       "sequences");
+        }
     }
 
     // prepare output
@@ -420,4 +435,13 @@ Rcpp::DataFrame screen_kmers_cpp(const Rcpp::StringVector &sequences,
                       Rcpp::as<string>(Rcpp::as<Rcpp::CharacterVector>(response.names())[ri]));
     }
     return res;
+}
+
+
+// [[Rcpp::export]]
+Rcpp::NumericVector interpolateFunction(Rcpp::Function func, float xmin, float xmax, int npts, Rcpp::NumericVector x) {
+    FunctionInterpolator interp(func, xmin, xmax, npts);
+    vector<float> xvals = Rcpp::as<vector<float>>(x);
+    
+    return Rcpp::wrap(interp.interpolate(xvals));
 }

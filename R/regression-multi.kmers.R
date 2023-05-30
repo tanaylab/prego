@@ -30,6 +30,11 @@ regress_pwm.multi_kmers <- function(sequences,
                                     sample_frac = NULL,
                                     sample_idxs = NULL,
                                     sample_ratio = 1,
+                                    log_energy = FALSE,
+                                    energy_func = NULL,
+                                    xmin = -100,
+                                    xmax = 100,
+                                    npts = 1e4,
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -76,7 +81,12 @@ regress_pwm.multi_kmers <- function(sequences,
         match_with_db = FALSE,
         alternative = alternative,
         multi_kmers = FALSE,
-        sample_for_kmers = FALSE
+        sample_for_kmers = FALSE,
+        log_energy = log_energy,
+        energy_func = energy_func,
+        xmin = xmin,
+        xmax = xmax,
+        npts = npts
     )
 
     cli_h3("Generate candidate kmers")
@@ -103,7 +113,8 @@ regress_pwm.multi_kmers <- function(sequences,
         "Score metric: {.val {score_metric}}",
         "Seed: {.val {seed}}"
     ))
-    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
+
+    run_kmer <- function(i) {
         motif <- cand_kmers[i]
         cli_alert("regressing with seed: {.val {motif}}")
         r <- regress_pwm_single_kmer(motif = motif, sequences = sequences_s, response = response_s) %>%
@@ -120,7 +131,18 @@ regress_pwm.multi_kmers <- function(sequences,
         }
         cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
         return(r)
-    }, .parallel = parallel)
+    }
+
+    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
+
+    # find jobs that failed (not numeric)
+    failed <- sapply(res_kmer_list, function(x) !is.numeric(x$score))
+
+    if (any(failed)) {
+        cli_alert_warning("Some kmers failed to regress")
+        cli_alert_info("Performing regression on full data")
+        res_kmer_list[failed] <- lapply(cand_kmers[failed], function(x) regress_pwm_single_kmer(motif = x, sequences = sequences, response = response))
+    }
 
     scores <- sapply(res_kmer_list, function(x) x$score)
     if (is.matrix(scores) && nrow(scores) > 1) {
@@ -173,7 +195,11 @@ regress_pwm.multi_kmers <- function(sequences,
     res$seq_length <- nchar(sequences[1])
 
     res$predict <- function(x) {
-        compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        if (!is.null(energy_func)) {
+            e <- energy_func(e)
+        }
+        return(e)
     }
 
     return(res)

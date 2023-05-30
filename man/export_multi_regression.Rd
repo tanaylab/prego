@@ -4,12 +4,12 @@
 \alias{export_multi_regression}
 \title{Export a multiple motif regression model}
 \usage{
-export_multi_regression(reg, fn)
+export_multi_regression(reg, fn = NULL)
 }
 \arguments{
 \item{reg}{a multiple motif regression model, as returned by \code{regress_pwm} with \code{motif_num > 1}}
 
-\item{fn}{a file name to save the model to}
+\item{fn}{a file name to save the model to. If NULL - the model is returned as a list}
 }
 \value{
 None
@@ -26,6 +26,8 @@ res_multi <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
 )
 export_fn <- tempfile()
 export_multi_regression(res_multi, export_fn)
+
+light_res <- export_multi_regression(res_multi)
 
 # loading can be done by:
 r <- load_multi_regression(export_fn)
