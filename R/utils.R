@@ -32,6 +32,7 @@ set_parallel <- function(thread_num = max(1, round(parallel::detectCores() * 0.8
         doMC::registerDoMC(thread_num)
         options(prego.parallel = TRUE)
         options(prego.parallel.nc = thread_num)
+        RcppParallel::setThreadOptions(numThreads = thread_num)
         cli_alert_info("Parallelization enabled. Using {.val {thread_num}} threads.")
     }
 }

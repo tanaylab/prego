@@ -28,14 +28,16 @@ Imports:
     zoo,
     utils,
     stats,
-    magrittr
+    magrittr,
+    RcppParallel
 Suggests: 
     testthat (>= 3.0.0),
     withr,
     misha,
     misha.ext (>= 0.0.6)
 LinkingTo: 
-    Rcpp
+    Rcpp,
+    RcppParallel
 Remotes: 
     tanaylab/misha, 
     tanaylab/misha.ext

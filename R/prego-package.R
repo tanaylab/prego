@@ -10,5 +10,6 @@
 #' @import ggplot2
 #' @importFrom parallel detectCores
 #' @importFrom Rcpp sourceCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #' @useDynLib prego
 NULL
