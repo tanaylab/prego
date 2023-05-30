@@ -4,10 +4,28 @@
 \alias{load_multi_regression}
 \title{Load a multiple motif regression model from a file}
 \usage{
-load_multi_regression(fn)
+load_multi_regression(
+  fn,
+  response = NULL,
+  sequences = NULL,
+  motif_dataset = all_motif_datasets(),
+  parallel = getOption("prego.parallel", FALSE),
+  alternative = "two.sided"
+)
 }
 \arguments{
-\item{fn}{file name}
+\item{fn}{file name or a list with the model}
+
+\item{response}{A matrix of response variables - number of rows should equal the number of sequences}
+
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
+
+\item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
+
+\item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
+to set the number of cores to use.}
+
+\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
 }
 \value{
 a list with the following elements:

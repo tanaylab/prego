@@ -113,7 +113,8 @@ regress_pwm.multi_kmers <- function(sequences,
         "Score metric: {.val {score_metric}}",
         "Seed: {.val {seed}}"
     ))
-    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), function(i) {
+
+    run_kmer <- function(i) {
         motif <- cand_kmers[i]
         cli_alert("regressing with seed: {.val {motif}}")
         r <- regress_pwm_single_kmer(motif = motif, sequences = sequences_s, response = response_s) %>%
@@ -130,7 +131,18 @@ regress_pwm.multi_kmers <- function(sequences,
         }
         cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
         return(r)
-    }, .parallel = parallel)
+    }
+
+    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
+
+    # find jobs that failed (not numeric)
+    failed <- sapply(res_kmer_list, function(x) !is.numeric(x$score))
+
+    if (any(failed)) {
+        cli_alert_warning("Some kmers failed to regress")
+        cli_alert_info("Performing regression on full data")
+        res_kmer_list[failed] <- lapply(cand_kmers[failed], function(x) regress_pwm_single_kmer(motif = x, sequences = sequences, response = response))
+    }
 
     scores <- sapply(res_kmer_list, function(x) x$score)
     if (is.matrix(scores) && nrow(scores) > 1) {
