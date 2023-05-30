@@ -10,7 +10,8 @@ plot_regression_qc_multi(
   subtitle = NULL,
   caption = NULL,
   point_size = 0.01,
-  alpha = 0.5
+  alpha = 0.5,
+  response = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ plot_regression_qc_multi(
 \item{point_size}{the size of the points in the scatter plot}
 
 \item{alpha}{the transparency of the points in the scatter plot}
+
+\item{response}{the response variable}
 }
 \description{
 plot the regression results when \code{motif_num} > 1

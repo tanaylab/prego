@@ -243,18 +243,22 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
                                      subtitle = NULL,
                                      caption = NULL,
                                      point_size = 0.01,
-                                     alpha = 0.5) {
+                                     alpha = 0.5,
+                                     response = NULL) {
     if (!("models" %in% names(reg)) || !("multi_stats" %in% names(reg))) {
         cli_abort("The regression result does not contain multiple motifs")
     }
 
-    if (!is.null(reg$response)) {
-        response <- reg$response
-    } else if (!is.null(reg$models[[1]]$response)) {
-        response <- reg$models[[1]]$response
-    } else {
-        cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
+    if (is.null(response)) {
+        if (!is.null(reg$response)) {
+            response <- reg$response
+        } else if (!is.null(reg$models[[1]]$response)) {
+            response <- reg$models[[1]]$response
+        } else {
+            cli_abort("{.field response} is missing from the regression result. Please provide one or set {.code include_response=TRUE} in {.code regress_pwm()}")
+        }
     }
+
 
     if (is.null(caption)) {
         caption <- glue("# of 1: {sum(response == 1)}, \\
@@ -265,7 +269,7 @@ plot_regression_qc_multi <- function(reg, title = glue("Motif regression results
     models <- reg$models
 
     spatial_p <- purrr::imap(models, ~ plot_spat_model(.x$spat))
-    motifs_p <- purrr::imap(models, ~ plot_pssm_logo(.x$pssm, title = paste0("Motif #", .y), subtitle = glue("score = {round(.x$score, digits=3)}, combined score = {round(reg$multi_stats$comb_score[.y], digits=3)}")))
+    motifs_p <- purrr::imap(models, ~ plot_pssm_logo(.x$pssm, title = paste0("Motif #", .y), subtitle = glue("score = {round(reg$multi_stats$score[.y], digits=3)}, combined score = {round(reg$multi_stats$comb_score[.y], digits=3)}")))
     motifs_match_p <- purrr::imap(models, ~ {
         if (is.null(.x$db_match_pssm)) {
             return(NULL)
