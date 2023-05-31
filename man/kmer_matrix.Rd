@@ -7,8 +7,6 @@
 kmer_matrix(
   sequences,
   kmer_length,
-  max_gap = 0,
-  min_gap = 0,
   from_range = 1,
   to_range = NULL,
   set_rownames = FALSE
@@ -17,12 +15,6 @@ kmer_matrix(
 \arguments{
 \item{sequences}{A vector of strings with DNA sequences ('T', 'C', 'G', 'A' or 'N').}
 
-\item{kmer_length}{The number of non-gap characters in motifs that will be screened.}
-
-\item{max_gap}{The maximum length of a gap to be considered in the pattern. Default: 0}
-
-\item{min_gap}{The minimum length of a gap to be considered in the pattern. Default: 0}
-
 \item{from_range}{Sequences will be considered only from position from_range.}
 
 \item{to_range}{Sequences will be considered only up to position to_range (default NULL - using the length of the sequences).}
@@ -30,13 +22,13 @@ kmer_matrix(
 \item{set_rownames}{If TRUE, the rownames of the matrix will be set to the sequences (default FALSE).}
 }
 \value{
-A matrix where rows are the number of sequences, columns are the possible kmers and the values are the number of occurrences of each kmer.
+A matrix where rows are the number of sequences, columns are the kmers and the values are the number of occurrences of each kmer.
 }
 \description{
 This function calculates the frequency of each kmer for each DNA sequence.
 }
 \examples{
-kmer_matrix(c("ATCG", "ATCG"), 2)
-kmer_matrix(c("ATCG", "ATCG"), 2, 1)
+kmer_matrix(c("ATCG", "TCGA", "ATAT"), 2)
+kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3)
 
 }
