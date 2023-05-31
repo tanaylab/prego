@@ -35,7 +35,7 @@ test_that("kmer_matrix function works correctly", {
     sequences <- c("ATCG", "ATCG")
     kmer_length <- 2
     res <- kmer_matrix(sequences, kmer_length)
-    expect_equal(dim(res), c(2, 16)) # 2 sequences and 16 possible kmers of length 2
+    expect_equal(dim(res), c(2, 3)) # 2 sequences and 3 kmers of length 2
 
     # Test 2: Check correct frequency calculation without gaps
     sequences <- c("ATCG", "ATCG")
@@ -43,13 +43,6 @@ test_that("kmer_matrix function works correctly", {
     res <- kmer_matrix(sequences, kmer_length)
     expect_equal(res[1, "AT"], 1, ignore_attr = TRUE) # 'AT' appears once in the first sequence
     expect_equal(res[2, "CG"], 1, ignore_attr = TRUE) # 'CG' appears once in the second sequence
-
-    # Test 3: Check correct frequency calculation with gaps
-    sequences <- c("ATCG", "ATCG")
-    kmer_length <- 2
-    res <- kmer_matrix(sequences, kmer_length, min_gap = 1, max_gap = 1)
-    expect_equal(res[1, "AN"], 1, ignore_attr = TRUE) # 'AN' appears twice in the first sequence considering N could be T/C/G
-    expect_equal(res[2, "CN"], 1, ignore_attr = TRUE) # 'CN' appears once in the second sequence considering N could be G
 
     # Test 4: Check correct frequency calculation with from_range and to_range
     sequences <- c("ATCG", "ATCG")
@@ -63,4 +56,34 @@ test_that("kmer_matrix function works correctly", {
     kmer_length <- 2
     res <- kmer_matrix(sequences, kmer_length, set_rownames = TRUE)
     expect_equal(rownames(res), sequences) # Row names should be the sequences
+})
+
+test_that("kmers_to_pssm handles single kmer correctly", {
+    result <- kmers_to_pssm("ACGT", prior = 0.01)
+    expect_equal(nrow(result), 4)
+    expect_equal(ncol(result), 6)
+    expect_equal(sum(result[result$pos == 1, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 2, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 3, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 4, c("A", "C", "G", "T")]), 1)
+})
+
+test_that("kmers_to_pssm handles multiple kmers correctly", {
+    result <- kmers_to_pssm(c("ACGT", "TGCA"), prior = 0.01)
+    expect_equal(nrow(result), 8)
+    expect_equal(ncol(result), 6)
+    expect_equal(sum(result[result$pos == 1, c("A", "C", "G", "T")]), 2)
+    expect_equal(sum(result[result$pos == 2, c("A", "C", "G", "T")]), 2)
+    expect_equal(sum(result[result$pos == 3, c("A", "C", "G", "T")]), 2)
+    expect_equal(sum(result[result$pos == 4, c("A", "C", "G", "T")]), 2)
+})
+
+test_that("kmers_to_pssm handles 'N' correctly", {
+    result <- kmers_to_pssm("ACGN", prior = 0.01)
+    expect_equal(nrow(result), 4)
+    expect_equal(ncol(result), 6)
+    expect_equal(sum(result[result$pos == 1, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 2, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 3, c("A", "C", "G", "T")]), 1)
+    expect_equal(sum(result[result$pos == 4, c("A", "C", "G", "T")]), 1)
 })

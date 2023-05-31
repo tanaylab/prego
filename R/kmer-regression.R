@@ -73,19 +73,18 @@ generate_kmers <- function(kmer_length, max_gap = 0, min_gap = 0) {
 #' @param from_range Sequences will be considered only from position from_range.
 #' @param to_range Sequences will be considered only up to position to_range (default NULL - using the length of the sequences).
 #' @param set_rownames If TRUE, the rownames of the matrix will be set to the sequences (default FALSE).
-#' @return A matrix where rows are the number of sequences, columns are the possible kmers and the values are the number of occurrences of each kmer.
+#' @return A matrix where rows are the number of sequences, columns are the kmers and the values are the number of occurrences of each kmer.
 #'
 #' @examples
-#' kmer_matrix(c("ATCG", "ATCG"), 2)
-#' kmer_matrix(c("ATCG", "ATCG"), 2, 1)
+#' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 2)
+#' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3)
 #'
-#' @inheritParams generate_kmers
 #' @export
-kmer_matrix <- function(sequences, kmer_length, max_gap = 0, min_gap = 0, from_range = 1, to_range = NULL, set_rownames = FALSE) {
+kmer_matrix <- function(sequences, kmer_length, from_range = 1, to_range = NULL, set_rownames = FALSE) {
     if (length(sequences) == 0) {
         cli::cli_abort("{.field sequences} must have at least one element")
     }
-    
+
     sequences <- toupper(sequences)
 
     if (from_range < 1) {
@@ -102,11 +101,70 @@ kmer_matrix <- function(sequences, kmer_length, max_gap = 0, min_gap = 0, from_r
         }
     }
 
-
-    kmers <- generate_kmers(kmer_length = kmer_length, max_gap = max_gap, min_gap = min_gap)
-    mat <- kmer_matrix_cpp(sequences, kmers, from_range - 1, to_range)
+    mat <- kmer_matrix_cpp(sequences, kmer_length, from_range - 1, to_range)
     if (set_rownames) {
         rownames(mat) <- sequences
     }
     return(mat)
+}
+
+#' Transform k-mers to PSSM (Position-Specific Scoring Matrix)
+#'
+#' This function transforms a vector of k-mers into a position-specific scoring matrix (PSSM).
+#' A PSSM represents the frequency of each nucleotide at each position in the k-mers.
+#' If a nucleotide is 'N', it is treated as equal probabilities for 'A', 'C', 'G', and 'T'.
+#' The result is returned as a data frame with columns for the k-mer, position, and nucleotide frequencies.
+#'
+#' @param kmers A character vector of k-mers.
+#' @param prior A numeric value indicating the prior probability for each nucleotide. Default is 0.01.
+#'
+#' @return A data frame with columns for the k-mer, position, and nucleotide frequencies, 'kmer', 'pos', 'A', 'C', 'G', 'T'.
+#'
+#' @examples
+#' kmers_to_pssm(c("ACGTN", "TGCAN"), prior = 0.01)
+#'
+#' @export
+kmers_to_pssm <- function(kmers, prior = 0.01) {
+    if (length(grep("[^ACGTN]", kmers)) > 0) {
+        cli::cli_abort("kmers must have only valid nucleotides")
+    }
+
+    calculate_pssm <- function(kmer) {
+        # Initialize matrix
+        pssm <- matrix(prior,
+            nrow = 4, ncol = nchar(kmer),
+            dimnames = list(c("A", "C", "G", "T"), 1:nchar(kmer))
+        )
+
+        # Fill matrix
+        for (i in 1:nchar(kmer)) {
+            if (substr(kmer, i, i) == "N") {
+                pssm[, i] <- 1 / 4 # Equal probabilities for 'N'
+            } else {
+                pssm[substr(kmer, i, i), i] <- 1
+            }
+        }
+
+        # renormalize
+        pssm <- t(pssm)
+        pssm <- pssm / rowSums(pssm)
+
+        # Transform the matrix to data frame and reset row names
+        pssm_df <- as.data.frame(pssm)
+        colnames(pssm_df) <- c("A", "C", "G", "T")
+
+        # Adding the 'pos' column
+        pssm_df$pos <- 1:nchar(kmer)
+
+        # Adding the 'kmer' column
+        pssm_df$kmer <- kmer
+
+        return(pssm_df)
+    }
+
+    # Apply function to each kmer and combine results
+    pssm_df_all <- plyr::ldply(kmers, calculate_pssm, .id = "kmer") %>%
+        select(kmer, pos, A, C, G, T)
+
+    return(pssm_df_all)
 }

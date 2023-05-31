@@ -11,16 +11,16 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // kmer_matrix_cpp
-Rcpp::NumericMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, Rcpp::CharacterVector kmers, int from_range, Rcpp::Nullable<int> to_range);
-RcppExport SEXP _prego_kmer_matrix_cpp(SEXP sequencesSEXP, SEXP kmersSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP) {
+Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length, int from_range, Rcpp::Nullable<int> to_range);
+RcppExport SEXP _prego_kmer_matrix_cpp(SEXP sequencesSEXP, SEXP kmer_lengthSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type sequences(sequencesSEXP);
-    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type kmers(kmersSEXP);
+    Rcpp::traits::input_parameter< int >::type kmer_length(kmer_lengthSEXP);
     Rcpp::traits::input_parameter< int >::type from_range(from_rangeSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<int> >::type to_range(to_rangeSEXP);
-    rcpp_result_gen = Rcpp::wrap(kmer_matrix_cpp(sequences, kmers, from_range, to_range));
+    rcpp_result_gen = Rcpp::wrap(kmer_matrix_cpp(sequences, kmer_length, from_range, to_range));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -1,4 +1,3 @@
-#include "ProgressReporter.h"
 #include <Rcpp.h>
 #include <RcppParallel.h>
 #include <string.h>
@@ -7,49 +6,48 @@ using namespace std;
 
 // [[Rcpp::plugins("cpp17")]]
 struct KmerCounter : public RcppParallel::Worker {
+    // source vector
     const Rcpp::StringVector sequences;
-    const Rcpp::StringVector kmers;
-    const int from_range;
-    const int to_range_val;
-    std::string dna[4] = {"A", "C", "G", "T"};
-    RcppParallel::RMatrix<double> result;
 
-    KmerCounter(const Rcpp::StringVector sequences, const Rcpp::StringVector kmers, int from_range,
-                int to_range_val, Rcpp::NumericMatrix result)
-        : sequences(sequences), kmers(kmers), from_range(from_range), to_range_val(to_range_val),
-          result(result) {}
+    // kmer length
+    const std::size_t kmer_length;
+
+    // output vector of maps
+    std::vector<std::unordered_map<std::string, int>> &output_maps;
+
+    // positions to consider within each sequence
+    const int from_range;
+    const int to_range;
+
+    KmerCounter(const Rcpp::CharacterVector sequences, const std::size_t kmer_length,
+               std::vector<std::unordered_map<std::string, int>> &output_maps,
+               const int from_range, const int to_range)
+        : sequences(sequences), kmer_length(kmer_length), output_maps(output_maps),
+          from_range(from_range), to_range(to_range) {}
 
     void operator()(std::size_t begin, std::size_t end) {
         for (std::size_t i = begin; i < end; i++) {
-            for (size_t j = 0; j < (size_t)kmers.length(); j++) {
-                std::string seq = Rcpp::as<std::string>(sequences[i]);
-                std::string kmer = Rcpp::as<std::string>(kmers[j]);
+            std::unordered_map<std::string, int> string_map;
+            std::string seq = Rcpp::as<std::string>(sequences[i]);
+            std::string str = seq.substr(from_range, to_range - from_range + 1);
 
-                for (size_t pos = from_range; pos <= to_range_val - kmer.length(); pos++) {
-                    if (kmer.find("N") != std::string::npos) {
-                        for (const std::string &base : dna) {
-                            std::string replaced_kmer = kmer;
-                            std::replace(replaced_kmer.begin(), replaced_kmer.end(), 'N', base[0]);
-                            if (seq.substr(pos, replaced_kmer.length()) == replaced_kmer) {
-                                result(i, j)++;
-                            }
-                        }
-                    } else if (seq.substr(pos, kmer.length()) == kmer) {
-                        result(i, j)++;
-                    }
-                }
+            for (std::size_t j = 0; j <= str.size() - kmer_length; j++) {
+                std::string sub_str = str.substr(j, kmer_length);
+                string_map[sub_str]++;
             }
+
+            output_maps[i] = string_map;
         }
     }
 };
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences,
-                                             Rcpp::CharacterVector kmers, int from_range = 0,
-                                             Rcpp::Nullable<int> to_range = R_NilValue) {
+Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences,
+                                    int kmer_length, int from_range = 0,
+                                    Rcpp::Nullable<int> to_range = R_NilValue) {
     int nseq = sequences.size();
-    int nkmer = kmers.size();
-    Rcpp::NumericMatrix freq(nseq, nkmer);
+    // Initialize the output vector of maps with empty maps for each sequence
+    std::vector<std::unordered_map<std::string, int>> output_maps(nseq);
 
     int to_range_val;
     if (to_range.isNull()) {
@@ -57,12 +55,39 @@ Rcpp::NumericMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences,
         to_range_val = seq.length();
     } else {
         to_range_val = Rcpp::as<int>(to_range);
-    }   
+    }
 
-    KmerCounter counter(sequences, kmers, from_range, to_range_val, freq);
+    KmerCounter counter(sequences, kmer_length, output_maps, from_range, to_range_val);
+
     RcppParallel::parallelFor(0, nseq, counter);
 
-    colnames(freq) = kmers;
+    // Get the unique kmers and their corresponding column indices
+    std::unordered_map<std::string, int> kmer_indices;
+    for (const auto &string_map : output_maps) {
+        for (const auto &pair : string_map) {
+            if (kmer_indices.find(pair.first) == kmer_indices.end()) {
+                kmer_indices[pair.first] = kmer_indices.size();
+            }
+        }
+    }
 
-    return freq;
+    // Now create the output matrix
+    Rcpp::IntegerMatrix output(sequences.size(), kmer_indices.size());
+
+    for (std::size_t i = 0; i < (size_t)sequences.size(); i++) {
+        for (const auto &pair : output_maps[i]) {
+            if (kmer_indices.find(pair.first) != kmer_indices.end()) {
+                output(i, kmer_indices[pair.first]) = pair.second;
+            }
+        }
+    }
+
+    // Set the column names to the kmers
+    Rcpp::CharacterVector kmers(kmer_indices.size());
+    for (const auto &pair : kmer_indices) {
+        kmers[pair.second] = pair.first;
+    }
+    Rcpp::colnames(output) = kmers;
+
+    return output;
 }
