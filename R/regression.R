@@ -405,6 +405,9 @@ regress_pwm <- function(sequences,
         if (stringr::str_length(motif) < motif_length) {
             motif <- stringr::str_pad(motif, motif_length, "*", side = "both")
             cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
+
+            # substitute 'N' with wildcards
+            motif <- stringr::str_replace_all(motif, "N", "*")
         }
 
         cli_alert_info("Initializing regression with the following motif: {.val {motif}}")

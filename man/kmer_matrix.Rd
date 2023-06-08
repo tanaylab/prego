@@ -7,6 +7,8 @@
 kmer_matrix(
   sequences,
   kmer_length,
+  mask = NULL,
+  add_mask = FALSE,
   from_range = 1,
   to_range = NULL,
   set_rownames = FALSE
@@ -14,6 +16,10 @@ kmer_matrix(
 }
 \arguments{
 \item{sequences}{A vector of strings with DNA sequences ('T', 'C', 'G', 'A' or 'N').}
+
+\item{mask}{a string the length of \code{kmer_length} where 'N' indicates a wildcard position (default NULL - no mask).}
+
+\item{add_mask}{if TRUE, the result of the mask will be added to the non-masked kmers. Otherwise - only the masked kmers would be returned.}
 
 \item{from_range}{Sequences will be considered only from position from_range.}
 
@@ -30,5 +36,6 @@ This function calculates the frequency of each kmer for each DNA sequence.
 \examples{
 kmer_matrix(c("ATCG", "TCGA", "ATAT"), 2)
 kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3)
+kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3, mask = "ATN")
 
 }

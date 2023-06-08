@@ -1,7 +1,7 @@
 #' Export a motif regression model
 #'
 #' @param model a motif regression model, as returned by \code{regress_pwm} with \code{motif_num = 1}
-#' @param fn a file name to save the model to
+#' @param fn a file name to save the model to. If NULL - the model is returned as a list
 #'
 #' @return None
 #'
@@ -17,16 +17,21 @@
 #' }
 #'
 #' @export
-export_regression_model <- function(model, fn) {
+export_regression_model <- function(model, fn = NULL) {
     r <- list(
         pssm = model$pssm,
         spat = model$spat,
         spat_min = model$spat_min,
         spat_max = model$spat_max,
         bidirect = model$bidirect,
-        seq_length = model$seq_length
+        seq_length = model$seq_length,
+        seed_motif = model$seed_motif
     )
-    readr::write_rds(r, fn)
+    if (!is.null(fn)) {
+        readr::write_rds(r, fn)
+    } else {
+        return(r)
+    }
 }
 
 #' Load a motif regression model from a file

@@ -73,14 +73,17 @@ generate_kmers <- function(kmer_length, max_gap = 0, min_gap = 0) {
 #' @param from_range Sequences will be considered only from position from_range.
 #' @param to_range Sequences will be considered only up to position to_range (default NULL - using the length of the sequences).
 #' @param set_rownames If TRUE, the rownames of the matrix will be set to the sequences (default FALSE).
+#' @param mask a string the length of \code{kmer_length} where 'N' indicates a wildcard position (default NULL - no mask).
+#' @param add_mask if TRUE, the result of the mask will be added to the non-masked kmers. Otherwise - only the masked kmers would be returned.
 #' @return A matrix where rows are the number of sequences, columns are the kmers and the values are the number of occurrences of each kmer.
 #'
 #' @examples
 #' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 2)
 #' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3)
+#' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3, mask = "ATN")
 #'
 #' @export
-kmer_matrix <- function(sequences, kmer_length, from_range = 1, to_range = NULL, set_rownames = FALSE) {
+kmer_matrix <- function(sequences, kmer_length, mask = NULL, add_mask = FALSE, from_range = 1, to_range = NULL, set_rownames = FALSE) {
     if (length(sequences) == 0) {
         cli::cli_abort("{.field sequences} must have at least one element")
     }
@@ -101,7 +104,18 @@ kmer_matrix <- function(sequences, kmer_length, from_range = 1, to_range = NULL,
         }
     }
 
-    mat <- kmer_matrix_cpp(sequences, kmer_length, from_range - 1, to_range)
+    if (!is.null(mask)) {
+        if (stringr::str_length(mask) != kmer_length) {
+            cli::cli_abort("{.field mask} must have the same length as {.field kmer_length}")
+        }
+
+        if (!any(grepl("N", mask))) {
+            mask <- NULL
+        }
+    }
+
+
+    mat <- kmer_matrix_cpp(sequences, kmer_length, from_range - 1, to_range, mask, add_mask)
     if (set_rownames) {
         rownames(mat) <- sequences
     }
