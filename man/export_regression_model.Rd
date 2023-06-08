@@ -4,12 +4,12 @@
 \alias{export_regression_model}
 \title{Export a motif regression model}
 \usage{
-export_regression_model(model, fn)
+export_regression_model(model, fn = NULL)
 }
 \arguments{
 \item{model}{a motif regression model, as returned by \code{regress_pwm} with \code{motif_num = 1}}
 
-\item{fn}{a file name to save the model to}
+\item{fn}{a file name to save the model to. If NULL - the model is returned as a list}
 }
 \value{
 None

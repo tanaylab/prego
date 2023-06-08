@@ -19,21 +19,52 @@ struct KmerCounter : public RcppParallel::Worker {
     const int from_range;
     const int to_range;
 
+    // mask
+    const Rcpp::Nullable<Rcpp::CharacterVector> mask;
+
+    const bool add_mask;
+
     KmerCounter(const Rcpp::CharacterVector sequences, const std::size_t kmer_length,
-               std::vector<std::unordered_map<std::string, int>> &output_maps,
-               const int from_range, const int to_range)
+                std::vector<std::unordered_map<std::string, int>> &output_maps,
+                const int from_range, const int to_range,
+                const Rcpp::Nullable<Rcpp::CharacterVector> mask, const bool add_mask)
         : sequences(sequences), kmer_length(kmer_length), output_maps(output_maps),
-          from_range(from_range), to_range(to_range) {}
+          from_range(from_range), to_range(to_range), mask(mask), add_mask(add_mask) {
+        if (mask.isNotNull() && Rcpp::as<std::string>(mask).length() != kmer_length) {
+            Rcpp::stop("Length of the mask must be equal to kmer_length");
+        }
+    }
+
+    std::string apply_mask(const std::string &kmer, const std::string &mask) {
+        std::string masked_kmer = kmer;
+        for (std::size_t i = 0; i < kmer.size(); ++i) {
+            if (mask[i] == 'N') {
+                masked_kmer[i] = 'N';
+            }
+        }
+        return masked_kmer;
+    }
 
     void operator()(std::size_t begin, std::size_t end) {
         for (std::size_t i = begin; i < end; i++) {
             std::unordered_map<std::string, int> string_map;
             std::string seq = Rcpp::as<std::string>(sequences[i]);
             std::string str = seq.substr(from_range, to_range - from_range + 1);
+            std::string mask_str;
+            if (mask.isNotNull()) {
+                mask_str = Rcpp::as<std::string>(mask);
+            }
 
             for (std::size_t j = 0; j <= str.size() - kmer_length; j++) {
                 std::string sub_str = str.substr(j, kmer_length);
-                string_map[sub_str]++;
+                if (!mask_str.empty()) {
+                    string_map[apply_mask(sub_str, mask_str)]++;
+                    if (add_mask) {
+                        string_map[sub_str]++;
+                    }
+                } else {
+                    string_map[sub_str]++;
+                }
             }
 
             output_maps[i] = string_map;
@@ -42,12 +73,17 @@ struct KmerCounter : public RcppParallel::Worker {
 };
 
 // [[Rcpp::export]]
-Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences,
-                                    int kmer_length, int from_range = 0,
-                                    Rcpp::Nullable<int> to_range = R_NilValue) {
+Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length,
+                                    int from_range = 0, Rcpp::Nullable<int> to_range = R_NilValue,
+                                    Rcpp::Nullable<Rcpp::CharacterVector> mask = R_NilValue,
+                                    bool add_mask = false) {
     int nseq = sequences.size();
     // Initialize the output vector of maps with empty maps for each sequence
     std::vector<std::unordered_map<std::string, int>> output_maps(nseq);
+
+    if (mask.isNotNull() && Rcpp::as<std::string>(mask).length() != (unsigned)kmer_length) {
+        Rcpp::stop("Length of the mask must be equal to kmer_length");
+    }
 
     int to_range_val;
     if (to_range.isNull()) {
@@ -57,7 +93,8 @@ Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences,
         to_range_val = Rcpp::as<int>(to_range);
     }
 
-    KmerCounter counter(sequences, kmer_length, output_maps, from_range, to_range_val);
+    KmerCounter counter(sequences, kmer_length, output_maps, from_range, to_range_val, mask,
+                        add_mask);
 
     RcppParallel::parallelFor(0, nseq, counter);
 
