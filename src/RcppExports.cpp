@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // kmer_matrix_cpp
-Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length, int from_range, Rcpp::Nullable<int> to_range);
-RcppExport SEXP _prego_kmer_matrix_cpp(SEXP sequencesSEXP, SEXP kmer_lengthSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP) {
+Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length, int from_range, Rcpp::Nullable<int> to_range, Rcpp::Nullable<Rcpp::CharacterVector> mask, bool add_mask);
+RcppExport SEXP _prego_kmer_matrix_cpp(SEXP sequencesSEXP, SEXP kmer_lengthSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP, SEXP maskSEXP, SEXP add_maskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type kmer_length(kmer_lengthSEXP);
     Rcpp::traits::input_parameter< int >::type from_range(from_rangeSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<int> >::type to_range(to_rangeSEXP);
-    rcpp_result_gen = Rcpp::wrap(kmer_matrix_cpp(sequences, kmer_length, from_range, to_range));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::CharacterVector> >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< bool >::type add_mask(add_maskSEXP);
+    rcpp_result_gen = Rcpp::wrap(kmer_matrix_cpp(sequences, kmer_length, from_range, to_range, mask, add_mask));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -165,7 +167,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 4},
+    {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 6},
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
     {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},

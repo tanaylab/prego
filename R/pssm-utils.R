@@ -23,7 +23,7 @@
 #' }
 #'
 #' @export
-compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0, func = "logSumExp") {
+compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp") {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -92,7 +92,7 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
 #'
 #' @inheritParams compute_pwm
 #' @export
-compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -110,6 +110,10 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
     }
 
     pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (nrow(pssm_mat) == 0){
+        cli_abort("The {.field pssm} matrix should have at least one row")
+    }
 
     if (prior < 0 || prior > 1) {
         cli_abort("The {.field prior} should be between 0 and 1")
@@ -180,7 +184,7 @@ bits_per_pos <- function(pssm) {
 #'
 #' @inheritParams compute_pwm
 #' @export
-mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, pos_bits_thresh = 0.2, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0) {
+mask_sequences_by_pwm <- function(sequences, pssm, mask_thresh, pos_bits_thresh = 0.2, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
