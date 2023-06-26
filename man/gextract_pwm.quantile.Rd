@@ -13,7 +13,7 @@ gextract_pwm.quantile(
   spat_min = 1,
   spat_max = NULL,
   bidirect = TRUE,
-  prior = 0,
+  prior = 0.01,
   n_sequences = 10000,
   dist_from_edge = 3000000,
   chromosomes = NULL,

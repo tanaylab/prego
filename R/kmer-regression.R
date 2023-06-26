@@ -73,6 +73,7 @@ generate_kmers <- function(kmer_length, max_gap = 0, min_gap = 0) {
 #' @param from_range Sequences will be considered only from position from_range.
 #' @param to_range Sequences will be considered only up to position to_range (default NULL - using the length of the sequences).
 #' @param set_rownames If TRUE, the rownames of the matrix will be set to the sequences (default FALSE).
+#' @param max_gap The maximum length of a gap to be considered in the pattern. Default: 0
 #' @param mask a string the length of \code{kmer_length} where 'N' indicates a wildcard position (default NULL - no mask).
 #' @param add_mask if TRUE, the result of the mask will be added to the non-masked kmers. Otherwise - only the masked kmers would be returned.
 #' @return A matrix where rows are the number of sequences, columns are the kmers and the values are the number of occurrences of each kmer.
@@ -83,7 +84,7 @@ generate_kmers <- function(kmer_length, max_gap = 0, min_gap = 0) {
 #' kmer_matrix(c("ATCG", "TCGA", "ATAT"), 3, mask = "ATN")
 #'
 #' @export
-kmer_matrix <- function(sequences, kmer_length, mask = NULL, add_mask = FALSE, from_range = 1, to_range = NULL, set_rownames = FALSE) {
+kmer_matrix <- function(sequences, kmer_length, max_gap = 0, mask = NULL, add_mask = FALSE, from_range = 1, to_range = NULL, set_rownames = FALSE) {
     if (length(sequences) == 0) {
         cli::cli_abort("{.field sequences} must have at least one element")
     }
@@ -114,8 +115,7 @@ kmer_matrix <- function(sequences, kmer_length, mask = NULL, add_mask = FALSE, f
         }
     }
 
-
-    mat <- kmer_matrix_cpp(sequences, kmer_length, from_range - 1, to_range, mask, add_mask)
+    mat <- kmer_matrix_cpp(sequences, kmer_length, from_range - 1, to_range, mask, add_mask, max_gap)
     if (set_rownames) {
         rownames(mat) <- sequences
     }
@@ -181,4 +181,40 @@ kmers_to_pssm <- function(kmers, prior = 0.01) {
         select(kmer, pos, A, C, G, T)
 
     return(pssm_df_all)
+}
+
+#' Transform PSSM (Position-Specific Scoring Matrix) to a KMER
+#'
+#' This function transforms a PSSM into a k-mer of a given length.
+#'
+#' @param pssm PSSM matrix or data frame. The PSSM must have at least kmer_length rows.
+#' @param kmer_length The length of the k-mer to return.
+#' @param pos_bits_thresh A numeric value indicating the minimum number of bits per position to include the nucleotide in the k-mer. If the nucleotide does not meet this threshold, it is replaced with 'N'. Default is NULL.
+#'
+#' @return A character vector of length 1 containing the k-mer.
+#'
+#' @examples
+#' pssm_to_kmer(get_motif_pssm("HOMER.AP_1"))
+#' plot_pssm_logo_dataset("HOMER.AP_1")
+#'
+#' @export
+pssm_to_kmer <- function(pssm, kmer_length = 7, pos_bits_thresh = NULL) {
+    if (nrow(pssm) < kmer_length) {
+        cli::cli_abort("pssm must have at least kmer_length rows")
+    }
+
+    bits <- bits_per_pos(pssm)
+    bits[is.na(bits)] <- 0
+
+    bits <- zoo::rollsum(bits, kmer_length, fill = NA, align = "left", na.rm = TRUE)
+    pos <- which.max(bits)
+    m <- pssm_to_mat(pssm)[pos:(pos + kmer_length - 1), ]
+    kmer <- colnames(m)[apply(m, 1, which.max)]
+    if (!is.null(pos_bits_thresh)) {
+        bits <- bits_per_pos(m)
+        kmer <- ifelse(bits > pos_bits_thresh, kmer, "N")
+    }
+    kmer <- paste(kmer, collapse = "")
+
+    return(kmer)
 }

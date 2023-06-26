@@ -24,12 +24,14 @@ struct KmerCounter : public RcppParallel::Worker {
 
     const bool add_mask;
 
+    const std::size_t max_gap;
+
     KmerCounter(const Rcpp::CharacterVector sequences, const std::size_t kmer_length,
                 std::vector<std::unordered_map<std::string, int>> &output_maps,
                 const int from_range, const int to_range,
-                const Rcpp::Nullable<Rcpp::CharacterVector> mask, const bool add_mask)
+                const Rcpp::Nullable<Rcpp::CharacterVector> mask, const bool add_mask, const size_t max_gap)
         : sequences(sequences), kmer_length(kmer_length), output_maps(output_maps),
-          from_range(from_range), to_range(to_range), mask(mask), add_mask(add_mask) {
+          from_range(from_range), to_range(to_range), mask(mask), add_mask(add_mask), max_gap(max_gap) {
         if (mask.isNotNull() && Rcpp::as<std::string>(mask).length() != kmer_length) {
             Rcpp::stop("Length of the mask must be equal to kmer_length");
         }
@@ -64,6 +66,18 @@ struct KmerCounter : public RcppParallel::Worker {
                     }
                 } else {
                     string_map[sub_str]++;
+                    if (max_gap > 0){
+                        for (size_t g=1; g <= max_gap; g++){
+                            for (size_t pos=0; pos < sub_str.size() - g + 1; pos++){
+                                // add g 'N's at position pos instead of the original sub_str[pos] to sub_str[pos+g]                              
+                                std::string sub_str_gap = sub_str;
+                                for (size_t k=0; k < g; k++){
+                                    sub_str_gap[pos+k] = 'N';
+                                }
+                                string_map[sub_str_gap]++;
+                            }
+                        }                        
+                    }
                 }
             }
 
@@ -76,7 +90,7 @@ struct KmerCounter : public RcppParallel::Worker {
 Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length,
                                     int from_range = 0, Rcpp::Nullable<int> to_range = R_NilValue,
                                     Rcpp::Nullable<Rcpp::CharacterVector> mask = R_NilValue,
-                                    bool add_mask = false) {
+                                    bool add_mask = false, size_t max_gap = 0) {
     int nseq = sequences.size();
     // Initialize the output vector of maps with empty maps for each sequence
     std::vector<std::unordered_map<std::string, int>> output_maps(nseq);
@@ -94,7 +108,7 @@ Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_le
     }
 
     KmerCounter counter(sequences, kmer_length, output_maps, from_range, to_range_val, mask,
-                        add_mask);
+                        add_mask, max_gap);
 
     RcppParallel::parallelFor(0, nseq, counter);
 

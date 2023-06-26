@@ -4,7 +4,7 @@
 \alias{consensus_from_pssm}
 \title{Convert PSSM to consensus sequence}
 \usage{
-consensus_from_pssm(pssm, single_thresh = 0.6, double_thresh = 0.85)
+consensus_from_pssm(pssm, single_thresh = 0.4, double_thresh = 0.6)
 }
 \arguments{
 \item{pssm}{A PSSM matrix}
