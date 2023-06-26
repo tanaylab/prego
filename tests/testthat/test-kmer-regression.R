@@ -56,6 +56,32 @@ test_that("kmer_matrix function works correctly", {
     kmer_length <- 2
     res <- kmer_matrix(sequences, kmer_length, set_rownames = TRUE)
     expect_equal(rownames(res), sequences) # Row names should be the sequences
+
+    # Test 6: Check correct frequency calculation with max_gap = 1
+    sequences <- c("ATCG", "ATCG")
+    kmer_length <- 4
+    res <- kmer_matrix(sequences, kmer_length, max_gap = 1)
+    expect_equal(res[1, "ATCG"], 1, ignore_attr = TRUE) # 'ATCG' appears once in the first sequence
+    expect_equal(res[2, "NTCG"], 1, ignore_attr = TRUE) # 'NTCG' appears once in the second sequence
+    expect_equal(res[2, "ANCG"], 1, ignore_attr = TRUE) # 'NTCG' appears once in the second sequence
+    expect_equal(res[2, "ATNG"], 1, ignore_attr = TRUE) # 'ATNG' appears once in the second sequence
+    expect_equal(res[2, "ATCN"], 1, ignore_attr = TRUE) # 'ATCN' appears once in the second sequence
+
+    # Test 7: Check correct frequency calculation with max_gap = 2
+    sequences <- c("ATCG", "ATCG")
+    kmer_length <- 4
+    res <- kmer_matrix(sequences, kmer_length, max_gap = 2)
+    expect_equal(res[1, "ATCG"], 1, ignore_attr = TRUE) # 'ATCG' appears once in the first sequence
+    expect_equal(res[2, "NNCG"], 1, ignore_attr = TRUE) # 'NNTCG' appears once in the second sequence
+    expect_equal(res[2, "ATNN"], 1, ignore_attr = TRUE) # 'ATNNG' appears once in the second sequence
+    expect_equal(res[2, "ANNG"], 1, ignore_attr = TRUE) # 'ATCNN' appears once in the second sequence
+
+    # Test 8: Check correct frequency calculation with max_gap = 0 (equivalent to no gap)
+    sequences <- c("ATCG", "ATCG")
+    kmer_length <- 2
+    res <- kmer_matrix(sequences, kmer_length, max_gap = 0)
+    expect_equal(res[1, "AT"], 1, ignore_attr = TRUE) # 'AT' appears once in the first sequence
+    expect_equal(res[2, "CG"], 1, ignore_attr = TRUE) # 'CG' appears once in the second sequence
 })
 
 test_that("kmers_to_pssm handles single kmer correctly", {

@@ -11,7 +11,7 @@ compute_pwm(
   spat_min = 1,
   spat_max = NULL,
   bidirect = TRUE,
-  prior = 0,
+  prior = 0.01,
   func = "logSumExp"
 )
 }
