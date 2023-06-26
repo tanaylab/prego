@@ -13,7 +13,7 @@ mask_sequences_by_pwm(
   spat_min = 0,
   spat_max = NULL,
   bidirect = TRUE,
-  prior = 0
+  prior = 0.01
 )
 }
 \arguments{
