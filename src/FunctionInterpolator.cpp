@@ -19,9 +19,15 @@ void FunctionInterpolator::init(Rcpp::Function func_, float xmin_, float xmax_, 
 }
 
 float FunctionInterpolator::operator()(float x) const {
-    if (x < xmin || x > xmax) {        
-        Rcpp::stop("x is out of range. Please set xmin and xmax (the domain of the energy function) correctly. The current value of x is: " + std::to_string(x) + ". while the domain is [" + std::to_string(xmin) + ", " + std::to_string(xmax) + "].");
+    if (x < xmin){
+        Rcpp::warning("x is out of range. Please set xmin and xmax (the domain of the energy function) correctly. The current value of x is: " + std::to_string(x) + ". while the domain is [" + std::to_string(xmin) + ", " + std::to_string(xmax) + "].");
+        return yvals[0];
     }
+    if (x > xmax){
+        Rcpp::warning("x is out of range. Please set xmin and xmax (the domain of the energy function) correctly. The current value of x is: " + std::to_string(x) + ". while the domain is [" + std::to_string(xmin) + ", " + std::to_string(xmax) + "].");
+        return yvals[npts - 1];
+    }
+    
     int i = std::lower_bound(xvals.begin(), xvals.end(), x) - xvals.begin();
     if (i == 0) {
         return yvals[0];
