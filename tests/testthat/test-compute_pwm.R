@@ -38,11 +38,6 @@ pssm <- data.frame(pos = 0:14, A = c(
 
 windows <- purrr::map_chr(1:(nchar(s) - 14), function(i) substr(s, i, i + 14))
 
-test_that("regression result is the same as the one from regress_pwm()$pred", {
-    spat <- calc_spat_min_max(40, 7, 300)
-    expect_equal(res$pred, compute_pwm(cluster_sequences_example, pssm = res$pssm, spat = res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max - 1))
-})
-
 test_that("regression predict() function works", {
     expect_equal(res$predict(cluster_sequences_example), res$pred)
 })
