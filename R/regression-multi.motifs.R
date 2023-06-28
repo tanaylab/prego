@@ -87,6 +87,7 @@ regress_multiple_motifs <- function(sequences,
 
     cli_h2("Running first regression")
     res <- regression_func(response = response, motif = motif, score_metric = score_metric, final_metric = final_metric, spat_model = spat_model, energy_func = energy_func)
+
     if (!is.null(energy_func_generator)) {
         res_efunc <- apply_energy_func(
             prev_reg = res,
@@ -194,12 +195,14 @@ regress_multiple_motifs <- function(sequences,
         multi_stats = stats,
         model = model_comb # last combined model
     )
+
     res$predict <- function(x, ...) {
         e <- lapply(1:motif_num, function(i) models[[i]]$predict(x, ...))
         e <- as.data.frame(e)
         colnames(e) <- paste0("e", 1:motif_num)
         predict(model_comb, e, ...)
     }
+
     res$pred <- res$predict(sequences)
 
     res$predict_multi <- function(x, parallel = getOption("prego.parallel", FALSE)) {
