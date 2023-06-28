@@ -505,13 +505,30 @@ regress_pwm <- function(sequences,
     res$bidirect <- bidirect
     res$seq_length <- nchar(sequences[1])
 
+    res <- add_predict_function(res, spat, bidirect, energy_func)
+
+    return(res)
+}
+
+add_predict_function <- function(res, spat, bidirect, energy_func) {
+    func_env <- new.env()
+    func_env$pssm <- res$pssm
+    func_env$spat <- res$spat
+    func_env$energy_func <- energy_func
+    func_env$bidirect <- bidirect
+    func_env$spat_min <- spat$spat_min
+    func_env$spat_max <- spat$spat_max
+
     res$predict <- function(x) {
-        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
+        x <- stringr::str_sub(x, start = spat_min, end = spat_max - 1)
+        e <- compute_pwm(x, pssm, spat = spat, bidirect = bidirect, spat_min = 0, spat_max = nchar(x)[1], prior = 0)
         if (!is.null(energy_func)) {
             e <- energy_func(e)
         }
         return(e)
     }
+
+    environment(res$predict) <- func_env
 
     return(res)
 }

@@ -133,13 +133,7 @@ regress_pwm.sample <- function(sequences,
         cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
-    res$predict <- function(x) {
-        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
-        if (!is.null(energy_func)) {
-            e <- energy_func(e)
-        }
-        return(e)
-    }
+    res <- add_predict_function(res, spat, bidirect, energy_func)
 
     res$spat_min <- spat$spat_min
     res$spat_max <- spat$spat_max

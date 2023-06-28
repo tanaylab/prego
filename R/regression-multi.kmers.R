@@ -194,13 +194,7 @@ regress_pwm.multi_kmers <- function(sequences,
     res$bidirect <- bidirect
     res$seq_length <- nchar(sequences[1])
 
-    res$predict <- function(x) {
-        e <- compute_pwm(x, res$pssm, spat = res$spat, bidirect = bidirect, spat_min = spat$spat_min, spat_max = spat$spat_max - 1)
-        if (!is.null(energy_func)) {
-            e <- energy_func(e)
-        }
-        return(e)
-    }
+    res <- add_predict_function(res, spat, bidirect, energy_func)
 
     return(res)
 }

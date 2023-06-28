@@ -63,9 +63,7 @@ export_regression_model <- function(model, fn = NULL) {
 #' @export
 load_regression_model <- function(fn) {
     r <- readr::read_rds(fn)
-    r$predict <- function(x, ...) {
-        compute_pwm(x, r$pssm, spat = r$spat, bidirect = r$bidirect, spat_min = r$spat_min, spat_max = r$spat_max - 1, ...)
-    }
+    r <- add_predict_function(r, list(spat_min = r$spat_min, spat_max = r$spat_max), r$bidirect, NULL)
     return(r)
 }
 
@@ -169,9 +167,7 @@ load_multi_regression <- function(fn, response = NULL, sequences = NULL, motif_d
     }
 
     r$models <- purrr::map(r$models, function(.x) {
-        .x$predict <- function(x, ...) {
-            compute_pwm(x, .x$pssm, spat = .x$spat, bidirect = .x$bidirect, spat_min = .x$spat_min, spat_max = .x$spat_max - 1, ...)
-        }
+        .x <- add_predict_function(.x, list(spat_min = .x$spat_min, spat_max = .x$spat_max), .x$bidirect, NULL)
 
         if (!is.null(response)) {
             .x$response <- response
