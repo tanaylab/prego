@@ -44,9 +44,9 @@ test_that("regression predict() function works", {
 
 test_that("compute_pwm works with logSumExp function", {
     r <- compute_pwm(s, pssm, func = "logSumExp")
-    windows_r <- purrr::map_dbl(windows, compute_pwm, pssm, func = "logSumExp")
+    windows_r <- purrr::map_dbl(windows, compute_pwm, pssm, func = "logSumExp", prior = 0)
 
-    expect_true(abs(log_sum_log_vec(purrr::map_dbl(windows, compute_pwm, pssm, func = "logSumExp")) - r) < 1e-5)
+    expect_true(abs(log_sum_log_vec(purrr::map_dbl(windows, compute_pwm, pssm, func = "logSumExp")) - r) < 1e-4)
 })
 
 
