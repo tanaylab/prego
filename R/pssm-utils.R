@@ -355,6 +355,7 @@ pssm_diff <- function(pssm1, pssm2) {
 #' @param pssm1 first PSSM matrix or data frame
 #' @param pssm2 second PSSM matrix or data frame
 #' @param method method to use for computing the correlation. See \code{\link[stats]{cor}} for details.
+#' @param prior a prior probability for each nucleotide.
 #'
 #' @return Correlation between the two PSSMs
 #'
@@ -365,7 +366,7 @@ pssm_diff <- function(pssm1, pssm2) {
 #' }
 #'
 #' @export
-pssm_cor <- function(pssm1, pssm2, method = "spearman") {
+pssm_cor <- function(pssm1, pssm2, method = "spearman", prior = 0.01) {
     pssm1 <- pssm_to_mat(pssm1)
     pssm2 <- pssm_to_mat(pssm2)
     n_pos1 <- nrow(pssm1)
@@ -386,10 +387,9 @@ pssm_cor <- function(pssm1, pssm2, method = "spearman") {
         pssm_l <- pssm2
     }
 
-    epsilon <- 1e-10 # to avoid division by 0 or log(0)
-    pssm_s <- pssm_s + epsilon
+    pssm_s <- pssm_s + prior
     pssm_s <- pssm_s / rowSums(pssm_s) # renormalize
-    pssm_l <- pssm_l + epsilon
+    pssm_l <- pssm_l + prior
     pssm_l <- pssm_l / rowSums(pssm_l)
 
     scores <- purrr::map_dbl(1:(max_pos - window_size + 1), ~ {
@@ -397,6 +397,54 @@ pssm_cor <- function(pssm1, pssm2, method = "spearman") {
     })
 
     return(max(scores))
+}
+
+#' Compute a correlation matrix for a pssm dataset
+#'
+#' @param dataset a pssm dataset. A data frame with the columns 'motif', 'pos', 'A", 'C', 'G', 'T'
+#' @param parallel whether to use parallel computing
+#'
+#' @return A correlation matrix for the PSSMs in the dataset
+#'
+#' @examples
+#' \dontrun{
+#' cm <- pssm_dataset_cor(JASPAM_motifs)
+#' head(cm)
+#' }
+#'
+#' @inheritParams pssm_cor
+#' @export
+pssm_dataset_cor <- function(dataset, method = "spearman", prior = 0.01, parallel = getOption("prego.parallel", TRUE)) {
+    motifs <- unique(dataset$motif)
+    motif_combs <- t(combn(motifs, 2)) %>% as.data.frame()
+    colnames(motif_combs) <- c("motif1", "motif2")
+
+    pssm_cors <- plyr::adply(motif_combs, 1, function(x) {
+        tibble(cor = pssm_cor(
+            dataset %>% filter(motif == x$motif1),
+            dataset %>% filter(motif == x$motif2)
+        ))
+    },
+    .parallel = parallel
+    )
+
+    # transform to a matrix while making sure all the
+    pssm_mat <- pssm_cors %>%
+        complete(motif1 = motifs, motif2 = motifs, fill = list(cor = 0)) %>%
+        tidyr::spread(motif2, cor) %>%
+        column_to_rownames("motif1") %>%
+        as.matrix()
+
+    pssm_mat <- pssm_mat[motifs, motifs]
+
+
+    # fill the lower triangle
+    pssm_mat[lower.tri(pssm_mat)] <- t(pssm_mat)[lower.tri(pssm_mat)]
+
+    # fill the diagonal
+    diag(pssm_mat) <- 1
+
+    return(pssm_mat)
 }
 
 
