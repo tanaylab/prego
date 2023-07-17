@@ -11,12 +11,12 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                float eps, float min_improv_for_star, float unif_prior,
                                const string &score_metric, const int &num_folds, const bool &log_energy, 
                                const float &energy_epsilon, Rcpp::Nullable<Rcpp::Function> energy_func, 
-                               const float &xmin, const float &xmax, const int &npts)
+                               const float &xmin, const float &xmax, const int &npts, const bool &optimize_pwm, const bool &optimize_spat)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
       m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
-      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon) {
+      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_optimize_pwm(optimize_pwm), m_optimize_spat(optimize_spat) {
     if (m_num_folds < 1) {
         Rcpp::stop("number of folds must be at least 1");
     } 
@@ -544,81 +544,74 @@ void PWMLRegression::apply_move(const int &best_pos, const int &best_step, const
 }
 
 void PWMLRegression::take_best_step() {
+    if (m_optimize_pwm) {
+        auto [best_pos, best_step, best_score] = choose_best_move();        
 
-    tuple<int, int, float> best_move = choose_best_move();
-    int best_pos = get<0>(best_move);
-    int best_step = get<1>(best_move);
-    float best_score = get<2>(best_move);
-
-    if (best_score == m_cur_score) {
-        if (m_logit) {
-            Rcpp::Rcerr << "no improvement" << endl;
+        if (best_score == m_cur_score) {
+            if (m_logit) {
+                Rcpp::Rcerr << "no improvement" << endl;
+            }
+            return;
         }
-        return;
-    }
 
-    apply_move(best_pos, best_step, best_score);
+        apply_move(best_pos, best_step, best_score);
+    }
 
     Rcpp::checkUserInterrupt();
 
-    int max_spat_bin = m_spat_factors.size();
-    float best_spat_score = m_cur_score;
-    int best_spat_bin = -1;
-    float best_spat_diff = 0;
-    float spat_score = compute_cur_spat_score();
-    if (m_logit) {
-        Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score
-                    << endl;
-    }
-
-    for (int spat_bin = 0; spat_bin < max_spat_bin; spat_bin++) {
-        m_spat_factors[spat_bin] += m_spat_factor_step;
+    if (m_optimize_spat) {
+        int max_spat_bin = m_spat_factors.size();
+        float best_spat_score = m_cur_score;
+        int best_spat_bin = -1;
+        float best_spat_diff = 0;
         float spat_score = compute_cur_spat_score();
-        // Rcpp::Rcerr << "bin " << spat_bin << " add spat score " << spat_score << endl;
-        if (spat_score > best_spat_score) {
-            best_spat_score = spat_score;
-            best_spat_bin = spat_bin;
-            best_spat_diff = m_spat_factor_step;
-        }
-        m_spat_factors[spat_bin] -= 2 * m_spat_factor_step;
-        if (m_spat_factors[spat_bin] >= 0) {
-            spat_score = compute_cur_spat_score();
-            // Rcpp::Rcerr << "bin " << spat_bin << " del spat score " << spat_score << endl;
-            if (spat_score > best_spat_score) {
-                best_spat_score = spat_score;
-                best_spat_bin = spat_bin;
-                best_spat_diff = -m_spat_factor_step;
-            }
-        }
-        m_spat_factors[spat_bin] += m_spat_factor_step;
-    }
-    if (m_logit) {
-        Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff
-                    << " score " << best_spat_score << endl;
-    }
-
-    if (best_spat_score > best_score) {        
         if (m_logit) {
-            Rcpp::Rcerr << "update spat bin " << best_spat_bin << " diff " << best_spat_diff
+            Rcpp::Rcerr << "spat score without change = " << spat_score << " cur is " << m_cur_score
                         << endl;
         }
 
-        m_spat_factors[best_spat_bin] += best_spat_diff;
-
-        // normalize
-        for (size_t bin = 0; bin < m_spat_factors.size(); bin++) {
-            m_spat_factors[bin] /= (1 + best_spat_diff);
+        for (int spat_bin = 0; spat_bin < max_spat_bin; spat_bin++) {
+            m_spat_factors[spat_bin] += m_spat_factor_step;
+            spat_score = compute_cur_spat_score();
+            if (spat_score > best_spat_score) {
+                best_spat_score = spat_score;
+                best_spat_bin = spat_bin;
+                best_spat_diff = m_spat_factor_step;
+            }
+            m_spat_factors[spat_bin] -= 2 * m_spat_factor_step;
+            if (m_spat_factors[spat_bin] >= 0) {
+                spat_score = compute_cur_spat_score();
+                if (spat_score > best_spat_score) {
+                    best_spat_score = spat_score;
+                    best_spat_bin = spat_bin;
+                    best_spat_diff = -m_spat_factor_step;
+                }
+            }
+            m_spat_factors[spat_bin] += m_spat_factor_step;
         }
-        m_cur_score = best_spat_score;
-    } else {
-        apply_move(best_pos, best_step, best_score);
+        if (m_logit) {
+            Rcpp::Rcerr << "best spat step was bin " << best_spat_bin << " diff " << best_spat_diff
+                        << " score " << best_spat_score << endl;
+        }
+
+        if (best_spat_score > m_cur_score) {        
+            if (m_logit) {
+                Rcpp::Rcerr << "update spat bin " << best_spat_bin << " diff " << best_spat_diff
+                            << endl;
+            }
+
+            m_spat_factors[best_spat_bin] += best_spat_diff;
+
+            // normalize
+            for (size_t bin = 0; bin < m_spat_factors.size(); bin++) {
+                m_spat_factors[bin] /= (1 + best_spat_diff);
+            }
+            m_cur_score = best_spat_score;
+        } 
     }
-    // if (m_logit) {
-    //     Rcpp::Rcerr << "after step";
-    //     report_cur_lpwm();
-    //     Rcpp::Rcerr << endl;
-    // }
 }
+
+
 
 float PWMLRegression::compute_cur_fold_score(const int &pos, const vector<float> &probs, const int &fold) {
     float score;
@@ -990,6 +983,8 @@ float PWMLRegression::compute_cur_r2_spat() {
     ex2 /= m_train_n;
     double pred_var = ex2 - ex * ex;
     float tot_r2 = 0;
+    m_a.resize(m_rdim);
+    m_b.resize(m_rdim);
     for (int rd = 0; rd < m_rdim; rd++) {
         xy[rd] /= m_train_n;
         float cov = xy[rd] - ex * m_data_avg[rd];

@@ -180,20 +180,18 @@ Rcpp::StringVector mask_sequences_cpp(const Rcpp::StringVector &sequences,
 }
 
 // [[Rcpp::export]]
-Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
-                           const Rcpp::LogicalVector &is_train_logical, const std::string &motif,
-                           const int &spat_min, const int &spat_max, const float &min_nuc_prob,
-                           const int &spat_bin, const float &improve_epsilon,
-                           const bool &is_bidirect, const float &unif_prior,
-                           const std::string &score_metric, const int &verbose, const int &seed,
-                           const Rcpp::NumericMatrix &pssm_mat,
-                           const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor,
-                           const float &consensus_single_thresh,
-                           const float &consensus_double_thresh, const int &num_folds = 1,
-                           const float &energy_epsilon = 0, const bool &log_energy = false,
-                           Rcpp::Nullable<Rcpp::Function> energy_func = R_NilValue, 
-                           const float &xmin = -100,
-                           const float &xmax = 100, const int &npts = 1000 ) {
+Rcpp::List regress_pwm_cpp(
+    const Rcpp::StringVector &sequences, const Rcpp::DataFrame &response,
+    const Rcpp::LogicalVector &is_train_logical, const std::string &motif, const int &spat_min,
+    const int &spat_max, const float &min_nuc_prob, const int &spat_bin,
+    const float &improve_epsilon, const bool &is_bidirect, const float &unif_prior,
+    const std::string &score_metric, const int &verbose, const int &seed,
+    const Rcpp::NumericMatrix &pssm_mat, const Rcpp::Nullable<Rcpp::NumericVector> &spat_factor,
+    const float &consensus_single_thresh, const float &consensus_double_thresh,
+    const int &num_folds = 1, const float &energy_epsilon = 0, const bool &log_energy = false,
+    Rcpp::Nullable<Rcpp::Function> energy_func = R_NilValue, const float &xmin = -100,
+    const float &xmax = 100, const int &npts = 1000, const bool &optimize_pwm = true,
+    const bool &optimize_spat = true) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
@@ -227,7 +225,7 @@ Rcpp::List regress_pwm_cpp(const Rcpp::StringVector &sequences, const Rcpp::Data
 
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
                            improve_epsilon, 0.001, unif_prior, score_metric, num_folds, log_energy,
-                           energy_epsilon, energy_func, xmin, xmax, npts);
+                           energy_epsilon, energy_func, xmin, xmax, npts, optimize_pwm, optimize_spat);
 
     pwmlreg.m_logit = verbose;
 

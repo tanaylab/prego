@@ -35,6 +35,8 @@ regress_pwm.multi_kmers <- function(sequences,
                                     xmin = -100,
                                     xmax = 100,
                                     npts = 1e4,
+                                    optimize_pwm = TRUE,
+                                    optimize_spat = TRUE,
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -86,7 +88,9 @@ regress_pwm.multi_kmers <- function(sequences,
         energy_func = energy_func,
         xmin = xmin,
         xmax = xmax,
-        npts = npts
+        npts = npts,
+        optimize_pwm = optimize_pwm,
+        optimize_spat = optimize_spat
     )
 
     cli_h3("Generate candidate kmers")
