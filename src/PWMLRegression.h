@@ -156,6 +156,9 @@ class PWMLRegression {
     tuple<int, int, float> choose_best_move();
     void take_best_step();
     void apply_move(const int &best_pos, const int &best_step, const float &best_score);
+    void optimize_spatial_factors();
+    pair<float, float> check_spat_bin(float best_spat_score, int spat_bin);
+    void normalize_spat_factors(float best_spat_diff);
 
     float compute_cur_spat_score();
     float compute_cur_score(const int &pos, const vector<float> &probs);
