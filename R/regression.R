@@ -52,6 +52,8 @@
 #'            mgcv::predict.gam(object = model, newdata = data.frame(x = z))
 #' }}}.
 #' When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.
+#' @param optimize_pwm optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.
+#' @param optimize_spat optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -210,6 +212,8 @@ regress_pwm <- function(sequences,
                         xmax = 100,
                         npts = 1e4,
                         energy_func_generator = NULL,
+                        optimize_pwm = TRUE,
+                        optimize_spat = TRUE,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -256,6 +260,8 @@ regress_pwm <- function(sequences,
                 xmin = xmin,
                 xmax = xmax,
                 npts = npts,
+                optimize_pwm = optimize_pwm,
+                optimize_spat = optimize_spat,
                 ...
             )
         )
@@ -386,6 +392,8 @@ regress_pwm <- function(sequences,
                     xmin = xmin,
                     xmax = xmax,
                     npts = npts,
+                    optimize_pwm = optimize_pwm,
+                    optimize_spat = optimize_spat,
                     ...
                 ))
             }
@@ -458,7 +466,9 @@ regress_pwm <- function(sequences,
         energy_func = energy_func,
         xmin = xmin,
         xmax = xmax,
-        npts = npts
+        npts = npts,
+        optimize_pwm = optimize_pwm,
+        optimize_spat = optimize_spat
     )
 
 
