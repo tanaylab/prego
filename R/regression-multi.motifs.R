@@ -39,6 +39,8 @@ regress_multiple_motifs <- function(sequences,
                                     log_energy = FALSE,
                                     energy_func_generator = NULL,
                                     energy_func = NULL,
+                                    optimize_pwm = TRUE,
+                                    optimize_spat = TRUE,
                                     ...) {
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")
@@ -75,6 +77,8 @@ regress_multiple_motifs <- function(sequences,
         sample_ratio = sample_ratio,
         log_energy = log_energy,
         motif_num = 1,
+        optimize_pwm = optimize_pwm,
+        optimize_spat = optimize_spat,
         ...
     )
 
