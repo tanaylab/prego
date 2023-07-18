@@ -45,7 +45,7 @@ regress_multiple_motifs(
   energy_func_generator = NULL,
   energy_func = NULL,
   optimize_pwm = TRUE,
-  optimize_spatial = TRUE,
+  optimize_spat = TRUE,
   ...
 )
 
@@ -94,7 +94,7 @@ regress_pwm(
   npts = 10000,
   energy_func_generator = NULL,
   optimize_pwm = TRUE,
-  optimize_spatial = TRUE,
+  optimize_spat = TRUE,
   ...
 )
 }
@@ -186,7 +186,7 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 
 \item{optimize_pwm}{optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.}
 
-\item{optimize_spatial}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
+\item{optimize_spat}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}

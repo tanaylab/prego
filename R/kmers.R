@@ -1,4 +1,3 @@
-
 #' Screen for kmers
 #'
 #' @param sequences A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper})
