@@ -70,6 +70,7 @@ generate_kmers <- function(kmer_length, max_gap = 0, min_gap = 0) {
 #' This function calculates the frequency of each kmer for each DNA sequence.
 #'
 #' @param sequences A vector of strings with DNA sequences ('T', 'C', 'G', 'A' or 'N').
+#' @param kmer_length The length of the kmers to be considered.
 #' @param from_range Sequences will be considered only from position from_range.
 #' @param to_range Sequences will be considered only up to position to_range (default NULL - using the length of the sequences).
 #' @param set_rownames If TRUE, the rownames of the matrix will be set to the sequences (default FALSE).
