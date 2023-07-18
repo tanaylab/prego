@@ -28,7 +28,7 @@ export_regression_model <- function(model, fn = NULL) {
         seed_motif = model$seed_motif
     )
     if (!is.null(fn)) {
-        readr::write_rds(r, fn)
+        saveRDS(r, fn)
     } else {
         return(r)
     }
@@ -62,7 +62,7 @@ export_regression_model <- function(model, fn = NULL) {
 #'
 #' @export
 load_regression_model <- function(fn) {
-    r <- readr::read_rds(fn)
+    r <- readRDS(fn)
     r <- add_predict_function(r, list(spat_min = r$spat_min, spat_max = r$spat_max), r$bidirect, NULL)
     return(r)
 }
@@ -120,7 +120,7 @@ export_multi_regression <- function(reg, fn = NULL) {
     )
 
     if (!is.null(fn)) {
-        readr::write_rds(new_reg, fn)
+        saveRDS(new_reg, fn)
     } else {
         return(new_reg)
     }
@@ -161,7 +161,7 @@ export_multi_regression <- function(reg, fn = NULL) {
 #' @export
 load_multi_regression <- function(fn, response = NULL, sequences = NULL, motif_dataset = all_motif_datasets(), parallel = getOption("prego.parallel", FALSE), alternative = "two.sided") {
     if (is.character(fn)) {
-        r <- readr::read_rds(fn)
+        r <- readRDS(fn)
     } else {
         r <- fn
     }

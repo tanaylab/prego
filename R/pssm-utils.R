@@ -416,7 +416,7 @@ pssm_cor <- function(pssm1, pssm2, method = "spearman", prior = 0.01) {
 #' @export
 pssm_dataset_cor <- function(dataset, method = "spearman", prior = 0.01, parallel = getOption("prego.parallel", TRUE)) {
     motifs <- unique(dataset$motif)
-    motif_combs <- t(combn(motifs, 2)) %>% as.data.frame()
+    motif_combs <- t(utils::combn(motifs, 2)) %>% as.data.frame()
     colnames(motif_combs) <- c("motif1", "motif2")
 
     pssm_cors <- plyr::adply(motif_combs, 1, function(x) {
@@ -430,9 +430,9 @@ pssm_dataset_cor <- function(dataset, method = "spearman", prior = 0.01, paralle
 
     # transform to a matrix while making sure all the
     pssm_mat <- pssm_cors %>%
-        complete(motif1 = motifs, motif2 = motifs, fill = list(cor = 0)) %>%
+        tidyr::complete(motif1 = motifs, motif2 = motifs, fill = list(cor = 0)) %>%
         tidyr::spread(motif2, cor) %>%
-        column_to_rownames("motif1") %>%
+        tibble::column_to_rownames("motif1") %>%
         as.matrix()
 
     pssm_mat <- pssm_mat[motifs, motifs]

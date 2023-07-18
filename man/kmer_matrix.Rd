@@ -18,6 +18,8 @@ kmer_matrix(
 \arguments{
 \item{sequences}{A vector of strings with DNA sequences ('T', 'C', 'G', 'A' or 'N').}
 
+\item{kmer_length}{The length of the kmers to be considered.}
+
 \item{max_gap}{The maximum length of a gap to be considered in the pattern. Default: 0}
 
 \item{mask}{a string the length of \code{kmer_length} where 'N' indicates a wildcard position (default NULL - no mask).}
