@@ -1,4 +1,3 @@
-
 #' @export
 #' @rdname regress_pwm
 regress_multiple_motifs <- function(sequences,

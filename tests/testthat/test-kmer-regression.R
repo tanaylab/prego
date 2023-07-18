@@ -1,4 +1,3 @@
-
 # Function to count occurrences of a substring within a vector of strings
 substr_count <- function(strings, substr) {
     sapply(strings, function(string) {
