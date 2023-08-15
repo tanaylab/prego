@@ -7,7 +7,7 @@
 load_regression_model(fn)
 }
 \arguments{
-\item{fn}{file name}
+\item{fn}{file name or a list with the model}
 }
 \value{
 a list with the following elements:

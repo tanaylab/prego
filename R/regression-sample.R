@@ -143,35 +143,3 @@ regress_pwm.sample <- function(sequences,
 
     return(res)
 }
-
-sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed = NULL) {
-    if (!is.null(seed)) {
-        set.seed(seed)
-    }
-    if (is.null(sample_frac)) {
-        if (is_binary_response(response)) {
-            sample_frac <- c(pmin(1, sample_ratio * sum(response[, 1] == 1) / sum(response[, 1] == 0)), 1)
-        } else {
-            cli_alert_info("Using {.code sample_frac = 0.1}")
-            sample_frac <- 0.1
-        }
-    }
-    cli_alert_info("Sampling {.val {round(sample_frac, digits = 2)}} of the dataset")
-    categorical <- ncol(response) == 1 && all(response[, 1] == 0 | response[, 1] == 1)
-    if (categorical) {
-        cli_alert_info("Stratified sampling")
-        if (length(sample_frac) == 1) {
-            sample_frac <- c(sample_frac, sample_frac)
-        }
-        samp_idx_0 <- sample(which(response[, 1] == 0), size = round(sample_frac[1] * sum(response[, 1] == 0)))
-        samp_idx_1 <- sample(which(response[, 1] == 1), size = round(sample_frac[2] * sum(response[, 1] == 1)))
-        sample_idxs <- c(samp_idx_0, samp_idx_1)
-    } else {
-        sample_idxs <- sample(1:nrow(response), size = floor(sample_frac * nrow(response)))
-    }
-
-    if (is_binary_response(response)) {
-        cli_alert_info("sampled {.val {sum(response[sample_idxs, 1] == 0)}} zeros and {.val {sum(response[sample_idxs, 1] == 1)}} ones")
-    }
-    return(sample_idxs)
-}

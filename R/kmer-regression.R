@@ -209,7 +209,7 @@ pssm_to_kmer <- function(pssm, kmer_length = 7, pos_bits_thresh = NULL) {
 
     bits <- zoo::rollsum(bits, kmer_length, fill = NA, align = "left", na.rm = TRUE)
     pos <- which.max(bits)
-    m <- pssm_to_mat(pssm)[pos:(pos + kmer_length - 1), ]
+    m <- pssm_to_mat(pssm)[pos:(pos + kmer_length - 1), , drop = FALSE]
     kmer <- colnames(m)[apply(m, 1, which.max)]
     if (!is.null(pos_bits_thresh)) {
         bits <- bits_per_pos(m)
