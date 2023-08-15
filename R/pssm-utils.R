@@ -36,6 +36,10 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
         spat_max <- nchar(sequences[[1]])
     }
 
+    if (is.null(spat_min)) {
+        spat_min <- 1
+    }
+
     if (!(spat_min == 1 && spat_max == nchar(sequences[[1]]))) {
         sequences <- stringr::str_sub(sequences, start = spat_min, end = spat_max)
     }

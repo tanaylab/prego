@@ -36,7 +36,7 @@ export_regression_model <- function(model, fn = NULL) {
 
 #' Load a motif regression model from a file
 #'
-#' @param fn file name
+#' @param fn file name or a list with the model
 #'
 #' @return a list with the following elements:
 #'
@@ -62,7 +62,11 @@ export_regression_model <- function(model, fn = NULL) {
 #'
 #' @export
 load_regression_model <- function(fn) {
-    r <- readRDS(fn)
+    if (is.character(fn)) {
+        r <- readRDS(fn)
+    } else {
+        r <- fn
+    }
     r <- add_predict_function(r, list(spat_min = r$spat_min, spat_max = r$spat_max), r$bidirect, NULL)
     return(r)
 }
