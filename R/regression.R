@@ -288,10 +288,10 @@ regress_pwm <- function(sequences,
     }
 
     max_seq_len <- nchar(sequences[1])
-    if (is.null(spat_bin_size)) {
-        spat_bin_size <- round(max_seq_len / spat_num_bins / 2) * 2
-        cli_alert_info("Bin size was not provided, using {.val {spat_bin_size}}")
-    }
+    bins <- calculate_bins(max_seq_len, spat_num_bins, spat_bin_size)
+    spat_num_bins <- bins$spat_num_bins
+    spat_bin_size <- bins$spat_bin_size
+    cli_alert_info("Using {.val {spat_num_bins}} bins of size {.val {spat_bin_size}} bp")
 
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
@@ -402,11 +402,23 @@ regress_pwm <- function(sequences,
                 ))
             }
             cli_alert_info("Screening for kmers in order to initialize regression")
-            kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
+            if (sample_for_kmers) {
+                cli_alert_info("Performing sampled optimization")
+                if (is.null(sample_idxs)) {
+                    sample_idxs <- sample_response(response, sample_frac, sample_ratio, seed)
+                }
+
+                sequences_s <- sequences[sample_idxs]
+                response_s <- response[sample_idxs, , drop = FALSE]
+            } else {
+                sequences_s <- sequences
+                response_s <- response
+            }
+            kmers <- screen_kmers(sequences_s, response_s, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
             if (length(motif) == 0) { # could not find any kmer
                 cli_alert_info("Could not find any kmer with correlation above {.val {min_kmer_cor}}. Trying with a threshold of {.val {min_kmer_cor / 2}}")
-                kmers <- screen_kmers(sequences, response, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...)
+                kmers <- screen_kmers(sequences_s, response_s, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...)
                 motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
                 if (length(motif) == 0) {
                     motif <- paste(rep("*", motif_length), collapse = "")
@@ -575,36 +587,4 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
         cli_alert_success("{.val {reg$db_match}} KS test D: {.val {round(reg$db_match_ks$statistic, digits=4)}}, p-value: {.val {reg$db_match_ks$p.value}}")
     }
     return(reg)
-}
-
-
-
-calc_spat_min_max <- function(spat_num_bins, max_seq_len, spat_bin_size = NULL) {
-    if (is.null(spat_bin_size)) {
-        # make sure it is an even number
-        spat_bin_size <- round(max_seq_len / spat_num_bins / 2) * 2
-    }
-    if (spat_bin_size %% 2 != 0) {
-        cli_abort("The {.field spat_bin_size} must be an even number")
-    }
-    if (spat_num_bins %% 2 != 1) {
-        cli_abort("The {.field spat_num_bins} must be an odd number")
-    }
-    if (spat_bin_size * spat_num_bins > max_seq_len) {
-        cli_abort("The {.field spat_bin_size} ({.val {spat_bin_size}}) times the {.field spat_num_bins} ({.val {spat_num_bins}}) must be smaller than the maximum sequence length ({.val {max_seq_len}})")
-    }
-
-    center <- round(max_seq_len / 2)
-
-    if (spat_num_bins == 1) {
-        spat_min <- center - spat_bin_size / 2
-        spat_max <- center + spat_bin_size / 2
-    } else {
-        # position one bin at the center, and then add bins to the left and to the right
-        spat_min <- center - ((spat_num_bins - 1) / 2) * spat_bin_size - spat_bin_size / 2
-        spat_max <- center + ((spat_num_bins - 1) / 2) * spat_bin_size + spat_bin_size / 2
-    }
-
-
-    return(list(spat_min = round(spat_min), spat_max = round(spat_max)))
 }
