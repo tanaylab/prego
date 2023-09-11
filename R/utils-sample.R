@@ -41,9 +41,17 @@ sample_quantile_matched_rows <- function(data_frame, reference, sample_fraction,
         mutate(quantile = cut(reference, breaks = unique(ref_quantiles), labels = FALSE, include.lowest = TRUE)) %>%
         group_by(quantile)
 
+    # count the number of rows in each quantile
+    quantile_counts <- df_with_quantiles %>%
+        summarise(n = n()) %>%
+        pull(n)
+
+    # do not sample more than the minimum number of rows in any quantile
+    n_to_sample <- min(min(quantile_counts), floor(sample_size / num_quantiles))
+
     # Sample rows such that the quantiles of the sampled data matches as closely as possible those of the full data
     quantile_matched_sampled_df <- df_with_quantiles %>%
-        dplyr::sample_n(size = floor(sample_size / num_quantiles), replace = FALSE) %>%
+        dplyr::sample_n(size = n_to_sample, replace = FALSE) %>%
         ungroup()
 
     quantile_matched_sampled_df <- quantile_matched_sampled_df %>%
