@@ -288,6 +288,10 @@ regress_pwm <- function(sequences,
     }
 
     max_seq_len <- nchar(sequences[1])
+    if (is.null(spat_bin_size)) {
+        spat_bin_size <- round(max_seq_len / spat_num_bins / 2) * 2
+        cli_alert_info("Bin size was not provided, using {.val {spat_bin_size}}")
+    }
 
     if (!is.null(spat_model)) {
         if (!is.data.frame(motif)) {
