@@ -31,7 +31,7 @@
 #' @export
 regress_pwm.sample <- function(sequences,
                                response,
-                               spat_bin_size = 40,
+                               spat_bin_size = NULL,
                                spat_num_bins = 7,
                                bidirect = TRUE,
                                include_response = TRUE,
@@ -95,7 +95,7 @@ regress_pwm.sample <- function(sequences,
 
     res$sample_idxs <- sample_idxs
 
-    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences_s[1]))
+    spat <- calc_spat_min_max(spat_num_bins, nchar(sequences_s[1]), spat_bin_size)
 
     # fill predictions for all the sequences
     res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)

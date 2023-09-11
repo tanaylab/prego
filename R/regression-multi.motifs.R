@@ -6,7 +6,7 @@ regress_multiple_motifs <- function(sequences,
                                     motif_length = 15,
                                     score_metric = "r2",
                                     bidirect = TRUE,
-                                    spat_bin_size = 40,
+                                    spat_bin_size = NULL,
                                     spat_num_bins = 7,
                                     spat_model = NULL,
                                     improve_epsilon = 0.0001,
@@ -222,7 +222,7 @@ regress_multiple_motifs <- function(sequences,
         res$r2 <- cor(res$pred, response)^2
     }
 
-    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, nchar(sequences[1]))
+    spat <- calc_spat_min_max(spat_num_bins, nchar(sequences[1]), spat_bin_size)
 
     res$spat_min <- spat$spat_min
     res$spat_max <- spat$spat_max

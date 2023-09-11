@@ -176,7 +176,7 @@ regress_pwm <- function(sequences,
                         init_from_dataset = FALSE,
                         score_metric = "r2",
                         bidirect = TRUE,
-                        spat_bin_size = 40,
+                        spat_bin_size = NULL,
                         spat_num_bins = 7,
                         spat_model = NULL,
                         improve_epsilon = 0.0001,
@@ -319,7 +319,7 @@ regress_pwm <- function(sequences,
         cli_warn("Energy function was provided, but {.field log_energy} is {.val FALSE}. Note that the energies during the regression are not log-transformed.")
     }
 
-    spat <- calc_spat_min_max(spat_bin_size, spat_num_bins, max_seq_len)
+    spat <- calc_spat_min_max(spat_num_bins, max_seq_len, spat_bin_size)
 
     if (init_from_dataset) {
         cli_alert_info("Initializing from dataset")
@@ -575,7 +575,11 @@ add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, 
 
 
 
-calc_spat_min_max <- function(spat_bin_size, spat_num_bins, max_seq_len) {
+calc_spat_min_max <- function(spat_num_bins, max_seq_len, spat_bin_size = NULL) {
+    if (is.null(spat_bin_size)) {
+        # make sure it is an even number
+        spat_bin_size <- round(max_seq_len / spat_num_bins / 2) * 2
+    }
     if (spat_bin_size %% 2 != 0) {
         cli_abort("The {.field spat_bin_size} must be an even number")
     }

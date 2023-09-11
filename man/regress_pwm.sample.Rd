@@ -7,7 +7,7 @@
 regress_pwm.sample(
   sequences,
   response,
-  spat_bin_size = 40,
+  spat_bin_size = NULL,
   spat_num_bins = 7,
   bidirect = TRUE,
   include_response = TRUE,

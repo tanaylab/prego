@@ -78,7 +78,7 @@ sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed
     } else {
         sample_idxs <- sample_quantile_matched_rows(data.frame(i = 1:nrow(response)), response[, 1], sample_frac, seed = seed) %>%
             pull(i) %>%
-            sort()        
+            sort()
     }
 
     if (is_binary_response(response)) {
