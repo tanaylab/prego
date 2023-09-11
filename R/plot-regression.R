@@ -1,6 +1,7 @@
 #' Plot spatial model of the regression result
 #'
 #' @param spat the 'spat' field from the regression result
+#' @param title a title for the plot (optional)
 #'
 #' @examples
 #' \dontrun{
@@ -9,7 +10,7 @@
 #' }
 #'
 #' @export
-plot_spat_model <- function(spat) {
+plot_spat_model <- function(spat, title = "Spatial model") {
     spat %>%
         ggplot(aes(x = bin, y = spat_factor)) +
         geom_line() +
@@ -17,7 +18,7 @@ plot_spat_model <- function(spat) {
         theme_classic() +
         xlab("Position") +
         ylab("Spatial factor") +
-        ggtitle("Spatial model")
+        ggtitle(title)
 }
 
 #' Plot response variable averages vs the regression model's prediction

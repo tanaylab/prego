@@ -4,10 +4,12 @@
 \alias{plot_spat_model}
 \title{Plot spatial model of the regression result}
 \usage{
-plot_spat_model(spat)
+plot_spat_model(spat, title = "Spatial model")
 }
 \arguments{
 \item{spat}{the 'spat' field from the regression result}
+
+\item{title}{a title for the plot (optional)}
 }
 \description{
 Plot spatial model of the regression result
