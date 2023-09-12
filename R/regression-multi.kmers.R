@@ -38,6 +38,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     optimize_pwm = TRUE,
                                     optimize_spat = TRUE,
                                     kmer_sequence_length = NULL,
+                                    symmetrize_spat = TRUE,
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {

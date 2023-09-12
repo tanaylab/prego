@@ -110,6 +110,7 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
     \item{\code{optimize_pwm}}{optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.}
     \item{\code{optimize_spat}}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
     \item{\code{kmer_sequence_length}}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
+    \item{\code{symmetrize_spat}}{if TRUE, the spatial model would be symmetrized around the center bin. Default: TRUE.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
   }}
 }

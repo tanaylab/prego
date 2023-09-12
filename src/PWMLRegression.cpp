@@ -11,12 +11,14 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                float eps, float min_improv_for_star, float unif_prior,
                                const string &score_metric, const int &num_folds, const bool &log_energy, 
                                const float &energy_epsilon, Rcpp::Nullable<Rcpp::Function> energy_func, 
-                               const float &xmin, const float &xmax, const int &npts, const bool &optimize_pwm, const bool &optimize_spat)
+                               const float &xmin, const float &xmax, const int &npts, const bool &optimize_pwm, 
+                               const bool &optimize_spat, const bool &symmetrize_spat)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
       m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
       m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
-      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_optimize_pwm(optimize_pwm), m_optimize_spat(optimize_spat) {
+      m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_optimize_pwm(optimize_pwm), 
+      m_optimize_spat(optimize_spat), m_symmetrize_spat(symmetrize_spat) {
     if (m_num_folds < 1) {
         Rcpp::stop("number of folds must be at least 1");
     } 
@@ -322,7 +324,9 @@ void PWMLRegression::optimize() {
             m_step_num++;
         } while (m_cur_score > prev_score + m_imporve_epsilon);
 
-        symmetrize_spat_factors();
+        if (m_symmetrize_spat){
+            symmetrize_spat_factors();
+        }        
     }
 }
 
@@ -358,7 +362,7 @@ void PWMLRegression::init_energies() {
 
 int PWMLRegression::pos_to_spat_bin(const int& pos) {
     int bin = int(pos / m_spat_bin_size);
-    if (m_bidirect){        
+    if (m_symmetrize_spat && m_bidirect){        
         int center_bin = int(m_spat_bins_num / 2);
 
         // if bin is in the right side of the center symmetrize it
@@ -448,7 +452,10 @@ void PWMLRegression::update_seq_interval(int seq_id, string::const_iterator min_
             }
         }
     }
-    symmetrize_spat_factors();
+    if (m_symmetrize_spat){
+        symmetrize_spat_factors();
+    }
+    
 }
 
 void PWMLRegression::symmetrize_spat_factors(){

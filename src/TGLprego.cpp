@@ -191,7 +191,7 @@ Rcpp::List regress_pwm_cpp(
     const int &num_folds = 1, const float &energy_epsilon = 0, const bool &log_energy = false,
     Rcpp::Nullable<Rcpp::Function> energy_func = R_NilValue, const float &xmin = -100,
     const float &xmax = 100, const int &npts = 1000, const bool &optimize_pwm = true,
-    const bool &optimize_spat = true) {
+    const bool &optimize_spat = true, const bool &symmetrize_spat = true) {
     Random::reset(seed);
     vector<vector<float>> response_stat = Rcpp::as<vector<vector<float>>>(response);    
 
@@ -225,7 +225,8 @@ Rcpp::List regress_pwm_cpp(
 
     PWMLRegression pwmlreg(seqs, is_train, smin, smax, min_nuc_prob, spat_bin, res, spres,
                            improve_epsilon, 0.001, unif_prior, score_metric, num_folds, log_energy,
-                           energy_epsilon, energy_func, xmin, xmax, npts, optimize_pwm, optimize_spat);
+                           energy_epsilon, energy_func, xmin, xmax, npts, optimize_pwm, optimize_spat, 
+                           symmetrize_spat);
 
     pwmlreg.m_logit = verbose;
 

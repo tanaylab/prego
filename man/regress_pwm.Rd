@@ -96,6 +96,7 @@ regress_pwm(
   optimize_pwm = TRUE,
   optimize_spat = TRUE,
   kmer_sequence_length = NULL,
+  symmetrize_spat = TRUE,
   ...
 )
 }
@@ -208,6 +209,8 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 \item{xmin, xmax, npts}{range for the energy function and the number of points to use for its interpolation.}
 
 \item{kmer_sequence_length}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
+
+\item{symmetrize_spat}{if TRUE, the spatial model would be symmetrized around the center bin. Default: TRUE.}
 }
 \value{
 a list with the following elements:

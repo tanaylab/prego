@@ -55,6 +55,7 @@
 #' @param optimize_pwm optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.
 #' @param optimize_spat optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.
 #' @param kmer_sequence_length the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.
+#' @param symmetrize_spat if TRUE, the spatial model would be symmetrized around the center bin. Default: TRUE.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -216,6 +217,7 @@ regress_pwm <- function(sequences,
                         optimize_pwm = TRUE,
                         optimize_spat = TRUE,
                         kmer_sequence_length = NULL,
+                        symmetrize_spat = TRUE,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -265,6 +267,7 @@ regress_pwm <- function(sequences,
                 optimize_pwm = optimize_pwm,
                 optimize_spat = optimize_spat,
                 kmer_sequence_length = kmer_sequence_length,
+                symmetrize_spat = symmetrize_spat,
                 ...
             )
         )
@@ -402,6 +405,7 @@ regress_pwm <- function(sequences,
                     optimize_pwm = optimize_pwm,
                     optimize_spat = optimize_spat,
                     kmer_sequence_length = kmer_sequence_length,
+                    symmetrize_spat = symmetrize_spat,
                     ...
                 ))
             }
@@ -495,7 +499,8 @@ regress_pwm <- function(sequences,
         xmax = xmax,
         npts = npts,
         optimize_pwm = optimize_pwm,
-        optimize_spat = optimize_spat
+        optimize_spat = optimize_spat,
+        symmetrize_spat = symmetrize_spat
     )
 
 
