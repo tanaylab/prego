@@ -37,6 +37,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     npts = 1e4,
                                     optimize_pwm = TRUE,
                                     optimize_spat = TRUE,
+                                    kmer_sequence_length = NULL,
                                     ...) {
     set.seed(seed)
     if (is.null(nrow(response))) {
@@ -93,8 +94,19 @@ regress_pwm.multi_kmers <- function(sequences,
         optimize_spat = optimize_spat
     )
 
+    if (!is.null(kmer_sequence_length)) {
+        if (kmer_sequence_length > nchar(sequences[1])) {
+            cli_abort("kmer_sequence_length cannot be greater than the length of the sequences")
+        }
+        # str_sub the sequence from the middle
+        sequences_kmers <- stringr::str_sub(sequences, start = (nchar(sequences) - kmer_sequence_length) / 2 + 1, end = (nchar(sequences) + kmer_sequence_length) / 2)
+        cli_alert_info("Using kmer_sequence_length of {.val {kmer_sequence_length}}")
+    } else {
+        sequences_kmers <- sequences
+    }
+
     cli_h3("Generate candidate kmers")
-    cand_kmers <- get_cand_kmers(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
+    cand_kmers <- get_cand_kmers(sequences_kmers, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
 
     if (sample_for_kmers) {
         cli_h3("Regress each candidate kmer on sampled data")

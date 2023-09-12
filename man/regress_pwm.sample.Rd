@@ -8,7 +8,7 @@ regress_pwm.sample(
   sequences,
   response,
   spat_bin_size = NULL,
-  spat_num_bins = 7,
+  spat_num_bins = NULL,
   bidirect = TRUE,
   include_response = TRUE,
   motif_num = 1,
@@ -82,7 +82,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{init_from_dataset}}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
     \item{\code{motif_length}}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
     \item{\code{score_metric}}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
-    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
+    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
     \item{\code{verbose}}{show verbose messages.}
@@ -107,6 +107,7 @@ function(prev_reg, resp) {
 When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
     \item{\code{optimize_pwm}}{optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.}
     \item{\code{optimize_spat}}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
+    \item{\code{kmer_sequence_length}}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
     \item{\code{min_cor}}{Only patterns for which the maximum correlation to one of the response variable is larger than min_cor will be reported}
     \item{\code{is_train}}{a boolean vector that determine which subset of sequences to use when screening}

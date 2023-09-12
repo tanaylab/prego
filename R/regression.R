@@ -11,7 +11,7 @@
 #' @param bidirect is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.
 #' @param spat_bin_size size of the spatial bin (in bp).
 #' @param spat_num_bins number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.
-#' @param spat_model a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.
+#' @param spat_model a previously computed spatial model (see \code{spat}) in the return value of this function.
 #' @param improve_epsilon minimum improve in the objective function to continue the optimization
 #' @param min_nuc_prob minimum nucleotide probability in every iteration
 #' @param unif_prior uniform prior for nucleotide probabilities
@@ -54,6 +54,7 @@
 #' When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.
 #' @param optimize_pwm optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.
 #' @param optimize_spat optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.
+#' @param kmer_sequence_length the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.
 #'
 #' @return a list with the following elements:
 #' \itemize{
@@ -177,7 +178,7 @@ regress_pwm <- function(sequences,
                         score_metric = "r2",
                         bidirect = TRUE,
                         spat_bin_size = NULL,
-                        spat_num_bins = 7,
+                        spat_num_bins = NULL,
                         spat_model = NULL,
                         improve_epsilon = 0.0001,
                         min_nuc_prob = 0.001,
@@ -214,6 +215,7 @@ regress_pwm <- function(sequences,
                         energy_func_generator = NULL,
                         optimize_pwm = TRUE,
                         optimize_spat = TRUE,
+                        kmer_sequence_length = NULL,
                         ...) {
     set.seed(seed)
     if (motif_num > 1) {
@@ -262,6 +264,7 @@ regress_pwm <- function(sequences,
                 npts = npts,
                 optimize_pwm = optimize_pwm,
                 optimize_spat = optimize_spat,
+                kmer_sequence_length = kmer_sequence_length,
                 ...
             )
         )
@@ -294,9 +297,9 @@ regress_pwm <- function(sequences,
     cli_alert_info("Using {.val {spat_num_bins}} bins of size {.val {spat_bin_size}} bp")
 
     if (!is.null(spat_model)) {
-        if (!is.data.frame(motif)) {
-            cli_abort("If {.field spat_model} is provided, {.field motif} must be a previously computed PSSM")
-        }
+        # if (!is.data.frame(motif)) {
+        #     cli_abort("If {.field spat_model} is provided, {.field motif} must be a previously computed PSSM")
+        # }
         validate_spat(spat_model)
         spat_bin <- unique(diff(spat_model$bin))
         spat_model <- spat_model$spat_factor
@@ -398,6 +401,7 @@ regress_pwm <- function(sequences,
                     npts = npts,
                     optimize_pwm = optimize_pwm,
                     optimize_spat = optimize_spat,
+                    kmer_sequence_length = kmer_sequence_length,
                     ...
                 ))
             }
@@ -413,6 +417,13 @@ regress_pwm <- function(sequences,
             } else {
                 sequences_s <- sequences
                 response_s <- response
+            }
+            if (!is.null(kmer_sequence_length)) {
+                if (kmer_sequence_length > nchar(sequences[1])) {
+                    cli_abort("kmer_sequence_length cannot be greater than the length of the sequences")
+                }
+                # str_sub the sequence from the middle
+                sequences_s <- stringr::str_sub(sequences_s, start = (nchar(sequences_s) - kmer_sequence_length) / 2 + 1, end = (nchar(sequences_s) + kmer_sequence_length) / 2)
             }
             kmers <- screen_kmers(sequences_s, response_s, kmer_length = kmer_length, min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...)
             motif <- kmers$kmer[which.max(abs(kmers$max_r2))]
@@ -454,7 +465,7 @@ regress_pwm <- function(sequences,
         "Seed: {.val {seed}}"
     ))
 
-    sequences <- stringr::str_sub(sequences, start = spat$spat_min, end = spat$spat_max - 1)
+    sequences <- stringr::str_sub(sequences, start = spat$spat_min + 1, end = spat$spat_max)
 
     is_train <- rep(TRUE, length(sequences))
 

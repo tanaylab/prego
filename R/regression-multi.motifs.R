@@ -7,7 +7,7 @@ regress_multiple_motifs <- function(sequences,
                                     score_metric = "r2",
                                     bidirect = TRUE,
                                     spat_bin_size = NULL,
-                                    spat_num_bins = 7,
+                                    spat_num_bins = NULL,
                                     spat_model = NULL,
                                     improve_epsilon = 0.0001,
                                     min_nuc_prob = 0.001,
@@ -44,6 +44,12 @@ regress_multiple_motifs <- function(sequences,
     if (motif_num < 2) {
         cli_abort("{.field motif_num} must be at least 2")
     }
+
+    max_seq_len <- nchar(sequences[1])
+    bins <- calculate_bins(max_seq_len, spat_num_bins, spat_bin_size)
+    spat_num_bins <- bins$spat_num_bins
+    spat_bin_size <- bins$spat_bin_size
+    cli_alert_info("Using {.val {spat_num_bins}} bins of size {.val {spat_bin_size}} bp")
 
     regression_func <- purrr::partial(regress_pwm,
         sequences = sequences,

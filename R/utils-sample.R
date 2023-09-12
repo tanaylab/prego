@@ -43,7 +43,7 @@ sample_quantile_matched_rows <- function(data_frame, reference, sample_fraction,
 
     # count the number of rows in each quantile
     quantile_counts <- df_with_quantiles %>%
-        summarise(n = n()) %>%
+        dplyr::summarise(n = n()) %>%
         pull(n)
 
     # do not sample more than the minimum number of rows in any quantile

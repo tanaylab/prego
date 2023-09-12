@@ -32,7 +32,7 @@
 regress_pwm.sample <- function(sequences,
                                response,
                                spat_bin_size = NULL,
-                               spat_num_bins = 7,
+                               spat_num_bins = NULL,
                                bidirect = TRUE,
                                include_response = TRUE,
                                motif_num = 1,
@@ -62,6 +62,12 @@ regress_pwm.sample <- function(sequences,
     if (any(is.na(sequences))) {
         cli_abort("There are missing values in the sequences")
     }
+
+    max_seq_len <- nchar(sequences[1])
+    bins <- calculate_bins(max_seq_len, spat_num_bins, spat_bin_size)
+    spat_num_bins <- bins$spat_num_bins
+    spat_bin_size <- bins$spat_bin_size
+    cli_alert_info("Using {.val {spat_num_bins}} bins of size {.val {spat_bin_size}} bp")
 
     cli_alert_info("Performing sampled optimization")
     if (is.null(sample_idxs)) {
