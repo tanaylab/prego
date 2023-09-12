@@ -109,8 +109,10 @@ class PWMLRegression {
     // energy function callback
     FunctionInterpolator m_energy_func;
 
-    bool m_optimize_pwm;
-    bool m_optimize_spat;
+    bool m_optimize_pwm = true;
+    bool m_optimize_spat = true;
+
+    bool m_symmetrize_spat = true;
 
   public:
     bool m_logit;
@@ -124,7 +126,7 @@ class PWMLRegression {
                    float min_improv_for_star, float unif_prior, const string &score_metric,
                    const int &num_folds, const bool &log_energy, const float &energy_epsilon,
                    Rcpp::Nullable<Rcpp::Function> m_energy_func = R_NilValue, const float &xmin = -100,
-                   const float &xmax = 100, const int &npts = 1000, const bool &optimize_pwm = true, const bool &optimize_spat = true);
+                   const float &xmax = 100, const int &npts = 1000, const bool &optimize_pwm = true, const bool &optimize_spat = true, const bool &symmetrize_spat = true);
 
     void add_responses(const vector<vector<float>> &stats);
 
