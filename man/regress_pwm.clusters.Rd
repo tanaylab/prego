@@ -76,7 +76,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{bidirect}}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
     \item{\code{spat_bin_size}}{size of the spatial bin (in bp).}
     \item{\code{spat_num_bins}}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
-    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
+    \item{\code{spat_model}}{a previously computed spatial model (see \code{spat}) in the return value of this function.}
     \item{\code{improve_epsilon}}{minimum improve in the objective function to continue the optimization}
     \item{\code{min_nuc_prob}}{minimum nucleotide probability in every iteration}
     \item{\code{unif_prior}}{uniform prior for nucleotide probabilities}
@@ -109,6 +109,7 @@ function(prev_reg, resp) {
 When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
     \item{\code{optimize_pwm}}{optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.}
     \item{\code{optimize_spat}}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
+    \item{\code{kmer_sequence_length}}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
     \item{\code{min_gap,max_gap}}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
   }}
 }

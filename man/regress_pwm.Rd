@@ -13,7 +13,7 @@ regress_multiple_motifs(
   score_metric = "r2",
   bidirect = TRUE,
   spat_bin_size = NULL,
-  spat_num_bins = 7,
+  spat_num_bins = NULL,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
@@ -58,7 +58,7 @@ regress_pwm(
   score_metric = "r2",
   bidirect = TRUE,
   spat_bin_size = NULL,
-  spat_num_bins = 7,
+  spat_num_bins = NULL,
   spat_model = NULL,
   improve_epsilon = 0.0001,
   min_nuc_prob = 0.001,
@@ -95,6 +95,7 @@ regress_pwm(
   energy_func_generator = NULL,
   optimize_pwm = TRUE,
   optimize_spat = TRUE,
+  kmer_sequence_length = NULL,
   ...
 )
 }
@@ -117,7 +118,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
 
 \item{spat_num_bins}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
 
-\item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function. This can only be used when \code{motif} is a previously computed PSSM.}
+\item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function.}
 
 \item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
 
@@ -205,6 +206,8 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
 
 \item{xmin, xmax, npts}{range for the energy function and the number of points to use for its interpolation.}
+
+\item{kmer_sequence_length}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
 }
 \value{
 a list with the following elements:
