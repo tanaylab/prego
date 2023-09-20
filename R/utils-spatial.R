@@ -52,3 +52,53 @@ calc_spat_min_max <- function(spat_num_bins, max_seq_len, spat_bin_size) {
 
     return(list(spat_min = round(spat_min), spat_max = round(spat_max)))
 }
+
+#' Calculate Dinucleotide Distribution in Sequences
+#'
+#'
+#' @param sequences a character vector containing the sequences to analyze.
+#'        Each element of the vector should be a single sequence.
+#' @param size an integer specifying the size to consider for the analysis.
+#'        If NULL (default), the maximum length of the sequences in the `sequences`
+#'        vector is used.
+#'
+#' @return a data frame with columns 'pos' and 16 columns representing each possible
+#'         dinucleotide. Each row represents a position in the sequences (from 1 to `size`),
+#'         and contains the fraction of each dinucleotide at that position across
+#'         all sequences.
+#'
+#' @examples
+#'
+#' # Generate some random sequences for testing
+#' set.seed(60427)
+#' sequences <- sapply(1:100, function(x) {
+#'     paste0(sample(c("A", "C", "G", "T"), 1000, replace = TRUE), collapse = "")
+#' })
+#' sequences <- as.character(sequences)
+#'
+#' # Calculate the dinucleotide distribution
+#' result <- calc_sequences_dinuc_dist(sequences)
+#'
+#' head(result)
+#'
+#' @export
+calc_sequences_dinuc_dist <- function(sequences, size = NULL) {
+    if (!is.character(sequences)) {
+        cli_abort("The sequences must be a character vector")
+    }
+
+    if (is.null(size)) {
+        size <- max(nchar(sequences))
+    }
+
+    if (any(nchar(sequences) < size)) {
+        cli_abort("Some sequences are shorter than the size")
+    }
+
+    result <- dinuc_distribution(sequences, size = size)
+
+    # set last position to NA
+    result[size, -1] <- NA
+
+    return(result)
+}

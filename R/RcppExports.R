@@ -33,3 +33,7 @@ interpolateFunction <- function(func, xmin, xmax, npts, x) {
     .Call('_prego_interpolateFunction', PACKAGE = 'prego', func, xmin, xmax, npts, x)
 }
 
+dinuc_distribution <- function(sequences, size = 1000L) {
+    .Call('_prego_dinuc_distribution', PACKAGE = 'prego', sequences, size)
+}
+
