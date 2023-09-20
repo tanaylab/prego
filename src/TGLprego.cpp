@@ -16,6 +16,7 @@
 #include <Rcpp.h>
 #include <string.h>
 #include <vector>
+#include <unordered_map>
 using namespace std;
 
 // [[Rcpp::plugins("cpp17")]]
@@ -450,3 +451,67 @@ Rcpp::NumericVector interpolateFunction(Rcpp::Function func, float xmin, float x
     
     return Rcpp::wrap(interp.interpolate(xvals));
 }
+
+// [[Rcpp::export]]
+Rcpp::DataFrame dinuc_distribution(Rcpp::StringVector sequences, int size = 1000) {
+    if(size < 1) {
+        Rcpp::stop("Size must be at least 1");
+    }
+    
+    // Prepare a vector of unordered_maps to hold dinucleotide frequencies at each position
+    vector<unordered_map<string, int>> nucleotide_counts(size);
+
+    // Convert StringVector to vector of strings
+    vector<std::string> seqs = Rcpp::as<vector<std::string>>(sequences);
+    
+    // Iterate over each sequence
+    for(const auto& sequence : seqs) {
+        // Validate that the sequence length is at least 'size'
+        if((int)sequence.size() < size) {
+            Rcpp::stop("All sequences must have a length of at least 'size'");
+        }
+        
+        // In each sequence, iterate over each position and extract the dinucleotide
+        for(int pos = 0; pos < size - 1; ++pos) {
+            std::string dinucleotide = sequence.substr(pos, 2);
+            
+            // Update the counts in the unordered_map for the corresponding dinucleotide and position
+            nucleotide_counts[pos][dinucleotide]++;
+        }
+    }
+    
+    // After iterating over all sequences and positions, calculate the percentages
+    int total_sequences = sequences.size();
+
+    // Create an Rcpp data frame with the required structure and fill it with the calculated percentages
+    Rcpp::NumericMatrix percentage_matrix(size, 16);
+    Rcpp::CharacterVector dinucleotides = {"AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT"};
+    
+    for(int pos = 0; pos < size; ++pos) {
+        for(int dinuc_i = 0; dinuc_i < 16; ++dinuc_i) {
+            string dinucleotide = Rcpp::as<string>(dinucleotides[dinuc_i]);
+            percentage_matrix(pos, dinuc_i) = (double)nucleotide_counts[pos][dinucleotide] / total_sequences;
+        }
+    }
+    
+    return Rcpp::DataFrame::create(
+        Rcpp::Named("pos") = Rcpp::seq(1, size), 
+        Rcpp::Named("AA") = percentage_matrix(Rcpp::_, 0), 
+        Rcpp::Named("AC") = percentage_matrix(Rcpp::_, 1),
+        Rcpp::Named("AG") = percentage_matrix(Rcpp::_, 2), 
+        Rcpp::Named("AT") = percentage_matrix(Rcpp::_, 3),
+        Rcpp::Named("CA") = percentage_matrix(Rcpp::_, 4), 
+        Rcpp::Named("CC") = percentage_matrix(Rcpp::_, 5),
+        Rcpp::Named("CG") = percentage_matrix(Rcpp::_, 6), 
+        Rcpp::Named("CT") = percentage_matrix(Rcpp::_, 7),
+        Rcpp::Named("GA") = percentage_matrix(Rcpp::_, 8), 
+        Rcpp::Named("GC") = percentage_matrix(Rcpp::_, 9),
+        Rcpp::Named("GG") = percentage_matrix(Rcpp::_, 10), 
+        Rcpp::Named("GT") = percentage_matrix(Rcpp::_, 11),
+        Rcpp::Named("TA") = percentage_matrix(Rcpp::_, 12), 
+        Rcpp::Named("TC") = percentage_matrix(Rcpp::_, 13),
+        Rcpp::Named("TG") = percentage_matrix(Rcpp::_, 14), 
+        Rcpp::Named("TT") = percentage_matrix(Rcpp::_, 15)
+    );
+}
+
