@@ -53,6 +53,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #'
 #' @export
 gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
+    withr::local_options(gmax.data.size = 1e9)
     pwms <- gextract_pwm(intervals, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
     if (!is.null(motifs)) {
