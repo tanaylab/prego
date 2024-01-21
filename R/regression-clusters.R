@@ -134,10 +134,21 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
         )
     })
 
-    motif_dataset <- purrr::imap_dfr(cluster_models, ~ .x$pssm %>% mutate(motif = .y)) %>%
-        select(motif, pos, A, C, G, T)
-    spat_dataset <- purrr::imap_dfr(cluster_models, ~ .x$spat %>% mutate(motif = .y)) %>%
-        select(motif, bin, spat_factor)
+    multiple_motifs <- "models" %in% names(cluster_models[[1]])
+
+    if (!multiple_motifs) {
+        motif_dataset <- purrr::imap_dfr(cluster_models, ~ .x$pssm %>% mutate(motif = .y)) %>%
+            select(motif, pos, A, C, G, T)
+        spat_dataset <- purrr::imap_dfr(cluster_models, ~ .x$spat %>% mutate(motif = .y)) %>%
+            select(motif, bin, spat_factor)
+    } else {
+        motif_dataset <- purrr::imap_dfr(cluster_models, function(m, motif) {
+            purrr::imap_dfr(m$models, ~ .x$pssm %>% mutate(cluster = motif, model = .y, motif = paste0(motif, ".", .y)))
+        })
+        spat_dataset <- purrr::imap_dfr(cluster_models, function(m, motif) {
+            purrr::imap_dfr(m$models, ~ .x$spat %>% mutate(cluster = motif, model = .y, motif = paste0(motif, ".", .y)))
+        })
+    }
 
     res <- list(
         models = cluster_models,
@@ -149,17 +160,21 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
     )
 
     if (match_with_db) {
-        cli_alert_info("Matching with motif databases")
-        res$stats$db_match <- purrr::map_chr(cluster_models, "db_match")
-        res$stats$db_match_cor <- purrr::map_dbl(cluster_models, "db_match_cor")
-        res$pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
-        colnames(res$pred_mat_db) <- names(res$stats$db_match)
-        rownames(res$pred_mat_db) <- names(sequences)
-        res$db_dataset <- purrr::imap_dfr(cluster_models, ~ .x$db_match_pssm %>% mutate(cluster = .y, motif = .x$db_match)) %>%
-            select(cluster, motif, pos, A, C, G, T)
+        if (!multiple_motifs) {
+            cli_alert_info("Matching with motif databases")
+            res$stats$db_match <- purrr::map_chr(cluster_models, "db_match")
+            res$stats$db_match_cor <- purrr::map_dbl(cluster_models, "db_match_cor")
+            res$pred_mat_db <- purrr::map(cluster_models, "db_match_pred") %>% do.call(cbind, .)
+            colnames(res$pred_mat_db) <- names(res$stats$db_match)
+            rownames(res$pred_mat_db) <- names(sequences)
+            res$db_dataset <- purrr::imap_dfr(cluster_models, ~ .x$db_match_pssm %>% mutate(cluster = .y, motif = .x$db_match)) %>%
+                select(cluster, motif, pos, A, C, G, T)
+        } else {
+            cli_alert_info("Cannot match with motif databases when {.field motif_num} > 1")
+        }
     }
 
-    if ("models" %in% names(res$models[[1]])) {
+    if (multiple_motifs) {
         res$multi_stats <- purrr::imap_dfr(cluster_models, ~ .x$multi_stats %>% mutate(cluster = .y)) %>%
             select(cluster, everything())
     }
