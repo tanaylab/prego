@@ -103,14 +103,14 @@ regress_pwm.sample <- function(sequences,
 
     spat <- calc_spat_min_max(spat_num_bins, nchar(sequences_s[1]), spat_bin_size)
 
-    # fill predictions for all the sequences
-    res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
-
     if (motif_num > 1 && "models" %in% names(res)) {
         res$models <- purrr::map(res$models, ~ {
             .x$pred <- compute_pwm(sequences, .x$pssm, .x$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
             .x
         })
+        res$pred <- res$predict(sequences)
+    } else {
+        res$pred <- compute_pwm(sequences, res$pssm, res$spat, spat_min = spat$spat_min, spat_max = spat$spat_max, bidirect = bidirect)
     }
 
     if (include_response) {
@@ -123,7 +123,7 @@ regress_pwm.sample <- function(sequences,
         res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
     }
 
-    if (match_with_db) {
+    if (match_with_db && motif_num == 1) {
         res <- add_regression_db_match(res, sequences, motif_dataset, parallel = parallel, alternative = alternative)
     }
 
