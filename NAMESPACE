@@ -2,6 +2,7 @@
 
 export("%>%")
 export(all_motif_datasets)
+export(bits_per_pos)
 export(calc_sequences_dinuc_dist)
 export(compute_local_pwm)
 export(compute_pwm)
