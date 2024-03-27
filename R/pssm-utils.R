@@ -295,6 +295,10 @@ pssm_to_mat <- function(pssm_df) {
         rownames(pssm_df) <- NULL
     }
 
+    if (!("pos" %in% colnames(pssm_df))) {
+        pssm_df$pos <- 1:nrow(pssm_df)
+    }
+
     pssm_df %>%
         arrange(as.numeric(pos)) %>%
         as.data.frame() %>%

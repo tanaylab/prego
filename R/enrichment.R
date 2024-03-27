@@ -15,11 +15,16 @@
 #' library(misha)
 #' gdb.init_examples()
 #' annot <- misha.ext::gintervals.normalize(gintervals.load("annotations"), 300)
-#' pwm_q <- gextract_pwm.quantile(annot, motifs = c("JASPAR.CDX1", "JASPAR.CDX2"), dist_from_edge = 100)
+#' pwm_q <- gextract_pwm.quantile(
+#'     annot,
+#'     motifs = c("JASPAR.CDX1", "JASPAR.CDX2"),
+#'     dist_from_edge = 100
+#' )
 #' pwm_q <- as.matrix(pwm_q[, c("JASPAR.CDX1.q", "JASPAR.CDX2.q")])
 #' groups <- c("Group1", "Group1", "Group2", "Group2", "Group2", "Group3", "Group3", "Group3")
 #'
-#' # The threshold of 0.1 is used for demonstration purposes only. In practice, a threshold of 0.99 is recommended.
+#' # The threshold of 0.1 is used for demonstration purposes only.
+#' # In practice, a threshold of 0.99 is recommended.
 #' motif_enrichment(pwm_q, groups, threshold = 0.1, type = "relative")
 #' motif_enrichment(pwm_q, groups, threshold = 0.1, type = "absolute")
 #' }
@@ -39,7 +44,7 @@ motif_enrichment <- function(pwm_q, groups, threshold = 0.99, type = "relative")
     }
 
     pwm_mf <- pwm_q >= threshold
-    group_motifs <- tgs_matrix_tapply(t(pwm_mf + 0), groups, sum)
+    group_motifs <- tgstat::tgs_matrix_tapply(t(pwm_mf + 0), groups, sum)
     group_n <- table(groups)[rownames(group_motifs)]
 
     # n_fg_ok
