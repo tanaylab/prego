@@ -9,7 +9,8 @@ sample_quantile_matched_rows(
   reference,
   sample_fraction,
   num_quantiles = 10,
-  seed = 60427
+  seed = 60427,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ sample_quantile_matched_rows(
 \item{num_quantiles}{An integer specifying the number of quantiles, default is 10.}
 
 \item{seed}{An integer specifying the random seed to use.}
+
+\item{verbose}{A logical specifying whether to print messages.}
 }
 \value{
 A data frame of sampled rows.

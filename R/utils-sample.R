@@ -8,6 +8,7 @@
 #' @param sample_fraction A fraction specifying the proportion of rows to sample from the data frame.
 #' @param num_quantiles An integer specifying the number of quantiles, default is 10.
 #' @param seed An integer specifying the random seed to use.
+#' @param verbose A logical specifying whether to print messages.
 #'
 #' @return A data frame of sampled rows.
 #'
@@ -17,7 +18,7 @@
 #' abline(0, 1)
 #'
 #' @export
-sample_quantile_matched_rows <- function(data_frame, reference, sample_fraction, num_quantiles = 10, seed = 60427) {
+sample_quantile_matched_rows <- function(data_frame, reference, sample_fraction, num_quantiles = 10, seed = 60427, verbose = TRUE) {
     if (!is.null(seed)) {
         set.seed(seed)
     }
@@ -57,7 +58,10 @@ sample_quantile_matched_rows <- function(data_frame, reference, sample_fraction,
     quantile_matched_sampled_df <- quantile_matched_sampled_df %>%
         select(any_of(columns))
 
-    cli::cli_alert_success("Sampled {.val {nrow(quantile_matched_sampled_df)}} rows from the data frame.")
+    if (verbose) {
+        cli::cli_alert_success("Sampled {.val {nrow(quantile_matched_sampled_df)}} rows from the data frame.")
+    }
+
     return(quantile_matched_sampled_df)
 }
 
