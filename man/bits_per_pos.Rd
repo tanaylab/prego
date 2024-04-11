@@ -4,10 +4,12 @@
 \alias{bits_per_pos}
 \title{Calculate the number of bits per position in a Position-Specific Scoring Matrix (PSSM).}
 \usage{
-bits_per_pos(pssm)
+bits_per_pos(pssm, prior = 0.01)
 }
 \arguments{
 \item{pssm}{A data frame or matrix representing the Position-Specific Scoring Matrix (PSSM).}
+
+\item{prior}{A numeric value indicating the prior probability for each nucleotide. Default is 0.01.}
 }
 \value{
 A numeric vector representing the number of bits per position in the PSSM.
