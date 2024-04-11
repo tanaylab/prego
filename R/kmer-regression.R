@@ -189,7 +189,7 @@ kmers_to_pssm <- function(kmers, prior = 0.01) {
 #' This function transforms a PSSM into a k-mer of a given length.
 #'
 #' @param pssm PSSM matrix or data frame. The PSSM must have at least kmer_length rows.
-#' @param kmer_length The length of the k-mer to return.
+#' @param kmer_length The length of the k-mer to return. If NULL - the length of the k-mer is equal to the number of rows in the PSSM.
 #' @param pos_bits_thresh A numeric value indicating the minimum number of bits per position to include the nucleotide in the k-mer. If the nucleotide does not meet this threshold, it is replaced with 'N'. Default is NULL.
 #'
 #' @return A character vector of length 1 containing the k-mer.
@@ -198,13 +198,18 @@ kmers_to_pssm <- function(kmers, prior = 0.01) {
 #' pssm_to_kmer(get_motif_pssm("HOMER.AP_1"))
 #' plot_pssm_logo_dataset("HOMER.AP_1")
 #'
+#' @inheritParams bits_per_pos
 #' @export
-pssm_to_kmer <- function(pssm, kmer_length = 7, pos_bits_thresh = NULL) {
+pssm_to_kmer <- function(pssm, kmer_length = NULL, pos_bits_thresh = NULL, prior = 0.01) {
+    if (is.null(kmer_length)) {
+        kmer_length <- nrow(pssm)
+    }
+
     if (nrow(pssm) < kmer_length) {
         cli::cli_abort("pssm must have at least kmer_length rows")
     }
 
-    bits <- bits_per_pos(pssm)
+    bits <- bits_per_pos(pssm, prior = prior)
     bits[is.na(bits)] <- 0
 
     bits <- zoo::rollsum(bits, kmer_length, fill = NA, align = "left", na.rm = TRUE)

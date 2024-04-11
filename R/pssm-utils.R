@@ -166,6 +166,7 @@ validate_spat <- function(spat) {
 #' Finally, it sets any negative values to zero and returns the resulting bits per position.
 #'
 #' @param pssm A data frame or matrix representing the Position-Specific Scoring Matrix (PSSM).
+#' @param prior A numeric value indicating the prior probability for each nucleotide. Default is 0.01.
 #' @return A numeric vector representing the number of bits per position in the PSSM.
 #' @examples
 #' pssm <- data.frame(
@@ -177,8 +178,11 @@ validate_spat <- function(spat) {
 #' bits_per_pos(pssm)
 #'
 #' @export
-bits_per_pos <- function(pssm) {
+bits_per_pos <- function(pssm, prior = 0.01) {
     pssm <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    if (prior > 0) {
+        pssm <- pssm + prior
+    }
     pssm <- pssm / rowSums(pssm)
     bits <- log2(4) + rowSums(pssm * log2(pssm))
     bits <- pmax(bits, 0)
