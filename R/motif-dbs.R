@@ -115,6 +115,9 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
     sequences <- toupper(sequences)
 
     res <- plyr::daply(dataset, "motif", function(x) {
+        if (has_name(spat, "motif")){
+            spat <- spat %>% filter(motif == x$motif[1])
+        }
         compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
     }, .parallel = parallel)
 
