@@ -12,7 +12,7 @@ load_regression_model(fn)
 \value{
 a list with the following elements:
 
-\itemize{
+\describe{
 \item{pssm:}{a data frame with the PSSM}
 \item{spat:}{a data frame with the spatial profile}
 \item{spat_min:}{a numeric value with the minimum value of the spatial profile}

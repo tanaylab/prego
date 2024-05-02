@@ -103,7 +103,7 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 }
 \value{
 a list with the following elements:
-\itemize{
+\describe{
 \item{cv_models: }{a list of models, one for each fold.}
 \item{cv_pred: }{a vector of predictions for each sequence.}
 \item{score: }{score of the model on the cross-validated predictions.}

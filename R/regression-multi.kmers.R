@@ -251,8 +251,9 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
 
 
     dist_mat <- stringdist::stringdistmatrix(cands$kmer, cands$kmer, method = "osa", nthread = 1)
-    dist_mat[dist_mat != 1] <- NA
-    if (ncol(dist_mat) == nrow(dist_mat)) {
+    if (any(dist_mat == 1) && ncol(dist_mat) == nrow(dist_mat)) {
+        dist_mat[dist_mat != 1] <- NA
+        dist_mat[is.na(dist_mat)] <- 0
         g <- igraph::graph_from_adjacency_matrix(dist_mat, mode = "undirected")
         cands <- cands %>%
             mutate(kmer_clust = igraph::cluster_louvain(g)$membership) %>%

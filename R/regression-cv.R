@@ -12,7 +12,7 @@
 #' @param add_full_model whether to add the full model (without cross-validation) to the results.
 #'
 #' @return a list with the following elements:
-#' \itemize{
+#' \describe{
 #' \item{cv_models: }{a list of models, one for each fold.}
 #' \item{cv_pred: }{a vector of predictions for each sequence.}
 #' \item{score: }{score of the model on the cross-validated predictions.}
