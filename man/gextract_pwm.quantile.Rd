@@ -14,6 +14,7 @@ gextract_pwm.quantile(
   spat_max = NULL,
   bidirect = TRUE,
   prior = 0.01,
+  func = "logSumExp",
   n_sequences = 10000,
   dist_from_edge = 3000000,
   chromosomes = NULL,
@@ -39,6 +40,8 @@ gextract_pwm.quantile(
 
 \item{prior}{a prior probability for each nucleotide.}
 
+\item{func}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
+
 \item{n_sequences}{number of sequences to sample in order to compute the quantiles. The default is 1e4.}
 
 \item{dist_from_edge}{The minimum distance from the edge of the chromosome for a region to start or end(default: 3e6)}
@@ -48,7 +51,7 @@ gextract_pwm.quantile(
 \item{parallel}{logical, whether to use parallel processing}
 }
 \value{
-a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form "{motif}.q"
+a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form \{motif\}.q
 }
 \description{
 Extract for each interval its quantile in the genome for each motif given its length. Note

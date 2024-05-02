@@ -49,7 +49,7 @@ screen_pwm(
 }
 \value{
 a data frame with the following columns:
-\itemize{
+\describe{
 \item{motif: }{the motif name.}
 \item{score: }{the score of the motif (depending on \code{metric}).}
 }

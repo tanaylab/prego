@@ -30,7 +30,7 @@ to set the number of cores to use.}
 \value{
 a list with the following elements:
 
-\itemize{
+\describe{
 \item{models: }{a list of models.}
 \item{model: }{the combined model.}
 \item{spat_min: }{the minimum spatial position.}

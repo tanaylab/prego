@@ -58,7 +58,7 @@
 #' @param symmetrize_spat if TRUE, the spatial model would be symmetrized around the center bin. Default: TRUE.
 #'
 #' @return a list with the following elements:
-#' \itemize{
+#' \describe{
 #' \item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
 #' \item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
 #' \item{pred: }{a vector with the predicted pwm for each sequence.}
@@ -73,7 +73,7 @@
 #' }
 #'
 #' When \code{match_with_db} is TRUE, the following additional elements are returned:
-#' \itemize{
+#' \describe{
 #' \item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
 #' \item{db_match_cor: }{The correlation between the resulting PSSM and the closest match in the motif database.}
 #' \item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
@@ -83,7 +83,7 @@
 #' }
 #'
 #' When \code{screen_db} is TRUE, the following additional elements are returned:
-#' \itemize{
+#' \describe{
 #' \item{db_motif: }{The best motif from the motif database.}
 #' \item{db_motif_pred: }{The predicted PWM of the best motif from the motif database.}
 #' \item{db_motif_pssm: }{The PSSM of the best motif from the motif database.}
@@ -91,7 +91,7 @@
 #' }
 #'
 #' When \code{n_motifs} is greater than 1, a list with the following elements is returned:
-#' \itemize{
+#' \describe{
 #' \item{models: }{A list (as above) of each inferred model}
 #' \item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
 #' \item{pred: }{a vector with the predicted pwm for using a linear model of the combined scores.}

@@ -14,11 +14,11 @@
 #' @param screen_db screen for the best motif in the database which explains the clusters. See \code{screen_pwm.clusters}.
 #' @param use_sge use the function \code{gcluster.run2} from the misha.ext package to run the optimization on a SGE cluster. Only relevant if the \code{misha.ext} package is installed. Note that \code{gcluster.run2} writes the current
 #' environment before starting the parallelization, so it is better to run this function in a clean environment.
-#' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or {pkgload::load_all()} to load the package.
+#' Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or \code{pkgload::load_all()} to load the package.
 #' @param alternative alternative hypothesis for the KS test. Can be "two.sided", "less" or "greater"
 #'
 #' @return a list with the following elements:
-#' \itemize{
+#' \describe{
 #' \item{models: }{a list with the models for each cluster}
 #' \item{cluster_mat: }{an indicator matrix with the cluster assignments}
 #' \item{pred_mat: }{a matrix of the energies of the predicted motifs per cluster (columns) in each sequence (rows)}

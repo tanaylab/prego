@@ -40,7 +40,7 @@ export_regression_model <- function(model, fn = NULL) {
 #'
 #' @return a list with the following elements:
 #'
-#' \itemize{
+#' \describe{
 #' \item{pssm:}{a data frame with the PSSM}
 #' \item{spat:}{a data frame with the spatial profile}
 #' \item{spat_min:}{a numeric value with the minimum value of the spatial profile}
@@ -136,7 +136,7 @@ export_multi_regression <- function(reg, fn = NULL) {
 #'
 #' @return a list with the following elements:
 #'
-#' \itemize{
+#' \describe{
 #'  \item{models: }{a list of models.}
 #'  \item{model: }{the combined model.}
 #'  \item{spat_min: }{the minimum spatial position.}

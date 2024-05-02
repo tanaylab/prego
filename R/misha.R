@@ -39,7 +39,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #' @param intervals misha intervals set
 #' @param percision the percision of the quantiles. Default is 0.01, which means that the quantiles will be computed for every 1% of the pwm.
 #'
-#' @return a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form "{motif}.q"
+#' @return a data frame with the quantiles of the pwm for each interval and motif. The quantiles columns would be of the form \{motif\}.q
 #'
 #' @examples
 #' \dontrun{
@@ -52,7 +52,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #' @inheritParams gpwm_quantiles
 #'
 #' @export
-gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
     withr::local_options(gmax.data.size = 1e9)
     pwms <- gextract_pwm(intervals, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
@@ -94,7 +94,7 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
         pwms_l <- tibble::as_tibble(pwms_l)
 
         res <- plyr::daply(dataset, "motif", function(x) {
-            quantiles <- gpwm_quantiles(size = pwms_l$l[1], quantiles = breaks, pssm = x, n_sequences = n_sequences, dist_from_edge = dist_from_edge, chromosomes = chromosomes)
+            quantiles <- gpwm_quantiles(size = pwms_l$l[1], quantiles = breaks, pssm = x, n_sequences = n_sequences, dist_from_edge = dist_from_edge, chromosomes = chromosomes, func = func)
             val2quant <- approxfun(x = quantiles, y = breaks, rule = 2)
             val2quant(pwms_l[[x$motif[1]]])
         }, .parallel = motif_p)
@@ -149,14 +149,14 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
 #' }
 #'
 #' @export
-gpwm_quantiles <- function(size, quantiles, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL) {
+gpwm_quantiles <- function(size, quantiles, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, func = "logSumExp") {
     if (!requireNamespace("misha.ext", quietly = TRUE)) {
         cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
     }
 
     r_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes)
     sequences <- misha::gseq.extract(r_intervals)
-    pwm <- compute_pwm(sequences, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+    pwm <- compute_pwm(sequences, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
 
     return(quantile(pwm, probs = quantiles, na.rm = TRUE))
 }

@@ -15,7 +15,8 @@ gpwm_quantiles(
   prior = 0.01,
   n_sequences = 10000,
   dist_from_edge = 3000000,
-  chromosomes = NULL
+  chromosomes = NULL,
+  func = "logSumExp"
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ gpwm_quantiles(
 \item{dist_from_edge}{The minimum distance from the edge of the chromosome for a region to start or end(default: 3e6)}
 
 \item{chromosomes}{The chromosomes to sample from (default: all chromosomes)}
+
+\item{func}{the function to use to combine the PWMs for each sequence. Either 'logSumExp' or 'max'. The default is 'logSumExp'.}
 }
 \value{
 a named vector with the quantiles of the pwm for the given interval size.
