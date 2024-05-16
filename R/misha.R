@@ -126,11 +126,12 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
 
 #' Compute quantile of pwm for a given interval size
 #'
-#' @description Computes the quantile of the pwm for a given interval size by sampling random intervals from the genome. The number of sequences to sample can be specified with \code{n_sequences}.
+#' @description Computes the quantile of the pwm for a given interval size by sampling random intervals from the genome, or using given intervals. The number of sequences to sample can be specified with \code{n_sequences}.
 #'
 #' @param size size of the intervals to sample
 #' @param pssm PSSM matrix or data frame
 #' @param quantiles quantiles to compute. See \code{quantile} for more details.
+#' @param bg_intervals (optional) an intervals set for the background. If not provided, random intervals will be used
 #' @param n_sequences number of sequences to sample in order to compute the quantiles. The default is 1e4.
 #'
 #' @return a named vector with the quantiles of the pwm for the given interval size.
@@ -150,13 +151,16 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
 #' }
 #'
 #' @export
-gpwm_quantiles <- function(size, quantiles, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, func = "logSumExp") {
+gpwm_quantiles <- function(size, quantiles, pssm, bg_intervals = NULL, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, func = "logSumExp") {
     if (!requireNamespace("misha.ext", quietly = TRUE)) {
         cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
     }
 
-    r_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes)
-    sequences <- misha::gseq.extract(r_intervals)
+    if (is.null(bg_intervals)) {
+        bg_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes)
+    }
+
+    sequences <- misha::gseq.extract(bg_intervals)
     pwm <- compute_pwm(sequences, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
 
     return(quantile(pwm, probs = quantiles, na.rm = TRUE))
