@@ -127,6 +127,11 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
         pssm_mat <- pssm_mat + prior
     }
 
+    seq_l <- stringr::str_length(sequences)
+    if (length(unique(seq_l)) > 1) {
+        cli_abort("All sequences should have the same length")
+    }
+
     pwm <- compute_local_pwm_cpp(
         sequences = toupper(sequences),
         pssm_mat = pssm_mat,
@@ -141,7 +146,6 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
 }
 
 #' Extracts local position weight matrix (PWM) scores for given intervals and a PWM.
-#'
 #'
 #' @param intervals The intervals to extract
 #'
@@ -162,9 +166,38 @@ gextract.local_pwm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_
     sequences <- toupper(misha::gseq.extract(intervals))
 
     res <- compute_local_pwm(sequences = sequences, pssm = pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
-    rownames(res) <- rownames(misha.ext::intervs_to_mat(intervals %>% select(chrom, start, end)))
+    rnames <- paste0(intervals$chrom, "_", intervals$start, "_", intervals$end)
+    if (length(unique(rnames)) != length(rnames)) {
+        rnames <- paste0(rnames, ".", 1:nrow(res))
+    }
+    rownames(res) <- rnames
 
     return(res)
+}
+
+#' Calculate the frequency of a position weight matrix (PWM) in a given set of intervals
+#'
+#' @param intervals The intervals to extract
+#' @param q_threshold The quantile threshold of the PWM (e.g. 0.99 for the top percentile)
+#' @inheritParams gextract.local_pwm
+#' @inheritParams gpwm_quantiles
+#'
+#' @return a matrix with \code{nrow(intervals)} rows and \code{ncol(pssm)} columns with the TRUE if the PWM is above the threshold for each sequence in each position.
+#'
+#' @export
+gextract.local_pwm_freq <- function(intervals, pssm, q_threshold, bg_intervals = NULL, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL) {
+    local_pwm <- gextract.local_pwm(intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+    size <- intervals$end[1] - intervals$start[1]
+    if (is.null(bg_intervals)) {
+        bg_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes) %>%
+            distinct(chrom, start, end)
+    }
+    local_pwm_r <- gextract.local_pwm(bg_intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+
+    thresh <- quantile(local_pwm_r, q_threshold, na.rm = TRUE)
+    pwm_freq <- local_pwm > thresh
+
+    return(pwm_freq)
 }
 
 validate_spat <- function(spat) {
