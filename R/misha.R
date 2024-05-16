@@ -24,12 +24,13 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
         intervals <- misha::gintervals.load(intervals)
     }
 
-    sequences <- misha::gseq.extract(intervals)
+    sequences <- toupper(misha::gseq.extract(intervals))
 
     res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel)
 
     return(cbind(intervals, as.data.frame(res)))
 }
+
 
 #' Extract quantiles of pwm of intervals from a motif database
 #'
