@@ -140,6 +140,33 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
     return(pwm)
 }
 
+#' Extracts local position weight matrix (PWM) scores for given intervals and a PWM.
+#'
+#'
+#' @param intervals The intervals to extract
+#'
+#' @return A matrix with \code{nrow(intervals)} rows and \code{ncol(pssm)} columns with the local PWM for each sequence in each position.
+#'
+#' @inheritParams compute_local_pwm
+#' @export
+gextract.local_pwm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
+    if (!requireNamespace("misha", quietly = TRUE)) {
+        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
+    }
+    withr::local_options(gmax.data.size = 1e9)
+
+    if (is.character(intervals)) {
+        intervals <- misha::gintervals.load(intervals)
+    }
+
+    sequences <- toupper(misha::gseq.extract(intervals))
+
+    res <- compute_local_pwm(sequences = sequences, pssm = pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+    rownames(res) <- rownames(misha.ext::intervs_to_mat(intervals %>% select(chrom, start, end)))
+
+    return(res)
+}
+
 validate_spat <- function(spat) {
     if (!is.data.frame(spat)) {
         cli_abort("The {.field spat} argument should be a data frame")
