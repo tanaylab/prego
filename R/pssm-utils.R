@@ -643,3 +643,32 @@ plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title 
     }
     plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh)
 }
+
+#' Reverse complement a PSSM
+#'
+#' @param pssm A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos'.
+#' @return A PSSM with the same format, but reverse complemented.
+#'
+#' @examples
+#' # Create simulated PSSM data frame
+#' pssm <- data.frame(
+#'     pos = 1:4,
+#'     A = c(0.1, 0.2, 0.3, 0.1),
+#'     C = c(0.1, 0.3, 0.2, 0.1),
+#'     G = c(0.1, 0.3, 0.3, 0.7),
+#'     T = c(0.7, 0.2, 0.2, 0.1)
+#' )
+#'
+#' # Reverse complement the PSSM
+#' rc_pssm <- pssm_rc(pssm)
+#'
+#' @export
+pssm_rc <- function(pssm) {
+    pssm <- pssm %>%
+        mutate(tmp_A = A, tmp_C = C, tmp_G = G, tmp_T = T) %>%
+        mutate(A = tmp_T, T = tmp_A, C = tmp_G, G = tmp_C) %>%
+        select(-starts_with("tmp_")) %>%
+        arrange(desc(pos)) %>%
+        mutate(pos = n() - pos + 1)
+    return(pssm)
+}
