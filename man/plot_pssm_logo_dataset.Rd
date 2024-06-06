@@ -9,7 +9,8 @@ plot_pssm_logo_dataset(
   dataset = all_motif_datasets(),
   title = motif,
   subtitle = ggplot2::waiver(),
-  pos_bits_thresh = NULL
+  pos_bits_thresh = NULL,
+  revcomp = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ plot_pssm_logo_dataset(
 \item{subtitle}{subtitle of the plot}
 
 \item{pos_bits_thresh}{Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.}
+
+\item{revcomp}{whether to plot the reverse complement of the PSSM}
 }
 \value{
 a ggplot object
