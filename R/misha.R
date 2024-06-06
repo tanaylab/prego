@@ -81,9 +81,11 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
         if (n_motifs > n_lengths) {
             motif_p <- TRUE
             len_p <- FALSE
+            cli_alert("Parallelizing over motifs")
         } else {
             motif_p <- FALSE
             len_p <- TRUE
+            cli_alert("Parallelizing over lengths")
         }
     } else {
         motif_p <- FALSE
