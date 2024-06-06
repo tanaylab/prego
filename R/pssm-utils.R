@@ -592,6 +592,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' @param title title of the plot
 #' @param subtitle subtitle of the plot
 #' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
+#' @param revcomp whether to plot the reverse complement of the PSSM
 #'
 #' @return a ggplot object
 #'
@@ -602,7 +603,10 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' }
 #'
 #' @export
-plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
+plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE) {
+    if (revcomp) {
+        pssm <- pssm_rc(pssm)
+    }
     pfm <- t(pssm_to_mat(pssm))
     p <- ggseqlogo::ggseqlogo(pfm) +
         ggtitle(title, subtitle = subtitle)
@@ -635,13 +639,13 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #'
 #' @inheritParams plot_pssm_logo
 #' @export
-plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL) {
+plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE) {
     motif_dataset <- dataset %>%
         filter(motif == !!motif)
     if (nrow(motif_dataset) == 0) {
         cli_abort("The motif {.val {motif}} was not found in the dataset")
     }
-    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh)
+    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh, revcomp = revcomp)
 }
 
 #' Reverse complement a PSSM
