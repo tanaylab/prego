@@ -175,6 +175,30 @@ gextract.local_pwm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_
     return(res)
 }
 
+#' Center intervals by PSSM
+#'
+#' This function takes a set of intervals and a position-specific scoring matrix (PSSM) and centers the intervals
+#' based on the maximum score position in the PSSM. The intervals are shifted so that the maximum score position
+#' becomes the center of each interval.
+#'
+#' @inheritParams gextract.local_pwm
+#'
+#' @return A data frame containing the centered intervals. The intervals will have the same columns as the input
+#'   intervals, but the start and end positions will be adjusted to center the intervals based on the maximum score
+#'   position in the PSSM.
+#'
+#' @export
+gintervals.center_by_pssm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
+    local_pwm <- gextract.local_pwm(intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
+    maxs <- apply(local_pwm, 1, which.max)
+    intervals_size <- intervals$end[1] - intervals$start[1]
+    intervs_center <- intervals %>%
+        mutate(start = start + maxs, end = start + 1) %>%
+        gintervals.normalize(intervals_size) %>%
+        select(chrom, start, end, everything())
+    return(intervs_center)
+}
+
 #' Calculate the frequency of a position weight matrix (PWM) in a given set of intervals
 #'
 #' @param intervals The intervals to extract
