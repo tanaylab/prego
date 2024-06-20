@@ -220,6 +220,7 @@ gextract.local_pwm_freq <- function(intervals, pssm, q_threshold, bg_intervals =
 
     thresh <- quantile(local_pwm_r, q_threshold, na.rm = TRUE)
     pwm_freq <- local_pwm > thresh
+    pwm_freq <- pwm_freq + 0
 
     return(pwm_freq)
 }
@@ -617,22 +618,45 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
 #' @param subtitle subtitle of the plot
 #' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
 #' @param revcomp whether to plot the reverse complement of the PSSM
+#' @param method Height method, can be one of "bits" or "probability" (default:"bits")
 #'
 #' @return a ggplot object
 #'
 #' @examples
+#' pssm <- data.frame(
+#'     pos = seq(0, 9, by = 1),
+#'     A = c(
+#'         0.16252439817826936, 0.4519127838188067, 0, 1, 0, 0.9789171974522293,
+#'         0.9743866100297978, 0.013113942843003835, 0.3734676916683981,
+#'         0.32658771473191045
+#'     ),
+#'     C = c(
+#'         0.43038386467143785, 0.13116231900388756, 0, 0, 0, 0, 0, 0.46975132995175056,
+#'         0.1669956368169541, 0.29795679333680375
+#'     ),
+#'     G = c(
+#'         0.22999349381912818, 0.002929742520705392, 1, 0, 0, 0, 0.012679896024852597,
+#'         0.4808858097241123, 0.4248389777685435, 0.20458094742321709
+#'     ),
+#'     T = c(
+#'         0.1770982433311646, 0.41399515465660036, 0, 0, 1, 0.0210828025477707,
+#'         0.012933493945349648, 0.03624891748113324, 0.0346976937461043,
+#'         0.17087454450806872
+#'     )
+#' )
+#' plot_pssm_logo(pssm)
 #' \dontrun{
 #' res <- regress_pwm(sequences_example, response_mat_example)
 #' plot_pssm_logo(res$pssm)
 #' }
 #'
 #' @export
-plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE) {
+plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE, method = "bits") {
     if (revcomp) {
         pssm <- pssm_rc(pssm)
     }
     pfm <- t(pssm_to_mat(pssm))
-    p <- ggseqlogo::ggseqlogo(pfm) +
+    p <- ggseqlogo::ggseqlogo(pfm, method = method) +
         ggtitle(title, subtitle = subtitle)
     if (!is.null(pos_bits_thresh)) {
         bits <- bits_per_pos(t(pfm))
@@ -663,13 +687,13 @@ plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::w
 #'
 #' @inheritParams plot_pssm_logo
 #' @export
-plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE) {
+plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE, method = "bits") {
     motif_dataset <- dataset %>%
         filter(motif == !!motif)
     if (nrow(motif_dataset) == 0) {
         cli_abort("The motif {.val {motif}} was not found in the dataset")
     }
-    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh, revcomp = revcomp)
+    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh, revcomp = revcomp, method = method)
 }
 
 #' Reverse complement a PSSM
@@ -699,4 +723,27 @@ pssm_rc <- function(pssm) {
         arrange(desc(pos)) %>%
         mutate(pos = n() - pos + 1)
     return(pssm)
+}
+
+#' Trim PSSM
+#'
+#' This function trims a Position-Specific Scoring Matrix (PSSM) by removing positions with low information content at the beginning and end of the motif.
+#'
+#' @param pssm A data frame representing the PSSM, with columns for position (pos) and bits per position (bits).
+#' @param bits_thresh The threshold value for bits per position. Positions with bits above this threshold will be kept, while positions with bits below this threshold at the beginning and the end of the motif will be removed. The default value is 0.1.
+#'
+#' @return A trimmed PSSM data frame, with positions filtered based on the bits threshold.
+#'
+#' @export
+trim_pssm <- function(pssm, bits_thresh = 0.1) {
+    pssm <- pssm %>%
+        mutate(pos = 1:n() - 1)
+    bits <- bits_per_pos(pssm)
+    above_threshold <- bits > bits_thresh
+    first_above <- which(above_threshold)[1] - 1
+    last_above <- which(above_threshold)[length(which(above_threshold))] - 1
+    pssm <- pssm %>%
+        filter(pos >= first_above, pos <= last_above) %>%
+        mutate(pos = 1:n() - 1)
+    pssm
 }
