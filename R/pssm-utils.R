@@ -194,7 +194,7 @@ gintervals.center_by_pssm <- function(intervals, pssm, spat = NULL, spat_min = 0
     intervals_size <- intervals$end[1] - intervals$start[1]
     intervs_center <- intervals %>%
         mutate(start = start + maxs, end = start + 1) %>%
-        gintervals.normalize(intervals_size) %>%
+        misha.ext::gintervals.normalize(intervals_size) %>%
         select(chrom, start, end, everything())
     return(intervs_center)
 }
