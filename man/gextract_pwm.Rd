@@ -48,7 +48,7 @@ Extract pwm of intervals from a motif database
 \dontrun{
 library(misha)
 gdb.init_examples()
-pwms <- gextract_pwm("annotations")
+pwms <- gextract_pwm(gintervals.load("annotations"))
 pwms[, 1:20]
 }
 

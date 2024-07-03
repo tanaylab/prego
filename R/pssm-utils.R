@@ -154,16 +154,7 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
 #' @inheritParams compute_local_pwm
 #' @export
 gextract.local_pwm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
-    if (!requireNamespace("misha", quietly = TRUE)) {
-        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
-    }
-    withr::local_options(gmax.data.size = 1e9)
-
-    if (is.character(intervals)) {
-        intervals <- misha::gintervals.load(intervals)
-    }
-
-    sequences <- toupper(misha::gseq.extract(intervals))
+    sequences <- intervals_to_seq(intervals)
 
     res <- compute_local_pwm(sequences = sequences, pssm = pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     rnames <- paste0(intervals$chrom, "_", intervals$start, "_", intervals$end)
