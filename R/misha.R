@@ -1,3 +1,33 @@
+#' Convert intervals to sequences
+#'
+#' This function takes a set of intervals and converts them into sequences.
+#' It requires the 'misha' package to be installed. If the package is not
+#' installed, it will display an error message with instructions on how to
+#' install it.
+#'
+#' @param intervals The intervals set as a data frame with 'chrom', 'start', and 'end' columns.
+#' @return A character vector of sequences.
+#' @examples
+#' \dontrun{
+#' library(misha)
+#' gdb.init_examples()
+#' intervals_to_seq(gintervals.load("annotations"))
+#' }
+#' @export
+intervals_to_seq <- function(intervals) {
+    if (!requireNamespace("misha", quietly = TRUE)) {
+        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
+    }
+    withr::local_options(gmax.data.size = 1e9)
+
+    if (is.character(intervals)) {
+        cli_abort("Please provide the intervals set as a data frame. You can use {.code gintervals.load} to load the intervals.")
+    }
+
+    sequences <- toupper(misha::gseq.extract(intervals))
+    return(sequences)
+}
+
 #' Extract pwm of intervals from a motif database
 #'
 #' @param intervals misha intervals set
@@ -10,21 +40,13 @@
 #' \dontrun{
 #' library(misha)
 #' gdb.init_examples()
-#' pwms <- gextract_pwm("annotations")
+#' pwms <- gextract_pwm(gintervals.load("annotations"))
 #' pwms[, 1:20]
 #' }
 #'
 #' @export
 gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
-    if (!requireNamespace("misha", quietly = TRUE)) {
-        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
-    }
-
-    if (is.character(intervals)) {
-        intervals <- misha::gintervals.load(intervals)
-    }
-
-    sequences <- toupper(misha::gseq.extract(intervals))
+    sequences <- intervals_to_seq(intervals)
 
     res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel)
 
