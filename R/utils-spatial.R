@@ -102,3 +102,52 @@ calc_sequences_dinuc_dist <- function(sequences, size = NULL) {
 
     return(result)
 }
+
+#' Calculate Trinucleotide Distribution in Sequences
+#'
+#' @param sequences a character vector containing the sequences to analyze.
+#'        Each element of the vector should be a single sequence.
+#' @param size an integer specifying the size to consider for the analysis.
+#'        If NULL (default), the maximum length of the sequences in the `sequences`
+#'        vector is used.
+#'
+#' @return a data frame with columns 'pos' and 64 columns representing each possible
+#'         trinucleotide. Each row represents a position in the sequences (from 1 to `size`),
+#'         and contains the fraction of each trinucleotide at that position across
+#'         all sequences.
+#'
+#' @examples
+#'
+#' # Generate some random sequences for testing
+#' set.seed(60427)
+#' sequences <- sapply(1:100, function(x) {
+#'     paste0(sample(c("A", "C", "G", "T"), 1000, replace = TRUE), collapse = "")
+#' })
+#' sequences <- as.character(sequences)
+#'
+#' # Calculate the trinucleotide distribution
+#' result <- calc_sequences_trinuc_dist(sequences)
+#'
+#' head(result)
+#'
+#' @export
+calc_sequences_trinuc_dist <- function(sequences, size = NULL) {
+    if (!is.character(sequences)) {
+        cli::cli_abort("The sequences must be a character vector")
+    }
+
+    if (is.null(size)) {
+        size <- max(nchar(sequences))
+    }
+
+    if (any(nchar(sequences) < size)) {
+        cli::cli_abort("Some sequences are shorter than the size")
+    }
+
+    result <- trinuc_distribution(sequences, size = size)
+
+    # set last two positions to NA
+    result[(size - 1):size, -1] <- NA
+
+    return(result)
+}

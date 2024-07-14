@@ -37,3 +37,7 @@ dinuc_distribution <- function(sequences, size = 1000L) {
     .Call('_prego_dinuc_distribution', PACKAGE = 'prego', sequences, size)
 }
 
+trinuc_distribution <- function(sequences, size = 1000L) {
+    .Call('_prego_trinuc_distribution', PACKAGE = 'prego', sequences, size)
+}
+

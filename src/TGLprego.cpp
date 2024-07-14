@@ -515,3 +515,63 @@ Rcpp::DataFrame dinuc_distribution(Rcpp::StringVector sequences, int size = 1000
     );
 }
 
+// [[Rcpp::export]]
+Rcpp::DataFrame trinuc_distribution(Rcpp::StringVector sequences, int size = 1000) {
+    if (size < 1) {
+        Rcpp::stop("Size must be at least 1");
+    }
+
+    // Prepare a vector of unordered_maps to hold trinucleotide frequencies at each position
+    std::vector<std::unordered_map<std::string, int>> nucleotide_counts(size);
+
+    // Convert StringVector to vector of strings
+    std::vector<std::string> seqs = Rcpp::as<std::vector<std::string>>(sequences);
+
+    // Iterate over each sequence
+    for (const auto &sequence : seqs) {
+        // Validate that the sequence length is at least 'size'
+        if ((int)sequence.size() < size) {
+            Rcpp::stop("All sequences must have a length of at least 'size'");
+        }
+
+        // In each sequence, iterate over each position and extract the trinucleotide
+        for (int pos = 0; pos < size - 2; ++pos) {
+            std::string trinucleotide = sequence.substr(pos, 3);
+
+            // Update the counts in the unordered_map for the corresponding trinucleotide and
+            // position
+            nucleotide_counts[pos][trinucleotide]++;
+        }
+    }
+
+    // After iterating over all sequences and positions, calculate the percentages
+    int total_sequences = sequences.size();
+
+    // Create an Rcpp data frame with the required structure and fill it with the calculated
+    // percentages
+    Rcpp::NumericMatrix percentage_matrix(size, 64);
+    Rcpp::CharacterVector trinucleotides = {
+        "AAA", "AAC", "AAG", "AAT", "ACA", "ACC", "ACG", "ACT", "AGA", "AGC", "AGG", "AGT", "ATA",
+        "ATC", "ATG", "ATT", "CAA", "CAC", "CAG", "CAT", "CCA", "CCC", "CCG", "CCT", "CGA", "CGC",
+        "CGG", "CGT", "CTA", "CTC", "CTG", "CTT", "GAA", "GAC", "GAG", "GAT", "GCA", "GCC", "GCG",
+        "GCT", "GGA", "GGC", "GGG", "GGT", "GTA", "GTC", "GTG", "GTT", "TAA", "TAC", "TAG", "TAT",
+        "TCA", "TCC", "TCG", "TCT", "TGA", "TGC", "TGG", "TGT", "TTA", "TTC", "TTG", "TTT"};
+
+    for (int pos = 0; pos < size; ++pos) {
+        for (int trinuc_i = 0; trinuc_i < 64; ++trinuc_i) {
+            std::string trinucleotide = Rcpp::as<std::string>(trinucleotides[trinuc_i]);
+            percentage_matrix(pos, trinuc_i) =
+                (double)nucleotide_counts[pos][trinucleotide] / total_sequences;
+        }
+    }
+
+    // Create the DataFrame
+    Rcpp::DataFrame df = Rcpp::DataFrame::create(Rcpp::Named("pos") = Rcpp::seq(1, size));
+
+    // Add columns for each trinucleotide
+    for (int i = 0; i < 64; ++i) {
+        df.push_back(percentage_matrix(Rcpp::_, i), Rcpp::as<std::string>(trinucleotides[i]));
+    }
+
+    return df;
+}

@@ -181,6 +181,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// trinuc_distribution
+Rcpp::DataFrame trinuc_distribution(Rcpp::StringVector sequences, int size);
+RcppExport SEXP _prego_trinuc_distribution(SEXP sequencesSEXP, SEXP sizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(trinuc_distribution(sequences, size));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 7},
@@ -192,6 +204,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {"_prego_interpolateFunction", (DL_FUNC) &_prego_interpolateFunction, 5},
     {"_prego_dinuc_distribution", (DL_FUNC) &_prego_dinuc_distribution, 2},
+    {"_prego_trinuc_distribution", (DL_FUNC) &_prego_trinuc_distribution, 2},
     {NULL, NULL, 0}
 };
 
