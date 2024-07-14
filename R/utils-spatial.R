@@ -83,24 +83,7 @@ calc_spat_min_max <- function(spat_num_bins, max_seq_len, spat_bin_size) {
 #'
 #' @export
 calc_sequences_dinuc_dist <- function(sequences, size = NULL) {
-    if (!is.character(sequences)) {
-        cli_abort("The sequences must be a character vector")
-    }
-
-    if (is.null(size)) {
-        size <- max(nchar(sequences))
-    }
-
-    if (any(nchar(sequences) < size)) {
-        cli_abort("Some sequences are shorter than the size")
-    }
-
-    result <- dinuc_distribution(sequences, size = size)
-
-    # set last position to NA
-    result[size, -1] <- NA
-
-    return(result)
+    return(calc_sequences_n_nuc_dist(sequences, n = 2, size = size))
 }
 
 #' Calculate Trinucleotide Distribution in Sequences
@@ -132,8 +115,45 @@ calc_sequences_dinuc_dist <- function(sequences, size = NULL) {
 #'
 #' @export
 calc_sequences_trinuc_dist <- function(sequences, size = NULL) {
+    return(calc_sequences_n_nuc_dist(sequences, n = 3, size = size))
+}
+
+#' Calculate n-nucleotide Distribution in Sequences
+#'
+#' @param sequences a character vector containing the sequences to analyze.
+#'        Each element of the vector should be a single sequence.
+#' @param n an integer specifying the length of the n-nucleotide (e.g., 2 for dinucleotides, 3 for trinucleotides).
+#' @param size an integer specifying the size to consider for the analysis.
+#'        If NULL (default), the maximum length of the sequences in the `sequences`
+#'        vector is used.
+#'
+#' @return a data frame with columns 'pos' and 4^n columns representing each possible
+#'         n-nucleotide. Each row represents a position in the sequences (from 1 to `size`),
+#'         and contains the fraction of each n-nucleotide at that position across
+#'         all sequences.
+#'
+#' @examples
+#'
+#' # Generate some random sequences for testing
+#' set.seed(60427)
+#' sequences <- sapply(1:100, function(x) {
+#'     paste0(sample(c("A", "C", "G", "T"), 1000, replace = TRUE), collapse = "")
+#' })
+#' sequences <- as.character(sequences)
+#'
+#' # Calculate the n-nucleotide distribution (e.g., for trinucleotides)
+#' result <- calc_sequences_n_nuc_dist(sequences, n = 3)
+#'
+#' head(result)
+#'
+#' @noRd
+calc_sequences_n_nuc_dist <- function(sequences, n, size = NULL) {
     if (!is.character(sequences)) {
         cli::cli_abort("The sequences must be a character vector")
+    }
+
+    if (!is.numeric(n) || n < 1) {
+        cli::cli_abort("n must be a positive integer")
     }
 
     if (is.null(size)) {
@@ -144,10 +164,10 @@ calc_sequences_trinuc_dist <- function(sequences, size = NULL) {
         cli::cli_abort("Some sequences are shorter than the size")
     }
 
-    result <- trinuc_distribution(sequences, size = size)
+    result <- n_nuc_distribution(sequences, n = n, size = size)
 
-    # set last two positions to NA
-    result[(size - 1):size, -1] <- NA
+    # set last n-1 positions to NA
+    result[(size - n + 2):size, -1] <- NA
 
     return(result)
 }
