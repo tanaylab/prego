@@ -716,6 +716,35 @@ pssm_rc <- function(pssm) {
     return(pssm)
 }
 
+#' Reverse Complement DNA Sequences
+#'
+#' This function takes a character vector of DNA sequences and returns their reverse complements.
+#' It uses an efficient C++ implementation via Rcpp for improved performance.
+#'
+#' @param dna A character vector of DNA sequences. Can be a single sequence or multiple sequences.
+#'            The sequences can be in upper or lower case.
+#'
+#' @return A character vector of the same length as the input, where each element
+#'         is the reverse complement of the corresponding input sequence.
+#'
+#' @details The function performs the following operations on each sequence:
+#'          1. Converts the sequence to uppercase.
+#'          2. Reverses the sequence.
+#'          3. Complements each base (A<->T, C<->G).
+#'          Non-standard characters (not A, T, C, or G) are preserved in their reversed positions.
+#'
+#' @examples
+#' rc("ATCG") # Returns "CGAT"
+#' rc(c("ATCG", "GGCC", "TATA")) # Returns c("CGAT", "GGCC", "TATA")
+#'
+#' @export
+rc <- function(dna) {
+    if (!is.character(dna)) {
+        cli_abort("The input should be a character vector")
+    }
+    rc_cpp(dna)
+}
+
 #' Trim PSSM
 #'
 #' This function trims a Position-Specific Scoring Matrix (PSSM) by removing positions with low information content at the beginning and end of the motif.
@@ -727,7 +756,7 @@ pssm_rc <- function(pssm) {
 #'
 #' @export
 trim_pssm <- function(pssm, bits_thresh = 0.1) {
-    pssm <- pssm %>%
+    pssm <- as.data.frame(pssm) %>%
         mutate(pos = 1:n() - 1)
     bits <- bits_per_pos(pssm)
     above_threshold <- bits > bits_thresh
