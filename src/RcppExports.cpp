@@ -182,6 +182,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rc_cpp
+Rcpp::CharacterVector rc_cpp(Rcpp::CharacterVector sequences);
+RcppExport SEXP _prego_rc_cpp(SEXP sequencesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type sequences(sequencesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rc_cpp(sequences));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 7},
@@ -193,6 +204,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {"_prego_interpolateFunction", (DL_FUNC) &_prego_interpolateFunction, 5},
     {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
+    {"_prego_rc_cpp", (DL_FUNC) &_prego_rc_cpp, 1},
     {NULL, NULL, 0}
 };
 

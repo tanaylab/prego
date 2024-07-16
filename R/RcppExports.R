@@ -37,3 +37,7 @@ n_nuc_distribution <- function(sequences, n, size = 1000L) {
     .Call('_prego_n_nuc_distribution', PACKAGE = 'prego', sequences, n, size)
 }
 
+rc_cpp <- function(sequences) {
+    .Call('_prego_rc_cpp', PACKAGE = 'prego', sequences)
+}
+

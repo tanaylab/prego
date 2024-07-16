@@ -8,15 +8,14 @@
 #include "dnastrutil.h"
 #include "FunctionInterpolator.h"
 
-
-
 #include "KMerMultiStat.h"
 #include "PWMLRegression.h"
 #include "PssmRegression.h"
 #include <Rcpp.h>
+#include <algorithm>
 #include <string.h>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 using namespace std;
 
 // [[Rcpp::plugins("cpp17")]]
@@ -524,4 +523,48 @@ Rcpp::DataFrame n_nuc_distribution(Rcpp::StringVector sequences, int n, int size
     }
 
     return df;
+}
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector rc_cpp(Rcpp::CharacterVector sequences) {
+    int n = sequences.size();
+    Rcpp::CharacterVector result(n);
+
+    for (int i = 0; i < n; i++) {
+        if (Rcpp::CharacterVector::is_na(sequences[i])) {
+            result[i] = NA_STRING;
+        } else {
+            std::string seq = Rcpp::as<std::string>(sequences[i]);
+
+            // Convert to uppercase
+            std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+
+            // Reverse the sequence
+            std::reverse(seq.begin(), seq.end());
+
+            // Complement each base
+            for (char &base : seq) {
+                switch (base) {
+                case 'A':
+                    base = 'T';
+                    break;
+                case 'T':
+                    base = 'A';
+                    break;
+                case 'C':
+                    base = 'G';
+                    break;
+                case 'G':
+                    base = 'C';
+                    break;
+                default:
+                    break; // Leave non-standard characters as is
+                }
+            }
+
+            result[i] = seq;
+        }
+    }
+
+    return result;
 }
