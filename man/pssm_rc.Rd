@@ -7,7 +7,7 @@
 pssm_rc(pssm)
 }
 \arguments{
-\item{pssm}{A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos'.}
+\item{pssm}{A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos' or a matrix with columns 'A', 'C', 'G', 'T'}
 }
 \value{
 A PSSM with the same format, but reverse complemented.
