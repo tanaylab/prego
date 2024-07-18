@@ -387,6 +387,12 @@ pssm_to_mat <- function(pssm_df) {
         as.matrix()
 }
 
+mat_to_pssm <- function(pssm) {
+    as.data.frame(pssm) %>%
+        mutate(pos = 1:nrow(pssm)) %>%
+        select(pos, A, C, G, T)
+}
+
 pssm_mat_to_df <- function(pss_mat) {
     pssm_df <- as.data.frame(pss_mat)
     pssm_df$pos <- rownames(pssm_df)
@@ -689,7 +695,7 @@ plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title 
 
 #' Reverse complement a PSSM
 #'
-#' @param pssm A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos'.
+#' @param pssm A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos' or a matrix with columns 'A', 'C', 'G', 'T'
 #' @return A PSSM with the same format, but reverse complemented.
 #'
 #' @examples
@@ -707,12 +713,19 @@ plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title 
 #'
 #' @export
 pssm_rc <- function(pssm) {
+    pssm_orig <- pssm
+    if (is.matrix(pssm_orig)) {
+        pssm <- mat_to_pssm(pssm)
+    }
     pssm <- pssm %>%
         mutate(tmp_A = A, tmp_C = C, tmp_G = G, tmp_T = T) %>%
         mutate(A = tmp_T, T = tmp_A, C = tmp_G, G = tmp_C) %>%
         select(-starts_with("tmp_")) %>%
         arrange(desc(pos)) %>%
         mutate(pos = n() - pos + 1)
+    if (is.matrix(pssm_orig)) {
+        pssm <- pssm_to_mat(pssm)
+    }
     return(pssm)
 }
 
