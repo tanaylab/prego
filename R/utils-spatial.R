@@ -86,6 +86,35 @@ calc_sequences_dinuc_dist <- function(sequences, size = NULL) {
     return(calc_sequences_n_nuc_dist(sequences, n = 2, size = size))
 }
 
+#' Calculate Dinucleotide Counts for Sequences
+#'
+#' This function calculates the total count of each dinucleotide for each sequence
+#' in a vector of DNA sequences.
+#'
+#' @param sequences A character vector of DNA sequences. Each element should be
+#'   a string representing a DNA sequence composed of A, T, C, and G.
+#'
+#' @return A numeric matrix where:
+#'   * Each row corresponds to a sequence in the input vector.
+#'   * Each column represents a specific dinucleotide (AA, AC, AG, AT, CA, CC, etc.).
+#'   * The values in the matrix are the counts of each dinucleotide in each sequence.
+#'   * Column names are set to the corresponding dinucleotides.
+#'
+#' @examples
+#'
+#' sequences <- c("ATCG", "GCTA", "AATT")
+#' result <- calc_sequences_dinucs(sequences)
+#' print(result)
+#'
+#' @export
+calc_sequences_dinucs <- function(sequences) {
+    res <- calc_sequences_dinuc_cpp(toupper(sequences))
+    if (!is.null(names(sequences))) {
+        rownames(res) <- names(sequences)
+    }
+    return(res)
+}
+
 #' Calculate Trinucleotide Distribution in Sequences
 #'
 #' @param sequences a character vector containing the sequences to analyze.

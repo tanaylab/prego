@@ -10,6 +10,30 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// n_nuc_distribution
+Rcpp::DataFrame n_nuc_distribution(Rcpp::StringVector sequences, int n, int size);
+RcppExport SEXP _prego_n_nuc_distribution(SEXP sequencesSEXP, SEXP nSEXP, SEXP sizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(n_nuc_distribution(sequences, n, size));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_sequences_dinuc_cpp
+Rcpp::NumericMatrix calc_sequences_dinuc_cpp(std::vector<std::string> sequences);
+RcppExport SEXP _prego_calc_sequences_dinuc_cpp(SEXP sequencesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type sequences(sequencesSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_sequences_dinuc_cpp(sequences));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kmer_matrix_cpp
 Rcpp::IntegerMatrix kmer_matrix_cpp(Rcpp::CharacterVector sequences, int kmer_length, int from_range, Rcpp::Nullable<int> to_range, Rcpp::Nullable<Rcpp::CharacterVector> mask, bool add_mask, size_t max_gap);
 RcppExport SEXP _prego_kmer_matrix_cpp(SEXP sequencesSEXP, SEXP kmer_lengthSEXP, SEXP from_rangeSEXP, SEXP to_rangeSEXP, SEXP maskSEXP, SEXP add_maskSEXP, SEXP max_gapSEXP) {
@@ -169,19 +193,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// n_nuc_distribution
-Rcpp::DataFrame n_nuc_distribution(Rcpp::StringVector sequences, int n, int size);
-RcppExport SEXP _prego_n_nuc_distribution(SEXP sequencesSEXP, SEXP nSEXP, SEXP sizeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type sequences(sequencesSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(n_nuc_distribution(sequences, n, size));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rc_cpp
 Rcpp::CharacterVector rc_cpp(Rcpp::CharacterVector sequences);
 RcppExport SEXP _prego_rc_cpp(SEXP sequencesSEXP) {
@@ -195,6 +206,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
+    {"_prego_calc_sequences_dinuc_cpp", (DL_FUNC) &_prego_calc_sequences_dinuc_cpp, 1},
     {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 7},
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
@@ -203,7 +216,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 28},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {"_prego_interpolateFunction", (DL_FUNC) &_prego_interpolateFunction, 5},
-    {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
     {"_prego_rc_cpp", (DL_FUNC) &_prego_rc_cpp, 1},
     {NULL, NULL, 0}
 };
