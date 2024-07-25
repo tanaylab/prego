@@ -1,3 +1,37 @@
+test_that("calc_sequences_dinucs works correctly", {
+    sequences <- c("ATCG", "GCTA", "AATT")
+    result <- calc_sequences_dinucs(sequences)
+
+    expect_true("matrix" %in% class(result))
+    expect_equal(dim(result), c(3, 16))
+    expect_equal(colnames(result), c("AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT"))
+
+    expect_equal(result[1, ], c(0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0), ignore_attr = TRUE)
+    expect_equal(result[2, ], c(0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0), ignore_attr = TRUE)
+    expect_equal(result[3, ], c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1), ignore_attr = TRUE)
+
+    expect_error(calc_sequences_dinucs(""))
+
+    long_seq <- paste(rep("ATCG", 1000), collapse = "")
+    result_long <- calc_sequences_dinucs(long_seq)
+    expect_equal(dim(result_long), c(1, 16))
+    expect_equal(sum(result_long), 3999) # Total dinucleotides in a sequence of length 4000
+
+    identical_seqs <- rep("ATCG", 5)
+    result_identical <- calc_sequences_dinucs(identical_seqs)
+    expect_equal(dim(result_identical), c(5, 16))
+    expect_true(all(t(result_identical) == result_identical[1, ]))
+
+    lower_case <- "atcg"
+    upper_case <- "ATCG"
+    expect_equal(calc_sequences_dinucs(lower_case), calc_sequences_dinucs(upper_case))
+
+    many_seqs <- replicate(10000, paste(sample(c("A", "T", "C", "G"), 10, replace = TRUE), collapse = ""))
+    result_many <- calc_sequences_dinucs(many_seqs)
+    expect_equal(dim(result_many), c(10000, 16))
+})
+
+
 test_that("calc_sequences_dinuc_dist handles character vector input correctly", {
     sequences <- c("AACGT", "CGTAA", "GGCCA")
 
