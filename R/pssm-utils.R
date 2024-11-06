@@ -49,6 +49,7 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
     }
 
     pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    pssm_mat <- pssm_mat / rowSums(pssm_mat)
 
     if (prior < 0 || prior > 1) {
         cli_abort("The {.field prior} should be between 0 and 1")
@@ -56,6 +57,7 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
 
     if (prior > 0) {
         pssm_mat <- pssm_mat + prior
+        pssm_mat <- pssm_mat / rowSums(pssm_mat)
     }
 
     if (func == "max") {

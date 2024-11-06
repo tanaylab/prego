@@ -13,6 +13,10 @@ kmer_matrix_cpp <- function(sequences, kmer_length, from_range = 0L, to_range = 
     .Call('_prego_kmer_matrix_cpp', PACKAGE = 'prego', sequences, kmer_length, from_range, to_range, mask, add_mask, max_gap)
 }
 
+calc_seq_pwm_parallel_cpp <- function(sequences, pwm, pwm_rc, motif_lengths, D_min = 1L, bidirect = FALSE) {
+    .Call('_prego_calc_seq_pwm_parallel_cpp', PACKAGE = 'prego', sequences, pwm, pwm_rc, motif_lengths, D_min, bidirect)
+}
+
 get_consensus_cpp <- function(pssm_mat, single_thresh, double_thresh) {
     .Call('_prego_get_consensus_cpp', PACKAGE = 'prego', pssm_mat, single_thresh, double_thresh)
 }

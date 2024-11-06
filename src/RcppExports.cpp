@@ -51,6 +51,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calc_seq_pwm_parallel_cpp
+NumericMatrix calc_seq_pwm_parallel_cpp(const NumericMatrix& sequences, const NumericMatrix& pwm, const NumericMatrix& pwm_rc, const IntegerVector& motif_lengths, const int D_min, const bool bidirect);
+RcppExport SEXP _prego_calc_seq_pwm_parallel_cpp(SEXP sequencesSEXP, SEXP pwmSEXP, SEXP pwm_rcSEXP, SEXP motif_lengthsSEXP, SEXP D_minSEXP, SEXP bidirectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type pwm(pwmSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type pwm_rc(pwm_rcSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type motif_lengths(motif_lengthsSEXP);
+    Rcpp::traits::input_parameter< const int >::type D_min(D_minSEXP);
+    Rcpp::traits::input_parameter< const bool >::type bidirect(bidirectSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_seq_pwm_parallel_cpp(sequences, pwm, pwm_rc, motif_lengths, D_min, bidirect));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_consensus_cpp
 std::string get_consensus_cpp(const Rcpp::NumericMatrix& pssm_mat, const float& single_thresh, const float& double_thresh);
 RcppExport SEXP _prego_get_consensus_cpp(SEXP pssm_matSEXP, SEXP single_threshSEXP, SEXP double_threshSEXP) {
@@ -209,6 +225,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
     {"_prego_calc_sequences_dinuc_cpp", (DL_FUNC) &_prego_calc_sequences_dinuc_cpp, 1},
     {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 7},
+    {"_prego_calc_seq_pwm_parallel_cpp", (DL_FUNC) &_prego_calc_seq_pwm_parallel_cpp, 6},
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
     {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
