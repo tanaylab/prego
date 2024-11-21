@@ -150,7 +150,23 @@ regress_pwm.multi_kmers <- function(sequences,
         return(r)
     }
 
-    res_kmer_list <- plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
+    # First attempt with parallel execution
+    res_kmer_list <- tryCatch(
+        {
+            plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
+        },
+        error = function(e) {
+            # Check if it's a memory allocation error
+            if (grepl("cannot allocate", e$message, ignore.case = TRUE)) {
+                cli::cli_alert_warning("Memory allocation error detected. Falling back to non-parallel execution...")
+                # Retry without parallel execution
+                plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = FALSE)
+            } else {
+                # If it's a different error, re-throw it
+                stop(e)
+            }
+        }
+    )
 
     # find jobs that failed (not numeric)
     failed <- sapply(res_kmer_list, function(x) !is.numeric(x$score))
