@@ -215,7 +215,7 @@ regress_multiple_motifs <- function(sequences,
     res$pred <- res$predict(sequences)
 
     res$predict_multi <- function(x, parallel = getOption("prego.parallel", FALSE)) {
-        e <- plyr::llply(models, function(.x) .x$predict(x), .parallel = parallel) %>%
+        e <- safe_llply(models, function(.x) .x$predict(x), .parallel = parallel) %>%
             do.call(cbind, .) %>%
             as.data.frame()
         colnames(e) <- paste0("e", seq_along(models))

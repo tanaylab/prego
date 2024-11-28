@@ -61,7 +61,7 @@ screen_pwm <- function(sequences, response, metric = NULL, dataset = all_motif_d
     }
 
     cli_alert_info("Performing PWM screening")
-    res <- plyr::daply(dataset, "motif", function(x) {
+    res <- safe_daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         if (metric == "ks") {
             return(suppressWarnings(ks.test(pwm[as.logical(response)], pwm[!as.logical(response)], alternative = alternative)$statistic))

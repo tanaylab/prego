@@ -104,7 +104,7 @@ regress_pwm.cv <- function(sequences,
 
     regression_func <- purrr::partial(func, alternative = alternative, parallel = fold_parallel)
 
-    cv_res <- plyr::llply(unique(folds), function(f) {
+    cv_res <- safe_llply(unique(folds), function(f) {
         cli_h1("Cross-validation fold {.val {f}}")
         train_idxs <- which(folds != f)
         test_idxs <- which(folds == f)

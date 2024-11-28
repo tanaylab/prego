@@ -534,7 +534,7 @@ pssm_dataset_cor <- function(dataset, method = "spearman", prior = 0.01, paralle
     motif_combs <- t(utils::combn(motifs, 2)) %>% as.data.frame()
     colnames(motif_combs) <- c("motif1", "motif2")
 
-    pssm_cors <- plyr::adply(motif_combs, 1, function(x) {
+    pssm_cors <- safe_adply(motif_combs, 1, function(x) {
         tibble(cor = pssm_cor(
             dataset %>% filter(motif == x$motif1),
             dataset %>% filter(motif == x$motif2)
@@ -595,7 +595,7 @@ pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel
         cli_abort("The {.field motifs} data frame should have a column {.val motif}")
     }
 
-    res <- plyr::ddply(motifs, "motif", function(x) {
+    res <- safe_ddply(motifs, "motif", function(x) {
         tibble(cor = pssm_cor(pssm, x, method = method))
     }, .parallel = parallel)
 

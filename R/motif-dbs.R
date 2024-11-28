@@ -114,7 +114,7 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets()
 
     sequences <- toupper(sequences)
 
-    res <- plyr::daply(dataset, "motif", function(x) {
+    res <- safe_daply(dataset, "motif", function(x) {
         if ("motif" %in% colnames(spat)) {
             spat <- spat %>% filter(motif == x$motif[1])
         }
