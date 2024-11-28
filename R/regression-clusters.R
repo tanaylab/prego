@@ -110,7 +110,7 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
         }
         cluster_models <- purrr::map(sge_res, "retv")
     } else {
-        cluster_models <- plyr::llply(seq_len(ncol(cluster_mat)), function(i) {
+        cluster_models <- safe_llply(seq_len(ncol(cluster_mat)), function(i) {
             cli_h1("Cluster {.val {i}}")
             regression_func(sequences, cluster_mat[, i], match_with_db = match_with_db, parallel = FALSE, ...)
         }, .parallel = parallel)
@@ -229,7 +229,7 @@ screen_pwm.clusters <- function(sequences, clusters, dataset = all_motif_dataset
     sequences <- toupper(sequences)
     cluster_ids <- unique(clusters)
 
-    res <- plyr::daply(dataset, "motif", function(x) {
+    res <- safe_daply(dataset, "motif", function(x) {
         pwm <- compute_pwm(sequences, x, prior = prior, ...)
         purrr::map_dbl(cluster_ids, function(cl) {
             suppressWarnings(ks.test(pwm[clusters == cl], pwm[clusters != cl], alternative = alternative)$statistic)

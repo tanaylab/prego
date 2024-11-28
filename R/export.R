@@ -195,7 +195,7 @@ load_multi_regression <- function(fn, response = NULL, sequences = NULL, motif_d
     }
 
     r$predict_multi <- function(x, parallel = getOption("prego.parallel", FALSE)) {
-        e <- plyr::llply(r$models, function(.x) .x$predict(x), .parallel = parallel) %>%
+        e <- safe_llply(r$models, function(.x) .x$predict(x), .parallel = parallel) %>%
             do.call(cbind, .) %>%
             as.data.frame()
         colnames(e) <- paste0("e", seq_along(r$models))

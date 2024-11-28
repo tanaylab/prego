@@ -115,10 +115,10 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_
     }
 
     # go over every length and compute quantiles
-    pwm_q <- plyr::ddply(pwms, "l", function(pwms_l) {
+    pwm_q <- safe_ddply(pwms, "l", function(pwms_l) {
         pwms_l <- tibble::as_tibble(pwms_l)
 
-        res <- plyr::daply(dataset, "motif", function(x) {
+        res <- safe_daply(dataset, "motif", function(x) {
             quantiles <- gpwm_quantiles(size = pwms_l$l[1], quantiles = breaks, pssm = x, n_sequences = n_sequences, dist_from_edge = dist_from_edge, chromosomes = chromosomes, func = func)
             val2quant <- approxfun(x = quantiles, y = breaks, rule = 2)
             val2quant(pwms_l[[x$motif[1]]])

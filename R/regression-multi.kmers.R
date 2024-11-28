@@ -150,23 +150,7 @@ regress_pwm.multi_kmers <- function(sequences,
         return(r)
     }
 
-    # First attempt with parallel execution
-    res_kmer_list <- tryCatch(
-        {
-            plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
-        },
-        error = function(e) {
-            # Check if it's a memory allocation error
-            if (grepl("cannot allocate", e$message, ignore.case = TRUE)) {
-                cli::cli_alert_warning("Memory allocation error detected. Falling back to non-parallel execution...")
-                # Retry without parallel execution
-                plyr::llply(cli_progress_along(cand_kmers), run_kmer, .parallel = FALSE)
-            } else {
-                # If it's a different error, re-throw it
-                stop(e)
-            }
-        }
-    )
+    res_kmer_list <- safe_llply(cli_progress_along(cand_kmers), run_kmer, .parallel = parallel)
 
     # find jobs that failed (not numeric)
     failed <- sapply(res_kmer_list, function(x) !is.numeric(x$score))
@@ -233,7 +217,7 @@ regress_pwm.multi_kmers <- function(sequences,
 }
 
 get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel = FALSE, max_cands = 10, ...) {
-    all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
+    all_kmers <- safe_ldply(cli_progress_along(kmer_length), function(i) {
         screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor, ...) %>%
             mutate(len = kmer_length[i], verbose = FALSE) %>%
             suppressMessages()
@@ -243,7 +227,7 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
 
     if (length(best_kmer) == 0) { # could not find any kmer
         cli::cli_alert_info("Could not find any kmer when using a threshold of {.val {min_kmer_cor}}. Trying with {.val {min_kmer_cor/2}}")
-        all_kmers <- plyr::ldply(cli_progress_along(kmer_length), function(i) {
+        all_kmers <- safe_ldply(cli_progress_along(kmer_length), function(i) {
             screen_kmers(sequences, response, kmer_length = kmer_length[i], min_gap = min_gap, max_gap = max_gap, min_cor = min_kmer_cor / 2, ...) %>%
                 mutate(len = kmer_length[i], verbose = FALSE) %>%
                 suppressMessages()
