@@ -98,6 +98,11 @@ create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bi
     matrices$mat <- log(matrices$mat)
     matrices$rc_mat <- log(matrices$rc_mat)
 
+    motif_names <- unique(motif_db$motif)
+    matrices$mat <- matrices$mat[, motif_names, drop = FALSE]
+    matrices$rc_mat <- matrices$rc_mat[, motif_names, drop = FALSE]
+    motif_lengths <- motif_lengths[motif_names]
+
     # Zero out positions after motif length for both matrices
     for (i in 1:ncol(matrices$mat)) {
         if (motif_lengths[i] * 4 < nrow(matrices$mat)) {
@@ -115,9 +120,10 @@ create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bi
         )
     } else {
         # Ensure row names match motif names
-        if (!identical(rownames(spat_factors), names(motif_lengths))) {
-            stop("Row names of spatial factors matrix must match motif names")
+        if (any(!rownames(spat_factors) %in% names(motif_lengths))) {
+            cli::cli_abort("Some motifs not found in spatial factors matrix")
         }
+        spat_factors <- spat_factors[names(motif_lengths), , drop = FALSE]
     }
 
     # Create and return MotifDB object
