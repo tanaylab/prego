@@ -106,31 +106,6 @@ void compute_matrix_scores(std::vector<double>& window_scores,
     }
 }
 
-void process_window_scores(RMatrix<double>& output,
-                         const std::vector<double>& window_scores,
-                         size_t sequence_idx,
-                         int num_motifs,
-                         bool bidirect,
-                         int total_windows,
-                         int seq_length,
-                         const IntegerVector& motif_lengths) {
-    for (int j = 0; j < num_motifs; j++) {
-        int motif_length = motif_lengths[j];
-        int relevant_windows = seq_length - motif_length + 1;
-
-        if (bidirect) {
-            double fwd = log_sum_exp(&window_scores[j * total_windows], 
-                                   relevant_windows);
-            double rev = log_sum_exp(&window_scores[(j + num_motifs) * total_windows], 
-                                   relevant_windows);
-            log_sum_log(fwd, rev);
-            output(sequence_idx, j) = fwd;
-        } else {
-            output(sequence_idx, j) = log_sum_exp(&window_scores[j * total_windows], 
-                                                relevant_windows);
-        }
-    }
-}
 
 class PWMWorker : public Worker {
 private:
@@ -145,6 +120,11 @@ private:
     const int motif_length;
     const int num_motifs;
     const int max_windows;
+    
+    // Spatial binning parameters
+    const bool use_spatial;
+    const RMatrix<double> spat_factors; 
+    const int spat_bin_size;
 
     void process_sequence(size_t sequence_idx,
                         std::vector<double>& windows_mat,
@@ -194,15 +174,28 @@ public:
               const int D_min,
               const IntegerVector motif_lengths,
               const bool bidirect,
-              NumericMatrix output) 
+              NumericMatrix output,
+              const NumericMatrix spat_factors = NumericMatrix(0),
+              const int spat_bin_size = 1) 
         : sequences(sequences), combined_pwm(combined_pwm), D_min(D_min), 
           motif_lengths(motif_lengths), bidirect(bidirect),
           output(output),
           seq_length(sequences.ncol() / 4),
           motif_length(combined_pwm.nrow() / 4),
           num_motifs(bidirect ? combined_pwm.ncol() / 2 : combined_pwm.ncol()),
-          max_windows(std::max(1, seq_length - std::min(motif_length, D_min) + 1))
-    {}
+          max_windows(std::max(1, seq_length - std::min(motif_length, D_min) + 1)),
+          use_spatial(spat_factors.ncol() > 1 || spat_bin_size > 1),
+          spat_factors(spat_factors),
+          spat_bin_size(spat_bin_size)
+    {
+        // if (use_spatial) {
+        //     Rcpp::Rcout << "Using spatial factors: motifs = " << spat_factors.nrow() 
+        //                << ", bins = " << spat_factors.ncol() 
+        //                << ", bin size = " << spat_bin_size << "\n";
+        // } else {
+        //     Rcpp::Rcout << "Not using spatial factors\n";
+        // }
+    }
 
     void operator()(std::size_t begin, std::size_t end) {
         std::vector<double> windows_mat(4 * motif_length * max_windows, 0.0);
@@ -212,7 +205,84 @@ public:
             process_sequence(i, windows_mat, window_scores);
         }
     }
+
+private:
+    void process_window_scores(RMatrix<double>& output,
+                             const std::vector<double>& window_scores,
+                             size_t sequence_idx,
+                             int num_motifs,
+                             bool bidirect,
+                             int total_windows,
+                             int seq_length,
+                             const IntegerVector& motif_lengths) {
+        for (int j = 0; j < num_motifs; j++) {
+            int motif_length = motif_lengths[j];
+            int relevant_windows = seq_length - motif_length + 1;
+
+            if (!use_spatial) {                
+                if (bidirect) {
+                    const double* fwd_scores = &window_scores[j * total_windows];
+                    const double* rev_scores = &window_scores[(j + num_motifs) * total_windows];
+                    double fwd = log_sum_exp(fwd_scores, relevant_windows);
+                    double rev = log_sum_exp(rev_scores, relevant_windows);
+                    log_sum_log(fwd, rev);
+                    output(sequence_idx, j) = fwd;
+                } else {
+                    const double* scores = &window_scores[j * total_windows];
+                    output(sequence_idx, j) = log_sum_exp(scores, relevant_windows);
+                }
+                continue;
+            }
+            
+            if (bidirect) {
+                // Forward direction scores
+                double fwd = -R_PosInf;
+                for (int w = 0; w < relevant_windows; w++) {
+                    double score = window_scores[j * total_windows + w];
+                    // Calculate position relative to sequence start
+                    size_t absolute_pos = w;  // w is already relative to min_range
+                    size_t bin = absolute_pos / spat_bin_size;
+                    
+                    if (bin < static_cast<size_t>(spat_factors.ncol())) {
+                        score += log(spat_factors(j, bin));
+                        log_sum_log(fwd, score);
+                    }
+                }
+
+                // Reverse direction scores  
+                double rev = -R_PosInf;
+                for (int w = 0; w < relevant_windows; w++) {
+                    double score = window_scores[(j + num_motifs) * total_windows + w];
+                    // Use same position calculation for reverse complement
+                    size_t absolute_pos = w;
+                    size_t bin = absolute_pos / spat_bin_size;
+                    
+                    if (bin < static_cast<size_t>(spat_factors.ncol())) {
+                        score += log(spat_factors(j, bin));
+                        log_sum_log(rev, score);
+                    }
+                }
+
+                log_sum_log(fwd, rev);
+                output(sequence_idx, j) = fwd;
+            } else {
+                double total = -R_PosInf;
+                for (int w = 0; w < relevant_windows; w++) {
+                    double score = window_scores[j * total_windows + w];
+                    size_t absolute_pos = w;
+                    size_t bin = absolute_pos / spat_bin_size;
+                    
+                    if (bin < static_cast<size_t>(spat_factors.ncol())) {
+                        score += log(spat_factors(j, bin));
+                        log_sum_log(total, score);
+                    }
+                }
+                output(sequence_idx, j) = total;
+            }
+        }
+    }
 };
+
 
 void validate_inputs(const NumericMatrix& sequences,
                     const NumericMatrix& pwm,
@@ -239,11 +309,18 @@ void validate_inputs(const NumericMatrix& sequences,
 NumericMatrix calc_seq_pwm_parallel_cpp(const NumericMatrix& sequences,
                                       const NumericMatrix& pwm,
                                       const NumericMatrix& pwm_rc,  
-                                      const IntegerVector& motif_lengths,                                      
+                                      const IntegerVector& motif_lengths,
                                       const int D_min = 1,
-                                      const bool bidirect = false) {
+                                      const bool bidirect = false,
+                                      const NumericMatrix& spat_factors = NumericMatrix(0),  // Changed to matrix
+                                      const int spat_bin_size = 1) {
     // Validate inputs
     validate_inputs(sequences, pwm, motif_lengths, D_min);
+    
+    // Validate spatial factors if provided
+    if (spat_factors.nrow() > 0 && spat_factors.nrow() != pwm.ncol()) {
+        stop("Number of rows in spatial factors matrix must match number of motifs");
+    }
     
     // Prepare combined PWM matrix
     NumericMatrix combined_pwm;
@@ -261,7 +338,7 @@ NumericMatrix calc_seq_pwm_parallel_cpp(const NumericMatrix& sequences,
     
     try {
         PWMWorker worker(sequences, combined_pwm, D_min, motif_lengths, 
-                        bidirect, output);
+                        bidirect, output, spat_factors, spat_bin_size);
         parallelFor(0, sequences.nrow(), worker);
     } catch (std::exception& e) {
         stop("Error in parallel processing: %s", e.what());

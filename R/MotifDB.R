@@ -3,6 +3,8 @@
 #' @slot rc_mat A numeric matrix containing reverse complement of position weight matrices
 #' @slot motif_lengths A named integer vector containing the length of each motif
 #' @slot prior The pssm prior probability
+#' @slot spat_factors A numeric matrix containing spatial factors
+#' @slot spat_bin_size The size of spatial bins
 #'
 #' @description S4 class to store position weight matrices and their properties
 setClass("MotifDB",
@@ -10,7 +12,9 @@ setClass("MotifDB",
         mat = "matrix",
         rc_mat = "matrix",
         motif_lengths = "integer",
-        prior = "numeric"
+        prior = "numeric",
+        spat_factors = "matrix", # Matrix of spatial factors (motifs x bins)
+        spat_bin_size = "numeric" # Size of each spatial bin
     ),
     validity = function(object) {
         errors <- character()
@@ -45,9 +49,163 @@ setClass("MotifDB",
             errors <- c(errors, "Prior must be between 0 and 1")
         }
 
+        # Check that spatial factors matrix has correct dimensions and values
+        if (nrow(object@spat_factors) > 0) { # Only check if not empty
+            # Check number of rows matches number of motifs
+            if (nrow(object@spat_factors) != ncol(object@mat)) {
+                errors <- c(errors, "Number of rows in spatial factors matrix must match number of motifs")
+            }
+
+            # Check for non-negative values
+            if (any(object@spat_factors < 0, na.rm = TRUE)) {
+                errors <- c(errors, "Spatial factors must be non-negative")
+            }
+
+            # Check row names match motif names
+            if (!identical(rownames(object@spat_factors), colnames(object@mat))) {
+                errors <- c(errors, "Row names of spatial factors matrix must match motif names")
+            }
+        }
+
+        # Check that spat_bin_size is positive
+        if (object@spat_bin_size <= 0) {
+            errors <- c(errors, "Spatial bin size must be positive")
+        }
+
         if (length(errors) == 0) TRUE else errors
     }
 )
+
+#' Create a MotifDB object from a tidy data frame
+#'
+#' @param motif_db A tidy data frame containing motif information
+#' @param prior Pseudocount prior to add to probabilities (default: 0.01)
+#' @param spat_factors Matrix of spatial factors (rows=motifs, cols=bins) or NULL
+#' @param spat_bin_size Size of spatial bins (default: 1)
+#' @return A MotifDB object
+#' @export
+create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bin_size = 1) {
+    # Calculate matrices using modified function
+    matrices <- motif_db_to_mat(motif_db, prior)
+
+    # Calculate motif lengths
+    motif_lengths <- motif_db %>%
+        dplyr::count(motif) %>%
+        select(motif, n) %>%
+        tibble::deframe()
+
+    # Transform matrices to log scale
+    matrices$mat <- log(matrices$mat)
+    matrices$rc_mat <- log(matrices$rc_mat)
+
+    # Zero out positions after motif length for both matrices
+    for (i in 1:ncol(matrices$mat)) {
+        if (motif_lengths[i] * 4 < nrow(matrices$mat)) {
+            zero_rows <- (motif_lengths[i] * 4 + 1):nrow(matrices$mat)
+            matrices$mat[zero_rows, i] <- 0
+            matrices$rc_mat[zero_rows, i] <- 0
+        }
+    }
+
+    # Create default spatial factors if none provided
+    if (is.null(spat_factors)) {
+        spat_factors <- matrix(1,
+            nrow = length(motif_lengths), ncol = 1,
+            dimnames = list(names(motif_lengths), NULL)
+        )
+    } else {
+        # Ensure row names match motif names
+        if (!identical(rownames(spat_factors), names(motif_lengths))) {
+            stop("Row names of spatial factors matrix must match motif names")
+        }
+    }
+
+    # Create and return MotifDB object
+    new("MotifDB",
+        mat = matrices$mat,
+        rc_mat = matrices$rc_mat,
+        motif_lengths = motif_lengths,
+        prior = prior,
+        spat_factors = spat_factors,
+        spat_bin_size = as.numeric(spat_bin_size)
+    )
+}
+
+#' Show method for MotifDB objects
+#'
+#' @param object MotifDB object
+setMethod(
+    "show", "MotifDB",
+    function(object) {
+        cli::cli_text("{.cl MotifDB} object with {.val {ncol(object@mat)}} motifs and prior {.val {object@prior}}")
+        if (ncol(object@spat_factors) > 1 || object@spat_bin_size > 1) {
+            cli::cli_text("Spatial factors: bin size {.val {object@spat_bin_size}} with {.val {ncol(object@spat_factors)}} bins per motif")
+        }
+        cli::cli_text("Slots include: {.field @mat}, {.field @rc_mat} {.field @motif_lengths}, {.field @prior}, {.field @spat_factors}, {.field @spat_bin_size}")
+    }
+)
+
+#' Initialize method for MotifDB objects
+#'
+#' @param .Object MotifDB object
+#' @param mat Position weight matrix
+#' @param rc_mat Reverse complement matrix
+#' @param motif_lengths Named vector of motif lengths
+#' @param prior Pseudocount prior value
+#' @param spat_factors Matrix of spatial factors
+#' @param spat_bin_size Size of spatial bins
+setMethod(
+    "initialize", "MotifDB",
+    function(.Object,
+             mat = matrix(0, 4, 1),
+             rc_mat = matrix(0, 4, 1),
+             motif_lengths = setNames(as.integer(1), colnames(mat)[1]),
+             prior = 0.01,
+             spat_factors = matrix(1, nrow = 1, ncol = 1),
+             spat_bin_size = 1) {
+        .Object@mat <- mat
+        .Object@rc_mat <- rc_mat
+        .Object@motif_lengths <- motif_lengths
+        .Object@prior <- prior
+        .Object@spat_factors <- spat_factors
+        .Object@spat_bin_size <- as.numeric(spat_bin_size)
+        validObject(.Object)
+        return(.Object)
+    }
+)
+
+#' Get specific motifs from the MotifDB
+#'
+#' @param object MotifDB object
+#' @param motif_names Character vector of motif names or numeric indices
+#' @return MotifDB object containing the specified motifs
+setMethod(
+    "[", "MotifDB",
+    function(x, i) {
+        if (is.character(i)) {
+            missing_motifs <- i[!i %in% colnames(x@mat)]
+            if (length(missing_motifs) > 0) {
+                cli::cli_abort(c(
+                    "Some motifs not found in MotifDB:",
+                    "x" = "{.val {missing_motifs}}"
+                ))
+            }
+            idx <- match(i, colnames(x@mat))
+        } else {
+            idx <- i
+        }
+
+        new("MotifDB",
+            mat = x@mat[, idx, drop = FALSE],
+            rc_mat = x@rc_mat[, idx, drop = FALSE],
+            motif_lengths = x@motif_lengths[idx],
+            prior = x@prior,
+            spat_factors = x@spat_factors[idx, , drop = FALSE],
+            spat_bin_size = x@spat_bin_size
+        )
+    }
+)
+
 
 motif_db_to_mat <- function(motif_db, prior = 0.01) {
     # Add position column
@@ -116,105 +274,3 @@ motif_db_to_mat <- function(motif_db, prior = 0.01) {
         rc_mat = as.matrix(rc_df)
     )
 }
-
-#' Create a MotifDB object from a tidy data frame
-#'
-#' @param motif_db A tidy data frame containing motif information
-#' @param prior Pseudocount prior to add to probabilities (default: 0.01)
-#' @return A MotifDB object
-#' @export
-create_motif_db <- function(motif_db, prior = 0.01) {
-    # Calculate matrices using modified function
-    matrices <- motif_db_to_mat(motif_db, prior)
-
-    # Calculate motif lengths
-    motif_lengths <- motif_db %>%
-        dplyr::count(motif) %>%
-        select(motif, n) %>%
-        tibble::deframe()
-
-    # Transform matrices to log scale
-    matrices$mat <- log(matrices$mat)
-    matrices$rc_mat <- log(matrices$rc_mat)
-
-    # Zero out positions after motif length for both matrices
-    for (i in 1:ncol(matrices$mat)) {
-        if (motif_lengths[i] * 4 < nrow(matrices$mat)) {
-            zero_rows <- (motif_lengths[i] * 4 + 1):nrow(matrices$mat)
-            matrices$mat[zero_rows, i] <- 0
-            matrices$rc_mat[zero_rows, i] <- 0
-        }
-    }
-
-    # Create and return MotifDB object
-    new("MotifDB",
-        mat = matrices$mat,
-        rc_mat = matrices$rc_mat,
-        motif_lengths = motif_lengths,
-        prior = prior
-    )
-}
-
-#' Show method for MotifDB objects
-#'
-#' @param object MotifDB object
-setMethod(
-    "show", "MotifDB",
-    function(object) {
-        cli::cli_text("{.cl MotifDB} object with {.val {ncol(object@mat)}} motifs and prior {.val {object@prior}}")
-        cli::cli_text("Slots include: {.field @mat}, {.field @rc_mat} {.field @motif_lengths}, {.field @prior}")
-    }
-)
-
-#' Initialize method for MotifDB objects
-#'
-#' @param .Object MotifDB object
-#' @param mat Position weight matrix
-#' @param rc_mat Reverse complement matrix
-#' @param motif_lengths Named vector of motif lengths
-#' @param prior Pseudocount prior value
-setMethod(
-    "initialize", "MotifDB",
-    function(.Object,
-             mat = matrix(0, 4, 1),
-             rc_mat = matrix(0, 4, 1),
-             motif_lengths = setNames(as.integer(1), colnames(mat)[1]),
-             prior = 0.01) {
-        .Object@mat <- mat
-        .Object@rc_mat <- rc_mat
-        .Object@motif_lengths <- motif_lengths
-        .Object@prior <- prior
-        validObject(.Object)
-        return(.Object)
-    }
-)
-
-#' Get specific motifs from the MotifDB
-#'
-#' @param object MotifDB object
-#' @param motif_names Character vector of motif names or numeric indices
-#' @return MotifDB object containing the specified motifs
-setMethod(
-    "[", "MotifDB",
-    function(x, i) {
-        if (is.character(i)) {
-            missing_motifs <- i[!i %in% colnames(x@mat)]
-            if (length(missing_motifs) > 0) {
-                cli::cli_abort(c(
-                    "Some motifs not found in MotifDB:",
-                    "x" = "{.val {missing_motifs}}"
-                ))
-            }
-            idx <- match(i, colnames(x@mat))
-        } else {
-            idx <- i
-        }
-
-        new("MotifDB",
-            mat = x@mat[, idx, drop = FALSE],
-            rc_mat = x@rc_mat[, idx, drop = FALSE],
-            motif_lengths = x@motif_lengths[idx],
-            prior = x@prior
-        )
-    }
-)

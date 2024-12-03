@@ -9,7 +9,9 @@
   mat = matrix(0, 4, 1),
   rc_mat = matrix(0, 4, 1),
   motif_lengths = setNames(as.integer(1), colnames(mat)[1]),
-  prior = 0.01
+  prior = 0.01,
+  spat_factors = matrix(1, nrow = 1, ncol = 1),
+  spat_bin_size = 1
 )
 }
 \arguments{
@@ -22,6 +24,10 @@
 \item{motif_lengths}{Named vector of motif lengths}
 
 \item{prior}{Pseudocount prior value}
+
+\item{spat_factors}{Matrix of spatial factors}
+
+\item{spat_bin_size}{Size of spatial bins}
 }
 \description{
 Initialize method for MotifDB objects

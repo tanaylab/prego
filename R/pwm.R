@@ -22,9 +22,7 @@ seqs_to_onehot <- function(seqs) {
 
     return(onehot_mat)
 }
-
 #' Calculate Position Weight Matrix (PWM) Scores for DNA Sequences
-#'
 #'
 #' @param sequences Character vector of DNA sequences.
 #' @param mdb MotifDB object containing PWMs.
@@ -54,8 +52,17 @@ calc_seq_pwm <- function(sequences, mdb, bidirect = TRUE) {
     # Convert sequences to one-hot encoding
     onehot_seqs <- seqs_to_onehot(sequences)
 
-    # Calculate PWM scores
-    result <- calc_seq_pwm_parallel_cpp(onehot_seqs, mdb@mat, mdb@rc_mat, mdb@motif_lengths, min(mdb@motif_lengths), bidirect)
+    # Calculate PWM scores with spatial factors
+    result <- calc_seq_pwm_parallel_cpp(
+        onehot_seqs,
+        mdb@mat,
+        mdb@rc_mat,
+        mdb@motif_lengths,
+        min(mdb@motif_lengths),
+        bidirect,
+        mdb@spat_factors,
+        mdb@spat_bin_size
+    )
 
     # Restore names if they existed
     if (!is.null(seq_names)) {
