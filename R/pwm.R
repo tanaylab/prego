@@ -22,6 +22,7 @@ seqs_to_onehot <- function(seqs) {
 
     return(onehot_mat)
 }
+
 #' Calculate Position Weight Matrix (PWM) Scores for DNA Sequences
 #'
 #' @param sequences Character vector of DNA sequences.
