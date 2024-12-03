@@ -17,5 +17,9 @@ S4 class to store position weight matrices and their properties
 \item{\code{motif_lengths}}{A named integer vector containing the length of each motif}
 
 \item{\code{prior}}{The pssm prior probability}
+
+\item{\code{spat_factors}}{A numeric matrix containing spatial factors}
+
+\item{\code{spat_bin_size}}{The size of spatial bins}
 }}
 
