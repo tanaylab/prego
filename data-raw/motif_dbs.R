@@ -63,3 +63,6 @@ JOLMA_motifs <- get_dataset_pssms("jolma") %>%
     select(motif = track, pos, A, C, G, T) %>%
     as_tibble()
 usethis::use_data(JOLMA_motifs, overwrite = TRUE, compress = "xz")
+
+MOTIF_DB <- create_motif_db(all_motif_datasets())
+usethis::use_data(MOTIF_DB, overwrite = TRUE, compress = "xz")

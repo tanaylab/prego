@@ -69,13 +69,50 @@ all_motif_datasets <- function() {
 #' @source \url{https://hocomoco11.autosome.ru/downloads/}
 "HOCOMOCO_motifs"
 
+#' A MotifDB object with motifs from all bundled databases
+#' @format A MotifDB object
+"MOTIF_DB"
+
+#' @rdname extract_pwm
+#' @export
+extract_pwm_old <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+    if (inherits(dataset, "MotifDB")) {
+        dataset <- as.data.frame(dataset)
+    }
+
+    if (!is.null(motifs)) {
+        dataset <- dataset %>% filter(motif %in% motifs)
+    }
+
+    sequences <- toupper(sequences)
+
+    res <- safe_daply(dataset, "motif", function(x) {
+        if ("motif" %in% colnames(spat)) {
+            spat <- spat %>% filter(motif == x$motif[1])
+        }
+        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
+    }, .parallel = parallel)
+
+    if (is.null(dim(res))) {
+        res <- as.matrix(res)
+        colnames(res) <- dataset$motif[1]
+    } else {
+        res <- as.matrix(as.data.frame(t(res)))
+    }
+
+    if (!is.null(names(sequences))) {
+        rownames(res) <- names(sequences)
+    }
+
+    return(res)
+}
+
 #' Extract pwm of sequences from a motif database
 #'
-#' @description Extracts the pwm of a motif from a motif database. Note that for a large number of motifs, this function can be slow and consume
-#' a lot of memory.
+#' @description Extracts the pwm of a motif from a motif database. \code{extract_pwm_old} is a deprecated version of this function, which is slower, and returns slightly different results due to float percision instead of double. If the sequences are not of the same length, the old version will be used.
 #'
 #' @param motifs names of specific motifs to extract from the dataset
-#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.
+#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.
 #' @param parallel logical, whether to use parallel processing
 #'
 #' @return a matrix size of # of sequences x # of motifs with the pwm of each sequence for each motif
@@ -107,25 +144,43 @@ all_motif_datasets <- function() {
 #'
 #' @inheritParams compute_pwm
 #' @export
-extract_pwm <- function(sequences, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
-    if (!is.null(motifs)) {
-        dataset <- dataset %>% filter(motif %in% motifs)
+extract_pwm <- function(sequences, motifs = NULL, dataset = MOTIF_DB, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+    # if not all sequences have the same length
+    if (length(unique(nchar(sequences))) != 1) {
+        return(extract_pwm_old(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel))
     }
 
-    sequences <- toupper(sequences)
-
-    res <- safe_daply(dataset, "motif", function(x) {
-        if ("motif" %in% colnames(spat)) {
-            spat <- spat %>% filter(motif == x$motif[1])
+    if (inherits(dataset, "MotifDB")) {
+        mdb <- dataset
+        if (!is.null(motifs)) {
+            mdb <- mdb[motifs]
         }
-        compute_pwm(sequences, x, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
-    }, .parallel = parallel)
+        if (mdb@prior != prior) {
+            prior(mdb) <- prior
+        }
+    } else {
+        if (!is.null(motifs)) {
+            dataset <- dataset %>% filter(motif %in% motifs)
+        }
+        mdb <- create_motif_db(dataset, prior = prior)
+    }
+
+    if (!is.null(spat)) {
+        mdb@spat_factors <- spat$spat_factor
+        mdb@spat_bin_size <- unique(diff(spat$bin))[1]
+    }
+
+    if (!parallel) {
+        RcppParallel::setThreadOptions(numThreads = 1)
+        n_threads <- getOption("prego.parallel.nc", 1)
+        withr::defer(RcppParallel::setThreadOptions(numThreads = n_threads))
+    }
+
+    res <- calc_seq_pwm(sequences, mdb, bidirect = bidirect)
 
     if (is.null(dim(res))) {
         res <- as.matrix(res)
         colnames(res) <- dataset$motif[1]
-    } else {
-        res <- as.matrix(as.data.frame(t(res)))
     }
 
     if (!is.null(names(sequences))) {

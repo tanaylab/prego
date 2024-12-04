@@ -48,7 +48,7 @@ calc_seq_pwm <- function(sequences, mdb, bidirect = TRUE) {
     # Convert sequences to uppercase and save original names
     sequences <- toupper(sequences)
     seq_names <- names(sequences)
-    pwm_names <- colnames(mdb@mat)
+    pwm_names <- names(mdb)
 
     # Convert sequences to one-hot encoding
     onehot_seqs <- seqs_to_onehot(sequences)
