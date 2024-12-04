@@ -35,8 +35,7 @@ seqs_to_onehot <- function(seqs) {
 #' @inheritParams compute_pwm
 #' @examples
 #' sequences <- c("ACGTACGT", "TGCATGCA")
-#' pwm <- matrix(runif(16), nrow = 4)
-#' scores <- calc_seq_pwm(sequences, pwm)
+#' scores <- calc_seq_pwm(sequences, MOTIF_DB)
 #'
 #' @export
 calc_seq_pwm <- function(sequences, mdb, bidirect = TRUE) {

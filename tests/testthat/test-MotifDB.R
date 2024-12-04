@@ -1,3 +1,17 @@
+create_test_motif_db <- function(prior = 0.01) {
+    # Create a simple motif database with two motifs
+    motif_data <- tibble(
+        motif = rep(c("motif1", "motif2"), each = 4),
+        pos = rep(1, 8),
+        A = c(0.7, 0.1, 0.2, 0.3, 0.1, 0.6, 0.2, 0.1),
+        C = c(0.1, 0.7, 0.3, 0.2, 0.2, 0.1, 0.6, 0.2),
+        G = c(0.1, 0.1, 0.3, 0.3, 0.6, 0.2, 0.1, 0.1),
+        T = c(0.1, 0.1, 0.2, 0.2, 0.1, 0.1, 0.1, 0.6)
+    )
+
+    create_motif_db(motif_data, prior = prior)
+}
+
 # Test MotifDB class creation and validation
 test_that("MotifDB object creation works with valid input", {
     motif_db <- create_test_motif_db()

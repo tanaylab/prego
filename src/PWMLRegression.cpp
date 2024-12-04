@@ -1,6 +1,8 @@
 #include "port.h"
 #include <chrono>
 #include <cmath>
+#include <random>
+#include <algorithm>
 
 #include "LeastSquare.h"
 #include "PWMLRegression.h"
@@ -15,7 +17,7 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
                                const bool &optimize_spat, const bool &symmetrize_spat)
     : m_sequences(seqs), m_train_mask(train_mask), m_min_range(min_range), m_max_range(max_range),
       m_min_prob(min_prob), m_resolutions(resolutions), m_spat_resolutions(s_resolutions),
-      m_spat_bin_size(spat_bin_size), // no spat bin for tiling,
+      m_spat_bin_size(spat_bin_size),
       m_unif_prior(unif_prior), m_imporve_epsilon(eps), m_score_metric(score_metric), m_num_folds(num_folds),  
       m_log_energy(log_energy), m_energy_epsilon(energy_epsilon), m_optimize_pwm(optimize_pwm), 
       m_optimize_spat(optimize_spat), m_symmetrize_spat(symmetrize_spat) {
@@ -32,10 +34,12 @@ PWMLRegression::PWMLRegression(const vector<string> &seqs, const vector<int> &tr
         }
     }
     if (m_num_folds > 1){
-        Rcpp::RNGScope rngScope; 
+        Rcpp::RNGScope rngScope;
         
-        // shuffle the vector to randomize the folds
-        std::random_shuffle(m_folds.begin(), m_folds.end(), rand_wrapper);        
+
+        std::random_device rd;
+        std::mt19937 gen(rd());        
+        std::shuffle(m_folds.begin(), m_folds.end(), gen);
     }
 
     if (energy_func.isNotNull()) {

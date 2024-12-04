@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{MotifDB object}
+
+\item{...}{ignored arguments}
 }
 \value{
 A matrix containing the motif probabilities, rownames are motif_position, colnames are nucleotides
