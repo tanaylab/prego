@@ -53,7 +53,7 @@ to set the number of cores to use.}
 environment before starting the parallelization, so it is better to run this function in a clean environment.
 Also, Note that 'prego' needs to be installed in order for this to work, i.e. you cannot use \code{devtools::load_all()} or \code{pkgload::load_all()} to load the package.}
 
-\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.}
 
 \item{motifs}{names of specific motifs to extract from the dataset}
 

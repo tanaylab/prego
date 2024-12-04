@@ -28,7 +28,19 @@ intervals_to_seq <- function(intervals) {
     return(sequences)
 }
 
+#' @rdname gextract_pwm
+#' @export
+gextract_pwm_old <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+    sequences <- intervals_to_seq(intervals)
+
+    res <- extract_pwm_old(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel)
+
+    return(cbind(intervals, as.data.frame(res)))
+}
+
 #' Extract pwm of intervals from a motif database
+#'
+#' @description Extract the pwm of each interval for each motif from a motif database. \code{gextract_pwm_old} is an older version of this function, which is slower, and returns slightly different results due to float percision instead of double.
 #'
 #' @param intervals misha intervals set
 #'
@@ -45,7 +57,7 @@ intervals_to_seq <- function(intervals) {
 #' }
 #'
 #' @export
-gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm <- function(intervals, motifs = NULL, dataset = MOTIF_DB, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
     sequences <- intervals_to_seq(intervals)
 
     res <- extract_pwm(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel)
@@ -75,7 +87,7 @@ gextract_pwm <- function(intervals, motifs = NULL, dataset = all_motif_datasets(
 #' @inheritParams gpwm_quantiles
 #'
 #' @export
-gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = all_motif_datasets(), percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
+gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = MOTIF_DB, percision = 0.01, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, parallel = getOption("prego.parallel", TRUE)) {
     withr::local_options(gmax.data.size = 1e9)
     pwms <- gextract_pwm(intervals, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, parallel = parallel)
 
