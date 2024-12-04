@@ -4,12 +4,18 @@
 \alias{[,MotifDB,ANY,ANY,ANY-method}
 \title{Get specific motifs from the MotifDB}
 \usage{
-\S4method{[}{MotifDB,ANY,ANY,ANY}(x, i)
+\S4method{[}{MotifDB,ANY,ANY,ANY}(x, i, j, ..., pattern = FALSE, drop = TRUE)
 }
 \arguments{
-\item{object}{MotifDB object}
+\item{x}{MotifDB object}
 
-\item{motif_names}{Character vector of motif names or numeric indices}
+\item{i}{Character vector of motif names, numeric indices, or regex pattern(s)}
+
+\item{j}{Not used}
+
+\item{pattern}{Logical indicating whether to treat character input as regex pattern (default: FALSE)}
+
+\item{drop}{Not used}
 }
 \value{
 MotifDB object containing the specified motifs
