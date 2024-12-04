@@ -83,6 +83,8 @@ setClass("MotifDB",
 #' @param spat_factors Matrix of spatial factors (rows=motifs, cols=bins) or NULL
 #' @param spat_bin_size Size of spatial bins (default: 1)
 #' @return A MotifDB object
+#' @examples
+#' create_motif_db(all_motif_datasets())
 #' @export
 create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bin_size = 1) {
     # Calculate matrices using modified function
@@ -189,6 +191,11 @@ setMethod(
 #' @param ... Not used
 #' @param pattern Logical indicating whether to treat character input as regex pattern (default: FALSE)
 #' @return MotifDB object containing the specified motifs
+#' @examples
+#' MOTIF_DB["HOMER.GATA3_2"]
+#' MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")]
+#' MOTIF_DB["GATA", pattern = T]
+#' @export
 setMethod(
     "[", "MotifDB",
     function(x, i, j, ..., pattern = FALSE, drop = TRUE) {
@@ -322,8 +329,11 @@ setGeneric("prior<-", function(object, value) standardGeneric("prior<-"))
 
 #' Get the prior value from a MotifDB object
 #'
-#' @param object MotifDB object
+#' @param object MotifDB object#'
 #' @return The prior value
+#' @examples
+#' prior(MOTIF_DB)
+#' @export
 setMethod(
     "prior", "MotifDB",
     function(object) {
@@ -335,6 +345,8 @@ setMethod(
 #'
 #' @param motif_db A MotifDB object
 #' @return A tidy data frame with columns for motif, position, and nucleotide probabilities
+#' @examples
+#' head(motif_db_to_dataframe(MOTIF_DB))
 #' @export
 motif_db_to_dataframe <- function(motif_db) {
     # Convert log values back to probabilities
@@ -370,6 +382,11 @@ motif_db_to_dataframe <- function(motif_db) {
 #' @param optional logical. If TRUE, setting row names and converting column names (to syntactic names: see make.names) is optional
 #' @param ... additional arguments to be passed to or from methods
 #' @return A data frame containing the motif probabilities
+#' @examples
+#' dataset <- as.data.frame(MOTIF_DB)
+#' head(dataset)
+#' nrow(dataset)
+#' length(unique(dataset$motif))
 #' @export
 setMethod(
     "as.data.frame", "MotifDB",
@@ -383,6 +400,8 @@ setMethod(
 #' @param x MotifDB object
 #' @param ... ignored arguments
 #' @return A matrix containing the motif probabilities, rownames are motif_position, colnames are nucleotides
+#' @examples
+#' as.matrix(MOTIF_DB["HOMER.GATA3_2"])
 #' @export
 setMethod(
     "as.matrix", "MotifDB",
@@ -398,6 +417,12 @@ setMethod(
 #' @param revcomp whether to plot the reverse complement of the PSSM
 #' @param method Height method, can be one of "bits" or "probability" (default:"bits")
 #' @inheritDotParams ggseqlogo::ggseqlogo
+#' @return a ggplot object
+#' @examples
+#' plot(MOTIF_DB["HOMER.GATA3_2"])
+#' plot(MOTIF_DB["HNF1", pattern = T])
+#' plot(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
+#'
 #' @export
 setMethod(
     "plot", "MotifDB",
@@ -424,6 +449,10 @@ setMethod(
 #' @param object MotifDB object
 #' @param value New prior value between 0 and 1
 #' @return Updated MotifDB object with new prior
+#' @examples
+#' prior(MOTIF_DB)
+#' prior(MOTIF_DB) <- 0.2
+#' prior(MOTIF_DB)
 #' @export
 setMethod(
     "prior<-", "MotifDB",
@@ -447,6 +476,9 @@ setMethod(
 #' Get the length of a MotifDB object
 #' @param x MotifDB object
 #' @return The number of motifs in the object
+#' @examples
+#' length(MOTIF_DB)
+#' length(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
 #' @export
 setMethod(
     "length", "MotifDB",
@@ -458,6 +490,9 @@ setMethod(
 #' Get the names of motifs in a MotifDB object
 #' @param x MotifDB object
 #' @return The names of motifs in the object
+#' @examples
+#' names(MOTIF_DB)
+#' names(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
 #' @export
 setMethod(
     "names", "MotifDB",

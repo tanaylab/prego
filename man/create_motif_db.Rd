@@ -21,3 +21,6 @@ A MotifDB object
 \description{
 Create a MotifDB object from a tidy data frame
 }
+\examples{
+create_motif_db(all_motif_datasets())
+}

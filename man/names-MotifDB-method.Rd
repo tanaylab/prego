@@ -15,3 +15,7 @@ The names of motifs in the object
 \description{
 Get the names of motifs in a MotifDB object
 }
+\examples{
+names(MOTIF_DB)
+names(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
+}

@@ -25,3 +25,8 @@ MotifDB object containing the specified motifs
 \description{
 Get specific motifs from the MotifDB
 }
+\examples{
+MOTIF_DB["HOMER.GATA3_2"]
+MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")]
+MOTIF_DB["GATA", pattern = T]
+}

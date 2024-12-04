@@ -7,11 +7,14 @@
 \S4method{prior}{MotifDB}(object)
 }
 \arguments{
-\item{object}{MotifDB object}
+\item{object}{MotifDB object#'}
 }
 \value{
 The prior value
 }
 \description{
 Get the prior value from a MotifDB object
+}
+\examples{
+prior(MOTIF_DB)
 }

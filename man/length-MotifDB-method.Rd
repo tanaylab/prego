@@ -15,3 +15,7 @@ The number of motifs in the object
 \description{
 Get the length of a MotifDB object
 }
+\examples{
+length(MOTIF_DB)
+length(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
+}

@@ -21,3 +21,9 @@ A data frame containing the motif probabilities
 \description{
 Convert a MotifDB object to a data frame
 }
+\examples{
+dataset <- as.data.frame(MOTIF_DB)
+head(dataset)
+nrow(dataset)
+length(unique(dataset$motif))
+}

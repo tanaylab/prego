@@ -17,3 +17,8 @@ Updated MotifDB object with new prior
 \description{
 Set a new prior for a MotifDB object
 }
+\examples{
+prior(MOTIF_DB)
+prior(MOTIF_DB) <- 0.2
+prior(MOTIF_DB)
+}
