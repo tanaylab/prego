@@ -23,7 +23,6 @@ Calculate Position Weight Matrix (PWM) Scores for DNA Sequences
 }
 \examples{
 sequences <- c("ACGTACGT", "TGCATGCA")
-pwm <- matrix(runif(16), nrow = 4)
-scores <- calc_seq_pwm(sequences, pwm)
+scores <- calc_seq_pwm(sequences, MOTIF_DB)
 
 }

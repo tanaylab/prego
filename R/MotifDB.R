@@ -186,6 +186,7 @@ setMethod(
 #' @param i Character vector of motif names, numeric indices, or regex pattern(s)
 #' @param j Not used
 #' @param drop Not used
+#' @param ... Not used
 #' @param pattern Logical indicating whether to treat character input as regex pattern (default: FALSE)
 #' @return MotifDB object containing the specified motifs
 setMethod(
@@ -380,6 +381,7 @@ setMethod(
 
 #' Convert a MotifDB object to a matrix
 #' @param x MotifDB object
+#' @param ... ignored arguments
 #' @return A matrix containing the motif probabilities, rownames are motif_position, colnames are nucleotides
 #' @export
 setMethod(
