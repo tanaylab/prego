@@ -17,3 +17,6 @@ A matrix containing the motif probabilities, rownames are motif_position, colnam
 \description{
 Convert a MotifDB object to a matrix
 }
+\examples{
+as.matrix(MOTIF_DB["HOMER.GATA3_2"])
+}

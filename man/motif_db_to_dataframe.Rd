@@ -15,3 +15,6 @@ A tidy data frame with columns for motif, position, and nucleotide probabilities
 \description{
 Convert a MotifDB object back to a tidy data frame
 }
+\examples{
+head(motif_db_to_dataframe(MOTIF_DB))
+}

@@ -34,6 +34,15 @@
     \item{\code{nrow}}{Number of rows, same as \code{ncol}}
   }}
 }
+\value{
+a ggplot object
+}
 \description{
 Plot a motif from a MotifDB object
+}
+\examples{
+plot(MOTIF_DB["HOMER.GATA3_2"])
+plot(MOTIF_DB["HNF1", pattern = T])
+plot(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
+
 }

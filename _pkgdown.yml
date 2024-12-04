@@ -15,6 +15,14 @@ reference:
   - generate_kmers
   - kmer_matrix
   - kmers_to_pssm
+- title: MotifDB
+  contents:
+  - contains("MotifDB")
+  - MOTIF_DB
+  - motif_db_to_dataframe
+  - prior<-
+  - prior
+  - create_motif_db
 - title: PSSM/PWM utils  
   contents:
   - compute_pwm
@@ -35,16 +43,6 @@ reference:
   - gpwm_quantiles 
   - mask_sequences_by_pwm
   - trim_pssm
-  - MOTIF_DB
-  - MotifDB-class
-  - as.data.frame,MotifDB-method
-  - as.matrix,MotifDB-method
-  - initialize,MotifDB-method
-  - contains("MotifDB")
-  - motif_db_to_dataframe
-  - prior<-
-  - prior
-  - create_motif_db
   - bits_per_pos
   - calc_seq_pwm
   - pssm_dataset_cor
