@@ -29,6 +29,7 @@ Imports:
     utils,
     stats,
     magrittr,
+    methods,
     RcppParallel
 Suggests: 
     testthat (>= 3.0.0),
@@ -41,6 +42,8 @@ LinkingTo:
 Remotes: 
     tanaylab/misha, 
     tanaylab/misha.ext
+NeedsCompilation: yes
+SystemRequirements: GNUmake
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
