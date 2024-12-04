@@ -182,22 +182,47 @@ setMethod(
 
 #' Get specific motifs from the MotifDB
 #'
-#' @param object MotifDB object
-#' @param motif_names Character vector of motif names or numeric indices
+#' @param x MotifDB object
+#' @param i Character vector of motif names, numeric indices, or regex pattern(s)
+#' @param j Not used
+#' @param drop Not used
+#' @param pattern Logical indicating whether to treat character input as regex pattern (default: FALSE)
 #' @return MotifDB object containing the specified motifs
 setMethod(
     "[", "MotifDB",
-    function(x, i) {
+    function(x, i, j, ..., pattern = FALSE, drop = TRUE) {
         if (is.character(i)) {
-            missing_motifs <- i[!i %in% colnames(x@mat)]
-            if (length(missing_motifs) > 0) {
-                cli::cli_abort(c(
-                    "Some motifs not found in MotifDB:",
-                    "x" = "{.val {missing_motifs}}"
-                ))
+            if (pattern) {
+                # pattern matching
+                matching_motifs <- unique(unlist(lapply(i, function(pat) {
+                    matches <- grep(pat, colnames(x@mat), value = TRUE)
+                    if (length(matches) == 0) {
+                        cli::cli_warn("Pattern {.val {pat}} matched no motifs")
+                    }
+                    return(matches)
+                })))
+
+                if (length(matching_motifs) == 0) {
+                    cli::cli_abort("No motifs matched any of the provided patterns", call = parent.frame())
+                }
+
+                idx <- match(matching_motifs, colnames(x@mat))
+            } else {
+                # exact matching
+                missing_motifs <- i[!i %in% colnames(x@mat)]
+                if (length(missing_motifs) > 0) {
+                    cli::cli_abort(c(
+                        "Some motifs not found in MotifDB:",
+                        "x" = "{.val {missing_motifs}}"
+                    ), call = parent.frame())
+                }
+                idx <- match(i, colnames(x@mat))
             }
-            idx <- match(i, colnames(x@mat))
         } else {
+            # numeric indices
+            if (any(i > ncol(x@mat) | i < 1)) {
+                cli::cli_abort("Index out of bounds")
+            }
             idx <- i
         }
 
@@ -324,7 +349,15 @@ motif_db_to_dataframe <- function(motif_db) {
         ungroup() %>%
         spread("nuc", "prob") %>%
         select(motif, pos, A, C, G, T) %>%
+        mutate(pos = as.numeric(pos)) %>%
         arrange(motif, pos)
+
+    motif_len <- tibble::enframe(motif_db@motif_lengths, name = "motif", value = "max_len")
+
+    result <- result %>%
+        left_join(motif_len, by = "motif") %>%
+        filter(pos <= max_len) %>%
+        select(-max_len)
 
     return(result)
 }
@@ -342,6 +375,45 @@ setMethod(
     function(x, row.names = NULL, optional = FALSE, ...) {
         df <- motif_db_to_dataframe(x)
         return(as.data.frame(df, row.names = row.names, optional = optional, ...))
+    }
+)
+
+#' Convert a MotifDB object to a matrix
+#' @param x MotifDB object
+#' @return A matrix containing the motif probabilities, rownames are motif_position, colnames are nucleotides
+#' @export
+setMethod(
+    "as.matrix", "MotifDB",
+    function(x, ...) {
+        return(as.data.frame(x) %>% tidyr::unite("pos", motif, pos) %>% tibble::column_to_rownames("pos") %>% as.matrix())
+    }
+)
+
+#' Plot a motif from a MotifDB object
+#' @param x MotifDB object
+#' @param title title of the plot
+#' @param subtitle subtitle of the plot
+#' @param revcomp whether to plot the reverse complement of the PSSM
+#' @param method Height method, can be one of "bits" or "probability" (default:"bits")
+#' @inheritDotParams ggseqlogo::ggseqlogo
+#' @export
+setMethod(
+    "plot", "MotifDB",
+    function(x, title = "", subtitle = ggplot2::waiver(), revcomp = FALSE, method = "bits", ...) {
+        if (length(x) > 30) {
+            cli::cli_abort("Plotting more than 30 motifs is not recommended. Please subset the MotifDB object first.", call = parent.frame())
+        }
+        x <- as.data.frame(x)
+        x <- split(x, x$motif)
+        pfm <- purrr::map(x, ~ {
+            pssm <- .x %>% select(-motif)
+            if (revcomp) {
+                pssm <- pssm_rc(pssm)
+            }
+            t(pssm_to_mat(pssm))
+        })
+        ggseqlogo::ggseqlogo(pfm, method = method) +
+            ggtitle(title, subtitle = subtitle)
     }
 )
 
