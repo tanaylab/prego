@@ -7,7 +7,7 @@
 gextract_pwm.quantile(
   intervals,
   motifs = NULL,
-  dataset = all_motif_datasets(),
+  dataset = MOTIF_DB,
   percision = 0.01,
   spat = NULL,
   spat_min = 1,
@@ -26,7 +26,7 @@ gextract_pwm.quantile(
 
 \item{motifs}{names of specific motifs to extract from the dataset}
 
-\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.}
 
 \item{percision}{the percision of the quantiles. Default is 0.01, which means that the quantiles will be computed for every 1\% of the pwm.}
 

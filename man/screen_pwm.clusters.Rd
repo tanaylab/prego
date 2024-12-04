@@ -22,7 +22,7 @@ screen_pwm.clusters(
 
 \item{clusters}{a vector with the cluster assignments}
 
-\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.}
 
 \item{motifs}{names of specific motifs to extract from the dataset}
 

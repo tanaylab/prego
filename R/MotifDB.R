@@ -280,3 +280,114 @@ motif_db_to_mat <- function(motif_db, prior = 0.01) {
         rc_mat = as.matrix(rc_df)
     )
 }
+
+#' Get or set the prior for a MotifDB object
+#'
+#' @param object MotifDB object
+#' @return The prior value
+setGeneric("prior", function(object) standardGeneric("prior"))
+
+#' Set the prior for a MotifDB object
+#'
+#' @param object MotifDB object
+#' @param value New prior value
+#' @return Updated MotifDB object
+setGeneric("prior<-", function(object, value) standardGeneric("prior<-"))
+
+#' Get the prior value from a MotifDB object
+#'
+#' @param object MotifDB object
+#' @return The prior value
+setMethod(
+    "prior", "MotifDB",
+    function(object) {
+        return(object@prior)
+    }
+)
+
+#' Convert a MotifDB object back to a tidy data frame
+#'
+#' @param motif_db A MotifDB object
+#' @return A tidy data frame with columns for motif, position, and nucleotide probabilities
+#' @export
+motif_db_to_dataframe <- function(motif_db) {
+    # Convert log values back to probabilities
+    prob_mat <- exp(motif_db@mat)
+
+    result <- prob_mat %>%
+        as.data.frame() %>%
+        tibble::rownames_to_column("p") %>%
+        separate(p, c("nuc", "pos"), sep = "_") %>%
+        gather("motif", "prob", -nuc, -pos) %>%
+        group_by(motif, pos) %>%
+        mutate(prob = sum(prob + motif_db@prior) * prob - motif_db@prior) %>%
+        ungroup() %>%
+        spread("nuc", "prob") %>%
+        select(motif, pos, A, C, G, T) %>%
+        arrange(motif, pos)
+
+    return(result)
+}
+
+#' Convert a MotifDB object to a data frame
+#'
+#' @param x A MotifDB object
+#' @param row.names NULL or a character vector giving the row names for the data frame
+#' @param optional logical. If TRUE, setting row names and converting column names (to syntactic names: see make.names) is optional
+#' @param ... additional arguments to be passed to or from methods
+#' @return A data frame containing the motif probabilities
+#' @export
+setMethod(
+    "as.data.frame", "MotifDB",
+    function(x, row.names = NULL, optional = FALSE, ...) {
+        df <- motif_db_to_dataframe(x)
+        return(as.data.frame(df, row.names = row.names, optional = optional, ...))
+    }
+)
+
+#' Set a new prior for a MotifDB object
+#'
+#' @param object MotifDB object
+#' @param value New prior value between 0 and 1
+#' @return Updated MotifDB object with new prior
+#' @export
+setMethod(
+    "prior<-", "MotifDB",
+    function(object, value) {
+        # Convert to data frame
+        df <- motif_db_to_dataframe(object)
+
+        # Create new MotifDB with new prior
+        new_db <- create_motif_db(
+            df,
+            prior = value,
+            spat_factors = object@spat_factors,
+            spat_bin_size = object@spat_bin_size
+        )
+
+        # Return new object
+        return(new_db)
+    }
+)
+
+#' Get the length of a MotifDB object
+#' @param x MotifDB object
+#' @return The number of motifs in the object
+#' @export
+setMethod(
+    "length", "MotifDB",
+    function(x) {
+        return(ncol(x@mat))
+    }
+)
+
+#' Get the names of motifs in a MotifDB object
+#' @param x MotifDB object
+#' @return The names of motifs in the object
+#' @export
+setMethod(
+    "names", "MotifDB",
+    function(x) {
+        return(colnames(x@mat))
+    }
+)

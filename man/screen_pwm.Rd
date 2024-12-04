@@ -24,7 +24,7 @@ screen_pwm(
 
 \item{metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. If NULL - the default would be 'ks' for binary variables, and 'r2' for continuous variables.}
 
-\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}.}
+\item{dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.}
 
 \item{motifs}{names of specific motifs to extract from the dataset}
 
