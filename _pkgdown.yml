@@ -1,4 +1,4 @@
-url: ~
+url: https://tanaylab.github.io/prego/
 template:
   bootstrap: 5
 reference:
@@ -12,6 +12,9 @@ reference:
 - title: kmers  
   contents:
   - screen_kmers
+  - generate_kmers
+  - kmer_matrix
+  - kmers_to_pssm
 - title: PSSM/PWM utils  
   contents:
   - compute_pwm
@@ -31,7 +34,42 @@ reference:
   - gextract_pwm.quantile
   - gpwm_quantiles 
   - mask_sequences_by_pwm
+  - trim_pssm
+  - MOTIF_DB
+  - MotifDB-class
+  - as.data.frame,MotifDB-method
+  - as.matrix,MotifDB-method
+  - initialize,MotifDB-method
+  - contains("MotifDB")
+  - motif_db_to_dataframe
+  - prior<-
+  - prior
+  - create_motif_db
+  - bits_per_pos
+  - calc_seq_pwm
+  - pssm_dataset_cor
+  - pssm_rc
+  - pssm_to_kmer
+  - rc
+- title: Sequence utils
+  contents:
+  - intervals_to_seq
+  - calc_sequences_dinuc_dist
+  - calc_sequences_dinucs
+  - calc_sequences_trinuc_dist
+- title: Local PWM
+  contents:
+  - gintervals.center_by_pssm
+  - gextract.local_pwm
+  - gextract.local_pwm_freq
 - title: other
   contents: 
+  - motif_enrichment
+  - sample_quantile_matched_rows
   - set_parallel
   - ends_with("example")
+
+
+
+
+
