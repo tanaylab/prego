@@ -203,7 +203,7 @@ setMethod(
             if (pattern) {
                 # pattern matching
                 matching_motifs <- unique(unlist(lapply(i, function(pat) {
-                    matches <- grep(pat, colnames(x@mat), value = TRUE)
+                    matches <- grep(pat, colnames(x@mat), ignore.case = TRUE, value = TRUE)
                     if (length(matches) == 0) {
                         cli::cli_warn("Pattern {.val {pat}} matched no motifs")
                     }
