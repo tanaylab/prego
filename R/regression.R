@@ -219,7 +219,10 @@ regress_pwm <- function(sequences,
                         kmer_sequence_length = NULL,
                         symmetrize_spat = TRUE,
                         ...) {
-    set.seed(seed)
+    if (!is.null(seed)) {
+        set.seed(seed)
+    }
+
     if (motif_num > 1) {
         return(
             regress_multiple_motifs(
@@ -488,7 +491,7 @@ regress_pwm <- function(sequences,
         unif_prior = unif_prior,
         score_metric = score_metric,
         verbose = verbose,
-        seed = seed,
+        seed = seed %||% 60427,
         pssm_mat = pssm,
         consensus_single_thresh = consensus_single_thresh,
         consensus_double_thresh = consensus_double_thresh,
