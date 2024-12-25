@@ -40,6 +40,7 @@
 #' @param sample_frac fraction of the dataset to use for the kmer screen. Default: 0.1.
 #' @param sample_idxs indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.
 #' @param sample_ratio ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.
+#' @param val_frac fraction of the dataset to use for the internal validation. when using multiple kmers. Default: 0.1.
 #' @param log_energy transform the energy to log scale on each iteration.
 #' @param energy_func a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.
 #' @param xmin,xmax,npts range for the energy function and the number of points to use for its interpolation.
@@ -208,6 +209,7 @@ regress_pwm <- function(sequences,
                         sample_frac = NULL,
                         sample_idxs = NULL,
                         sample_ratio = 1,
+                        val_frac = 0.1,
                         log_energy = FALSE,
                         energy_func = NULL,
                         xmin = -100,
@@ -396,6 +398,7 @@ regress_pwm <- function(sequences,
                     screen_db = screen_db,
                     motif_dataset = motif_dataset,
                     alternative = alternative,
+                    val_frac = val_frac,
                     sample_for_kmers = sample_for_kmers,
                     sample_frac = sample_frac,
                     sample_idxs = sample_idxs,

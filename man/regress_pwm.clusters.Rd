@@ -95,6 +95,7 @@ If NULL - a K-mer screen would be performed in order to find the best kmer for i
     \item{\code{internal_num_folds}}{number of folds to use in the internal cross-validation.}
     \item{\code{sample_for_kmers}}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
     \item{\code{sample_idxs}}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+    \item{\code{val_frac}}{fraction of the dataset to use for the internal validation. when using multiple kmers. Default: 0.1.}
     \item{\code{log_energy}}{transform the energy to log scale on each iteration.}
     \item{\code{energy_func}}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}
     \item{\code{xmin,xmax,npts}}{range for the energy function and the number of points to use for its interpolation.}

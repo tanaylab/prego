@@ -17,6 +17,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     min_gap = 0,
                                     max_gap = 1,
                                     min_kmer_cor = 0.08,
+                                    val_frac = 0.1,
                                     consensus_single_thresh = 0.6,
                                     consensus_double_thresh = 0.85,
                                     internal_num_folds = 1,
@@ -40,7 +41,10 @@ regress_pwm.multi_kmers <- function(sequences,
                                     kmer_sequence_length = NULL,
                                     symmetrize_spat = TRUE,
                                     ...) {
-    set.seed(seed)
+    if (!is.null(seed)) {
+        set.seed(seed)
+    }
+
     if (is.null(nrow(response))) {
         response <- matrix(response, ncol = 1)
     }
@@ -65,6 +69,11 @@ regress_pwm.multi_kmers <- function(sequences,
         sequences_s <- sequences
         response_s <- response
     }
+
+    # split to validation and train
+    val_idxs <- sample(1:length(sequences_s), length(sequences_s) * val_frac)
+    train_idxs <- setdiff(1:length(sequences_s), val_idxs)
+
 
     regress_pwm_single_kmer <- purrr::partial(
         regress_pwm,
@@ -134,19 +143,22 @@ regress_pwm.multi_kmers <- function(sequences,
     run_kmer <- function(i) {
         motif <- cand_kmers[i]
         cli_alert("regressing with seed: {.val {motif}}")
-        r <- regress_pwm_single_kmer(motif = motif, sequences = sequences_s, response = response_s) %>%
+        r <- regress_pwm_single_kmer(motif = motif, sequences = sequences_s[train_idxs], response = response_s[train_idxs]) %>%
             suppressMessages()
+        pr <- r$predict(sequences_s[val_idxs])
         if (final_metric == "ks") {
             if (!is_binary_response(response)) {
                 cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
             }
             r$score <- r[[final_metric]]$statistic
+            r$val_score <- suppressWarnings(ks.test(pr[as.logical(response[val_idxs, 1])], pr[!as.logical(response[val_idxs, 1])], alternative = alternative))
         } else if (final_metric == "r2") {
             r$score <- r[[final_metric]]
+            r$val_score <- cor(pr, response_s[val_idxs])^2
         } else {
             cli_abort("Unknown {.field final_metric} (can be 'ks' or 'r2')")
         }
-        cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}")
+        cli_alert("{.val {motif}}, score ({final_metric}): {.val {r$score}}, validation score ({final_metric}): {.val {r$val_score}}")
         return(r)
     }
 
@@ -161,30 +173,18 @@ regress_pwm.multi_kmers <- function(sequences,
         res_kmer_list[failed] <- lapply(cand_kmers[failed], function(x) regress_pwm_single_kmer(motif = x, sequences = sequences, response = response))
     }
 
-    scores <- sapply(res_kmer_list, function(x) x$score)
+    scores <- sapply(res_kmer_list, function(x) x$val_score)
     if (is.matrix(scores) && nrow(scores) > 1) {
         scores <- colMeans(scores)
     }
 
-    purrr::walk2(cand_kmers, scores, ~ {
-        cli::cli_ul("kmer: {.val {.x}}, score ({final_metric}): {.val {.y}}")
-    })
-
     if (length(which.max(scores)) == 0) {
         cli_alert_warning("No motifs found")
-        if (sample_for_kmers) {
-            cli_alert_info("Performing regression on full data")
-            res <- regress_pwm_single_kmer(motif = cand_kmers[1], sequences = sequences, response = response)
-        } else {
-            res <- res_kmer_list[[1]]
-        }
+        cli_alert_info("Performing regression on full data")
+        res <- regress_pwm_single_kmer(motif = cand_kmers[1], sequences = sequences, response = response)
     } else {
-        if (sample_for_kmers) {
-            cli_alert_info("Performing regression on full data")
-            res <- regress_pwm_single_kmer(motif = cand_kmers[which.max(scores)], sequences = sequences, response = response)
-        } else {
-            res <- res_kmer_list[[which.max(scores)]]
-        }
+        cli_alert_info("Performing regression on full data")
+        res <- regress_pwm_single_kmer(motif = cand_kmers[which.max(scores)], sequences = sequences, response = response)
     }
 
     res$kmers <- cand_kmers
