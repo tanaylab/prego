@@ -147,6 +147,63 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
     return(pwm)
 }
 
+#' Calculate Theoretical Scores for a Position-Specific Scoring Matrix (PSSM)
+#'
+#' These functions compute theoretical scores (maximum, minimum, and quantiles) that can be achieved
+#' by sequences matching a given Position-Specific Scoring Matrix (PSSM).
+#'
+#' @param pssm A matrix or data frame containing position-specific probabilities for nucleotides A, C, G, T
+#' @param prior A numeric value (default: 0.01) added to each probability to avoid zero probabilities
+#' @param regularization A numeric value (default: 0.01) added inside the log function to prevent -Inf values
+#' @param q A numeric value between 0 and 1 specifying the quantile to calculate (only for pssm_quantile)
+#'
+#' @return
+#' \itemize{
+#'   \item pssm_theoretical_max: Maximum possible score for the given PSSM
+#'   \item pssm_theoretical_min: Minimum possible score for the given PSSM
+#'   \item pssm_quantile: Score at the specified quantile between min and max scores
+#' }
+#'
+#' @details The functions normalize the probabilities and calculate scores based on logarithms
+#' with regularization. The quantile function interpolates linearly between min and max scores.
+#'
+#' @examples
+#' pssm <- as.matrix(MOTIF_DB["HOMER.CTCF"])
+#' pssm_theoretical_max(pssm)
+#' pssm_theoretical_min(pssm)
+#' pssm_quantile(pssm, 0.85)
+#'
+#' @export
+pssm_theoretical_max <- function(pssm, prior = 0.01, regularization = 0.01) {
+    pssm <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    if (prior > 0) {
+        pssm <- pssm + prior
+    }
+    pssm <- pssm / rowSums(pssm)
+    theo_max <- sum(log(regularization + apply(pssm, 1, max)))
+    return(theo_max)
+}
+
+#' @rdname pssm_theoretical_max
+#' @export
+pssm_theoretical_min <- function(pssm, prior = 0.01, regularization = 0.01) {
+    pssm <- as.matrix(pssm[, c("A", "C", "G", "T")])
+    if (prior > 0) {
+        pssm <- pssm + prior
+    }
+    pssm <- pssm / rowSums(pssm)
+    theo_min <- sum(log(regularization + apply(pssm, 1, min)))
+    return(theo_min)
+}
+
+#' @rdname pssm_theoretical_max
+#' @export
+pssm_quantile <- function(pssm, q, prior = 0.01, regularization = 0.01) {
+    theo_max <- pssm_theoretical_max(pssm, prior, regularization)
+    theo_min <- pssm_theoretical_min(pssm, prior, regularization)
+    return(theo_min + q * (theo_max - theo_min))
+}
+
 #' Extracts local position weight matrix (PWM) scores for given intervals and a PWM.
 #'
 #' @param intervals The intervals to extract

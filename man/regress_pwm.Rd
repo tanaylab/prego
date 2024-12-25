@@ -87,6 +87,7 @@ regress_pwm(
   sample_frac = NULL,
   sample_idxs = NULL,
   sample_ratio = 1,
+  val_frac = 0.1,
   log_energy = FALSE,
   energy_func = NULL,
   xmin = -100,
@@ -205,6 +206,8 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
 
 \item{screen_db}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
 "db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
+
+\item{val_frac}{fraction of the dataset to use for the internal validation. when using multiple kmers. Default: 0.1.}
 
 \item{xmin, xmax, npts}{range for the energy function and the number of points to use for its interpolation.}
 
