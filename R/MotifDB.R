@@ -198,7 +198,7 @@ setMethod(
 #' @export
 setMethod(
     "[", "MotifDB",
-    function(x, i, j, ..., pattern = FALSE, drop = TRUE) {
+    function(x, i, j, ..., pattern = TRUE, drop = TRUE) {
         if (is.character(i)) {
             if (pattern) {
                 # pattern matching
