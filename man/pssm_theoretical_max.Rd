@@ -37,12 +37,9 @@ The functions normalize the probabilities and calculate scores based on logarith
 with regularization. The quantile function interpolates linearly between min and max scores.
 }
 \examples{
-pssm <- matrix(c(0.7, 0.1, 0.1, 0.1, 0.1, 0.7, 0.1, 0.1),
-    nrow = 2,
-    ncol = 4, dimnames = list(NULL, c("A", "C", "G", "T"))
-)
+pssm <- as.matrix(MOTIF_DB["HOMER.CTCF"])
 pssm_theoretical_max(pssm)
 pssm_theoretical_min(pssm)
-pssm_quantile(pssm, 0.99)
+pssm_quantile(pssm, 0.85)
 
 }
