@@ -145,8 +145,8 @@ extract_pwm_old <- function(sequences, motifs = NULL, dataset = all_motif_datase
 #' @inheritParams compute_pwm
 #' @export
 extract_pwm <- function(sequences, motifs = NULL, dataset = MOTIF_DB, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
-    # if not all sequences have the same length
-    if (length(unique(nchar(sequences))) != 1) {
+    # if not all sequences have the same length or the function is max, use the old version
+    if (length(unique(nchar(sequences))) != 1 || func == "max") {
         return(extract_pwm_old(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel))
     }
 
