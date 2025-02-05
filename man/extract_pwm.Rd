@@ -23,7 +23,7 @@ extract_pwm(
   motifs = NULL,
   dataset = MOTIF_DB,
   spat = NULL,
-  spat_min = 0,
+  spat_min = NULL,
   spat_max = NULL,
   bidirect = TRUE,
   prior = 0.01,
