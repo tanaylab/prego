@@ -32,11 +32,11 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
         binsize <- unique(diff(spat$bin))
     }
 
-    if (is.null(spat_max)) {
+    if (is.null(spat_max) || is.na(spat_max)) {
         spat_max <- nchar(sequences[[1]])
     }
 
-    if (is.null(spat_min)) {
+    if (is.null(spat_min) || is.na(spat_max)) {
         spat_min <- 1
     }
 

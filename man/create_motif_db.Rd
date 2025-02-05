@@ -4,7 +4,14 @@
 \alias{create_motif_db}
 \title{Create a MotifDB object from a tidy data frame}
 \usage{
-create_motif_db(motif_db, prior = 0.01, spat_factors = NULL, spat_bin_size = 1)
+create_motif_db(
+  motif_db,
+  prior = 0.01,
+  spat_factors = NULL,
+  spat_bin_size = 1,
+  spat_min = NA_real_,
+  spat_max = NA_real_
+)
 }
 \arguments{
 \item{motif_db}{A tidy data frame containing motif information}
@@ -14,6 +21,10 @@ create_motif_db(motif_db, prior = 0.01, spat_factors = NULL, spat_bin_size = 1)
 \item{spat_factors}{Matrix of spatial factors (rows=motifs, cols=bins) or NULL}
 
 \item{spat_bin_size}{Size of spatial bins (default: 1)}
+
+\item{spat_min}{Starting position of sequence or NA (default: NA)}
+
+\item{spat_max}{Ending position of sequence or NA (default: NA)}
 }
 \value{
 A MotifDB object

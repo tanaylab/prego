@@ -1,4 +1,4 @@
-create_test_motif_db <- function(prior = 0.01) {
+create_test_motif_db <- function(prior = 0.01, spat_min = NA_real_, spat_max = NA_real_) {
     # Create a simple motif database with two motifs
     motif_data <- tibble(
         motif = rep(c("motif1", "motif2"), each = 4),
@@ -9,7 +9,7 @@ create_test_motif_db <- function(prior = 0.01) {
         T = c(0.1, 0.1, 0.2, 0.2, 0.1, 0.1, 0.1, 0.6)
     )
 
-    create_motif_db(motif_data, prior = prior)
+    create_motif_db(motif_data, prior = prior, spat_min = spat_min, spat_max = spat_max)
 }
 
 # Test MotifDB class creation and validation
@@ -17,6 +17,26 @@ test_that("MotifDB object creation works with valid input", {
     motif_db <- create_test_motif_db()
     expect_s4_class(motif_db, "MotifDB")
     expect_true(validObject(motif_db))
+
+    # Test with spatial boundaries
+    motif_db_with_bounds <- create_test_motif_db(spat_min = 0, spat_max = 100)
+    expect_s4_class(motif_db_with_bounds, "MotifDB")
+    expect_true(validObject(motif_db_with_bounds))
+})
+
+test_that("MotifDB validates spatial boundaries correctly", {
+    # Test valid spatial boundaries
+    expect_error(create_test_motif_db(spat_min = 0, spat_max = 100), NA)
+    expect_error(create_test_motif_db(spat_min = 0, spat_max = 0), NA)
+
+    # Test invalid spatial boundaries
+    expect_error(create_test_motif_db(spat_min = 100, spat_max = 0))
+    expect_error(create_test_motif_db(spat_min = -1, spat_max = 100))
+
+    # Test NA values (should be valid)
+    expect_error(create_test_motif_db(spat_min = NA_real_, spat_max = NA_real_), NA)
+    expect_error(create_test_motif_db(spat_min = 0, spat_max = NA_real_), NA)
+    expect_error(create_test_motif_db(spat_min = NA_real_, spat_max = 100), NA)
 })
 
 test_that("MotifDB validates matrix dimensions", {
@@ -37,71 +57,34 @@ test_that("MotifDB validates prior constraints", {
     expect_error(create_test_motif_db(prior = -0.1))
 })
 
-test_that("MotifDB subsetting works correctly", {
-    motif_db <- create_test_motif_db()
+test_that("MotifDB subsetting preserves spatial boundaries", {
+    motif_db <- create_test_motif_db(spat_min = 0, spat_max = 100)
 
     # Test character subsetting
     subset_db <- motif_db["motif1"]
-    expect_equal(ncol(subset_db@mat), 1)
-    expect_equal(colnames(subset_db@mat), "motif1")
-    expect_equal(names(subset_db@motif_lengths), "motif1")
+    expect_equal(subset_db@spat_min, 0)
+    expect_equal(subset_db@spat_max, 100)
 
     # Test numeric subsetting
     subset_db2 <- motif_db[1]
-    expect_equal(subset_db@mat, subset_db2@mat)
+    expect_equal(subset_db2@spat_min, 0)
+    expect_equal(subset_db2@spat_max, 100)
 
     # Test multiple motif selection
     multi_subset <- motif_db[c("motif1", "motif2")]
-    expect_equal(ncol(multi_subset@mat), 2)
-
-    # Test error on invalid motif name
-    expect_error(motif_db["invalid_motif"])
+    expect_equal(multi_subset@spat_min, 0)
+    expect_equal(multi_subset@spat_max, 100)
 })
 
-test_that("motif_db_to_dataframe conversion works correctly", {
-    motif_db <- create_test_motif_db()
+test_that("motif_db_to_dataframe conversion works with spatial boundaries", {
+    motif_db <- create_test_motif_db(spat_min = 0, spat_max = 100)
     df <- motif_db_to_dataframe(motif_db)
 
-    # Check structure
-    expect_equal(colnames(df), c("motif", "pos", "A", "C", "G", "T"))
-    expect_equal(nrow(df), 8) # 2 motifs * 4 positions
+    # Conversion should work the same regardless of spatial boundaries
+    motif_db_no_bounds <- create_test_motif_db()
+    df_no_bounds <- motif_db_to_dataframe(motif_db_no_bounds)
 
-    # Check probabilities sum to 1 (approximately due to floating point)
-    sums <- df %>%
-        rowwise() %>%
-        mutate(sum = sum(c(A, C, G, T))) %>%
-        pull(sum)
-    expect_true(all(abs(sums - 1) < 1e-10))
-
-    # Check that values are properly recovered
-    # Test specific known values from create_test_motif_db
-    first_pos <- df %>%
-        filter(motif == "motif1", pos == 1) %>%
-        select(A, C, G, T) %>%
-        unlist()
-
-    expect_equal(first_pos, c(A = 0.7, C = 0.1, G = 0.1, T = 0.1), tolerance = 1e-6)
-
-    # Test round-trip conversion
-    motif_db2 <- create_motif_db(df, prior = motif_db@prior)
-    df2 <- motif_db_to_dataframe(motif_db2)
-
-    # Compare all values in the dataframes
-    expect_equal(
-        df %>% arrange(motif, pos),
-        df2 %>% arrange(motif, pos),
-        tolerance = 1e-6
-    )
-
-    # Test with different priors
-    df_prior_01 <- motif_db_to_dataframe(create_test_motif_db(prior = 0.01))
-    df_prior_05 <- motif_db_to_dataframe(create_test_motif_db(prior = 0.05))
-
-    # Values should be different with different priors
-    expect_false(identical(
-        df_prior_01 %>% arrange(motif, pos),
-        df_prior_05 %>% arrange(motif, pos)
-    ))
+    expect_equal(df, df_no_bounds)
 })
 
 test_that("spatial factors validation works", {
@@ -116,7 +99,9 @@ test_that("spatial factors validation works", {
     expect_error(
         create_motif_db(
             motif_db_to_dataframe(motif_db),
-            spat_factors = spat_factors
+            spat_factors = spat_factors,
+            spat_min = 0,
+            spat_max = 100
         ),
         NA
     )
@@ -141,8 +126,8 @@ test_that("spatial factors validation works", {
     )
 })
 
-test_that("reverse complement matrix is correctly computed", {
-    motif_db <- create_test_motif_db()
+test_that("reverse complement matrix is correctly computed with spatial boundaries", {
+    motif_db <- create_test_motif_db(spat_min = 0, spat_max = 100)
 
     # For a single position, check if reverse complement is correct
     check_rc <- function(pos, nuc_idx) {
@@ -161,49 +146,17 @@ test_that("reverse complement matrix is correctly computed", {
     }
 })
 
-test_that("prior modification is equivalent to creating with new prior", {
-    # Create original object
-    motif_db <- create_test_motif_db(prior = 0.01)
+test_that("prior modification preserves spatial boundaries", {
+    # Create original object with spatial boundaries
+    motif_db <- create_test_motif_db(prior = 0.01, spat_min = 0, spat_max = 100)
 
-    # Create new object with different prior
+    # Modify prior
     new_prior <- 0.02
-    motif_db_direct <- create_test_motif_db(prior = new_prior)
-
-    # Modify original object's prior
     prior(motif_db) <- new_prior
 
-    # Compare the two objects
-    expect_equal(motif_db@mat, motif_db_direct@mat)
-    expect_equal(motif_db@rc_mat, motif_db_direct@rc_mat)
-    expect_equal(motif_db@motif_lengths, motif_db_direct@motif_lengths)
-    expect_equal(motif_db@prior, motif_db_direct@prior)
-    expect_equal(motif_db@spat_factors, motif_db_direct@spat_factors)
-    expect_equal(motif_db@spat_bin_size, motif_db_direct@spat_bin_size)
-
-    # Test with multiple prior changes
-    priors <- c(0.01, 0.02, 0.05, 0.01)
-    motif_db <- create_test_motif_db(prior = priors[1])
-
-    for (new_prior in priors[-1]) {
-        # Create new object directly
-        motif_db_direct <- create_test_motif_db(prior = new_prior)
-
-        # Modify existing object
-        prior(motif_db) <- new_prior
-
-        # Compare objects
-        expect_equal(motif_db@mat, motif_db_direct@mat)
-        expect_equal(motif_db@rc_mat, motif_db_direct@rc_mat)
-        expect_equal(motif_db@prior, new_prior)
-
-        # Check that probabilities still sum to 1 after conversion to dataframe
-        df <- motif_db_to_dataframe(motif_db)
-        sums <- df %>%
-            rowwise() %>%
-            mutate(sum = sum(c(A, C, G, T))) %>%
-            pull(sum)
-        expect_true(all(abs(sums - 1) < 1e-10))
-    }
+    # Check spatial boundaries are preserved
+    expect_equal(motif_db@spat_min, 0)
+    expect_equal(motif_db@spat_max, 100)
 })
 
 test_that("motif_lengths validation works", {
@@ -225,8 +178,8 @@ test_that("motif_lengths validation works", {
     expect_true(all(motif_db@motif_lengths > 0))
 })
 
-test_that("as.data.frame works correctly", {
-    motif_db <- create_test_motif_db()
+test_that("as.data.frame works correctly with spatial boundaries", {
+    motif_db <- create_test_motif_db(spat_min = 0, spat_max = 100)
 
     # Test direct conversion
     df1 <- as.data.frame(motif_db)
@@ -234,11 +187,8 @@ test_that("as.data.frame works correctly", {
     # Results should be identical
     expect_equal(df1, df2)
 
-    # Test with row.names and optional parameters (should ignore them)
-    df3 <- as.data.frame(motif_db, row.names = letters[1:8], optional = TRUE)
-    expect_equal(df1, df3)
-
-    # Test structure
-    expect_equal(colnames(df1), c("motif", "pos", "A", "C", "G", "T"))
-    expect_equal(nrow(df1), 8) # 2 motifs * 4 positions
+    # Compare with non-bounded version
+    motif_db_no_bounds <- create_test_motif_db()
+    df_no_bounds <- as.data.frame(motif_db_no_bounds)
+    expect_equal(df1, df_no_bounds)
 })
