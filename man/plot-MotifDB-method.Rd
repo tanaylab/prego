@@ -10,6 +10,7 @@
   subtitle = ggplot2::waiver(),
   revcomp = FALSE,
   method = "bits",
+  force = FALSE,
   ...
 )
 }
@@ -23,6 +24,8 @@
 \item{revcomp}{whether to plot the reverse complement of the PSSM}
 
 \item{method}{Height method, can be one of "bits" or "probability" (default:"bits")}
+
+\item{force}{force plotting more than 30 motifs}
 
 \item{...}{
   Arguments passed on to \code{\link[ggseqlogo:ggseqlogo]{ggseqlogo::ggseqlogo}}

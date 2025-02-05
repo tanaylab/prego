@@ -151,7 +151,7 @@ regress_pwm.multi_kmers <- function(sequences,
                 cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
             }
             r$score <- r[[final_metric]]$statistic
-            r$val_score <- suppressWarnings(ks.test(pr[as.logical(response[val_idxs, 1])], pr[!as.logical(response[val_idxs, 1])], alternative = alternative))
+            r$val_score <- suppressWarnings(ks.test(pr[as.logical(response[val_idxs, 1])], pr[!as.logical(response[val_idxs, 1])], alternative = alternative)$statistic)
         } else if (final_metric == "r2") {
             r$score <- r[[final_metric]]
             r$val_score <- cor(pr, response_s[val_idxs])^2

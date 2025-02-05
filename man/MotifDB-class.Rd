@@ -21,5 +21,9 @@ S4 class to store position weight matrices and their properties
 \item{\code{spat_factors}}{A numeric matrix containing spatial factors}
 
 \item{\code{spat_bin_size}}{The size of spatial bins}
+
+\item{\code{spat_min}}{The starting position of the sequence or NA}
+
+\item{\code{spat_max}}{The ending position of the sequence or NA}
 }}
 

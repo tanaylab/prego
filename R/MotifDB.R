@@ -5,6 +5,8 @@
 #' @slot prior The pssm prior probability
 #' @slot spat_factors A numeric matrix containing spatial factors
 #' @slot spat_bin_size The size of spatial bins
+#' @slot spat_min The starting position of the sequence or NA
+#' @slot spat_max The ending position of the sequence or NA
 #'
 #' @description S4 class to store position weight matrices and their properties
 setClass("MotifDB",
@@ -14,7 +16,9 @@ setClass("MotifDB",
         motif_lengths = "integer",
         prior = "numeric",
         spat_factors = "matrix", # Matrix of spatial factors (motifs x bins)
-        spat_bin_size = "numeric" # Size of each spatial bin
+        spat_bin_size = "numeric", # Size of each spatial bin
+        spat_min = "numeric", # Starting position of sequence
+        spat_max = "numeric" # Ending position of sequence
     ),
     validity = function(object) {
         errors <- character()
@@ -72,6 +76,16 @@ setClass("MotifDB",
             errors <- c(errors, "Spatial bin size must be positive")
         }
 
+        # Check spatial min/max values if they exist
+        if (!is.na(object@spat_min) && !is.na(object@spat_max)) {
+            if (object@spat_min > object@spat_max) {
+                errors <- c(errors, "Spatial min must be less than or equal to spatial max")
+            }
+            if (object@spat_min < 0) {
+                errors <- c(errors, "Spatial min must be non-negative")
+            }
+        }
+
         if (length(errors) == 0) TRUE else errors
     }
 )
@@ -82,11 +96,14 @@ setClass("MotifDB",
 #' @param prior Pseudocount prior to add to probabilities (default: 0.01)
 #' @param spat_factors Matrix of spatial factors (rows=motifs, cols=bins) or NULL
 #' @param spat_bin_size Size of spatial bins (default: 1)
+#' @param spat_min Starting position of sequence or NA (default: NA)
+#' @param spat_max Ending position of sequence or NA (default: NA)
 #' @return A MotifDB object
 #' @examples
 #' create_motif_db(all_motif_datasets())
 #' @export
-create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bin_size = 1) {
+create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL,
+                            spat_bin_size = 1, spat_min = NA_real_, spat_max = NA_real_) {
     # Calculate matrices using modified function
     matrices <- motif_db_to_mat(motif_db, prior)
 
@@ -135,7 +152,9 @@ create_motif_db <- function(motif_db, prior = 0.01, spat_factors = NULL, spat_bi
         motif_lengths = motif_lengths,
         prior = prior,
         spat_factors = spat_factors,
-        spat_bin_size = as.numeric(spat_bin_size)
+        spat_bin_size = as.numeric(spat_bin_size),
+        spat_min = spat_min,
+        spat_max = spat_max
     )
 }
 
@@ -149,7 +168,10 @@ setMethod(
         if (ncol(object@spat_factors) > 1 || object@spat_bin_size > 1) {
             cli::cli_text("Spatial factors: bin size {.val {object@spat_bin_size}} with {.val {ncol(object@spat_factors)}} bins per motif")
         }
-        cli::cli_text("Slots include: {.field @mat}, {.field @rc_mat} {.field @motif_lengths}, {.field @prior}, {.field @spat_factors}, {.field @spat_bin_size}")
+        if (!is.na(object@spat_min) && !is.na(object@spat_max)) {
+            cli::cli_text("Spatial range: {.val {object@spat_min}} to {.val {object@spat_max}}")
+        }
+        cli::cli_text("Slots include: {.field @mat}, {.field @rc_mat}, {.field @motif_lengths}, {.field @prior}, {.field @spat_factors}, {.field @spat_bin_size}, {.field @spat_min}, {.field @spat_max}")
     }
 )
 
@@ -162,6 +184,8 @@ setMethod(
 #' @param prior Pseudocount prior value
 #' @param spat_factors Matrix of spatial factors
 #' @param spat_bin_size Size of spatial bins
+#' @param spat_min Starting position of sequence or NULL
+#' @param spat_max Ending position of sequence or NULL
 setMethod(
     "initialize", "MotifDB",
     function(.Object,
@@ -170,13 +194,17 @@ setMethod(
              motif_lengths = setNames(as.integer(1), colnames(mat)[1]),
              prior = 0.01,
              spat_factors = matrix(1, nrow = 1, ncol = 1),
-             spat_bin_size = 1) {
+             spat_bin_size = 1,
+             spat_min = NA_real_,
+             spat_max = NA_real_) {
         .Object@mat <- mat
         .Object@rc_mat <- rc_mat
         .Object@motif_lengths <- motif_lengths
         .Object@prior <- prior
         .Object@spat_factors <- spat_factors
         .Object@spat_bin_size <- as.numeric(spat_bin_size)
+        .Object@spat_min <- as.numeric(spat_min)
+        .Object@spat_max <- as.numeric(spat_max)
         validObject(.Object)
         return(.Object)
     }
@@ -240,7 +268,9 @@ setMethod(
             motif_lengths = x@motif_lengths[idx],
             prior = x@prior,
             spat_factors = x@spat_factors[idx, , drop = FALSE],
-            spat_bin_size = x@spat_bin_size
+            spat_bin_size = x@spat_bin_size,
+            spat_min = x@spat_min,
+            spat_max = x@spat_max
         )
     }
 )
@@ -416,6 +446,7 @@ setMethod(
 #' @param subtitle subtitle of the plot
 #' @param revcomp whether to plot the reverse complement of the PSSM
 #' @param method Height method, can be one of "bits" or "probability" (default:"bits")
+#' @param force force plotting more than 30 motifs
 #' @inheritDotParams ggseqlogo::ggseqlogo
 #' @return a ggplot object
 #' @examples
@@ -426,9 +457,13 @@ setMethod(
 #' @export
 setMethod(
     "plot", "MotifDB",
-    function(x, title = "", subtitle = ggplot2::waiver(), revcomp = FALSE, method = "bits", ...) {
+    function(x, title = "", subtitle = ggplot2::waiver(), revcomp = FALSE, method = "bits", force = FALSE, ...) {
         if (length(x) > 30) {
-            cli::cli_abort("Plotting more than 30 motifs is not recommended. Please subset the MotifDB object first.", call = parent.frame())
+            if (!force) {
+                cli::cli_abort("Plotting more than 30 motifs is not recommended. Please subset the MotifDB object first.", call = parent.frame())
+            } else {
+                cli::cli_warn("Plotting more than 30 motifs is not recommended.")
+            }
         }
         x <- as.data.frame(x)
         x <- split(x, x$motif)
@@ -465,7 +500,9 @@ setMethod(
             df,
             prior = value,
             spat_factors = object@spat_factors,
-            spat_bin_size = object@spat_bin_size
+            spat_bin_size = object@spat_bin_size,
+            spat_min = object@spat_min,
+            spat_max = object@spat_max
         )
 
         # Return new object
