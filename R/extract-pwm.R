@@ -69,7 +69,7 @@ extract_pwm_old <- function(sequences, motifs = NULL, dataset = all_motif_datase
 #'
 #' @inheritParams compute_pwm
 #' @export
-extract_pwm <- function(sequences, motifs = NULL, dataset = MOTIF_DB, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
+extract_pwm <- function(sequences, motifs = NULL, dataset = MOTIF_DB, spat = NULL, spat_min = NULL, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp", parallel = getOption("prego.parallel", TRUE)) {
     # if not all sequences have the same length or the function is max, use the old version
     if (length(unique(nchar(sequences))) != 1 || func == "max") {
         return(extract_pwm_old(sequences, motifs = motifs, dataset = dataset, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func, parallel = parallel))
@@ -102,11 +102,19 @@ extract_pwm <- function(sequences, motifs = NULL, dataset = MOTIF_DB, spat = NUL
     }
 
     if (is.null(spat_max) || is.na(spat_max)) {
-        spat_max <- nchar(sequences[[1]])
+        if (!is.na(mdb@spat_max)) {
+            spat_max <- mdb@spat_max
+        } else {
+            spat_max <- nchar(sequences[[1]])
+        }
     }
 
     if (is.null(spat_min) || is.na(spat_min)) {
-        spat_min <- 1
+        if (!is.na(mdb@spat_min)) {
+            spat_min <- mdb@spat_min
+        } else {
+            spat_min <- 1
+        }
     }
 
     if (!(spat_min == 1 && spat_max == nchar(sequences[[1]]))) {
