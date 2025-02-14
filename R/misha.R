@@ -5,23 +5,29 @@
 #' installed, it will display an error message with instructions on how to
 #' install it.
 #'
-#' @param intervals The intervals set as a data frame with 'chrom', 'start', and 'end' columns.
+#' @param intervals The intervals set as a data frame with 'chrom', 'start', and 'end' columns. Can be a string with misha intervals name.
+#' @param size The size to normalize the intervals to. If NULL, the intervals will not be normalized.
 #' @return A character vector of sequences.
 #' @examples
 #' \dontrun{
 #' library(misha)
 #' gdb.init_examples()
-#' intervals_to_seq(gintervals.load("annotations"))
+#' intervals_to_seq("annotations")
+#' intervals_to_seq("annotations", 20)
 #' }
 #' @export
-intervals_to_seq <- function(intervals) {
+intervals_to_seq <- function(intervals, size = NULL) {
     if (!requireNamespace("misha", quietly = TRUE)) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
     withr::local_options(gmax.data.size = 1e9)
 
     if (is.character(intervals)) {
-        cli_abort("Please provide the intervals set as a data frame. You can use {.code gintervals.load} to load the intervals.")
+        intervals <- gintervals.load(intervals)
+    }
+
+    if (!is.null(size)) {
+        intervals <- misha.ext::gintervals.normalize(intervals, size)
     }
 
     sequences <- toupper(misha::gseq.extract(intervals))
