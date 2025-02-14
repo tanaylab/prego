@@ -4,10 +4,12 @@
 \alias{intervals_to_seq}
 \title{Convert intervals to sequences}
 \usage{
-intervals_to_seq(intervals)
+intervals_to_seq(intervals, size = NULL)
 }
 \arguments{
-\item{intervals}{The intervals set as a data frame with 'chrom', 'start', and 'end' columns.}
+\item{intervals}{The intervals set as a data frame with 'chrom', 'start', and 'end' columns. Can be a string with misha intervals name.}
+
+\item{size}{The size to normalize the intervals to. If NULL, the intervals will not be normalized.}
 }
 \value{
 A character vector of sequences.
@@ -22,6 +24,7 @@ install it.
 \dontrun{
 library(misha)
 gdb.init_examples()
-intervals_to_seq(gintervals.load("annotations"))
+intervals_to_seq("annotations")
+intervals_to_seq("annotations", 20)
 }
 }

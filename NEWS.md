@@ -1,3 +1,7 @@
+# prego 0.0.4
+
+* Added `size` paramter to `intervals_to_seq`.
+
 # prego 0.0.3
 
 * Added MotifDB object to store motif information.
