@@ -467,60 +467,6 @@ pssm_add_prior <- function(pssm_df, prior) {
     pssm_mat_to_df(pssm_mat)
 }
 
-#' Compute KL divergence between two PSSMs
-#'
-#' @param pssm1 first PSSM matrix or data frame
-#' @param pssm2 second PSSM matrix or data frame
-#'
-#' @return KL divergence between the two PSSMs
-#'
-#' @examples
-#' \dontrun{
-#' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
-#' pssm_diff(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
-#' }
-#'
-#' @export
-pssm_diff <- function(pssm1, pssm2) {
-    pssm1 <- pssm_to_mat(pssm1)
-    pssm2 <- pssm_to_mat(pssm2)
-    n_pos1 <- nrow(pssm1)
-    n_pos2 <- nrow(pssm2)
-
-    if (n_pos1 == 0 || n_pos2 == 0) {
-        cli::cli_abort("PSSM matrices cannot be empty")
-    }
-
-    window_size <- min(n_pos1, n_pos2)
-    max_pos <- max(n_pos1, n_pos2)
-
-
-    if (n_pos1 > n_pos2) {
-        pssm_s <- pssm2
-        pssm_l <- pssm1
-    } else {
-        pssm_s <- pssm1
-        pssm_l <- pssm2
-    }
-
-    epsilon <- 1e-10 # to avoid division by 0 or log(0)
-    pssm_s <- pssm_s + epsilon
-    pssm_s <- pssm_s / rowSums(pssm_s) # renormalize
-    pssm_l <- pssm_l + epsilon
-    pssm_l <- pssm_l / rowSums(pssm_l)
-
-    kl <- function(a, b) {
-        0.5 / ncol(a) * sum(colSums(a * log(a / b) +
-            b * log(b / a)))
-    }
-
-    kl_scores <- purrr::map_dbl(1:(max_pos - window_size + 1), ~ {
-        kl(t(pssm_l[.x:(.x + window_size - 1), ]), t(pssm_s))
-    })
-
-    return(min(kl_scores))
-}
-
 #' Reverse complement a PSSM
 #'
 #' @param pssm A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos' or a matrix with columns 'A', 'C', 'G', 'T'
