@@ -595,7 +595,7 @@ add_regression_db_screen <- function(res, response, sequences, motif_dataset, me
 }
 
 add_regression_db_match <- function(reg, sequences, motif_dataset, alternative, parallel = getOption("prego.parallel", TRUE)) {
-    best_match <- pssm_match(reg$pssm, motif_dataset, parallel = parallel)[1, ]
+    best_match <- pssm_match(reg$pssm, motif_dataset)[1, ]
     reg$db_match <- best_match$motif
     reg$db_match_cor <- best_match$cor
     cli_alert_info("Best match in the database: {.val {best_match$motif}}, cor: {.val {round(best_match$cor, digits = 3)}}")
