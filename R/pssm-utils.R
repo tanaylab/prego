@@ -521,237 +521,6 @@ pssm_diff <- function(pssm1, pssm2) {
     return(min(kl_scores))
 }
 
-#' Compute the correlation between two given PSSMs
-#'
-#' @description The correlation is computed by shifting the shorter PSSM along the longer one
-#' and computing the correlation at each position. The maximum correlation is returned.
-#'
-#' @param pssm1 first PSSM matrix or data frame
-#' @param pssm2 second PSSM matrix or data frame
-#' @param method method to use for computing the correlation. See \code{\link[stats]{cor}} for details.
-#' @param prior a prior probability for each nucleotide.
-#'
-#' @return Correlation between the two PSSMs
-#'
-#' @examples
-#' \dontrun{
-#' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
-#' pssm_cor(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
-#' }
-#'
-#' @export
-pssm_cor <- function(pssm1, pssm2, method = "spearman", prior = 0.01) {
-    pssm1 <- pssm_to_mat(pssm1)
-    pssm2 <- pssm_to_mat(pssm2)
-    n_pos1 <- nrow(pssm1)
-    n_pos2 <- nrow(pssm2)
-
-    if (n_pos1 == 0 || n_pos2 == 0) {
-        cli::cli_abort("PSSM matrices cannot be empty")
-    }
-
-    window_size <- min(n_pos1, n_pos2)
-    max_pos <- max(n_pos1, n_pos2)
-
-    if (n_pos1 > n_pos2) {
-        pssm_s <- pssm2
-        pssm_l <- pssm1
-    } else {
-        pssm_s <- pssm1
-        pssm_l <- pssm2
-    }
-
-    pssm_s <- pssm_s + prior
-    pssm_s <- pssm_s / rowSums(pssm_s) # renormalize
-    pssm_l <- pssm_l + prior
-    pssm_l <- pssm_l / rowSums(pssm_l)
-
-    scores <- purrr::map_dbl(1:(max_pos - window_size + 1), ~ {
-        cor(as.vector(t(pssm_l[.x:(.x + window_size - 1), ])), as.vector(t(pssm_s)), method = method)
-    })
-
-    return(max(scores))
-}
-
-#' Compute a correlation matrix for a pssm dataset
-#'
-#' @param dataset a pssm dataset. A data frame with the columns 'motif', 'pos', 'A", 'C', 'G', 'T'
-#' @param parallel whether to use parallel computing
-#'
-#' @return A correlation matrix for the PSSMs in the dataset
-#'
-#' @examples
-#' \dontrun{
-#' cm <- pssm_dataset_cor(JASPAM_motifs)
-#' head(cm)
-#' }
-#'
-#' @inheritParams pssm_cor
-#' @export
-pssm_dataset_cor <- function(dataset, method = "spearman", prior = 0.01, parallel = getOption("prego.parallel", TRUE)) {
-    motifs <- unique(dataset$motif)
-    motif_combs <- t(utils::combn(motifs, 2)) %>% as.data.frame()
-    colnames(motif_combs) <- c("motif1", "motif2")
-
-    pssm_cors <- safe_adply(motif_combs, 1, function(x) {
-        tibble(cor = pssm_cor(
-            dataset %>% filter(motif == x$motif1),
-            dataset %>% filter(motif == x$motif2)
-        ))
-    },
-    .parallel = parallel
-    )
-
-    # transform to a matrix while making sure all the
-    pssm_mat <- pssm_cors %>%
-        tidyr::complete(motif1 = motifs, motif2 = motifs, fill = list(cor = 0)) %>%
-        tidyr::spread(motif2, cor) %>%
-        tibble::column_to_rownames("motif1") %>%
-        as.matrix()
-
-    pssm_mat <- pssm_mat[motifs, motifs]
-
-
-    # fill the lower triangle
-    pssm_mat[lower.tri(pssm_mat)] <- t(pssm_mat)[lower.tri(pssm_mat)]
-
-    # fill the diagonal
-    diag(pssm_mat) <- 1
-
-    return(pssm_mat)
-}
-
-
-#' Match PSSM to a directory of motifs
-#'
-#' @description Match a PSSM to a directory of motifs. The PSSM is matched to each motif in the directory by computing the correlation between the two PSSMs.
-#'
-#' @param pssm PSSM matrix or data frame
-#' @param motifs a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name
-#' @param best return the best match only
-#' @param parallel use parallel processing. Set the number of cores using \code{set_parallel}.
-#'
-#' @return if \code{best} is \code{TRUE}, a string with the best match. Otherwise, a data frame with a row per motif and a column named 'cor' with its correlation to \code{pssm}. The data frame is sorted by descreasing correlation.
-#'
-#' @examples
-#' \dontrun{
-#' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
-#' head(pssm_match(res1$pssm, JASPAR_motifs))
-#' pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
-#' }
-#'
-#' @inheritParams pssm_cor
-#'
-#' @export
-pssm_match <- function(pssm, motifs, best = FALSE, method = "spearman", parallel = getOption("prego.parallel", TRUE)) {
-    if (!is.data.frame(motifs)) {
-        cli_abort("The {.field motifs} argument should be a data frame")
-    }
-    if (!all(c("A", "C", "G", "T") %in% colnames(motifs))) {
-        cli_abort("The {.field motifs} data frame should have columns {.val A}, {.val C}, {.val G}, {.val T}")
-    }
-    if (!("motif" %in% colnames(motifs))) {
-        cli_abort("The {.field motifs} data frame should have a column {.val motif}")
-    }
-
-    res <- safe_ddply(motifs, "motif", function(x) {
-        tibble(cor = pssm_cor(pssm, x, method = method))
-    }, .parallel = parallel)
-
-    res <- res %>% arrange(desc(cor))
-
-    if (best) {
-        return(res$motif[1])
-    }
-
-    return(res)
-}
-
-#' Plot LOGO of the pssm result from the regression
-#'
-#' @param pssm PSSM matrix or data frame
-#' @param title title of the plot
-#' @param subtitle subtitle of the plot
-#' @param pos_bits_thresh Positions with bits above this threshold would be highlighted in red. If \code{NULL}, no positions would be highlighted.
-#' @param revcomp whether to plot the reverse complement of the PSSM
-#' @param method Height method, can be one of "bits" or "probability" (default:"bits")
-#'
-#' @return a ggplot object
-#'
-#' @examples
-#' pssm <- data.frame(
-#'     pos = seq(0, 9, by = 1),
-#'     A = c(
-#'         0.16252439817826936, 0.4519127838188067, 0, 1, 0, 0.9789171974522293,
-#'         0.9743866100297978, 0.013113942843003835, 0.3734676916683981,
-#'         0.32658771473191045
-#'     ),
-#'     C = c(
-#'         0.43038386467143785, 0.13116231900388756, 0, 0, 0, 0, 0, 0.46975132995175056,
-#'         0.1669956368169541, 0.29795679333680375
-#'     ),
-#'     G = c(
-#'         0.22999349381912818, 0.002929742520705392, 1, 0, 0, 0, 0.012679896024852597,
-#'         0.4808858097241123, 0.4248389777685435, 0.20458094742321709
-#'     ),
-#'     T = c(
-#'         0.1770982433311646, 0.41399515465660036, 0, 0, 1, 0.0210828025477707,
-#'         0.012933493945349648, 0.03624891748113324, 0.0346976937461043,
-#'         0.17087454450806872
-#'     )
-#' )
-#' plot_pssm_logo(pssm)
-#' \dontrun{
-#' res <- regress_pwm(sequences_example, response_mat_example)
-#' plot_pssm_logo(res$pssm)
-#' }
-#'
-#' @export
-plot_pssm_logo <- function(pssm, title = "Sequence model", subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE, method = "bits") {
-    if (revcomp) {
-        pssm <- pssm_rc(pssm)
-    }
-    pfm <- t(pssm_to_mat(pssm))
-    p <- ggseqlogo::ggseqlogo(pfm, method = method) +
-        ggtitle(title, subtitle = subtitle)
-    if (!is.null(pos_bits_thresh)) {
-        bits <- bits_per_pos(t(pfm))
-        pos_mask <- bits > pos_bits_thresh
-        rect_data <- tibble(
-            x = which(pos_mask) - 0.5,
-            xend = x + 1,
-            y = 0,
-            yend = max(bits)
-        )
-        p <- p + geom_rect(data = rect_data, aes(xmin = x, xmax = xend, ymin = y, ymax = yend), fill = "red", alpha = 0.1)
-    }
-    return(p)
-}
-
-#' Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
-#'
-#' @param motif the motif name (e.g. "GATA4")
-#' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets()
-#'
-#' @return a ggplot object
-#'
-#' @examples
-#'
-#' plot_pssm_logo_dataset("JASPAR.Brachyury")
-#'
-#' plot_pssm_logo_dataset("GATA5", JASPAR_motifs)
-#'
-#' @inheritParams plot_pssm_logo
-#' @export
-plot_pssm_logo_dataset <- function(motif, dataset = all_motif_datasets(), title = motif, subtitle = ggplot2::waiver(), pos_bits_thresh = NULL, revcomp = FALSE, method = "bits") {
-    motif_dataset <- dataset %>%
-        filter(motif == !!motif)
-    if (nrow(motif_dataset) == 0) {
-        cli_abort("The motif {.val {motif}} was not found in the dataset")
-    }
-    plot_pssm_logo(motif_dataset, title = title, subtitle = subtitle, pos_bits_thresh = pos_bits_thresh, revcomp = revcomp, method = method)
-}
-
 #' Reverse complement a PSSM
 #'
 #' @param pssm A PSSM. Data frame with columns 'A', 'C', 'G', 'T' and 'pos' or a matrix with columns 'A', 'C', 'G', 'T'
@@ -838,4 +607,31 @@ trim_pssm <- function(pssm, bits_thresh = 0.1) {
         filter(pos >= first_above, pos <= last_above) %>%
         mutate(pos = 1:n() - 1)
     pssm
+}
+
+#' Convert a dataset to a list of PSSM matrices
+#'
+#' @param dataset A data frame with columns 'motif', 'A', 'C', 'G', 'T'
+#' @return A named list of matrices
+#' @keywords internal
+#' @noRd
+dataset_to_pssm_list <- function(dataset) {
+    if (!is.data.frame(dataset)) {
+        cli::cli_abort("The {.field dataset} argument should be a data frame")
+    }
+    if (!all(c("A", "C", "G", "T", "motif") %in% colnames(dataset))) {
+        cli::cli_abort("The {.field dataset} data frame should have columns {.val A}, {.val C}, {.val G}, {.val T}, and {.val motif}")
+    }
+
+    # Get unique motifs
+    motifs <- unique(dataset$motif)
+
+    # Convert dataset to list of matrices
+    pssm_list <- lapply(motifs, function(m) {
+        mat <- dataset[dataset$motif == m, c("A", "C", "G", "T")]
+        as.matrix(mat)
+    })
+
+    names(pssm_list) <- motifs
+    return(pssm_list)
 }
