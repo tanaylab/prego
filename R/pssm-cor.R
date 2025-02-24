@@ -180,7 +180,7 @@ pssm_dataset_diff <- function(dataset1, dataset2 = NULL, prior = 0.01) {
 #' @param motifs A data frame with PSSMs ('A', 'C', 'G', 'T' columns), with an additional
 #'        column 'motif' containing the motif name
 #' @param best Whether to return only the best match (default: FALSE)
-#' @param method Method to use for matching: "spearman", "pearson", or "kl" for KL divergence
+#' @param method Method to use for matching: "spearman", "pearson", or "kl" for KL divergence. Note that the KL divergence is a measure of dissimilarity, so lower values indicate better matches.
 #' @param prior A prior probability added to each nucleotide frequency
 #'
 #' @return If best is TRUE, returns a string with the best matching motif name.
@@ -190,6 +190,9 @@ pssm_dataset_diff <- function(dataset1, dataset2 = NULL, prior = 0.01) {
 #' @examples
 #' \dontrun{
 #' res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+#'
+#' # Find the best match using Spearman correlation
+#' pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
 #'
 #' # Find all matches using Spearman correlation
 #' matches <- pssm_match(res1$pssm, all_motif_datasets(), method = "spearman")

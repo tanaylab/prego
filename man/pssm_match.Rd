@@ -20,7 +20,7 @@ column 'motif' containing the motif name}
 
 \item{best}{Whether to return only the best match (default: FALSE)}
 
-\item{method}{Method to use for matching: "spearman", "pearson", or "kl" for KL divergence}
+\item{method}{Method to use for matching: "spearman", "pearson", or "kl" for KL divergence. Note that the KL divergence is a measure of dissimilarity, so lower values indicate better matches.}
 
 \item{prior}{A prior probability added to each nucleotide frequency}
 }
@@ -36,6 +36,9 @@ in the directory by computing the specified similarity measure.
 \examples{
 \dontrun{
 res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+
+# Find the best match using Spearman correlation
+pssm_match(res1$pssm, JASPAR_motifs, best = TRUE)
 
 # Find all matches using Spearman correlation
 matches <- pssm_match(res1$pssm, all_motif_datasets(), method = "spearman")
