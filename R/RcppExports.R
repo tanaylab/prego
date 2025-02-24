@@ -13,6 +13,10 @@ kmer_matrix_cpp <- function(sequences, kmer_length, from_range = 0L, to_range = 
     .Call('_prego_kmer_matrix_cpp', PACKAGE = 'prego', sequences, kmer_length, from_range, to_range, mask, add_mask, max_gap)
 }
 
+pssm_dataset_cor_parallel <- function(pssm_list, method = "spearman", prior = 0.01) {
+    .Call('_prego_pssm_dataset_cor_parallel', PACKAGE = 'prego', pssm_list, method, prior)
+}
+
 calc_seq_pwm_parallel_cpp <- function(sequences, pwm, pwm_rc, motif_lengths, D_min = 1L, bidirect = FALSE, spat_factors = matrix(0), spat_bin_size = 1L) {
     .Call('_prego_calc_seq_pwm_parallel_cpp', PACKAGE = 'prego', sequences, pwm, pwm_rc, motif_lengths, D_min, bidirect, spat_factors, spat_bin_size)
 }

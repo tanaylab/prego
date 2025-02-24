@@ -51,6 +51,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pssm_dataset_cor_parallel
+NumericMatrix pssm_dataset_cor_parallel(const List& pssm_list, const std::string& method, double prior);
+RcppExport SEXP _prego_pssm_dataset_cor_parallel(SEXP pssm_listSEXP, SEXP methodSEXP, SEXP priorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type pssm_list(pssm_listSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type prior(priorSEXP);
+    rcpp_result_gen = Rcpp::wrap(pssm_dataset_cor_parallel(pssm_list, method, prior));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_seq_pwm_parallel_cpp
 NumericMatrix calc_seq_pwm_parallel_cpp(const NumericMatrix& sequences, const NumericMatrix& pwm, const NumericMatrix& pwm_rc, const IntegerVector& motif_lengths, const int D_min, const bool bidirect, const NumericMatrix& spat_factors, const int spat_bin_size);
 RcppExport SEXP _prego_calc_seq_pwm_parallel_cpp(SEXP sequencesSEXP, SEXP pwmSEXP, SEXP pwm_rcSEXP, SEXP motif_lengthsSEXP, SEXP D_minSEXP, SEXP bidirectSEXP, SEXP spat_factorsSEXP, SEXP spat_bin_sizeSEXP) {
@@ -227,6 +240,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
     {"_prego_calc_sequences_dinuc_cpp", (DL_FUNC) &_prego_calc_sequences_dinuc_cpp, 1},
     {"_prego_kmer_matrix_cpp", (DL_FUNC) &_prego_kmer_matrix_cpp, 7},
+    {"_prego_pssm_dataset_cor_parallel", (DL_FUNC) &_prego_pssm_dataset_cor_parallel, 3},
     {"_prego_calc_seq_pwm_parallel_cpp", (DL_FUNC) &_prego_calc_seq_pwm_parallel_cpp, 8},
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
