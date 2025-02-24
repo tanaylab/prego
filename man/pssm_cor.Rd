@@ -4,7 +4,7 @@
 \alias{pssm_cor}
 \title{Compute the correlation between two given PSSMs}
 \usage{
-pssm_cor(pssm1, pssm2, method = "spearman", prior = 0.01)
+pssm_cor(pssm1, pssm2, method = c("spearman", "pearson"), prior = 0.01)
 }
 \arguments{
 \item{pssm1}{first PSSM matrix or data frame}
