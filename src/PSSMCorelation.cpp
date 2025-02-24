@@ -95,6 +95,19 @@ double compute_correlation(const std::vector<double> &x, const std::vector<doubl
     }
 }
 
+// Function to compute KL divergence between two vectors
+// The vectors should contain probability distributions
+double compute_kl_divergence(const std::vector<double> &p, const std::vector<double> &q) {
+    double kl_div = 0.0;
+    for (size_t i = 0; i < p.size(); i++) {
+        // Avoid log(0) by ensuring both p and q have positive values
+        if (p[i] > 0 && q[i] > 0) {
+            kl_div += p[i] * std::log(p[i] / q[i]);
+        }
+    }
+    return kl_div;
+}
+
 // Function to compute maximum correlation between two PSSMs with sliding window
 double compute_max_pssm_correlation(const PSSM &pssm1, const PSSM &pssm2, const std::string &method,
                                     double prior) {
@@ -104,7 +117,15 @@ double compute_max_pssm_correlation(const PSSM &pssm1, const PSSM &pssm2, const 
     const PSSM &pssm_s = (pssm1.nrows <= pssm2.nrows) ? pssm1 : pssm2;
     const PSSM &pssm_l = (pssm1.nrows <= pssm2.nrows) ? pssm2 : pssm1;
 
-    double max_correlation = -1.0;
+    double best_score;
+    // For Pearson and Spearman correlations, higher is better
+    // For KL divergence, lower is better
+    if (method == "kl") {
+        best_score = std::numeric_limits<double>::max(); // Initialize to a high value
+    } else {
+        best_score = -1.0; // Initialize to a low value for correlations
+    }
+
     std::vector<double> vec_s(window_size * 4), vec_l(window_size * 4);
 
     // Apply prior and normalize
@@ -129,7 +150,7 @@ double compute_max_pssm_correlation(const PSSM &pssm1, const PSSM &pssm2, const 
     std::copy(pssm_s.data.begin(), pssm_s.data.end(), vec_s.begin());
     normalize_with_prior(vec_s);
 
-    // Slide window and compute correlations
+    // Slide window and compute score
     for (int start = 0; start <= max_pos - window_size; start++) {
         // Copy window from longer PSSM
         for (int i = 0; i < window_size; i++) {
@@ -139,12 +160,25 @@ double compute_max_pssm_correlation(const PSSM &pssm1, const PSSM &pssm2, const 
         }
         normalize_with_prior(vec_l);
 
-        double corr = compute_correlation(vec_s, vec_l, method);
-        max_correlation = std::max(max_correlation, corr);
-        // Rcerr << "start: " << start << " corr: " << corr << std::endl;
+        double score;
+        if (method == "kl") {
+            // For KL divergence, compute both directions and take average
+            double kl_s_l = compute_kl_divergence(vec_s, vec_l);
+            double kl_l_s = compute_kl_divergence(vec_l, vec_s);
+            score = (kl_s_l + kl_l_s) / 2.0; // Symmetric KL divergence
+        } else {
+            score = compute_correlation(vec_s, vec_l, method);
+        }
+
+        // Update best score (min for KL, max for correlations)
+        if (method == "kl") {
+            best_score = std::min(best_score, score);
+        } else {
+            best_score = std::max(best_score, score);
+        }
     }
 
-    return max_correlation;
+    return best_score;
 }
 
 // Parallel worker for computing correlation matrix

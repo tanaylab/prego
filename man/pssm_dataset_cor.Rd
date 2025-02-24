@@ -2,7 +2,7 @@
 % Please edit documentation in R/pssm-cor.R
 \name{pssm_dataset_cor}
 \alias{pssm_dataset_cor}
-\title{Compute correlation matrix for PSSM datasets using parallel processing}
+\title{Compute correlation matrix for PSSM datasets}
 \usage{
 pssm_dataset_cor(
   dataset1,
@@ -18,7 +18,7 @@ pssm_dataset_cor(
 If provided, computes correlations between motifs in dataset1 and dataset2.
 If NULL (default), computes correlations between all motifs in dataset1.}
 
-\item{method}{Method to use for computing correlation. Either "spearman" (default) or "pearson"}
+\item{method}{Method to use for correlation calculation ("spearman" or "pearson")}
 
 \item{prior}{A prior probability added to each nucleotide frequency (default: 0.01)}
 }
@@ -28,7 +28,7 @@ all motifs in dataset1. If dataset2 is provided, returns a matrix with
 rows corresponding to motifs in dataset1 and columns to motifs in dataset2.
 }
 \description{
-Compute correlation matrix for PSSM datasets using parallel processing
+Compute correlation matrix for PSSM datasets
 }
 \examples{
 \dontrun{

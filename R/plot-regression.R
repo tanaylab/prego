@@ -168,7 +168,7 @@ plot_regression_qc <- function(reg,
         match_df <- pssm_match(reg$pssm, all_motif_datasets())
         best_motif <- match_df[1, ]
         reg$db_match <- best_motif$motif
-        reg$db_match_cor <- best_motif$cor
+        reg$db_match_cor <- best_motif$score
     }
 
     m_subtitle <- glue("cor: {round(reg$db_match_cor, digits = 3)}")

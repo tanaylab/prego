@@ -2,13 +2,13 @@
 % Please edit documentation in R/pssm-cor.R
 \name{pssm_match}
 \alias{pssm_match}
-\title{Match PSSM to a directory of motifs using parallel processing}
+\title{Match PSSM to a directory of motifs}
 \usage{
 pssm_match(
   pssm,
   motifs,
   best = FALSE,
-  method = c("spearman", "pearson"),
+  method = c("spearman", "pearson", "kl"),
   prior = 0.01
 )
 }
@@ -20,27 +20,29 @@ column 'motif' containing the motif name}
 
 \item{best}{Whether to return only the best match (default: FALSE)}
 
-\item{method}{Method to use for correlation calculation ("spearman" or "pearson")}
+\item{method}{Method to use for matching: "spearman", "pearson", or "kl" for KL divergence}
 
 \item{prior}{A prior probability added to each nucleotide frequency}
 }
 \value{
 If best is TRUE, returns a string with the best matching motif name.
-If best is FALSE, returns a data frame with columns 'motif' and 'cor',
-sorted by decreasing correlation.
+If best is FALSE, returns a data frame with columns 'motif' and either 'cor' or 'kl',
+sorted by decreasing similarity (for correlations) or increasing divergence (for KL).
 }
 \description{
 Match a PSSM to a directory of motifs. The PSSM is matched to each motif
-in the directory by computing the correlation between the two PSSMs.
+in the directory by computing the specified similarity measure.
 }
 \examples{
 \dontrun{
-# Find all matches
-matches <- pssm_match(my_pssm, JASPAR_motifs)
+res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
+
+# Find all matches using Spearman correlation
+matches <- pssm_match(res1$pssm, all_motif_datasets(), method = "spearman")
 head(matches)
 
-# Find best match only
-best_match <- pssm_match(my_pssm, JASPAR_motifs, best = TRUE)
+# Find best match using KL divergence
+best_match <- pssm_match(res1$pssm, all_motif_datasets(), best = TRUE, method = "kl")
 }
 
 }
