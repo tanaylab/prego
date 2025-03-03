@@ -45,6 +45,10 @@ regress_multiple_motifs <- function(sequences,
         cli_abort("{.field motif_num} must be at least 2")
     }
 
+    if (any(is.na(sequences))) {
+        cli_abort("There are missing values in the sequences")
+    }
+
     max_seq_len <- nchar(sequences[1])
     bins <- calculate_bins(max_seq_len, spat_num_bins, spat_bin_size)
     spat_num_bins <- bins$spat_num_bins
@@ -166,6 +170,7 @@ regress_multiple_motifs <- function(sequences,
             comb_scores <- c(comb_scores, ks_comb)
             scores <- c(scores, ks)
         } else {
+            browser()
             r2 <- cor(e[[i]], r0)^2
             r2_comb <- cor(e_comb, r0)^2
             cli_alert_info("R2 for models {.val {1:i}}: {.val {r2_comb}}")
