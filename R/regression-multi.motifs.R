@@ -170,7 +170,6 @@ regress_multiple_motifs <- function(sequences,
             comb_scores <- c(comb_scores, ks_comb)
             scores <- c(scores, ks)
         } else {
-            browser()
             r2 <- cor(e[[i]], r0)^2
             r2_comb <- cor(e_comb, r0)^2
             cli_alert_info("R2 for models {.val {1:i}}: {.val {r2_comb}}")
