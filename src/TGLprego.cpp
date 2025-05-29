@@ -79,10 +79,11 @@ Rcpp::NumericVector compute_pwm_cpp(const Rcpp::StringVector &sequences,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
+Rcpp::RObject compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
                                     const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
                                     const int &spat_min, const int &spat_max,
-                                    const Rcpp::NumericVector &spat_factor, const int &bin_size){
+                                    const Rcpp::NumericVector &spat_factor, const int &bin_size,
+                                    const bool &return_list = false){
     vector<string> seqs = Rcpp::as<vector<string>>(sequences);
     vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
     int smin = spat_min;
@@ -103,25 +104,51 @@ Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
     pssm.normalize();
 
     DnaPWML pwml(pssm, spat_fac, bin_size);
-    Rcpp::NumericVector preds(seqs.size());
+    
+    if (return_list) {
+        // Return list (for sequences of different lengths)
+        Rcpp::List local_preds(seqs.size());
 
-    Rcpp::NumericMatrix local_preds(seqs.size(), seqs[0].length());
+        for (size_t i = 0; i < seqs.size(); i++) {
+            int seq_len = seqs[i].length();
+            Rcpp::NumericVector seq_scores(seq_len);
+            
+            // go over windows of motif_len and compute local scores
+            for (int j = 0; j < seq_len - motif_len + 1; j++) {
+                float energy;
+                pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+                seq_scores[j] = energy;
+            }
 
-    for (size_t i = 0; i < seqs.size(); i++) {
-        // go over windows of motif_len and compute local scores
-        for (size_t j = 0; j < seqs[i].length() - motif_len + 1; j++) {
-            float energy;
-            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
-            local_preds(i, j) = energy;
+            // fill in the rest with NA
+            for (int j = seq_len - motif_len + 1; j < seq_len; j++) {
+                seq_scores[j] = Rcpp::NumericVector::get_na();
+            }
+            
+            local_preds[i] = seq_scores;
         }
 
-        // fill in the rest with NA
-        for (size_t j = seqs[i].length() - motif_len + 1; j < seqs[i].length(); j++) {
-            local_preds(i, j) = Rcpp::NumericVector::get_na();
+        return local_preds;
+    } else {
+        // Return matrix (for sequences of same length)
+        Rcpp::NumericMatrix local_preds(seqs.size(), seqs[0].length());
+
+        for (size_t i = 0; i < seqs.size(); i++) {
+            // go over windows of motif_len and compute local scores
+            for (size_t j = 0; j < seqs[i].length() - motif_len + 1; j++) {
+                float energy;
+                pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+                local_preds(i, j) = energy;
+            }
+
+            // fill in the rest with NA
+            for (size_t j = seqs[i].length() - motif_len + 1; j < seqs[i].length(); j++) {
+                local_preds(i, j) = Rcpp::NumericVector::get_na();
+            }
         }
+
+        return local_preds;
     }
-
-    return (local_preds);
 }
 
 // [[Rcpp::export]]
@@ -494,4 +521,69 @@ Rcpp::CharacterVector rc_cpp(Rcpp::CharacterVector sequences) {
     }
 
     return result;
+}
+
+// [[Rcpp::export]]
+Rcpp::List screen_local_pwm_cpp(const Rcpp::StringVector &sequences,
+                                const Rcpp::NumericMatrix &pssm_mat, const bool &is_bidirect,
+                                const int &spat_min, const int &spat_max,
+                                const Rcpp::NumericVector &spat_factor, const int &bin_size,
+                                const std::string &operator_str, const float &threshold) {
+    vector<string> seqs = Rcpp::as<vector<string>>(sequences);
+    vector<float> spat_fac = Rcpp::as<vector<float>>(spat_factor);
+    int smin = spat_min;
+    int smax = spat_max;
+    int motif_len = pssm_mat.nrow();
+
+    DnaPSSM pssm;
+
+    pssm.set_bidirect(is_bidirect);
+    pssm.resize(motif_len);
+    pssm.set_range(smin, smax);
+    for (int i = 0; i < motif_len; i++) {
+        pssm[i].set_weight('A', pssm_mat(i, 0));
+        pssm[i].set_weight('C', pssm_mat(i, 1));
+        pssm[i].set_weight('G', pssm_mat(i, 2));
+        pssm[i].set_weight('T', pssm_mat(i, 3));
+    }
+    pssm.normalize();
+
+    DnaPWML pwml(pssm, spat_fac, bin_size);
+    
+    // Return list of positions for each sequence
+    Rcpp::List result_positions(seqs.size());
+
+    for (size_t i = 0; i < seqs.size(); i++) {
+        vector<int> passing_positions;
+        int seq_len = seqs[i].length();
+        
+        // go over windows of motif_len and check if they pass the threshold
+        for (int j = 0; j < seq_len - motif_len + 1; j++) {
+            float energy;
+            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+            
+            bool passes = false;
+            if (operator_str == ">") {
+                passes = energy > threshold;
+            } else if (operator_str == "<") {
+                passes = energy < threshold;
+            } else if (operator_str == ">=") {
+                passes = energy >= threshold;
+            } else if (operator_str == "<=") {
+                passes = energy <= threshold;
+            } else if (operator_str == "==") {
+                passes = abs(energy - threshold) < 1e-10; // floating point equality
+            } else {
+                Rcpp::stop("Invalid operator. Must be one of: '>', '<', '>=', '<=', '=='");
+            }
+            
+            if (passes) {
+                passing_positions.push_back(j + 1); // Convert to 1-indexed for R
+            }
+        }
+        
+        result_positions[i] = Rcpp::wrap(passing_positions);
+    }
+
+    return result_positions;
 }

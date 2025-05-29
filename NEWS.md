@@ -1,3 +1,8 @@
+# prego 0.0.6
+
+* Added `screen_local_pwm` to find positions in sequences that match a PSSM.
+* Added `return_list` parameter to `compute_local_pwm`.
+
 # prego 0.0.5 
 
 * Faster pssm correlation computation using `RcppParallel`.

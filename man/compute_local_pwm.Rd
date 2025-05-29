@@ -11,7 +11,8 @@ compute_local_pwm(
   spat_min = 0,
   spat_max = NULL,
   bidirect = TRUE,
-  prior = 0.01
+  prior = 0.01,
+  return_list = FALSE
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ compute_local_pwm(
 \item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
 
 \item{prior}{a prior probability for each nucleotide.}
+
+\item{return_list}{Logical. If TRUE, returns a list with one vector per sequence (useful for sequences of different lengths). If FALSE, returns a matrix (requires all sequences to have the same length). Default is FALSE.}
 }
 \value{
-a matrix with \code{length(sequences)} rows and \code{ncol(pssm)} columns with the local PWM for each sequence in each position.
+If return_list is FALSE: a matrix with \code{length(sequences)} rows and \code{max(nchar(sequences))} columns with the local PWM for each sequence in each position. If return_list is TRUE: a list with \code{length(sequences)} elements, where each element is a numeric vector of local PWM scores for the corresponding sequence.
 }
 \description{
 compute the local PWM for each position in every sequence. The edges of each sequences would become NA.
@@ -39,8 +42,17 @@ compute the local PWM for each position in every sequence. The edges of each seq
 \dontrun{
 res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 
+# Return matrix (sequences must have same length)
 pwm <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat)
 head(pwm)
+
+# Return list (allows sequences of different lengths)
+pwm_list <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat, return_list = TRUE)
+pwm_list[[1]]
+
+# Using a motif from MOTIF_DB
+hnf1a_pwm <- compute_local_pwm(cluster_sequences_example, as.matrix(MOTIF_DB["JASPAR.HNF1A"]), return_list = TRUE)
+hnf1a_pwm[[1]]
 }
 
 }
