@@ -48,4 +48,15 @@ head(matches)
 best_match <- pssm_match(res1$pssm, all_motif_datasets(), best = TRUE, method = "kl")
 }
 
+# Match a single motif against the entire MOTIF_DB
+matches <- pssm_match(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.data.frame(MOTIF_DB))
+head(matches)
+
+# Find the best match for a GATA3 motif
+best_match <- pssm_match(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.data.frame(MOTIF_DB), best = TRUE)
+
+# Use KL divergence for matching
+kl_matches <- pssm_match(as.matrix(MOTIF_DB["JASPAR.CDX1"]), as.data.frame(MOTIF_DB), method = "kl")
+head(kl_matches)
+
 }

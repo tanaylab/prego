@@ -16,14 +16,21 @@
 #' pssm_cor(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
 #' }
 #'
+#' # Compare two motifs from MOTIF_DB
+#' pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.CDX1"]))
+#'
+#' # Compare using different correlation methods
+#' pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "pearson")
+#' pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "spearman")
+#'
 #' @export
 pssm_cor <- function(pssm1, pssm2, method = c("spearman", "pearson"), prior = 0.01) {
     method <- match.arg(method)
 
-    pssm1 <- pssm_mat_to_df(pssm_to_mat(pssm1)) %>%
+    pssm1 <- mat_to_pssm(pssm_to_mat(pssm1)) %>%
         mutate(motif = "pssm1") %>%
         select(motif, everything())
-    pssm2 <- pssm_mat_to_df(pssm_to_mat(pssm2)) %>%
+    pssm2 <- mat_to_pssm(pssm_to_mat(pssm2)) %>%
         mutate(motif = "pssm2") %>%
         select(motif, everything())
 
@@ -51,12 +58,18 @@ pssm_cor <- function(pssm1, pssm2, method = c("spearman", "pearson"), prior = 0.
 #' pssm_diff(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
 #' }
 #'
+#' # Compare KL divergence between two motifs from MOTIF_DB
+#' pssm_diff(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.CDX1"]))
+#'
+#' # Lower values indicate more similar motifs
+#' pssm_diff(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]))
+#'
 #' @export
 pssm_diff <- function(pssm1, pssm2, prior = 0.01) {
-    pssm1 <- pssm_mat_to_df(pssm_to_mat(pssm1)) %>%
+    pssm1 <- mat_to_pssm(pssm_to_mat(pssm1)) %>%
         mutate(motif = "pssm1") %>%
         select(motif, everything())
-    pssm2 <- pssm_mat_to_df(pssm_to_mat(pssm2)) %>%
+    pssm2 <- mat_to_pssm(pssm_to_mat(pssm2)) %>%
         mutate(motif = "pssm2") %>%
         select(motif, everything())
 
@@ -137,6 +150,14 @@ pssm_dataset_score <- function(dataset1, dataset2 = NULL,
 #' cm2 <- pssm_dataset_cor(JASPAR_motifs, HOMER_motifs)
 #' }
 #'
+#' # Correlations within MOTIF_DB (subset)
+#' gata_motifs <- as.data.frame(MOTIF_DB["GATA", pattern = TRUE])
+#' cm_gata <- pssm_dataset_cor(gata_motifs)
+#'
+#' # Compare GATA motifs with CDX motifs
+#' cdx_motifs <- as.data.frame(MOTIF_DB["CDX", pattern = TRUE])
+#' cm_cross <- pssm_dataset_cor(gata_motifs, cdx_motifs)
+#'
 #' @export
 pssm_dataset_cor <- function(dataset1, dataset2 = NULL,
                              method = c("spearman", "pearson"),
@@ -165,6 +186,14 @@ pssm_dataset_cor <- function(dataset1, dataset2 = NULL,
 #' # KL divergences between two datasets
 #' dm2 <- pssm_dataset_diff(JASPAR_motifs, HOMER_motifs)
 #' }
+#'
+#' # KL divergences within MOTIF_DB (subset)
+#' gata_motifs <- as.data.frame(MOTIF_DB["GATA", pattern = TRUE])
+#' dm_gata <- pssm_dataset_diff(gata_motifs)
+#'
+#' # Compare GATA motifs with CDX motifs using KL divergence
+#' cdx_motifs <- as.data.frame(MOTIF_DB["CDX", pattern = TRUE])
+#' dm_cross <- pssm_dataset_diff(gata_motifs, cdx_motifs)
 #'
 #' @export
 pssm_dataset_diff <- function(dataset1, dataset2 = NULL, prior = 0.01) {
@@ -202,6 +231,17 @@ pssm_dataset_diff <- function(dataset1, dataset2 = NULL, prior = 0.01) {
 #' best_match <- pssm_match(res1$pssm, all_motif_datasets(), best = TRUE, method = "kl")
 #' }
 #'
+#' # Match a single motif against the entire MOTIF_DB
+#' matches <- pssm_match(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.data.frame(MOTIF_DB))
+#' head(matches)
+#'
+#' # Find the best match for a GATA3 motif
+#' best_match <- pssm_match(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.data.frame(MOTIF_DB), best = TRUE)
+#'
+#' # Use KL divergence for matching
+#' kl_matches <- pssm_match(as.matrix(MOTIF_DB["JASPAR.CDX1"]), as.data.frame(MOTIF_DB), method = "kl")
+#' head(kl_matches)
+#'
 #' @export
 pssm_match <- function(pssm, motifs, best = FALSE,
                        method = c("spearman", "pearson", "kl"),
@@ -217,7 +257,7 @@ pssm_match <- function(pssm, motifs, best = FALSE,
     }
 
     # Create a temporary data frame with the query PSSM
-    query_df <- pssm_mat_to_df(pssm) %>%
+    query_df <- mat_to_pssm(pssm) %>%
         mutate(motif = "query") %>%
         select(motif, everything())
 

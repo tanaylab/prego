@@ -2,9 +2,12 @@
 % Please edit documentation in R/pssm-utils.R
 \name{trim_pssm}
 \alias{trim_pssm}
+\alias{pssm_trim}
 \title{Trim PSSM}
 \usage{
 trim_pssm(pssm, bits_thresh = 0.1)
+
+pssm_trim(pssm, bits_thresh = 0.1)
 }
 \arguments{
 \item{pssm}{A data frame representing the PSSM, with columns for position (pos) and bits per position (bits).}

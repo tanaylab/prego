@@ -39,4 +39,12 @@ cm <- pssm_dataset_cor(JASPAR_motifs)
 cm2 <- pssm_dataset_cor(JASPAR_motifs, HOMER_motifs)
 }
 
+# Correlations within MOTIF_DB (subset)
+gata_motifs <- as.data.frame(MOTIF_DB["GATA", pattern = TRUE])
+cm_gata <- pssm_dataset_cor(gata_motifs)
+
+# Compare GATA motifs with CDX motifs
+cdx_motifs <- as.data.frame(MOTIF_DB["CDX", pattern = TRUE])
+cm_cross <- pssm_dataset_cor(gata_motifs, cdx_motifs)
+
 }

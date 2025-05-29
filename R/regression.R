@@ -447,6 +447,9 @@ regress_pwm <- function(sequences,
                 }
             }
         }
+        if (!is.character(motif)) {
+            cli_abort("The motif must be a either a character string or a data frame with the PSSM")
+        }
         if (stringr::str_length(motif) < motif_length) {
             motif <- stringr::str_pad(motif, motif_length, "*", side = "both")
             cli_alert_info("Motif is shorter than {.val {motif_length}}, extending with wildcards")
