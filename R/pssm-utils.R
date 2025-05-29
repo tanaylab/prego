@@ -452,19 +452,11 @@ mat_to_pssm <- function(pssm) {
         select(pos, A, C, G, T)
 }
 
-pssm_mat_to_df <- function(pss_mat) {
-    pssm_df <- as.data.frame(pss_mat)
-    pssm_df$pos <- rownames(pssm_df)
-    pssm_df <- pssm_df %>%
-        select(pos, A, C, G, T)
-    return(pssm_df)
-}
-
 pssm_add_prior <- function(pssm_df, prior) {
     pssm_mat <- pssm_to_mat(pssm_df)
     pssm_mat <- pssm_mat + prior
     pssm_mat <- pssm_mat / rowSums(pssm_mat)
-    pssm_mat_to_df(pssm_mat)
+    mat_to_pssm(pssm_mat)
 }
 
 #' Reverse complement a PSSM
@@ -555,6 +547,10 @@ trim_pssm <- function(pssm, bits_thresh = 0.1) {
     pssm
 }
 
+#' @export
+#' @rdname trim_pssm
+pssm_trim <- trim_pssm
+
 #' Convert a dataset to a list of PSSM matrices
 #'
 #' @param dataset A data frame with columns 'motif', 'A', 'C', 'G', 'T'
@@ -581,3 +577,81 @@ dataset_to_pssm_list <- function(dataset) {
     names(pssm_list) <- motifs
     return(pssm_list)
 }
+
+#' Concatenate two PSSM matrices
+#'
+#' @param pssm1,pssm2 PSSM matrices
+#' @param gap The gap between the two PSSM matrices, can be 0
+#' @param trim Whether to trim the PSSM matrices
+#' @param bits_thresh The threshold value for bits per position. Positions with bits above this threshold will be kept, while positions with bits below this threshold at the beginning and the end of the motif will be removed. The default value is 0.1.
+#' @param orientation The orientation of the PSSMs. One of "ff" (forward-forward), "fr" (forward-reverse), "rf" (reverse-forward), "rr" (reverse-reverse). Default is "ff".
+#'
+#' @examples
+#' # Basic concatenation of two motifs
+#' pssm1 <- as.matrix(MOTIF_DB["HOMER.GATA3_2"])
+#' pssm2 <- as.matrix(MOTIF_DB["JASPAR.CDX1"])
+#' concat_motif <- pssm_concat(pssm1, pssm2)
+#' plot_pssm_logo(concat_motif, title = "Concatenated GATA3 + CDX1")
+#'
+#' # Concatenation with a gap
+#' concat_with_gap <- pssm_concat(pssm1, pssm2, gap = 3)
+#' plot_pssm_logo(concat_with_gap, title = "GATA3 + CDX1 with 3bp gap")
+#'
+#' # Different orientations
+#' concat_fr <- pssm_concat(pssm1, pssm2, orientation = "fr") # forward-reverse
+#' plot_pssm_logo(concat_fr, title = "GATA3 forward + CDX1 reverse")
+#' concat_rf <- pssm_concat(pssm1, pssm2, orientation = "rf") # reverse-forward
+#' plot_pssm_logo(concat_rf, title = "GATA3 reverse + CDX1 forward")
+#' concat_rr <- pssm_concat(pssm1, pssm2, orientation = "rr") # reverse-reverse
+#' plot_pssm_logo(concat_rr, title = "Both motifs reversed")
+#'
+#' # Without trimming
+#' concat_no_trim <- pssm_concat(pssm1, pssm2, trim = FALSE)
+#' plot_pssm_logo(concat_no_trim, title = "Concatenated without trimming")
+#'
+#' @export
+pssm_concat <- function(pssm1, pssm2, gap = 0, trim = TRUE, bits_thresh = 0.1, orientation = "ff") {
+    if (is.matrix(pssm1)) {
+        pssm1 <- mat_to_pssm(pssm1)
+    }
+    if (is.matrix(pssm2)) {
+        pssm2 <- mat_to_pssm(pssm2)
+    }
+
+    # Apply reverse complement based on orientation
+    valid_orientations <- c("ff", "fr", "rf", "rr")
+    if (!orientation %in% valid_orientations) {
+        cli_abort("Invalid orientation. Must be one of: {.val {valid_orientations}}")
+    }
+
+    # Apply reverse complement as needed
+    if (orientation == "rf" || orientation == "rr") {
+        pssm1 <- pssm_rc(pssm1)
+    }
+
+    if (orientation == "fr" || orientation == "rr") {
+        pssm2 <- pssm_rc(pssm2)
+    }
+
+    if (trim) {
+        pssm1 <- trim_pssm(pssm1, bits_thresh)
+        pssm2 <- trim_pssm(pssm2, bits_thresh)
+    }
+
+    if (gap > 0) {
+        gap_df <- data.frame(pos = 1:gap, A = 0.25, C = 0.25, G = 0.25, T = 0.25)
+        pssm_concat <- dplyr::bind_rows(pssm1, gap_df, pssm2)
+    } else {
+        pssm_concat <- dplyr::bind_rows(pssm1, pssm2)
+    }
+
+    pssm_concat <- pssm_concat %>%
+        mutate(pos = 1:n() - 1) %>%
+        select(pos, A, C, G, T)
+
+    return(pssm_concat)
+}
+
+#' @export
+#' @rdname pssm_concat
+concat_pssm <- pssm_concat

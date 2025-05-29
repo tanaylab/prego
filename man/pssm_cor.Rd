@@ -28,4 +28,11 @@ res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 pssm_cor(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
 }
 
+# Compare two motifs from MOTIF_DB
+pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.CDX1"]))
+
+# Compare using different correlation methods
+pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "pearson")
+pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "spearman")
+
 }

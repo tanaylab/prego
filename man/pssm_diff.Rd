@@ -26,4 +26,10 @@ res1 <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 pssm_diff(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
 }
 
+# Compare KL divergence between two motifs from MOTIF_DB
+pssm_diff(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.CDX1"]))
+
+# Lower values indicate more similar motifs
+pssm_diff(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]))
+
 }

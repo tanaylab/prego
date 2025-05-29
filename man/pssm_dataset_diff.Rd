@@ -32,4 +32,12 @@ dm <- pssm_dataset_diff(JASPAR_motifs)
 dm2 <- pssm_dataset_diff(JASPAR_motifs, HOMER_motifs)
 }
 
+# KL divergences within MOTIF_DB (subset)
+gata_motifs <- as.data.frame(MOTIF_DB["GATA", pattern = TRUE])
+dm_gata <- pssm_dataset_diff(gata_motifs)
+
+# Compare GATA motifs with CDX motifs using KL divergence
+cdx_motifs <- as.data.frame(MOTIF_DB["CDX", pattern = TRUE])
+dm_cross <- pssm_dataset_diff(gata_motifs, cdx_motifs)
+
 }
