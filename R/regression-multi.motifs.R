@@ -126,7 +126,7 @@ regress_multiple_motifs <- function(sequences,
     if (is_binary_response(response)) {
         comb_scores[1] <- res$ks$statistic
     } else {
-        comb_scores[1] <- res$r2
+        comb_scores[1] <- mean(res$r2)
     }
     scores[1] <- comb_scores[1]
 
@@ -155,7 +155,6 @@ regress_multiple_motifs <- function(sequences,
 
         e[[i]] <- res$pred
         names(e)[i] <- paste0("e", i)
-
         # combined lm model
         pred_df <- cbind(r0, as.data.frame(e))
         model_comb <- lm(r0 ~ ., data = pred_df)
@@ -170,8 +169,8 @@ regress_multiple_motifs <- function(sequences,
             comb_scores <- c(comb_scores, ks_comb)
             scores <- c(scores, ks)
         } else {
-            r2 <- cor(e[[i]], r0)^2
-            r2_comb <- cor(e_comb, r0)^2
+            r2 <- mean(cor(e[[i]], r0)^2)
+            r2_comb <- mean(cor(e_comb, r0)^2)
             cli_alert_info("R2 for models {.val {1:i}}: {.val {r2_comb}}")
             cli_alert_info("Improvement in R2: {.val {r2_comb - comb_scores[i - 1]}}")
             comb_scores <- c(comb_scores, r2_comb)
@@ -191,8 +190,8 @@ regress_multiple_motifs <- function(sequences,
     if (match_with_db) {
         stats <- stats %>% mutate(
             db_match = sapply(models, function(x) x$db_match),
-            db_match_cor = sapply(models, function(x) x$db_match_cor),
-            db_match_r2 = sapply(models, function(x) x$db_match_r2)
+            db_match_cor = sapply(models, function(x) mean(x$db_match_cor)),
+            db_match_r2 = sapply(models, function(x) mean(x$db_match_r2))
         )
         if (is_binary_response(response)) {
             stats <- stats %>% mutate(

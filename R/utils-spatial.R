@@ -17,6 +17,7 @@ calculate_bins <- function(max_seq_len, spat_num_bins = NULL, spat_bin_size = NU
     }
 
     spat_bin_size <- default_bin_size
+    spat_bin_size <- min(spat_bin_size, floor(max_seq_len / 3))
     spat_num_bins <- floor(max_seq_len / spat_bin_size)
 
     if (spat_num_bins %% 2 == 0) {
