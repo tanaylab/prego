@@ -29,8 +29,8 @@ compute_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max
     .Call('_prego_compute_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, use_max)
 }
 
-compute_local_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size) {
-    .Call('_prego_compute_local_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size)
+compute_local_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, return_list = FALSE) {
+    .Call('_prego_compute_local_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, return_list)
 }
 
 mask_sequences_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, mask_thresh, pos_mask) {
@@ -51,5 +51,9 @@ interpolateFunction <- function(func, xmin, xmax, npts, x) {
 
 rc_cpp <- function(sequences) {
     .Call('_prego_rc_cpp', PACKAGE = 'prego', sequences)
+}
+
+screen_local_pwm_cpp <- function(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, operator_str, threshold) {
+    .Call('_prego_screen_local_pwm_cpp', PACKAGE = 'prego', sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, operator_str, threshold)
 }
 

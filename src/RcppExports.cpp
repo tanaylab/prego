@@ -114,8 +114,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // compute_local_pwm_cpp
-Rcpp::NumericMatrix compute_local_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size);
-RcppExport SEXP _prego_compute_local_pwm_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP) {
+Rcpp::RObject compute_local_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size, const bool& return_list);
+RcppExport SEXP _prego_compute_local_pwm_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP, SEXP return_listSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -126,7 +126,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type spat_factor(spat_factorSEXP);
     Rcpp::traits::input_parameter< const int& >::type bin_size(bin_sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_local_pwm_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size));
+    Rcpp::traits::input_parameter< const bool& >::type return_list(return_listSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_local_pwm_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, return_list));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -235,6 +236,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// screen_local_pwm_cpp
+Rcpp::List screen_local_pwm_cpp(const Rcpp::StringVector& sequences, const Rcpp::NumericMatrix& pssm_mat, const bool& is_bidirect, const int& spat_min, const int& spat_max, const Rcpp::NumericVector& spat_factor, const int& bin_size, const std::string& operator_str, const float& threshold);
+RcppExport SEXP _prego_screen_local_pwm_cpp(SEXP sequencesSEXP, SEXP pssm_matSEXP, SEXP is_bidirectSEXP, SEXP spat_minSEXP, SEXP spat_maxSEXP, SEXP spat_factorSEXP, SEXP bin_sizeSEXP, SEXP operator_strSEXP, SEXP thresholdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type pssm_mat(pssm_matSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type is_bidirect(is_bidirectSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_min(spat_minSEXP);
+    Rcpp::traits::input_parameter< const int& >::type spat_max(spat_maxSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type spat_factor(spat_factorSEXP);
+    Rcpp::traits::input_parameter< const int& >::type bin_size(bin_sizeSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type operator_str(operator_strSEXP);
+    Rcpp::traits::input_parameter< const float& >::type threshold(thresholdSEXP);
+    rcpp_result_gen = Rcpp::wrap(screen_local_pwm_cpp(sequences, pssm_mat, is_bidirect, spat_min, spat_max, spat_factor, bin_size, operator_str, threshold));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_prego_n_nuc_distribution", (DL_FUNC) &_prego_n_nuc_distribution, 3},
@@ -244,12 +264,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_prego_calc_seq_pwm_parallel_cpp", (DL_FUNC) &_prego_calc_seq_pwm_parallel_cpp, 8},
     {"_prego_get_consensus_cpp", (DL_FUNC) &_prego_get_consensus_cpp, 3},
     {"_prego_compute_pwm_cpp", (DL_FUNC) &_prego_compute_pwm_cpp, 8},
-    {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 7},
+    {"_prego_compute_local_pwm_cpp", (DL_FUNC) &_prego_compute_local_pwm_cpp, 8},
     {"_prego_mask_sequences_cpp", (DL_FUNC) &_prego_mask_sequences_cpp, 9},
     {"_prego_regress_pwm_cpp", (DL_FUNC) &_prego_regress_pwm_cpp, 28},
     {"_prego_screen_kmers_cpp", (DL_FUNC) &_prego_screen_kmers_cpp, 12},
     {"_prego_interpolateFunction", (DL_FUNC) &_prego_interpolateFunction, 5},
     {"_prego_rc_cpp", (DL_FUNC) &_prego_rc_cpp, 1},
+    {"_prego_screen_local_pwm_cpp", (DL_FUNC) &_prego_screen_local_pwm_cpp, 9},
     {NULL, NULL, 0}
 };
 

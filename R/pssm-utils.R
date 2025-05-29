@@ -86,19 +86,30 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
 #'
 #' @description compute the local PWM for each position in every sequence. The edges of each sequences would become NA.
 #'
-#' @return a matrix with \code{length(sequences)} rows and \code{ncol(pssm)} columns with the local PWM for each sequence in each position.
+#' @param return_list Logical. If TRUE, returns a list with one vector per sequence (useful for sequences of different lengths). If FALSE, returns a matrix (requires all sequences to have the same length). Default is FALSE.
+#'
+#' @return If return_list is FALSE: a matrix with \code{length(sequences)} rows and \code{max(nchar(sequences))} columns with the local PWM for each sequence in each position. If return_list is TRUE: a list with \code{length(sequences)} elements, where each element is a numeric vector of local PWM scores for the corresponding sequence.
 #'
 #' @examples
 #' \dontrun{
 #' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #'
+#' # Return matrix (sequences must have same length)
 #' pwm <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat)
 #' head(pwm)
+#'
+#' # Return list (allows sequences of different lengths)
+#' pwm_list <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat, return_list = TRUE)
+#' pwm_list[[1]]
+#'
+#' # Using a motif from MOTIF_DB
+#' hnf1a_pwm <- compute_local_pwm(cluster_sequences_example, as.matrix(MOTIF_DB["JASPAR.HNF1A"]), return_list = TRUE)
+#' hnf1a_pwm[[1]]
 #' }
 #'
 #' @inheritParams compute_pwm
 #' @export
-compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
+compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, return_list = FALSE) {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -129,9 +140,12 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
         pssm_mat <- pssm_mat + prior
     }
 
-    seq_l <- stringr::str_length(sequences)
-    if (length(unique(seq_l)) > 1) {
-        cli_abort("All sequences should have the same length")
+    # Check sequence lengths only if not returning a list
+    if (!return_list) {
+        seq_l <- stringr::str_length(sequences)
+        if (length(unique(seq_l)) > 1) {
+            cli_abort("All sequences should have the same length when {.field return_list} is FALSE. Set {.field return_list = TRUE} to handle sequences of different lengths.")
+        }
     }
 
     pwm <- compute_local_pwm_cpp(
@@ -141,7 +155,8 @@ compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_m
         spat_min = spat_min,
         spat_max = spat_max,
         spat_factor = spat$spat_factor,
-        bin_size = binsize
+        bin_size = binsize,
+        return_list = return_list
     )
 
     return(pwm)
@@ -655,3 +670,85 @@ pssm_concat <- function(pssm1, pssm2, gap = 0, trim = TRUE, bits_thresh = 0.1, o
 #' @export
 #' @rdname pssm_concat
 concat_pssm <- pssm_concat
+
+#' Screen sequences for positions with PWM scores meeting a threshold condition
+#'
+#' @description This function screens sequences to find positions where the local PWM score
+#' meets a specified threshold condition using various operators (>, <, >=, <=, ==).
+#'
+#' @param operator A character string specifying the comparison operator. One of: ">", "<", ">=", "<=", "=="
+#' @param threshold A numeric value specifying the threshold for comparison
+#'
+#' @return A list with one element per sequence, where each element is a numeric vector
+#' containing the 1-indexed positions that meet the threshold condition.
+#'
+#' @examples
+#' \dontrun{
+#' # Find positions where HNF1A motif scores above -19
+#' hnf1a_positions <- screen_local_pwm(
+#'     cluster_sequences_example,
+#'     as.matrix(MOTIF_DB["JASPAR.HNF1A"]),
+#'     operator = ">",
+#'     threshold = -37
+#' )
+#'
+#' which(purrr::map_dbl(hnf1a_positions, length) > 0) # which sequences have positions?
+#' hnf1a_positions[[4]] # positions for the 4th sequence
+#'
+#' hnf1a_energy <- compute_local_pwm(cluster_sequences_example, as.matrix(MOTIF_DB["JASPAR.HNF1A"]))
+#' hnf1a_energy[4, hnf1a_positions[[4]]]
+#' }
+#'
+#' @inheritParams compute_local_pwm
+#' @export
+screen_local_pwm <- function(sequences, pssm, operator, threshold, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
+    if (is.null(spat)) {
+        spat <- data.frame(bin = 0, spat_factor = 1)
+        binsize <- nchar(sequences[[1]])
+    } else {
+        validate_spat(spat)
+        binsize <- unique(diff(spat$bin))
+    }
+
+    if (is.null(spat_max)) {
+        spat_max <- nchar(sequences[1])
+    }
+
+    if (!all(c("A", "C", "G", "T") %in% colnames(pssm))) {
+        cli_abort("The {.field pssm} matrix should have columns {.val A}, {.val C}, {.val G}, {.val T}")
+    }
+
+    # Validate operator
+    valid_operators <- c(">", "<", ">=", "<=", "==")
+    if (!operator %in% valid_operators) {
+        cli_abort("The {.field operator} must be one of: {.val {valid_operators}}")
+    }
+
+    pssm_mat <- as.matrix(pssm[, c("A", "C", "G", "T")])
+
+    if (nrow(pssm_mat) == 0) {
+        cli_abort("The {.field pssm} matrix should have at least one row")
+    }
+
+    if (prior < 0 || prior > 1) {
+        cli_abort("The {.field prior} should be between 0 and 1")
+    }
+
+    if (prior > 0) {
+        pssm_mat <- pssm_mat + prior
+    }
+
+    positions <- screen_local_pwm_cpp(
+        sequences = toupper(sequences),
+        pssm_mat = pssm_mat,
+        is_bidirect = bidirect,
+        spat_min = spat_min,
+        spat_max = spat_max,
+        spat_factor = spat$spat_factor,
+        bin_size = binsize,
+        operator_str = operator,
+        threshold = threshold
+    )
+
+    return(positions)
+}
