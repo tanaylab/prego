@@ -157,8 +157,29 @@ regress_multiple_motifs <- function(sequences,
         names(e)[i] <- paste0("e", i)
         # combined lm model
         pred_df <- cbind(r0, as.data.frame(e))
-        model_comb <- lm(r0 ~ ., data = pred_df)
-        e_comb <- predict(model_comb, pred_df)
+
+        # Build a combined linear model. When the response has multiple columns we fit a
+        # multivariate linear model using cbind(resp1, resp2, ...) ~ predictors.  When the
+        # response is a single vector we simply model it as response ~ predictors.
+        if (is.null(dim(r0)) || ncol(as.matrix(r0)) == 1) {
+            # Single response variable
+            pred_df <- as.data.frame(pred_df)
+            colnames(pred_df)[1] <- "response"
+            model_comb <- lm(response ~ ., data = pred_df)
+            e_comb <- predict(model_comb, pred_df)
+        } else {
+            # Multi-response case
+            r_cols <- colnames(r0)
+            if (is.null(r_cols)) {
+                # Provide default column names if missing
+                r_cols <- paste0("resp", seq_len(ncol(r0)))
+                colnames(pred_df)[seq_len(ncol(r0))] <- r_cols
+            }
+            # Construct the multivariate formula cbind(col1, col2, ...) ~ .
+            resp_form <- paste0("cbind(", paste(r_cols, collapse = ", "), ")")
+            model_comb <- lm(as.formula(paste(resp_form, "~ .")), data = pred_df)
+            e_comb <- predict(model_comb, pred_df)
+        }
 
         if (is_binary_response(response)) {
             ks <- suppressWarnings(ks.test(e[[i]][r0 == 1], e[[i]][r0 == 0], alternative = alternative)$statistic)
@@ -170,7 +191,11 @@ regress_multiple_motifs <- function(sequences,
             scores <- c(scores, ks)
         } else {
             r2 <- mean(cor(e[[i]], r0)^2)
-            r2_comb <- mean(cor(e_comb, r0)^2)
+            if (is.matrix(r0)) {
+                r2_comb <- mean(diag(cor(e_comb, r0))^2)
+            } else {
+                r2_comb <- mean(cor(e_comb, r0)^2)
+            }
             cli_alert_info("R2 for models {.val {1:i}}: {.val {r2_comb}}")
             cli_alert_info("Improvement in R2: {.val {r2_comb - comb_scores[i - 1]}}")
             comb_scores <- c(comb_scores, r2_comb)
