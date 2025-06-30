@@ -1,3 +1,7 @@
+# prego 0.0.7
+
+* Fix: `regress_multiple_motifs` now works with multiple response variables.
+
 # prego 0.0.6
 
 * Added `screen_local_pwm` to find positions in sequences that match a PSSM.
