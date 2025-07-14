@@ -546,27 +546,41 @@ Rcpp::List screen_local_pwm_cpp(const Rcpp::StringVector &sequences,
     pssm.normalize();
 
     DnaPWML pwml(pssm, spat_fac, bin_size);
-    
+
     // Return list of positions for each sequence
     Rcpp::List result_positions(seqs.size());
-    
+
     for (size_t i = 0; i < seqs.size(); i++) {
-        // Use the `like_thresh_match` function to find positions
-        list<int> poss, dirs;
-        list<float> vals;
-        
-        pssm.like_thresh_match(seqs[i], threshold, poss, vals, dirs);
-        
-        // Convert to R vectors
-        vector<int> pos_vec(poss.begin(), poss.end());
-        
-        // Convert to 1-based indexing for R
-        for (size_t j = 0; j < pos_vec.size(); j++) {
-            pos_vec[j] += 1;
+        vector<int> passing_positions;
+        int seq_len = seqs[i].length();
+
+        // go over windows of motif_len and check if they pass the threshold
+        for (int j = 0; j < seq_len - motif_len + 1; j++) {
+            float energy;
+            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+            
+            bool passes = false;
+            if (operator_str == ">") {
+                passes = energy > threshold;
+            } else if (operator_str == "<") {
+                passes = energy < threshold;
+            } else if (operator_str == ">=") {
+                passes = energy >= threshold;
+            } else if (operator_str == "<=") {
+                passes = energy <= threshold;
+            } else if (operator_str == "==") {
+                passes = abs(energy - threshold) < 1e-10; // floating point equality
+            } else {
+                Rcpp::stop("Invalid operator. Must be one of: '>', '<', '>=', '<=', '=='");
+            }
+            
+            if (passes) {
+                passing_positions.push_back(j + 1); // Convert to 1-indexed for R
+            }
         }
-        
-        result_positions[i] = Rcpp::wrap(pos_vec);
+
+        result_positions[i] = Rcpp::wrap(passing_positions);
     }
-    
+
     return result_positions;
 }
