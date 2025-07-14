@@ -1,3 +1,7 @@
+# prego 0.0.8 
+
+* Fix: `compute_local_pwm` now returns NA when sequence length < motif length (issue #35).
+
 # prego 0.0.7
 
 * Fix: `regress_multiple_motifs` now works with multiple response variables.
