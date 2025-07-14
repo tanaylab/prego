@@ -110,19 +110,16 @@ Rcpp::RObject compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
         Rcpp::List local_preds(seqs.size());
 
         for (size_t i = 0; i < seqs.size(); i++) {
-            int seq_len = seqs[i].length();
-            Rcpp::NumericVector seq_scores(seq_len);
-            
-            // go over windows of motif_len and compute local scores
-            for (int j = 0; j < seq_len - motif_len + 1; j++) {
-                float energy;
-                pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
-                seq_scores[j] = energy;
-            }
+            int seq_len = static_cast<int>(seqs[i].length());
+            Rcpp::NumericVector seq_scores(seq_len, NA_REAL);
 
-            // fill in the rest with NA
-            for (int j = seq_len - motif_len + 1; j < seq_len; j++) {
-                seq_scores[j] = Rcpp::NumericVector::get_na();
+            // Compute local scores only if the motif fits inside the sequence
+            if (seq_len >= motif_len) {
+                for (int j = 0; j <= seq_len - motif_len; j++) {
+                    float energy;
+                    pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+                    seq_scores[j] = energy;
+                }
             }
             
             local_preds[i] = seq_scores;
@@ -131,19 +128,19 @@ Rcpp::RObject compute_local_pwm_cpp(const Rcpp::StringVector &sequences,
         return local_preds;
     } else {
         // Return matrix (for sequences of same length)
-        Rcpp::NumericMatrix local_preds(seqs.size(), seqs[0].length());
+        int seq_len = static_cast<int>(seqs[0].length());
+        Rcpp::NumericMatrix local_preds(seqs.size(), seq_len);
+        // Fast contiguous fill with NA
+        std::fill(local_preds.begin(), local_preds.end(), NA_REAL);
 
         for (size_t i = 0; i < seqs.size(); i++) {
-            // go over windows of motif_len and compute local scores
-            for (size_t j = 0; j < seqs[i].length() - motif_len + 1; j++) {
-                float energy;
-                pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
-                local_preds(i, j) = energy;
-            }
-
-            // fill in the rest with NA
-            for (size_t j = seqs[i].length() - motif_len + 1; j < seqs[i].length(); j++) {
-                local_preds(i, j) = Rcpp::NumericVector::get_na();
+            // Compute local scores only if the motif fits inside the sequence
+            if (seq_len >= motif_len) {
+                for (int j = 0; j <= seq_len - motif_len; j++) {
+                    float energy;
+                    pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
+                    local_preds(i, j) = energy;
+                }
             }
         }
 
@@ -552,38 +549,24 @@ Rcpp::List screen_local_pwm_cpp(const Rcpp::StringVector &sequences,
     
     // Return list of positions for each sequence
     Rcpp::List result_positions(seqs.size());
-
+    
     for (size_t i = 0; i < seqs.size(); i++) {
-        vector<int> passing_positions;
-        int seq_len = seqs[i].length();
+        // Use the `like_thresh_match` function to find positions
+        list<int> poss, dirs;
+        list<float> vals;
         
-        // go over windows of motif_len and check if they pass the threshold
-        for (int j = 0; j < seq_len - motif_len + 1; j++) {
-            float energy;
-            pwml.integrate_energy(seqs[i].substr(j, motif_len), energy);
-            
-            bool passes = false;
-            if (operator_str == ">") {
-                passes = energy > threshold;
-            } else if (operator_str == "<") {
-                passes = energy < threshold;
-            } else if (operator_str == ">=") {
-                passes = energy >= threshold;
-            } else if (operator_str == "<=") {
-                passes = energy <= threshold;
-            } else if (operator_str == "==") {
-                passes = abs(energy - threshold) < 1e-10; // floating point equality
-            } else {
-                Rcpp::stop("Invalid operator. Must be one of: '>', '<', '>=', '<=', '=='");
-            }
-            
-            if (passes) {
-                passing_positions.push_back(j + 1); // Convert to 1-indexed for R
-            }
+        pssm.like_thresh_match(seqs[i], threshold, poss, vals, dirs);
+        
+        // Convert to R vectors
+        vector<int> pos_vec(poss.begin(), poss.end());
+        
+        // Convert to 1-based indexing for R
+        for (size_t j = 0; j < pos_vec.size(); j++) {
+            pos_vec[j] += 1;
         }
         
-        result_positions[i] = Rcpp::wrap(passing_positions);
+        result_positions[i] = Rcpp::wrap(pos_vec);
     }
-
+    
     return result_positions;
 }
