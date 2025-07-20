@@ -71,9 +71,8 @@ regress_pwm.multi_kmers <- function(sequences,
     }
 
     # split to validation and train
-    val_idxs <- sample(1:length(sequences_s), length(sequences_s) * val_frac)
+    val_idxs <- sample_response(response_s, val_frac, 1, seed)
     train_idxs <- setdiff(1:length(sequences_s), val_idxs)
-
 
     regress_pwm_single_kmer <- purrr::partial(
         regress_pwm,
@@ -147,11 +146,11 @@ regress_pwm.multi_kmers <- function(sequences,
             suppressMessages()
         pr <- r$predict(sequences_s[val_idxs])
         if (final_metric == "ks") {
-            if (!is_binary_response(response)) {
+            if (!is_binary_response(response_s)) {
                 cli_abort("Cannot use {.field final_metric} {.val ks} when {.field response} is not binary")
             }
             r$score <- r[[final_metric]]$statistic
-            r$val_score <- suppressWarnings(ks.test(pr[as.logical(response[val_idxs, 1])], pr[!as.logical(response[val_idxs, 1])], alternative = alternative)$statistic)
+            r$val_score <- suppressWarnings(ks.test(pr[as.logical(response_s[val_idxs, 1])], pr[!as.logical(response_s[val_idxs, 1])], alternative = alternative)$statistic)
         } else if (final_metric == "r2") {
             r$score <- r[[final_metric]]
             r$val_score <- cor(pr, response_s[val_idxs])^2

@@ -89,4 +89,3 @@ test_that("screen_local_pwm >= and <= behave as supersets of > and <", {
     # The union of < and > should be subset of <= and >= respectively (no gaps)
     expect_true(all(vapply(seq_along(res_gt), function(i) all(unique(c(res_gt[[i]], res_lt[[i]])) %in% unique(c(res_ge[[i]], res_le[[i]]))), logical(1))))
 })
-
