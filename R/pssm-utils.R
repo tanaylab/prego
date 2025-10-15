@@ -498,12 +498,13 @@ pssm_rc <- function(pssm) {
     if (is.matrix(pssm_orig)) {
         pssm <- mat_to_pssm(pssm)
     }
+    original_pos <- pssm$pos
     pssm <- pssm %>%
         mutate(tmp_A = A, tmp_C = C, tmp_G = G, tmp_T = T) %>%
         mutate(A = tmp_T, T = tmp_A, C = tmp_G, G = tmp_C) %>%
         select(-starts_with("tmp_")) %>%
-        arrange(desc(pos)) %>%
-        mutate(pos = n() - pos + 1)
+        arrange(desc(pos)) %>%        
+        mutate(pos = original_pos)
     if (is.matrix(pssm_orig)) {
         pssm <- pssm_to_mat(pssm)
     }
