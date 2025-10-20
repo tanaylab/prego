@@ -36,6 +36,8 @@ extract_pwm_old <- function(sequences, motifs = NULL, dataset = all_motif_datase
 #'
 #' @description Extracts the pwm of a motif from a motif database. \code{extract_pwm_old} is a deprecated version of this function, which is slower, and returns slightly different results due to float percision instead of double. If the sequences are not of the same length, the old version will be used.
 #'
+#' @details Unlike the old extraction functions (\code{extract_pwm_old}, \code{compute_pwm}, and \code{compute_local_pwm}), \code{extract_pwm} returns NA values when the sequence contains 'N' or '*' characters.
+#'
 #' @param motifs names of specific motifs to extract from the dataset
 #' @param dataset a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs} or \code{JASPAR_motifs}, or \code{all_motif_datasets()}, or a MotifDB object.
 #' @param parallel logical, whether to use parallel processing
