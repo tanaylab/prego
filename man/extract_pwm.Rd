@@ -58,6 +58,9 @@ a matrix size of # of sequences x # of motifs with the pwm of each sequence for 
 \description{
 Extracts the pwm of a motif from a motif database. \code{extract_pwm_old} is a deprecated version of this function, which is slower, and returns slightly different results due to float percision instead of double. If the sequences are not of the same length, the old version will be used.
 }
+\details{
+Unlike the old extraction functions (\code{extract_pwm_old}, \code{compute_pwm}, and \code{compute_local_pwm}), \code{extract_pwm} returns NA values when the sequence contains 'N' or '*' characters.
+}
 \examples{
 \dontrun{
 pwms <- extract_pwm(
