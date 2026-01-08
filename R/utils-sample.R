@@ -69,6 +69,11 @@ sample_response <- function(response, sample_frac = NULL, sample_ratio = 1, seed
     if (!is.null(seed)) {
         set.seed(seed)
     }
+    if (is.null(dim(response))) {
+        response <- matrix(response, ncol = 1)
+    } else if (!is.matrix(response)) {
+        response <- as.matrix(response)
+    }
     if (is.null(sample_frac)) {
         if (is_binary_response(response)) {
             sample_frac <- c(pmin(1, sample_ratio * sum(response[, 1] == 1) / sum(response[, 1] == 0)), 1)

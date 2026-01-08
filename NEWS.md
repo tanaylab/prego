@@ -1,3 +1,7 @@
+# prego 0.0.9
+
+* Fix: Floating point discrepancies between `predict` and `regress_pwm` output.
+
 # prego 0.0.8 
 
 * Fix: `compute_local_pwm` now returns NA when sequence length < motif length (issue #35).

@@ -462,7 +462,6 @@ regress_pwm <- function(sequences,
     }
 
 
-
     cli_alert_info("Running regression")
     cli_ul(c(
         "Motif length: {.val {motif_length}}",
@@ -478,6 +477,7 @@ regress_pwm <- function(sequences,
         "Seed: {.val {seed}}"
     ))
 
+    sequences_full <- sequences
     sequences <- stringr::str_sub(sequences, start = spat$spat_min + 1, end = spat$spat_max)
 
     is_train <- rep(TRUE, length(sequences))
@@ -535,19 +535,12 @@ regress_pwm <- function(sequences,
     cli_alert_success("Finished running regression. Consensus: {.val {res$consensus}}")
 
 
-
     if (match_with_db) {
         res <- add_regression_db_match(res, sequences, motif_dataset, alternative = alternative)
     }
 
     if (screen_db) {
         res <- add_regression_db_screen(res, response, sequences, motif_dataset, final_metric, prior = unif_prior, bidirect = bidirect, alternative = alternative, parallel = parallel)
-    }
-
-    if (is_binary_response(response)) {
-        cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=4)}}, p-value: {.val {res$ks$p.value}}")
-    } else {
-        cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
     }
 
     res$spat_min <- spat$spat_min
@@ -557,6 +550,21 @@ regress_pwm <- function(sequences,
     res$seq_length <- nchar(sequences[1])
 
     res <- add_predict_function(res, spat, bidirect, energy_func)
+    res$pred <- res$predict(sequences_full)
+
+    res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
+    if (is_binary_response(response)) {
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
+        res$score <- res$ks$statistic
+    } else {
+        res$score <- res$r2
+    }
+
+    if (is_binary_response(response)) {
+        cli_alert_success("KS test D: {.val {round(res$ks$statistic, digits=4)}}, p-value: {.val {res$ks$p.value}}")
+    } else {
+        cli_alert_success("R^2: {.val {round(res$r2, digits=4)}}")
+    }
 
     return(res)
 }
@@ -571,8 +579,8 @@ add_predict_function <- function(res, spat, bidirect, energy_func) {
     func_env$spat_max <- spat$spat_max
 
     res$predict <- function(x) {
-        x <- stringr::str_sub(x, start = spat_min, end = spat_max - 1)
-        e <- compute_pwm(x, pssm, spat = spat, bidirect = bidirect, spat_min = 0, spat_max = nchar(x)[1], prior = 0)
+        x <- stringr::str_sub(x, start = spat_min + 1, end = spat_max)
+        e <- compute_pwm(x, pssm, spat = spat, bidirect = bidirect, prior = 0)
         if (!is.null(energy_func)) {
             e <- energy_func(e)
         }

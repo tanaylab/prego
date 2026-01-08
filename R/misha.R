@@ -165,7 +165,6 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = MOTIF_DB, 
 }
 
 
-
 #' Compute quantile of pwm for a given interval size
 #'
 #' @description Computes the quantile of the pwm for a given interval size by sampling random intervals from the genome, or using given intervals. The number of sequences to sample can be specified with \code{n_sequences}.

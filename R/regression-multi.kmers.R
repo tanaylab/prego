@@ -45,8 +45,10 @@ regress_pwm.multi_kmers <- function(sequences,
         set.seed(seed)
     }
 
-    if (is.null(nrow(response))) {
+    if (is.null(dim(response))) {
         response <- matrix(response, ncol = 1)
+    } else if (!is.matrix(response)) {
+        response <- as.matrix(response)
     }
 
     if (length(sequences) != nrow(response)) {
@@ -211,6 +213,15 @@ regress_pwm.multi_kmers <- function(sequences,
     res$seq_length <- nchar(sequences[1])
 
     res <- add_predict_function(res, spat, bidirect, energy_func)
+    res$pred <- res$predict(sequences)
+
+    res$r2 <- tgs_cor(response, as.matrix(res$pred))[, 1]^2
+    if (is_binary_response(response)) {
+        res$ks <- suppressWarnings(ks.test(res$pred[as.logical(response[, 1])], res$pred[!as.logical(response[, 1])], alternative = alternative))
+        res$score <- res$ks$statistic
+    } else {
+        res$score <- res$r2
+    }
 
     return(res)
 }
