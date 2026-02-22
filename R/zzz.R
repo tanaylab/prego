@@ -1,6 +1,9 @@
 .onLoad <- function(libname, pkgname) {
     limit_cores <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
-    if (nzchar(limit_cores) && limit_cores == "TRUE") {
+    has_domc <- requireNamespace("doMC", quietly = TRUE)
+    if (!has_domc) {
+        set_parallel(1L)
+    } else if (nzchar(limit_cores) && limit_cores == "TRUE") {
         # use 2 cores in CRAN
         set_parallel(2L)
     } else {
