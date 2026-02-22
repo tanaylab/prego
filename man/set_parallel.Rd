@@ -13,7 +13,9 @@ set_parallel(thread_num = max(1, round(parallel::detectCores() * 0.8)))
 None
 }
 \description{
-Set the number of parallel threads to use. prego uses the R function \code{doMC::registerDoMC} to register the parallelization.
+Set the number of parallel threads to use. prego uses
+\code{doMC::registerDoMC} (when available) to register the
+parallelization backend for \pkg{plyr}.
 By default, prego uses 80\% of the number of available cores. The options are saved under 'prego.parallel' (should we use parallelization, logical) and 'prego.parallel.nc' (number of cores to use, integer).
 }
 \examples{

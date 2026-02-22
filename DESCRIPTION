@@ -5,7 +5,7 @@ Authors@R: c(
     person("Aviezer", "Lifshitz", , "aviezer.lifshitz@weizmann.ac.il", role = c("aut", "cre")),
     person("Amos", "Tanay", , "amos.tanay@weizmann.ac.il", role = "aut")
   )
-Description: PREGO implements regression algorithms for finding motifs in DNA. It contains algorithms which were described at: "Extensive low-affinity transcriptional interactions in the yeast genome" <doi:10.1101/gr.5113606>.
+Description: Implements regression algorithms for finding motifs in DNA. It contains algorithms which were described at: "Extensive low-affinity transcriptional interactions in the yeast genome" <doi:10.1101/gr.5113606>.
 License: MIT + file LICENSE
 Imports: 
     cli,
@@ -18,7 +18,6 @@ Imports:
     tgstat,
     dplyr,
     purrr,
-    doMC,
     plyr,
     parallel,
     tidyr,
@@ -30,18 +29,14 @@ Imports:
     stats,
     magrittr,
     methods,
-    RcppParallel
+    RcppParallel,
+    withr
 Suggests: 
     testthat (>= 3.0.0),
-    withr,
-    misha,
-    misha.ext (>= 0.0.6)
+    doMC
 LinkingTo: 
     Rcpp,
     RcppParallel
-Remotes: 
-    tanaylab/misha, 
-    tanaylab/misha.ext
 NeedsCompilation: yes
 SystemRequirements: GNUmake
 Config/testthat/edition: 3

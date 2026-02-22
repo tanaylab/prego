@@ -44,6 +44,7 @@ Mask sequences by thresholding the PWM. Sequences with a PWM above the threshold
 Sequences at the edges of the sequences will also be masked by 'N'.
 }
 \examples{
+\dontrun{
 res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 new_sequences <- mask_sequences_by_pwm(
     cluster_sequences_example,
@@ -53,5 +54,6 @@ new_sequences <- mask_sequences_by_pwm(
 )
 
 head(new_sequences)
+}
 
 }
