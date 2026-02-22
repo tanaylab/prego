@@ -15,7 +15,7 @@
 
 \item{...}{Not used}
 
-\item{pattern}{Logical indicating whether to treat character input as regex pattern (default: FALSE)}
+\item{pattern}{Logical indicating whether to treat character input as regex pattern (default: TRUE)}
 
 \item{drop}{Not used}
 }
@@ -28,5 +28,5 @@ Get specific motifs from the MotifDB
 \examples{
 MOTIF_DB["HOMER.GATA3_2"]
 MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")]
-MOTIF_DB["GATA", pattern = T]
+MOTIF_DB["GATA", pattern = TRUE]
 }

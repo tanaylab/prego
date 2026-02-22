@@ -17,20 +17,23 @@
 #' }
 #' @export
 intervals_to_seq <- function(intervals, size = NULL) {
-    if (!requireNamespace("misha", quietly = TRUE)) {
+    if (!is_pkg_installed("misha")) {
         cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
     }
     withr::local_options(gmax.data.size = 1e9)
 
     if (is.character(intervals)) {
-        intervals <- gintervals.load(intervals)
+        intervals <- getExportedValue("misha", "gintervals.load")(intervals)
     }
 
     if (!is.null(size)) {
-        intervals <- misha.ext::gintervals.normalize(intervals, size)
+        if (!is_pkg_installed("misha.ext")) {
+            cli_abort("The {.field misha.ext} package is required when {.field size} is provided. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
+        }
+        intervals <- getExportedValue("misha.ext", "gintervals.normalize")(intervals, size)
     }
 
-    sequences <- toupper(misha::gseq.extract(intervals))
+    sequences <- toupper(getExportedValue("misha", "gseq.extract")(intervals))
     return(sequences)
 }
 
@@ -102,7 +105,7 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = MOTIF_DB, 
     }
 
     if (is.character(intervals)) {
-        intervals <- misha::gintervals.load(intervals)
+        intervals <- getExportedValue("misha", "gintervals.load")(intervals)
     }
 
     pwms <- pwms %>%
@@ -193,15 +196,18 @@ gextract_pwm.quantile <- function(intervals, motifs = NULL, dataset = MOTIF_DB, 
 #'
 #' @export
 gpwm_quantiles <- function(size, quantiles, pssm, bg_intervals = NULL, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL, func = "logSumExp") {
-    if (!requireNamespace("misha.ext", quietly = TRUE)) {
+    if (!is_pkg_installed("misha")) {
+        cli_abort("The {.field misha} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha')}.")
+    }
+    if (!is_pkg_installed("misha.ext")) {
         cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
     }
 
     if (is.null(bg_intervals)) {
-        bg_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes)
+        bg_intervals <- getExportedValue("misha.ext", "grandom_genome")(size, n_sequences, dist_from_edge, chromosomes)
     }
 
-    sequences <- misha::gseq.extract(bg_intervals)
+    sequences <- getExportedValue("misha", "gseq.extract")(bg_intervals)
     pwm <- compute_pwm(sequences, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior, func = func)
 
     return(quantile(pwm, probs = quantiles, na.rm = TRUE))

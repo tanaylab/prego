@@ -103,7 +103,11 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
 #' pwm_list[[1]]
 #'
 #' # Using a motif from MOTIF_DB
-#' hnf1a_pwm <- compute_local_pwm(cluster_sequences_example, as.matrix(MOTIF_DB["JASPAR.HNF1A"]), return_list = TRUE)
+#' hnf1a_pwm <- compute_local_pwm(
+#'     cluster_sequences_example,
+#'     as.matrix(MOTIF_DB["JASPAR.HNF1A"]),
+#'     return_list = TRUE
+#' )
 #' hnf1a_pwm[[1]]
 #' }
 #'
@@ -254,12 +258,15 @@ gextract.local_pwm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_
 #'
 #' @export
 gintervals.center_by_pssm <- function(intervals, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01) {
+    if (!is_pkg_installed("misha.ext")) {
+        cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
+    }
     local_pwm <- gextract.local_pwm(intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     maxs <- apply(local_pwm, 1, which.max)
     intervals_size <- intervals$end[1] - intervals$start[1]
     intervs_center <- intervals %>%
         mutate(start = start + maxs, end = start + 1) %>%
-        misha.ext::gintervals.normalize(intervals_size) %>%
+        getExportedValue("misha.ext", "gintervals.normalize")(intervals_size) %>%
         select(chrom, start, end, everything())
     return(intervs_center)
 }
@@ -275,10 +282,13 @@ gintervals.center_by_pssm <- function(intervals, pssm, spat = NULL, spat_min = 0
 #'
 #' @export
 gextract.local_pwm_freq <- function(intervals, pssm, q_threshold, bg_intervals = NULL, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, n_sequences = 1e4, dist_from_edge = 3e6, chromosomes = NULL) {
+    if (!is_pkg_installed("misha.ext")) {
+        cli_abort("The {.field misha.ext} package is required for this function. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
+    }
     local_pwm <- gextract.local_pwm(intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
     size <- intervals$end[1] - intervals$start[1]
     if (is.null(bg_intervals)) {
-        bg_intervals <- misha.ext::grandom_genome(size, n_sequences, dist_from_edge, chromosomes) %>%
+        bg_intervals <- getExportedValue("misha.ext", "grandom_genome")(size, n_sequences, dist_from_edge, chromosomes) %>%
             distinct(chrom, start, end)
     }
     local_pwm_r <- gextract.local_pwm(bg_intervals, pssm, spat = spat, spat_min = spat_min, spat_max = spat_max, bidirect = bidirect, prior = prior)
@@ -351,6 +361,7 @@ bits_per_pos <- function(pssm, prior = 0.01) {
 #' @return A vector with the masked sequences.
 #'
 #' @examples
+#' \dontrun{
 #' res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' new_sequences <- mask_sequences_by_pwm(
 #'     cluster_sequences_example,
@@ -360,6 +371,7 @@ bits_per_pos <- function(pssm, prior = 0.01) {
 #' )
 #'
 #' head(new_sequences)
+#' }
 #'
 #' @inheritParams compute_pwm
 #' @export

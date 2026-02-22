@@ -32,7 +32,15 @@ pssm_cor(res1$pssm, JASPAR_motifs[JASPAR_motifs$motif == "HNF1A", ])
 pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.CDX1"]))
 
 # Compare using different correlation methods
-pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "pearson")
-pssm_cor(as.matrix(MOTIF_DB["HOMER.GATA3_2"]), as.matrix(MOTIF_DB["JASPAR.GATA3"]), method = "spearman")
+pssm_cor(
+    as.matrix(MOTIF_DB["HOMER.GATA3_2"]),
+    as.matrix(MOTIF_DB["JASPAR.GATA3"]),
+    method = "pearson"
+)
+pssm_cor(
+    as.matrix(MOTIF_DB["HOMER.GATA3_2"]),
+    as.matrix(MOTIF_DB["JASPAR.GATA3"]),
+    method = "spearman"
+)
 
 }
