@@ -1,4 +1,4 @@
-#include <sys/timeb.h>
+#include <chrono>
 
 #include "ProgressReporter.h"
 #include <Rcpp.h>
@@ -21,9 +21,11 @@ void ProgressReporter::init(uint64_t maxsteps, uint64_t init_report_step, uint64
 
 uint64_t ProgressReporter::get_cur_clock()
 {
-	struct timeb tp;
-	ftime(&tp);
-	return tp.time * 1000 + tp.millitm;
+	return static_cast<uint64_t>(
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()
+		).count()
+	);
 }
 
 void ProgressReporter::report(uint64_t delta_steps_done)
@@ -71,4 +73,3 @@ void ProgressReporter::report_last()
 			Rcerr << std::endl;
 	}
 }
-

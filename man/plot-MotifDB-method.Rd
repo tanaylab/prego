@@ -27,15 +27,7 @@
 
 \item{force}{force plotting more than 30 motifs}
 
-\item{...}{
-  Arguments passed on to \code{\link[ggseqlogo:ggseqlogo]{ggseqlogo::ggseqlogo}}
-  \describe{
-    \item{\code{data}}{Character vector of sequences or named list of sequences. All sequences must have same width}
-    \item{\code{facet}}{Facet type, can be 'wrap' or 'grid'}
-    \item{\code{scales}}{Facet scales, see \code{\link{facet_wrap}}}
-    \item{\code{ncol}}{Number of columns, works only when \code{facet='wrap'}, see \code{\link{facet_wrap}}}
-    \item{\code{nrow}}{Number of rows, same as \code{ncol}}
-  }}
+\item{...}{additional arguments passed to \code{ggseqlogo::ggseqlogo()}}
 }
 \value{
 a ggplot object

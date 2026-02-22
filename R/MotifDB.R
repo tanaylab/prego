@@ -447,7 +447,7 @@ setMethod(
 #' @param revcomp whether to plot the reverse complement of the PSSM
 #' @param method Height method, can be one of "bits" or "probability" (default:"bits")
 #' @param force force plotting more than 30 motifs
-#' @inheritDotParams ggseqlogo::ggseqlogo
+#' @param ... additional arguments passed to \code{ggseqlogo::ggseqlogo()}
 #' @return a ggplot object
 #' @examples
 #' plot(MOTIF_DB["HOMER.GATA3_2"])
