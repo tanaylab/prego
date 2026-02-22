@@ -8,7 +8,7 @@
 A data frame containing the PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name.
 }
 \source{
-\url{https://jaspar.genereg.net/downloads/}
+\url{https://jaspar.elixir.no/downloads/}
 }
 \usage{
 JASPAR_motifs

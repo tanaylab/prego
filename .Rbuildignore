@@ -11,3 +11,4 @@
 ^data-raw$
 ^.lintr$
 ^_pkgdown.yml$
+^\.github$

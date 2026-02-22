@@ -162,12 +162,14 @@
 #' }
 #'
 #' # regress_multiple_motifs is an alias for regress_pwm with motif_num > 1
+#' \dontrun{
 #' res_multi2 <- regress_multiple_motifs(
 #'     cluster_sequences_example,
 #'     cluster_mat_example[, 1],
 #'     motif_num = 5,
 #'     match_with_db = TRUE
 #' )
+#' }
 #'
 #' @inheritParams screen_kmers
 #' @inheritDotParams screen_kmers

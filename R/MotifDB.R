@@ -217,12 +217,12 @@ setMethod(
 #' @param j Not used
 #' @param drop Not used
 #' @param ... Not used
-#' @param pattern Logical indicating whether to treat character input as regex pattern (default: FALSE)
+#' @param pattern Logical indicating whether to treat character input as regex pattern (default: TRUE)
 #' @return MotifDB object containing the specified motifs
 #' @examples
 #' MOTIF_DB["HOMER.GATA3_2"]
 #' MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")]
-#' MOTIF_DB["GATA", pattern = T]
+#' MOTIF_DB["GATA", pattern = TRUE]
 #' @export
 setMethod(
     "[", "MotifDB",
@@ -451,7 +451,7 @@ setMethod(
 #' @return a ggplot object
 #' @examples
 #' plot(MOTIF_DB["HOMER.GATA3_2"])
-#' plot(MOTIF_DB["HNF1", pattern = T])
+#' plot(MOTIF_DB["HNF1", pattern = TRUE])
 #' plot(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
 #'
 #' @export

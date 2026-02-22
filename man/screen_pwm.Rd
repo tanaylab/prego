@@ -60,6 +60,7 @@ if \code{only_best} is TRUE, only the best motif would be returned (a data framw
 Screen for motifs in a database given a response variable
 }
 \examples{
+\dontrun{
 res_screen <- screen_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 head(res_screen)
 
@@ -69,5 +70,6 @@ screen_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 # with r^2 metric
 res_screen <- screen_pwm(sequences_example, response_mat_example[, 1], metric = "r2")
 head(res_screen)
+}
 
 }

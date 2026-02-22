@@ -45,7 +45,7 @@ Plot a motif from a MotifDB object
 }
 \examples{
 plot(MOTIF_DB["HOMER.GATA3_2"])
-plot(MOTIF_DB["HNF1", pattern = T])
+plot(MOTIF_DB["HNF1", pattern = TRUE])
 plot(MOTIF_DB[c("HOMER.GATA3_2", "JASPAR.CDX1")])
 
 }

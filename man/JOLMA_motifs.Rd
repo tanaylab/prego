@@ -8,7 +8,7 @@
 A data frame containing the PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name.
 }
 \source{
-\url{https://doi.org/10.1038/nature18912}
+\doi{10.1038/nature18912}
 }
 \usage{
 JOLMA_motifs
@@ -17,6 +17,6 @@ JOLMA_motifs
 PSSMs from the Jolma et al. motif database
 }
 \references{
-Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). \url{https://doi.org/10.1038/nature18912}
+Jolma, A., Yin, Y., Nitta, K. et al. DNA-dependent formation of transcription factor pairs alters their binding specificity. Nature 534, S15–S16 (2016). \doi{10.1038/nature18912}
 }
 \keyword{datasets}

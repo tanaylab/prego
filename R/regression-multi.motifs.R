@@ -177,7 +177,7 @@ regress_multiple_motifs <- function(sequences,
             }
             # Construct the multivariate formula cbind(col1, col2, ...) ~ .
             resp_form <- paste0("cbind(", paste(r_cols, collapse = ", "), ")")
-            model_comb <- lm(as.formula(paste(resp_form, "~ .")), data = pred_df)
+            model_comb <- lm(stats::as.formula(paste(resp_form, "~ .")), data = pred_df)
             e_comb <- predict(model_comb, pred_df)
         }
 

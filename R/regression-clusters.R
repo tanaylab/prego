@@ -42,10 +42,12 @@
 #' }
 #'
 #' # screen also for the best motif in the database
+#' \dontrun{
 #' res_screen <- regress_pwm.clusters(cluster_sequences_example, clusters_example, screen_db = TRUE)
 #' res_screen$stats
 #'
 #' plot_regression_qc(res_screen$models[[1]], title = names(res_screen$models)[1])
+#' }
 #'
 #' @inheritParams regress_pwm
 #' @inheritParams regress_pwm.sample
@@ -90,15 +92,15 @@ regress_pwm.clusters <- function(sequences, clusters, use_sample = TRUE, match_w
 
     cli_alert_info("Running regression for {.val {ncol(cluster_mat)}} clusters")
     if (use_sge) {
-        if (!("misha.ext" %in% utils::installed.packages())) {
+        if (!is_pkg_installed("misha.ext")) {
             cli_abort("The {.field misha.ext} package is required when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/misha.ext')}.")
         }
-        if (!("prego" %in% utils::installed.packages())) {
+        if (!requireNamespace("prego", quietly = TRUE)) {
             cli_abort("The {.field prego} package needs to be installed when {.code use_sge=TRUE}. Please install it with {.code remotes::install_packages('tanaylab/prego')}.")
         }
         cli_alert_info("Using SGE cluster")
         cmds <- paste0("regression_func(sequences, cluster_mat[, ", seq_len(ncol(cluster_mat)), "], match_with_db = match_with_db, parallel = parallel, ...)")
-        sge_res <- misha.ext::gcluster.run2(command_list = cmds)
+        sge_res <- getExportedValue("misha.ext", "gcluster.run2")(command_list = cmds)
         ret_class <- purrr::map_chr(sge_res, ~ class(.x$retv))
         if (any(ret_class != "list")) {
             failed <- which(ret_class != "list")

@@ -51,7 +51,11 @@ pwm_list <- compute_local_pwm(cluster_sequences_example, res$pssm, res$spat, ret
 pwm_list[[1]]
 
 # Using a motif from MOTIF_DB
-hnf1a_pwm <- compute_local_pwm(cluster_sequences_example, as.matrix(MOTIF_DB["JASPAR.HNF1A"]), return_list = TRUE)
+hnf1a_pwm <- compute_local_pwm(
+    cluster_sequences_example,
+    as.matrix(MOTIF_DB["JASPAR.HNF1A"]),
+    return_list = TRUE
+)
 hnf1a_pwm[[1]]
 }
 

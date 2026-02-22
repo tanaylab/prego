@@ -19,6 +19,7 @@
 #' if \code{only_best} is TRUE, only the best motif would be returned (a data framw with a single row).
 #'
 #' @examples
+#' \dontrun{
 #' res_screen <- screen_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #' head(res_screen)
 #'
@@ -28,6 +29,7 @@
 #' # with r^2 metric
 #' res_screen <- screen_pwm(sequences_example, response_mat_example[, 1], metric = "r2")
 #' head(res_screen)
+#' }
 #'
 #' @export
 screen_pwm <- function(sequences, response, metric = NULL, dataset = all_motif_datasets(), motifs = NULL, parallel = getOption("prego.parallel", TRUE), only_best = FALSE, prior = 0.01, alternative = "two.sided", ...) {
