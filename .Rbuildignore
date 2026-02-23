@@ -12,3 +12,4 @@
 ^.lintr$
 ^_pkgdown.yml$
 ^\.github$
+^conda-recipe$
