@@ -1,0 +1,86 @@
+{% set name = "prego" %}
+{% set version = environ.get("PACKAGE_VERSION", "0.0.9") %}
+
+package:
+  name: r-{{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  skip: true  # [win or osx]
+  rpaths:
+    - lib/R/lib/
+    - lib/
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - sysroot_linux-64 2.17  # [linux64]
+    - make
+  host:
+    - r-base {{ r_base }}.*
+    - r-cli
+    - r-rcpp >=1.0.9
+    - r-ggseqlogo
+    - r-tibble
+    - r-ggplot2
+    - r-patchwork
+    - r-stringr
+    - r-tgstat
+    - r-dplyr
+    - r-purrr
+    - r-plyr
+    - r-tidyr
+    - r-glue
+    - r-stringdist
+    - r-igraph
+    - r-zoo
+    - r-magrittr
+    - r-rcppparallel
+    - r-withr
+  run:
+    - r-base {{ r_base }}.*
+    - r-cli
+    - r-rcpp >=1.0.9
+    - r-ggseqlogo
+    - r-tibble
+    - r-ggplot2
+    - r-patchwork
+    - r-stringr
+    - r-tgstat
+    - r-dplyr
+    - r-purrr
+    - r-plyr
+    - r-tidyr
+    - r-glue
+    - r-stringdist
+    - r-igraph
+    - r-zoo
+    - r-magrittr
+    - r-rcppparallel
+    - r-withr
+
+test:
+  commands:
+    - $R -e "library('prego')"
+
+about:
+  home: https://github.com/tanaylab/prego
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: PWM Regression Optimizer
+  description: |
+    Implements regression algorithms for finding motifs in DNA.
+    It contains algorithms described in:
+    "Extensive low-affinity transcriptional interactions in the yeast genome"
+    (doi:10.1101/gr.5113606).
+  dev_url: https://github.com/tanaylab/prego
+  doc_url: https://tanaylab.github.io/prego/
+
+extra:
+  recipe-maintainers:
+    - aviezerl
