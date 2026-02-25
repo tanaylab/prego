@@ -61,11 +61,14 @@
 <url><loc>https://tanaylab.github.io/prego/reference/prior-set-MotifDB-method.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/prior-set.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/prior.html</loc></url>
+<url><loc>https://tanaylab.github.io/prego/reference/pssm_concat.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_cor.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_dataset_cor.html</loc></url>
+<url><loc>https://tanaylab.github.io/prego/reference/pssm_dataset_diff.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_diff.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_match.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_rc.html</loc></url>
+<url><loc>https://tanaylab.github.io/prego/reference/pssm_theoretical_max.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/pssm_to_kmer.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/rc.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/regress_pwm.clusters.html</loc></url>
@@ -74,6 +77,7 @@
 <url><loc>https://tanaylab.github.io/prego/reference/regress_pwm.sample.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/sample_quantile_matched_rows.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/screen_kmers.html</loc></url>
+<url><loc>https://tanaylab.github.io/prego/reference/screen_local_pwm.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/screen_pwm.clusters.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/screen_pwm.html</loc></url>
 <url><loc>https://tanaylab.github.io/prego/reference/set_parallel.html</loc></url>

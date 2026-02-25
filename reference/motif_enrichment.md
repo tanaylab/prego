@@ -1,0 +1,62 @@
+# Calculate motif enrichment
+
+Calculates motif enrichment for groups of loci (usually clusters).
+
+## Usage
+
+``` r
+motif_enrichment(pwm_q, groups, threshold = 0.99, type = "relative")
+```
+
+## Arguments
+
+- pwm_q:
+
+  A matrix representing the quantile values of a position weight matrix
+  (PWM). This should be the output of
+  [`gextract_pwm.quantile`](https://tanaylab.github.io/prego/reference/gextract_pwm.quantile.md).
+
+- groups:
+
+  A character vector or factor specifying the groups to which each
+  sequence belongs. Usually a clustering result.
+
+- threshold:
+
+  The threshold value for considering a position in the PWM as
+  significant. Default is 0.99.
+
+- type:
+
+  The type of enrichment calculation to perform. Possible values are
+  "relative" (default) or "absolute".
+
+## Value
+
+A matrix representing the motif enrichment values for each group. When
+`type = "relative"`, the values are the relative enrichment of the motif
+in the group compared the loci in all the other groups. When
+`type = "absolute"`, the values are the enrichment of the motif compared
+to random genome.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+library(misha)
+gdb.init_examples()
+annot <- misha.ext::gintervals.normalize(gintervals.load("annotations"), 300)
+pwm_q <- gextract_pwm.quantile(
+    annot,
+    motifs = c("JASPAR.CDX1", "JASPAR.CDX2"),
+    dist_from_edge = 100
+)
+pwm_q <- as.matrix(pwm_q[, c("JASPAR.CDX1.q", "JASPAR.CDX2.q")])
+groups <- c("Group1", "Group1", "Group2", "Group2", "Group2", "Group3", "Group3", "Group3")
+
+# The threshold of 0.1 is used for demonstration purposes only.
+# In practice, a threshold of 0.99 is recommended.
+motif_enrichment(pwm_q, groups, threshold = 0.1, type = "relative")
+motif_enrichment(pwm_q, groups, threshold = 0.1, type = "absolute")
+} # }
+```

@@ -1,0 +1,194 @@
+# Package index
+
+## Motif Regression
+
+- [`regress_multiple_motifs()`](https://tanaylab.github.io/prego/reference/regress_pwm.md)
+  [`regress_pwm()`](https://tanaylab.github.io/prego/reference/regress_pwm.md)
+  : Perform a PWM regression
+- [`regress_pwm.clusters()`](https://tanaylab.github.io/prego/reference/regress_pwm.clusters.md)
+  : Run PWM regression on clusters
+- [`regress_pwm.cv()`](https://tanaylab.github.io/prego/reference/regress_pwm.cv.md)
+  : Cross-validate a PWM regression model
+- [`regress_pwm.sample()`](https://tanaylab.github.io/prego/reference/regress_pwm.sample.md)
+  : Run PWM regression on a sample of the data
+- [`plot_regression_prediction()`](https://tanaylab.github.io/prego/reference/plot_regression_prediction.md)
+  : Plot response variable averages vs the regression model's prediction
+- [`plot_regression_prediction_binary()`](https://tanaylab.github.io/prego/reference/plot_regression_prediction_binary.md)
+  : Plot the cumulative of the regression model's prediction stratified
+  by the response variable
+- [`plot_regression_qc()`](https://tanaylab.github.io/prego/reference/plot_regression_qc.md)
+  : Plot the regression results
+- [`plot_regression_qc_multi()`](https://tanaylab.github.io/prego/reference/plot_regression_qc_multi.md)
+  : Plot the regression results for multiple motifs
+- [`plot_spat_model()`](https://tanaylab.github.io/prego/reference/plot_spat_model.md)
+  : Plot spatial model of the regression result
+- [`export_multi_regression()`](https://tanaylab.github.io/prego/reference/export_multi_regression.md)
+  : Export a multiple motif regression model
+- [`export_regression_model()`](https://tanaylab.github.io/prego/reference/export_regression_model.md)
+  : Export a motif regression model
+- [`load_multi_regression()`](https://tanaylab.github.io/prego/reference/load_multi_regression.md)
+  : Load a multiple motif regression model from a file
+- [`load_regression_model()`](https://tanaylab.github.io/prego/reference/load_regression_model.md)
+  : Load a motif regression model from a file
+
+## kmers
+
+- [`screen_kmers()`](https://tanaylab.github.io/prego/reference/screen_kmers.md)
+  : Screen for kmers
+- [`generate_kmers()`](https://tanaylab.github.io/prego/reference/generate_kmers.md)
+  : Generate kmers
+- [`kmer_matrix()`](https://tanaylab.github.io/prego/reference/kmer_matrix.md)
+  : Generate a kmer Matrix
+- [`kmers_to_pssm()`](https://tanaylab.github.io/prego/reference/kmers_to_pssm.md)
+  : Transform k-mers to PSSM (Position-Specific Scoring Matrix)
+
+## MotifDB
+
+- [`MotifDB-class`](https://tanaylab.github.io/prego/reference/MotifDB-class.md)
+  : MotifDB Class
+- [`as.data.frame(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/as.data.frame-MotifDB-method.md)
+  : Convert a MotifDB object to a data frame
+- [`as.matrix(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/as.matrix-MotifDB-method.md)
+  : Convert a MotifDB object to a matrix
+- [`initialize(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/initialize-MotifDB-method.md)
+  : Initialize method for MotifDB objects
+- [`length(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/length-MotifDB-method.md)
+  : Get the length of a MotifDB object
+- [`names(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/names-MotifDB-method.md)
+  : Get the names of motifs in a MotifDB object
+- [`plot(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/plot-MotifDB-method.md)
+  : Plot a motif from a MotifDB object
+- [`prior(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/prior-MotifDB-method.md)
+  : Get the prior value from a MotifDB object
+- [`` `prior<-`( ``*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/prior-set-MotifDB-method.md)
+  : Set a new prior for a MotifDB object
+- [`show(`*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/show-MotifDB-method.md)
+  : Show method for MotifDB objects
+- [`` `[`( ``*`<MotifDB>`*`)`](https://tanaylab.github.io/prego/reference/sub-MotifDB-method.md)
+  : Get specific motifs from the MotifDB
+- [`MOTIF_DB`](https://tanaylab.github.io/prego/reference/MOTIF_DB.md) :
+  A MotifDB object with motifs from all bundled databases
+- [`motif_db_to_dataframe()`](https://tanaylab.github.io/prego/reference/motif_db_to_dataframe.md)
+  : Convert a MotifDB object back to a tidy data frame
+- [`` `prior<-`() ``](https://tanaylab.github.io/prego/reference/prior-set.md)
+  : Set the prior for a MotifDB object
+- [`prior()`](https://tanaylab.github.io/prego/reference/prior.md) : Get
+  or set the prior for a MotifDB object
+- [`create_motif_db()`](https://tanaylab.github.io/prego/reference/create_motif_db.md)
+  : Create a MotifDB object from a tidy data frame
+
+## PSSM/PWM utils
+
+- [`compute_pwm()`](https://tanaylab.github.io/prego/reference/compute_pwm.md)
+  : Compute PWMs for a set of sequences given a PSSM matrix
+- [`extract_pwm_old()`](https://tanaylab.github.io/prego/reference/extract_pwm.md)
+  [`extract_pwm()`](https://tanaylab.github.io/prego/reference/extract_pwm.md)
+  : Extract pwm of sequences from a motif database
+- [`gextract_pwm_old()`](https://tanaylab.github.io/prego/reference/gextract_pwm.md)
+  [`gextract_pwm()`](https://tanaylab.github.io/prego/reference/gextract_pwm.md)
+  : Extract pwm of intervals from a motif database
+- [`consensus_from_pssm()`](https://tanaylab.github.io/prego/reference/consensus_from_pssm.md)
+  : Convert PSSM to consensus sequence
+- [`pssm_diff()`](https://tanaylab.github.io/prego/reference/pssm_diff.md)
+  : Compute the KL divergence between two given PSSMs
+- [`pssm_match()`](https://tanaylab.github.io/prego/reference/pssm_match.md)
+  : Match PSSM to a directory of motifs
+- [`pssm_cor()`](https://tanaylab.github.io/prego/reference/pssm_cor.md)
+  : Compute the correlation between two given PSSMs
+- [`plot_pssm_logo()`](https://tanaylab.github.io/prego/reference/plot_pssm_logo.md)
+  : Plot LOGO of the pssm result from the regression
+- [`plot_pssm_logo_dataset()`](https://tanaylab.github.io/prego/reference/plot_pssm_logo_dataset.md)
+  : Plot LOGO of pssm from dataset (e.g. "HOMER" or "JASPAR")
+- [`all_motif_datasets()`](https://tanaylab.github.io/prego/reference/all_motif_datasets.md)
+  : Get a data frame of all the motif datasets bundled with prego
+- [`screen_pwm()`](https://tanaylab.github.io/prego/reference/screen_pwm.md)
+  : Screen for motifs in a database given a response variable
+- [`screen_pwm.clusters()`](https://tanaylab.github.io/prego/reference/screen_pwm.clusters.md)
+  : Screen for motifs in a database for every cluster
+- [`get_motif_pssm()`](https://tanaylab.github.io/prego/reference/get_motif_pssm.md)
+  : Extract pssm of sequences from a motif database
+- [`HOCOMOCO_motifs`](https://tanaylab.github.io/prego/reference/HOCOMOCO_motifs.md)
+  : PSSMs from the HOCOMOCO motif database
+- [`HOMER_motifs`](https://tanaylab.github.io/prego/reference/HOMER_motifs.md)
+  : PSSMs from the HOMER motif database
+- [`JASPAR_motifs`](https://tanaylab.github.io/prego/reference/JASPAR_motifs.md)
+  : PSSMs from the JASPAR motif database
+- [`JOLMA_motifs`](https://tanaylab.github.io/prego/reference/JOLMA_motifs.md)
+  : PSSMs from the Jolma et al. motif database
+- [`regress_multiple_motifs()`](https://tanaylab.github.io/prego/reference/regress_pwm.md)
+  [`regress_pwm()`](https://tanaylab.github.io/prego/reference/regress_pwm.md)
+  : Perform a PWM regression
+- [`compute_local_pwm()`](https://tanaylab.github.io/prego/reference/compute_local_pwm.md)
+  : Compute local PWMs for a set of sequences given a PSSM matrix
+- [`gextract_pwm.quantile()`](https://tanaylab.github.io/prego/reference/gextract_pwm.quantile.md)
+  : Extract quantiles of pwm of intervals from a motif database
+- [`gpwm_quantiles()`](https://tanaylab.github.io/prego/reference/gpwm_quantiles.md)
+  : Compute quantile of pwm for a given interval size
+- [`mask_sequences_by_pwm()`](https://tanaylab.github.io/prego/reference/mask_sequences_by_pwm.md)
+  : Mask sequences by thresholding the PWM
+- [`trim_pssm()`](https://tanaylab.github.io/prego/reference/trim_pssm.md)
+  [`pssm_trim()`](https://tanaylab.github.io/prego/reference/trim_pssm.md)
+  : Trim PSSM
+- [`bits_per_pos()`](https://tanaylab.github.io/prego/reference/bits_per_pos.md)
+  : Calculate the number of bits per position in a Position-Specific
+  Scoring Matrix (PSSM).
+- [`calc_seq_pwm()`](https://tanaylab.github.io/prego/reference/calc_seq_pwm.md)
+  : Calculate Position Weight Matrix (PWM) Scores for DNA Sequences
+- [`pssm_concat()`](https://tanaylab.github.io/prego/reference/pssm_concat.md)
+  [`concat_pssm()`](https://tanaylab.github.io/prego/reference/pssm_concat.md)
+  : Concatenate two PSSM matrices
+- [`pssm_dataset_cor()`](https://tanaylab.github.io/prego/reference/pssm_dataset_cor.md)
+  : Compute correlation matrix for PSSM datasets
+- [`pssm_dataset_diff()`](https://tanaylab.github.io/prego/reference/pssm_dataset_diff.md)
+  : Compute KL divergence matrix for PSSM datasets
+- [`pssm_rc()`](https://tanaylab.github.io/prego/reference/pssm_rc.md) :
+  Reverse complement a PSSM
+- [`pssm_theoretical_max()`](https://tanaylab.github.io/prego/reference/pssm_theoretical_max.md)
+  [`pssm_theoretical_min()`](https://tanaylab.github.io/prego/reference/pssm_theoretical_max.md)
+  [`pssm_quantile()`](https://tanaylab.github.io/prego/reference/pssm_theoretical_max.md)
+  : Calculate Theoretical Scores for a Position-Specific Scoring Matrix
+  (PSSM)
+- [`pssm_to_kmer()`](https://tanaylab.github.io/prego/reference/pssm_to_kmer.md)
+  : Transform PSSM (Position-Specific Scoring Matrix) to a KMER
+- [`rc()`](https://tanaylab.github.io/prego/reference/rc.md) : Reverse
+  Complement DNA Sequences
+
+## Sequence utils
+
+- [`intervals_to_seq()`](https://tanaylab.github.io/prego/reference/intervals_to_seq.md)
+  : Convert intervals to sequences
+- [`calc_sequences_dinuc_dist()`](https://tanaylab.github.io/prego/reference/calc_sequences_dinuc_dist.md)
+  : Calculate Dinucleotide Distribution in Sequences
+- [`calc_sequences_dinucs()`](https://tanaylab.github.io/prego/reference/calc_sequences_dinucs.md)
+  : Calculate Dinucleotide Counts for Sequences
+- [`calc_sequences_trinuc_dist()`](https://tanaylab.github.io/prego/reference/calc_sequences_trinuc_dist.md)
+  : Calculate Trinucleotide Distribution in Sequences
+
+## Local PWM
+
+- [`gintervals.center_by_pssm()`](https://tanaylab.github.io/prego/reference/gintervals.center_by_pssm.md)
+  : Center intervals by PSSM
+- [`gextract.local_pwm()`](https://tanaylab.github.io/prego/reference/gextract.local_pwm.md)
+  : Extracts local position weight matrix (PWM) scores for given
+  intervals and a PWM.
+- [`gextract.local_pwm_freq()`](https://tanaylab.github.io/prego/reference/gextract.local_pwm_freq.md)
+  : Calculate the frequency of a position weight matrix (PWM) in a given
+  set of intervals
+- [`screen_local_pwm()`](https://tanaylab.github.io/prego/reference/screen_local_pwm.md)
+  : Screen sequences for positions with PWM scores meeting a threshold
+  condition
+
+## other
+
+- [`motif_enrichment()`](https://tanaylab.github.io/prego/reference/motif_enrichment.md)
+  : Calculate motif enrichment
+- [`sample_quantile_matched_rows()`](https://tanaylab.github.io/prego/reference/sample_quantile_matched_rows.md)
+  : Sample rows respecting quantiles of a reference distribution
+- [`set_parallel()`](https://tanaylab.github.io/prego/reference/set_parallel.md)
+  : Set parallel threads
+- [`cluster_mat_example`](https://tanaylab.github.io/prego/reference/cluster_mat_example.md)
+  [`cluster_sequences_example`](https://tanaylab.github.io/prego/reference/cluster_mat_example.md)
+  [`clusters_example`](https://tanaylab.github.io/prego/reference/cluster_mat_example.md)
+  [`response_mat_example`](https://tanaylab.github.io/prego/reference/cluster_mat_example.md)
+  [`sequences_example`](https://tanaylab.github.io/prego/reference/cluster_mat_example.md)
+  : Dataset examples
