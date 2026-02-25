@@ -45,8 +45,11 @@ reference:
   - trim_pssm
   - bits_per_pos
   - calc_seq_pwm
+  - pssm_concat
   - pssm_dataset_cor
+  - pssm_dataset_diff
   - pssm_rc
+  - pssm_theoretical_max
   - pssm_to_kmer
   - rc
 - title: Sequence utils
@@ -60,6 +63,7 @@ reference:
   - gintervals.center_by_pssm
   - gextract.local_pwm
   - gextract.local_pwm_freq
+  - screen_local_pwm
 - title: other
   contents: 
   - motif_enrichment
