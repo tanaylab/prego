@@ -24,7 +24,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          channels: conda-forge,ofirr
+          channels: conda-forge,aviezerl
           channel-priority: strict
           activate-environment: build
 
@@ -53,7 +53,7 @@ jobs:
             --output-folder conda-output/ \
             --keep-going \
             -c conda-forge \
-            -c ofirr
+            -c aviezerl
 
       - name: Upload to anaconda.org
         if: always()
