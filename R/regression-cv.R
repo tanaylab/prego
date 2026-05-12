@@ -93,7 +93,7 @@ regress_pwm.cv <- function(sequences,
     }
 
     if (use_sample) {
-        cli_alert_info("Using sampled optimization")
+        cli_alert_info("Each CV fold will fit on a subsample of its training sequences ({.code use_sample = TRUE}, via {.fun regress_pwm.sample})")
         func <- regress_pwm.sample
         if ("sample_idxs" %in% names(list(...))) {
             cli_abort("The {.field sample_idxs} argument is not supported in {.fun regress_pwm.cv}")

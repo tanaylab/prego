@@ -40,6 +40,7 @@ regress_pwm.multi_kmers <- function(sequences,
                                     optimize_spat = TRUE,
                                     kmer_sequence_length = NULL,
                                     symmetrize_spat = TRUE,
+                                    return_all = FALSE,
                                     ...) {
     if (!is.null(seed)) {
         set.seed(seed)
@@ -60,7 +61,7 @@ regress_pwm.multi_kmers <- function(sequences,
     }
 
     if (sample_for_kmers) {
-        cli_alert_info("Performing sampled optimization")
+        cli_alert_info("Subsampling sequences for the kmer screen ({.code sample_for_kmers = TRUE}) to keep candidate regressions tractable on large datasets")
         if (is.null(sample_idxs)) {
             sample_idxs <- sample_response(response, sample_frac, sample_ratio, seed)
         }
@@ -72,7 +73,9 @@ regress_pwm.multi_kmers <- function(sequences,
         response_s <- response
     }
 
-    # split to validation and train
+    # Held-out split: candidates are fit on `train_idxs` and ranked by performance
+    # on `val_idxs`, so the chosen seed isn't picked by its own training fit.
+    cli_alert_info("Holding out {.val {val_frac}} of sequences as a validation set for picking the best candidate kmer")
     val_idxs <- sample_response(response_s, val_frac, 1, seed)
     train_idxs <- setdiff(1:length(sequences_s), val_idxs)
 
@@ -120,7 +123,7 @@ regress_pwm.multi_kmers <- function(sequences,
     cand_kmers <- get_cand_kmers(sequences_kmers, response, kmer_length, min_gap, max_gap, min_kmer_cor, verbose, parallel, max_cands = max_cands, ...)
 
     if (sample_for_kmers) {
-        cli_h3("Regress each candidate kmer on sampled data")
+        cli_h3("Regress each candidate kmer (on the sample subset)")
     } else {
         cli_h3("Regress each candidate kmer")
     }
@@ -177,6 +180,34 @@ regress_pwm.multi_kmers <- function(sequences,
     scores <- sapply(res_kmer_list, function(x) x$val_score)
     if (is.matrix(scores) && nrow(scores) > 1) {
         scores <- colMeans(scores)
+    }
+
+    if (return_all) {
+        if (sample_for_kmers) {
+            cli_alert_info("Refitting {.val {length(res_kmer_list)}} candidate models on the full data")
+            res_kmer_list <- safe_llply(seq_along(res_kmer_list), function(i) {
+                r <- regress_pwm_single_kmer(
+                    motif = cand_kmers[i], sequences = sequences, response = response
+                ) %>% suppressMessages()
+                r$val_score <- res_kmer_list[[i]]$val_score
+                r
+            }, .parallel = parallel)
+        }
+        return(finalize_multi_kmer_list(
+            res_kmer_list = res_kmer_list,
+            scores = scores,
+            sequences = sequences,
+            response = response,
+            match_with_db = match_with_db,
+            screen_db = screen_db,
+            motif_dataset = motif_dataset,
+            final_metric = final_metric,
+            alternative = alternative,
+            unif_prior = unif_prior,
+            bidirect = bidirect,
+            include_response = include_response,
+            parallel = parallel
+        ))
     }
 
     if (length(which.max(scores)) == 0) {
@@ -277,4 +308,54 @@ get_cand_kmers <- function(sequences, response, kmer_length, min_gap, max_gap, m
     cands <- unique(c(best_kmer, cands))
 
     return(cands)
+}
+
+finalize_multi_kmer_list <- function(res_kmer_list,
+                                     scores,
+                                     sequences,
+                                     response,
+                                     match_with_db,
+                                     screen_db,
+                                     motif_dataset,
+                                     final_metric,
+                                     alternative,
+                                     unif_prior,
+                                     bidirect,
+                                     include_response,
+                                     parallel) {
+    valid <- !is.na(scores) & is.numeric(scores)
+    if (!any(valid)) {
+        cli_abort("No candidate kmer produced a valid score")
+    }
+    res_kmer_list <- res_kmer_list[valid]
+    scores <- scores[valid]
+
+    ord <- order(scores, decreasing = TRUE)
+    res_kmer_list <- res_kmer_list[ord]
+
+    cli_alert_info("Returning {.val {length(res_kmer_list)}} candidate-kmer models (sorted by validation score)")
+
+    process_one <- function(r) {
+        if (match_with_db) {
+            r <- add_regression_db_match(r, sequences, motif_dataset,
+                alternative = alternative, parallel = FALSE
+            )
+        }
+        if (screen_db) {
+            r <- add_regression_db_screen(r, response, sequences, motif_dataset,
+                final_metric,
+                alternative = alternative, prior = unif_prior,
+                bidirect = bidirect, parallel = FALSE
+            )
+        }
+        if (include_response) {
+            r$response <- response
+        }
+        r
+    }
+
+    res_kmer_list <- safe_llply(res_kmer_list, process_one, .parallel = parallel)
+
+    names(res_kmer_list) <- vapply(res_kmer_list, function(r) r$seed_motif %||% NA_character_, character(1))
+    res_kmer_list
 }

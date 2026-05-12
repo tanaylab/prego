@@ -16,16 +16,15 @@ load_multi_regression(
 \arguments{
 \item{fn}{file name or a list with the model}
 
-\item{response}{A matrix of response variables - number of rows should equal the number of sequences}
+\item{response}{A matrix (or vector) of response variables. The number of rows must equal the number of sequences. A single binary vector (0/1) is required when \code{score_metric = "ks"}.}
 
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Sequences must be long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and should be centered around the motif/signal.}
 
-\item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
+\item{motif_dataset}{A data frame with PSSMs (columns \code{A}, \code{C}, \code{G}, \code{T}, \code{motif}), e.g. \code{HOMER_motifs}, \code{JASPAR_motifs}, or \code{all_motif_datasets()} (default).}
 
-\item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
-to set the number of cores to use.}
+\item{parallel}{Whether to parallelize. Use \code{set_parallel} to set the number of cores.}
 
-\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
+\item{alternative}{Alternative hypothesis for \code{ks.test}. One of \code{"two.sided"}, \code{"less"}, \code{"greater"}.}
 }
 \value{
 a list with the following elements:
