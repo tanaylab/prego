@@ -69,7 +69,7 @@ regress_pwm.sample <- function(sequences,
     spat_bin_size <- bins$spat_bin_size
     cli_alert_info("Using {.val {spat_num_bins}} bins of size {.val {spat_bin_size}} bp")
 
-    cli_alert_info("Performing sampled optimization")
+    cli_alert_info("Fitting on a subsample of sequences (the entire {.code regress_pwm.sample} run trains and predicts on this subset)")
     if (is.null(sample_idxs)) {
         sample_idxs <- sample_response(response, sample_frac, sample_ratio, seed)
     }

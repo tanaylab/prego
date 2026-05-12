@@ -98,98 +98,93 @@ regress_pwm(
   optimize_spat = TRUE,
   kmer_sequence_length = NULL,
   symmetrize_spat = TRUE,
+  return_all = FALSE,
   ...
 )
 }
 \arguments{
-\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Please make sure that the sequences are long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and that they are centered around the motif/signal.}
+\item{sequences}{A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through \code{toupper}). Sequences must be long enough to cover \code{spat_num_bins} * \code{spat_bin_size} bp, and should be centered around the motif/signal.}
 
-\item{response}{A matrix of response variables - number of rows should equal the number of sequences}
+\item{response}{A matrix (or vector) of response variables. The number of rows must equal the number of sequences. A single binary vector (0/1) is required when \code{score_metric = "ks"}.}
 
-\item{motif}{Initial motif to start the regression from. Can be either a string with a kmer where the character "*" indicates a
-wildcard or a data frame with a pre-computed PSSM (see the slot \code{pssm} in the return value of this function).
-If NULL - a K-mer screen would be performed in order to find the best kmer for initialization. If \code{init_from_dataset} is TRUE, the regression would be initialized from the PSSM of the best motif in the dataset.}
+\item{motif}{Initial seed for the regression. Either a kmer string ("*" denotes a wildcard) or a data frame with a pre-computed PSSM (same shape as the \code{pssm} slot of the return value). If \code{NULL} (default), a kmer screen finds a seed automatically. Ignored when \code{init_from_dataset = TRUE}.}
 
-\item{motif_length}{Length of the seed motif. If the motif is shorter than this, it will be extended by wildcards (stars). Note that If the motif is longer than this, it will \emph{not} be truncated.}
+\item{motif_length}{Length of the seed motif. Shorter seeds are padded with wildcards; longer seeds are \emph{not} truncated.}
 
-\item{score_metric}{metric to use for optimizing the PWM. One of "r2" or "ks". When using "ks" the response variable should be a single vector of 0 and 1.}
+\item{score_metric}{Metric optimized during PWM fitting. One of \code{"r2"} or \code{"ks"}. \code{"ks"} requires a single binary response.}
 
-\item{bidirect}{is the motif bi-directional. If TRUE, the reverse-complement of the motif will be used as well.}
+\item{bidirect}{Whether the motif is bi-directional. If TRUE, the reverse-complement is also scored.}
 
-\item{spat_bin_size}{size of the spatial bin (in bp).}
+\item{spat_bin_size}{Size of each spatial bin (bp).}
 
-\item{spat_num_bins}{number of spatial bins. Please make sure that the sequences are long enough to cover this number of bins. bp outside of spat_bin_size * spat_num_bins would be ignored. If \code{bidirect} is TRUE, the number of bins should be odd as 'prego' symmetrizes the motif around the center bin.}
+\item{spat_num_bins}{Number of spatial bins. Sequence length must be at least \code{spat_bin_size * spat_num_bins}; positions outside this window are ignored. If \code{bidirect = TRUE}, this should be odd (prego symmetrizes the spatial model around the center bin).}
 
-\item{spat_model}{a previously computed spatial model (see \code{spat}) in the return value of this function.}
+\item{spat_model}{A previously computed spatial model (the \code{spat} slot of a prior result) to reuse.}
 
-\item{improve_epsilon}{minimum improve in the objective function to continue the optimization}
+\item{improve_epsilon}{Minimum improvement in the objective for the optimizer to continue.}
 
-\item{min_nuc_prob}{minimum nucleotide probability in every iteration}
+\item{min_nuc_prob}{Floor on per-position nucleotide probabilities at every iteration.}
 
-\item{unif_prior}{uniform prior for nucleotide probabilities}
+\item{unif_prior}{Uniform prior added to nucleotide probabilities.}
 
-\item{include_response}{include the response in the resulting list (default: TRUE)}
+\item{include_response}{If TRUE (default), the response matrix is stored in the result.}
 
-\item{seed}{random seed}
+\item{seed}{Random seed.}
 
-\item{verbose}{show verbose messages.}
+\item{verbose}{Show verbose messages from the optimizer.}
 
-\item{kmer_length}{a vector of kmer lengths to screen in order to find the best seed motif.}
+\item{kmer_length}{Vector of kmer lengths to try in the seed screen.}
 
-\item{multi_kmers}{if TRUE, different candidates of kmers would be regressed in order to find the best seed according to \code{final_metric}.}
+\item{multi_kmers}{If TRUE (default) and \code{motif = NULL}, generate multiple kmer candidates and pick the best by \code{final_metric}. If \code{motif} is provided, this is ignored. See also \code{return_all}.}
 
-\item{final_metric}{metric to use in order to choose the best motif. One of 'ks' or 'r2'. Note that unlike \code{score_metric} which is used in the regression itself, this metric is used only for choosing the best motif out of all the runs on the sampled dataset. If NULL - 'ks' would be used for binary response and 'r2' for continuous response.}
+\item{final_metric}{Metric used to pick the best motif across candidates (and to score the final fit). One of \code{"ks"} or \code{"r2"}. Distinct from \code{score_metric}, which is used \emph{inside} the optimizer. If NULL: \code{"ks"} for binary response, \code{"r2"} otherwise.}
 
-\item{max_cands}{maximum number of kmer candidates to try.}
+\item{max_cands}{Maximum number of candidate kmers to regress.}
 
 \item{min_gap, max_gap}{the length of a gap to be considered in the pattern. Only one gap, of length min_gap:max_gap, is being used, and is located anywhere in the motif. Note that this greatly expand the search space (and increase multiple testing severely).}
 
-\item{min_kmer_cor}{minimal correlation between the kmer and the response in order to use it as a seed.}
+\item{min_kmer_cor}{Minimum kmer-response correlation for a kmer to qualify as a seed candidate.}
 
-\item{motif_num}{Number of motifs to infer. When \code{motif_num} > 1, the function would run \code{motif_num} times, each time on the residuals of a linear model of all the previous runs (see \code{smooth_k} parameter). The best motif is then returned, while all the others are stored at 'models' in the return value.}
+\item{motif_num}{Number of motifs to infer. If > 1, dispatches to \code{\link{regress_multiple_motifs}} (residual rounds; see Details).}
 
-\item{smooth_k}{k for smoothing the predictions of each model in order to compute the residuals when \code{motif_num} > 1. The residuals are computed as \code{response} - running mean of size 'k' of the current model.}
+\item{smooth_k}{Window size (in observations) for the running-mean residual computed between rounds when \code{motif_num > 1}.}
 
-\item{consensus_single_thresh, consensus_double_thresh}{thresholds for the consensus sequence calculation
-(single and double nucleotides)}
+\item{consensus_single_thresh, consensus_double_thresh}{Probability thresholds for calling a single-nucleotide or two-nucleotide IUPAC consensus, respectively.}
 
-\item{internal_num_folds}{number of folds to use in the internal cross-validation.}
+\item{internal_num_folds}{Number of internal cross-validation folds during optimization.}
 
-\item{match_with_db}{match the resulting PWMs with motif databases using \code{pssm_match}. Note that the closest match
-is returned, even if it is not similar enough in absolute terms.}
+\item{match_with_db}{If TRUE, match the resulting PSSM to the closest motif in \code{motif_dataset} using \code{pssm_match}. The closest match is always returned, even if similarity is low.}
 
-\item{motif_dataset}{a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example \code{HOMER_motifs}, \code{JASPAR_motifs} or all_motif_datasets(). By default all_motif_datasets() would be used.}
+\item{motif_dataset}{A data frame with PSSMs (columns \code{A}, \code{C}, \code{G}, \code{T}, \code{motif}), e.g. \code{HOMER_motifs}, \code{JASPAR_motifs}, or \code{all_motif_datasets()} (default).}
 
-\item{parallel}{whether to run optimization in parallel. use \code{set_parallel}
-to set the number of cores to use.}
+\item{parallel}{Whether to parallelize. Use \code{set_parallel} to set the number of cores.}
 
-\item{alternative}{alternative hypothesis for the p-value calculation when using \code{ks.test}. One of "two.sided", "less" or "greater".}
+\item{alternative}{Alternative hypothesis for \code{ks.test}. One of \code{"two.sided"}, \code{"less"}, \code{"greater"}.}
 
-\item{sample_for_kmers}{Use a random sample of the dataset in order to find the best kmer. This is useful when the dataset is very large and the kmer screen would take a long time. Note that the final regression would be performed on the entire dataset. Only relevant when \code{multi_kmers} is TRUE.}
+\item{sample_for_kmers}{If TRUE, run the kmer screen on a random sample of sequences (final regression is still on the full data). Useful for large datasets. Only relevant when \code{multi_kmers = TRUE}.}
 
-\item{sample_frac}{fraction of the dataset to use for the kmer screen. Default: 0.1.}
+\item{sample_frac}{Fraction of sequences sampled for the kmer screen. Default: 0.1.}
 
-\item{sample_idxs}{indices of the sequences to use for the kmer screen. If NULL, a random sample would be used.}
+\item{sample_idxs}{Explicit sequence indices to use for the kmer screen. If NULL, a random sample is drawn.}
 
-\item{sample_ratio}{ratio between the '1' category and the '0' category in the sampled dataset (for binary response). Relevant only when \code{sample_frac} is NULL.}
+\item{sample_ratio}{For binary response, ratio of '1' to '0' in the sampled subset. Relevant only when \code{sample_frac} is NULL.}
 
-\item{log_energy}{transform the energy to log scale on each iteration.}
+\item{log_energy}{If TRUE, the energy is log-transformed at every iteration.}
 
-\item{energy_func_generator}{a function to generate the energy function when regressing multiple motifs. Should accept the result of the previous iteration + the original response and return a function similar to \code{energy_func}. e.g. \code{
+\item{energy_func_generator}{A function that, given the previous-iteration result and the original response, returns an \code{energy_func}. Used in \code{motif_num > 1}: each round, the generator builds an energy function (e.g. a GAM-based one for non-monotonic relationships) and a second pass is run with it. Example:
+\code{
 function(prev_reg, resp) {
-       df <- data.frame(x = prev_reg$pred, y = resp)
-       fn_gam <- as.formula("y ~ s(x, k=3, bs='cr')")
-       model <- mgcv::gam(fn_gam, family = binomial(link = "logit"), data = df, method="REML")
-       function(z){
-           mgcv::predict.gam(object = model, newdata = data.frame(x = z))
-}}}.
-When this parameter is not NULL, energy_func_generator would create an energy function and then run another step of regression initialized with the previous motif with \code{energy_func} as the energy function. This is useful when the energy function is not monotonic, for example - one might want to use a gam model to fit the energy function like in the example above.}
+    df <- data.frame(x = prev_reg$pred, y = resp)
+    model <- mgcv::gam(y ~ s(x, k = 3, bs = "cr"), family = binomial("logit"),
+                       data = df, method = "REML")
+    function(z) mgcv::predict.gam(model, newdata = data.frame(x = z))
+}}}
 
-\item{energy_func}{a function to transform the energy at each iteration. Should accept a numeric vector and return a numeric vector. e.g. \code{log} or \code{function(x) x^2}. Note that the range of the input energies is between 0 and 1 (the probability of the motif in the sequence), so if you inferred the function using the the returned energies (which are in log scale) you should make sure that the function first log transforms using \code{log_energy=TRUE}.}
+\item{energy_func}{Optional function applied to the energy at every iteration; takes and returns a numeric vector (e.g. \code{log} or \code{function(x) x^2}). Input energies are in the range \code{[0, 1]}; if your function was fit on log energies, use \code{log_energy = TRUE}.}
 
-\item{optimize_pwm}{optimize the PWM model (Default: TRUE). If FALSE, the PWM model would be used as the initial model for the spatial model.}
+\item{optimize_pwm}{If FALSE, the PWM is held fixed and only the spatial model is optimized.}
 
-\item{optimize_spat}{optimize the spatial model (Default: TRUE). If FALSE, the spatial model would be used as the initial model for the PWM model.}
+\item{optimize_spat}{If FALSE, the spatial model is held fixed and only the PWM is optimized.}
 
 \item{...}{
   Arguments passed on to \code{\link[=screen_kmers]{screen_kmers}}
@@ -202,65 +197,78 @@ When this parameter is not NULL, energy_func_generator would create an energy fu
     \item{\code{return_mat}}{Return a matrix of patterns and their correlation to the response variables instead of a data frame. (default: FALSE)}
   }}
 
-\item{init_from_dataset}{initialize the regression from the PSSM of the best motif in \code{motif_dataset}, using \code{final_metric} as the metric. If TRUE, the \code{motif} parameter would be ignored. See \code{\link{screen_pwm}} for more details.}
+\item{init_from_dataset}{If TRUE, initialize from the best-matching PSSM in \code{motif_dataset} (chosen by \code{final_metric}; see \code{\link{screen_pwm}}). Overrides \code{motif}.}
 
-\item{screen_db}{Screen \code{motif_dataset} using \code{screen_pwm} and use the best motif as the initial motif. If TRUE, the following fields would be added to the return value:
-"db_motif", "db_motif_pred", "db_motif_pssm" and "db_motif_score".}
+\item{screen_db}{If TRUE, screen \code{motif_dataset} via \code{\link{screen_pwm}} and add the best database motif to the result (\code{db_motif}, \code{db_motif_pred}, \code{db_motif_pssm}, \code{db_motif_score}).}
 
-\item{val_frac}{fraction of the dataset to use for the internal validation. when using multiple kmers. Default: 0.1.}
+\item{val_frac}{Fraction of sequences held out for internal validation in the multi-kmer mode. Default: 0.1.}
 
-\item{xmin, xmax, npts}{range for the energy function and the number of points to use for its interpolation.}
+\item{xmin, xmax, npts}{Range and resolution for interpolating \code{energy_func}.}
 
-\item{kmer_sequence_length}{the length of the sequence to use for the kmer screen. If NULL, the entire sequence would be used.}
+\item{kmer_sequence_length}{Length of the central window used for the kmer screen. If NULL, the full sequence is used.}
 
-\item{symmetrize_spat}{if TRUE, the spatial model would be symmetrized around the center bin. Default: TRUE.}
+\item{symmetrize_spat}{If TRUE (default), the spatial model is symmetrized around the center bin.}
+
+\item{return_all}{If TRUE, return \emph{all} candidate-kmer regressions instead of only the best one. Requires \code{multi_kmers = TRUE}, \code{motif = NULL}, and \code{motif_num = 1}. Use this when you want N independent kmer-seeded motifs without the residual-rounds approach of \code{motif_num > 1}. Default: FALSE. See \emph{Value} for the returned structure.}
 }
 \value{
-a list with the following elements:
+The returned structure depends on the mode:
+
+\strong{Single-motif mode} (default, or with \code{motif} provided) - a list with:
 \describe{
-\item{pssm: }{data frame with the pssm matrix with the inferred motif, where rows are positions and columns are nucleotides.}
-\item{spat: }{a data frame with the inferred spatial model, with the spatial factor for each bin.}
-\item{pred: }{a vector with the predicted pwm for each sequence.}
-\item{consensus: }{Consensus sequence based on the PSSM.}
-\item{response: }{The response matrix. If \code{include_response} is FALSE, the response matrix is not included in the list.}
-\item{r2: }{\eqn{r^2} of the prediction with respect to the each response variable.}
-\item{ks: }{If response is binary, Kolmogorov-Smirnov test results of the predictions where the response was 1 vs the predictions where the response was 0.}
-\item{seed_motif: }{The seed motif that started the regression.}
-\item{kmers: }{The k-mers that were screened in order to find the best seed motif (if motif was NULL).}
-\item{sample_idxs: }{The indices of the sequences that were used for the regression (only for \code{regress_pwm.sample}).}
-\item{predict: }{a function that can be used to predict the PWM for a new sequence.}
+\item{pssm}{Data frame of the inferred PSSM: rows are positions, columns are nucleotides.}
+\item{spat}{Data frame of the inferred spatial model (one row per bin).}
+\item{pred}{Numeric vector of predictions, one per input sequence.}
+\item{consensus}{IUPAC consensus derived from \code{pssm}.}
+\item{response}{The response matrix (omitted when \code{include_response = FALSE}).}
+\item{r2}{Per-response-column \eqn{r^2} of \code{pred} vs the response.}
+\item{ks}{Kolmogorov-Smirnov test of \code{pred} for response=1 vs response=0 (binary response only).}
+\item{score}{The KS statistic (binary) or \eqn{r^2} (continuous).}
+\item{seed_motif}{The kmer/string used as the seed.}
+\item{kmers}{The screened candidate kmers (only when the seed was found automatically).}
+\item{predict}{A closure: \code{predict(new_sequences)} returns predictions.}
 }
 
-When \code{match_with_db} is TRUE, the following additional elements are returned:
-\describe{
-\item{motif_db: }{The motif database that the most similar to the resulting PSSM.}
-\item{db_match_cor: }{The correlation between the resulting PSSM and the closest match in the motif database.}
-\item{db_match_pssm: }{The PSSM of the closest match in the motif database.}
-\item{db_match_pred: }{The predicted PWM of the closest match in the motif database.}
-\item{db_match_r2: }{The \eqn{r^2} of the predicted PWM of the closest match in the motif database and the response}
-\item{db_match_ks: }{If response is binary, the Kolmogorov-Smirnov test results of the predicted PWM of the closest match in the motif database where the response was 1 vs the predictions where the response was 0.}
+When \code{match_with_db = TRUE}, also: \code{motif_db}, \code{db_match_cor}, \code{db_match_pssm}, \code{db_match_pred}, \code{db_match_r2}, and (binary) \code{db_match_ks}.
+
+When \code{screen_db = TRUE}, also: \code{db_motif}, \code{db_motif_pred}, \code{db_motif_pssm}, \code{db_motif_score}.
+
+\strong{Multi-kmer mode with \code{return_all = TRUE}} - a \emph{named list} of single-motif results (named by \code{seed_motif}), one per candidate kmer, sorted by validation score (descending). Each element has the structure above, plus a \code{val_score} field. Refitting behavior:
+\itemize{
+\item \code{sample_for_kmers = FALSE} (default): each element's PSSM was fit on the train portion (\code{1 - val_frac} of the full data); \code{pred} therefore covers the train subset only. Call \code{res[[i]]$predict(sequences)} to score the full data, or refit explicitly via \code{regress_pwm(sequences, response, motif = res[[i]]$seed_motif, multi_kmers = FALSE)}.
+\item \code{sample_for_kmers = TRUE}: each element is refit on the full data (analogous to the single-best path).
 }
 
-When \code{screen_db} is TRUE, the following additional elements are returned:
+\strong{Multi-motif mode (\code{motif_num > 1})} - a list with:
 \describe{
-\item{db_motif: }{The best motif from the motif database.}
-\item{db_motif_pred: }{The predicted PWM of the best motif from the motif database.}
-\item{db_motif_pssm: }{The PSSM of the best motif from the motif database.}
-\item{db_motif_score: }{The score of the best motif from the motif database.}
-}
-
-When \code{n_motifs} is greater than 1, a list with the following elements is returned:
-\describe{
-\item{models: }{A list (as above) of each inferred model}
-\item{multi_stats: }{A data frame with the following columns: \code{model}, \code{score} (KS for binary, r^2 otherwise), \code{comb_score} (score for the combined linear model for models 1:i) and additional statistics per model}
-\item{pred: }{a vector with the predicted pwm for using a linear model of the combined scores.}
-\item{comb_modle: }{a linear model of the combined scores.}
-\item{predict: }{a function that can be used to predict the PWM for a new sequence.}
-\item{predict_multi: }{a function that can be used to predict the PWM for the different models for a new sequence}
+\item{models}{List of single-motif results, one per round.}
+\item{multi_stats}{Data frame with columns \code{model}, \code{score} (per-motif KS or \eqn{r^2}), \code{comb_score} (linear-combination score using models 1:i), \code{diff}, \code{consensus}, \code{seed_motif}, plus db-match columns when \code{match_with_db = TRUE}.}
+\item{pred}{Predictions from the combined linear model.}
+\item{model}{The fitted combined \code{lm} object.}
+\item{predict}{Closure for predictions from the combined model.}
+\item{predict_multi}{Closure returning a data frame of per-motif predictions (columns \code{e1}, \code{e2}, ...).}
 }
 }
 \description{
-Perform a PWM regression
+Fits a PWM (and a spatial model) that predicts \code{response} from \code{sequences}.
+The function operates in one of three modes depending on its arguments:
+}
+\details{
+\describe{
+\item{Single motif from a fixed seed (\code{motif} given):}{One PWM is optimized
+starting from the supplied kmer or PSSM. Returns a single regression result.}
+\item{Single motif from a kmer screen (\code{motif = NULL}, \code{multi_kmers = TRUE}, default):}{
+Candidate kmer seeds are generated by \code{screen_kmers}, each is regressed on
+a train/validation split, the best by validation score is refit on the full
+data. Returns a single regression result. Set \code{return_all = TRUE} to get
+\emph{all} candidate-kmer regressions instead of just the best - useful when you
+want the top N motifs without the residual-rounds approach used by
+\code{motif_num > 1}.}
+\item{Multiple motifs via residual rounds (\code{motif_num > 1}):}{Delegates to
+\code{\link{regress_multiple_motifs}}. Each successive motif is fit against the
+residual of a linear model of the previous motifs. Returns a multi-motif result
+(see \emph{Value}).}
+}
 }
 \examples{
 \dontrun{
@@ -301,7 +309,7 @@ res_binary <- regress_pwm(
     init_from_dataset = TRUE
 )
 
-# use multiple kmer seeds
+# use multiple kmer seeds (returns the single best motif)
 res_multi <- regress_pwm(
     cluster_sequences_example,
     cluster_mat_example[, 1],
@@ -311,7 +319,19 @@ res_multi <- regress_pwm(
 )
 plot_regression_qc(res_multi)
 
-# Screen for multiple motifs
+# return all candidate-kmer motifs (sorted by validation score)
+res_all <- regress_pwm(
+    cluster_sequences_example,
+    cluster_mat_example[, 1],
+    multi_kmers = TRUE,
+    return_all = TRUE,
+    max_cands = 5
+)
+length(res_all)
+sapply(res_all, function(x) x$seed_motif)
+sapply(res_all, function(x) x$val_score)
+
+# Screen for multiple motifs via residual rounds
 res_multi <- regress_pwm(
     cluster_sequences_example,
     cluster_mat_example[, 1],
@@ -322,7 +342,8 @@ res_multi$multi_stats
 plot_regression_qc_multi(res_multi)
 }
 
-# regress_multiple_motifs is an alias for regress_pwm with motif_num > 1
+# regress_multiple_motifs() can also be called directly (equivalent to
+# regress_pwm() with motif_num > 1, which internally dispatches to it)
 \dontrun{
 res_multi2 <- regress_multiple_motifs(
     cluster_sequences_example,

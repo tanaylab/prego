@@ -1,3 +1,8 @@
+# prego 0.0.10
+
+* Added `return_all` parameter to `regress_pwm` (multi-kmer path). When TRUE, returns every candidate-kmer regression (sorted by validation score) instead of just the best one - useful for getting N independent motifs without the residual-rounds approach used by `motif_num > 1`. When `sample_for_kmers = TRUE`, each candidate is refit on the full data.
+* Improved docs for `regress_pwm` (clarified the three operating modes, fixed `n_motifs`/`comb_modle` typos in the return-value section).
+
 # prego 0.0.9
 
 * Fix: Floating point discrepancies between `predict` and `regress_pwm` output.
