@@ -23,32 +23,31 @@ load_multi_regression(
 
 - response:
 
-  A matrix of response variables - number of rows should equal the
-  number of sequences
+  A matrix (or vector) of response variables. The number of rows must
+  equal the number of sequences. A single binary vector (0/1) is
+  required when `score_metric = "ks"`.
 
 - sequences:
 
   A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through
-  `toupper`). Please make sure that the sequences are long enough to
-  cover `spat_num_bins` \* `spat_bin_size` bp, and that they are
-  centered around the motif/signal.
+  `toupper`). Sequences must be long enough to cover `spat_num_bins` \*
+  `spat_bin_size` bp, and should be centered around the motif/signal.
 
 - motif_dataset:
 
-  a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an
-  additional column 'motif' containing the motif name, for example
-  `HOMER_motifs`, `JASPAR_motifs` or all_motif_datasets(). By default
-  all_motif_datasets() would be used.
+  A data frame with PSSMs (columns `A`, `C`, `G`, `T`, `motif`), e.g.
+  `HOMER_motifs`, `JASPAR_motifs`, or
+  [`all_motif_datasets()`](https://tanaylab.github.io/prego/reference/all_motif_datasets.md)
+  (default).
 
 - parallel:
 
-  whether to run optimization in parallel. use `set_parallel` to set the
-  number of cores to use.
+  Whether to parallelize. Use `set_parallel` to set the number of cores.
 
 - alternative:
 
-  alternative hypothesis for the p-value calculation when using
-  `ks.test`. One of "two.sided", "less" or "greater".
+  Alternative hypothesis for `ks.test`. One of `"two.sided"`, `"less"`,
+  `"greater"`.
 
 ## Value
 

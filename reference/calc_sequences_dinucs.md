@@ -33,6 +33,7 @@ A numeric matrix where:
 ## Examples
 
 ``` r
+
 sequences <- c("ATCG", "GCTA", "AATT")
 result <- calc_sequences_dinucs(sequences)
 print(result)

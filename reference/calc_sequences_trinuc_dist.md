@@ -31,6 +31,7 @@ that position across all sequences.
 ## Examples
 
 ``` r
+
 # Generate some random sequences for testing
 set.seed(60427)
 sequences <- sapply(1:100, function(x) {

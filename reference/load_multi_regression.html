@@ -57,24 +57,23 @@
 
 
 <dt id="arg-response">response<a class="anchor" aria-label="anchor" href="#arg-response"></a></dt>
-<dd><p>A matrix of response variables - number of rows should equal the number of sequences</p></dd>
+<dd><p>A matrix (or vector) of response variables. The number of rows must equal the number of sequences. A single binary vector (0/1) is required when <code>score_metric = "ks"</code>.</p></dd>
 
 
 <dt id="arg-sequences">sequences<a class="anchor" aria-label="anchor" href="#arg-sequences"></a></dt>
-<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through <code>toupper</code>). Please make sure that the sequences are long enough to cover <code>spat_num_bins</code> * <code>spat_bin_size</code> bp, and that they are centered around the motif/signal.</p></dd>
+<dd><p>A vector of DNA sequences ('A', 'T', 'C' or 'G'. Will go through <code>toupper</code>). Sequences must be long enough to cover <code>spat_num_bins</code> * <code>spat_bin_size</code> bp, and should be centered around the motif/signal.</p></dd>
 
 
 <dt id="arg-motif-dataset">motif_dataset<a class="anchor" aria-label="anchor" href="#arg-motif-dataset"></a></dt>
-<dd><p>a data frame with PSSMs ('A', 'C', 'G' and 'T' columns), with an additional column 'motif' containing the motif name, for example <code>HOMER_motifs</code>, <code>JASPAR_motifs</code> or all_motif_datasets(). By default all_motif_datasets() would be used.</p></dd>
+<dd><p>A data frame with PSSMs (columns <code>A</code>, <code>C</code>, <code>G</code>, <code>T</code>, <code>motif</code>), e.g. <code>HOMER_motifs</code>, <code>JASPAR_motifs</code>, or <code><a href="all_motif_datasets.html">all_motif_datasets()</a></code> (default).</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
-<dd><p>whether to run optimization in parallel. use <code>set_parallel</code>
-to set the number of cores to use.</p></dd>
+<dd><p>Whether to parallelize. Use <code>set_parallel</code> to set the number of cores.</p></dd>
 
 
 <dt id="arg-alternative">alternative<a class="anchor" aria-label="anchor" href="#arg-alternative"></a></dt>
-<dd><p>alternative hypothesis for the p-value calculation when using <code>ks.test</code>. One of "two.sided", "less" or "greater".</p></dd>
+<dd><p>Alternative hypothesis for <code>ks.test</code>. One of <code>"two.sided"</code>, <code>"less"</code>, <code>"greater"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

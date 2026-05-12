@@ -32,6 +32,11 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.10" id="prego-0010">prego 0.0.10<a class="anchor" aria-label="anchor" href="#prego-0010"></a></h2>
+<ul><li>Added <code>return_all</code> parameter to <code>regress_pwm</code> (multi-kmer path). When TRUE, returns every candidate-kmer regression (sorted by validation score) instead of just the best one - useful for getting N independent motifs without the residual-rounds approach used by <code>motif_num &gt; 1</code>. When <code>sample_for_kmers = TRUE</code>, each candidate is refit on the full data.</li>
+<li>Improved docs for <code>regress_pwm</code> (clarified the three operating modes, fixed <code>n_motifs</code>/<code>comb_modle</code> typos in the return-value section).</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.9" id="prego-009">prego 0.0.9<a class="anchor" aria-label="anchor" href="#prego-009"></a></h2>
 <ul><li>Fix: Floating point discrepancies between <code>predict</code> and <code>regress_pwm</code> output.</li>
 </ul></div>

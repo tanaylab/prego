@@ -13,12 +13,14 @@ The PREGO algorithm is described
 You can install the development version of prego like so:
 
 ``` r
+
 remotes::install_github("tanaylab/prego")
 ```
 
 ## Usage
 
 ``` r
+
 library(prego)
 #> ℹ Parallelization enabled. Using 77 threads. 
 ```
@@ -26,6 +28,7 @@ library(prego)
 For a set of continuous variables:
 
 ``` r
+
 res <- regress_pwm(sequences_example, response_mat_example)
 #> ℹ Using "r2" as the final metric
 #> ℹ Number of response variables: 5
@@ -73,6 +76,7 @@ plot_regression_qc(res)
 For binary response:
 
 ``` r
+
 res_binary <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1])
 #> ℹ Using "ks" as the final metric
 #> ℹ Number of response variables: 1
@@ -114,6 +118,7 @@ plot_regression_qc(res_binary)
 For clusters of sequences:
 
 ``` r
+
 res <- regress_pwm.clusters(cluster_sequences_example, clusters_example)
 #> ℹ Using sampled optimization
 #> ℹ Running regression for 5 clusters

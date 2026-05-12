@@ -32,6 +32,7 @@ A vector of all possible kmers considering the gap length.
 ## Examples
 
 ``` r
+
 # Generate kmers of length 2 without any gaps
 generate_kmers(2)
 #>  [1] "TT" "CT" "GT" "AT" "TC" "CC" "GC" "AC" "TG" "CG" "GG" "AG" "TA" "CA" "GA"

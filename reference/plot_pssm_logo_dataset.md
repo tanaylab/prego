@@ -56,6 +56,7 @@ a ggplot object
 ## Examples
 
 ``` r
+
 plot_pssm_logo_dataset("JASPAR.Brachyury")
 
 
