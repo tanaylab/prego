@@ -24,6 +24,9 @@
 #'
 #' @export
 compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp") {
+    # Keep the per-sequence BLAS dgemm serial; the TBB parallelFor over
+    # sequences is the parallelism layer (see local_serial_blas()).
+    local_serial_blas()
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
@@ -114,6 +117,9 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
 #' @inheritParams compute_pwm
 #' @export
 compute_local_pwm <- function(sequences, pssm, spat = NULL, spat_min = 0, spat_max = NULL, bidirect = TRUE, prior = 0.01, return_list = FALSE) {
+    # Keep the per-sequence BLAS dgemm serial; the TBB parallelFor over
+    # sequences is the parallelism layer (see local_serial_blas()).
+    local_serial_blas()
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
         binsize <- nchar(sequences[[1]])
