@@ -1,6 +1,6 @@
 Package: prego
 Title: PWM Regression Optimizer
-Version: 0.0.9
+Version: 0.0.10
 Authors@R: c(
     person("Aviezer", "Lifshitz", , "aviezer.lifshitz@weizmann.ac.il", role = c("aut", "cre")),
     person("Amos", "Tanay", , "amos.tanay@weizmann.ac.il", role = "aut")
@@ -30,8 +30,9 @@ Imports:
     magrittr,
     methods,
     RcppParallel,
-    withr
-Suggests: 
+    withr,
+    RhpcBLASctl
+Suggests:
     testthat (>= 3.0.0),
     doMC
 LinkingTo: 
