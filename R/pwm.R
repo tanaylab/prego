@@ -39,6 +39,10 @@ seqs_to_onehot <- function(seqs) {
 #'
 #' @export
 calc_seq_pwm <- function(sequences, mdb, bidirect = TRUE) {
+    # Keep the per-sequence BLAS dgemm serial; the TBB parallelFor over
+    # sequences is the parallelism layer (see local_serial_blas()).
+    local_serial_blas()
+
     # Input validation
     if (!is.character(sequences)) {
         stop("sequences must be a character vector")
