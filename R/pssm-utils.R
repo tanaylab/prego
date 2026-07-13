@@ -26,7 +26,9 @@
 compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = NULL, bidirect = TRUE, prior = 0.01, func = "logSumExp") {
     if (is.null(spat)) {
         spat <- data.frame(bin = 0, spat_factor = 1)
-        binsize <- nchar(sequences[[1]])
+        # One flat bin spanning the longest sequence, so every sequence is
+        # scored on its own full length (bin index stays 0 regardless of length).
+        binsize <- max(nchar(sequences))
     } else {
         validate_spat(spat)
         binsize <- unique(diff(spat$bin))
@@ -73,7 +75,9 @@ compute_pwm <- function(sequences, pssm, spat = NULL, spat_min = 1, spat_max = N
         pssm_mat = pssm_mat,
         is_bidirect = bidirect,
         spat_min = 0,
-        spat_max = nchar(sequences[1]),
+        # Longest sequence: the C++ scan clamps per sequence to its own end,
+        # so each is scored independently of others in the batch.
+        spat_max = max(nchar(sequences)),
         spat_factor = spat$spat_factor,
         bin_size = binsize,
         use_max = use_max

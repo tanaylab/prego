@@ -58,3 +58,18 @@ test_that("compute_pwm works with 'max' func", {
     windows_log_sum_exp_r <- purrr::map_dbl(windows, compute_pwm, pssm, func = "logSumExp")
     expect_true(all(windows_r == windows_log_sum_exp_r))
 })
+
+test_that("compute_pwm score of a sequence is independent of batch companions", {
+    # A long sequence must score the same whether computed alone or in a batch
+    # with a shorter sequence. Regression test for the scan window being capped
+    # to nchar(sequences[1]) for every sequence.
+    long_seq <- substr(s, 1, 100)
+    short_seq <- substr(s, 1, 20)
+    for (f in c("max", "logSumExp")) {
+        alone <- compute_pwm(long_seq, pssm, func = f)
+        with_short_first <- compute_pwm(c(short_seq, long_seq), pssm, func = f)[2]
+        with_short_last <- compute_pwm(c(long_seq, short_seq), pssm, func = f)[1]
+        expect_equal(with_short_first, alone, info = f)
+        expect_equal(with_short_last, alone, info = f)
+    }
+})
