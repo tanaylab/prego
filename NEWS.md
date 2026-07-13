@@ -1,5 +1,11 @@
 # prego 0.0.10
 
+* Fix: `compute_pwm()` gave a sequence a different score depending on the other
+  sequences in the batch. The motif-scan window was capped to the length of the
+  *first* sequence for the whole batch, so a longer sequence sitting behind a
+  shorter one was only scanned over its first `nchar(sequences[1])` positions and
+  missed motif hits further along. Each sequence is now scored on its own full
+  length, independently of its batch companions.
 * Added `return_all` parameter to `regress_pwm` (multi-kmer path). When TRUE, returns every candidate-kmer regression (sorted by validation score) instead of just the best one - useful for getting N independent motifs without the residual-rounds approach used by `motif_num > 1`. When `sample_for_kmers = TRUE`, each candidate is refit on the full data.
 * Improved docs for `regress_pwm` (clarified the three operating modes, fixed `n_motifs`/`comb_modle` typos in the return-value section).
 
