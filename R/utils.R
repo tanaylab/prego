@@ -54,6 +54,30 @@ set_parallel <- function(thread_num = max(1, round(parallel::detectCores() * 0.8
     invisible(NULL)
 }
 
+# Pin the BLAS to a single thread for the remainder of the calling function.
+#
+# prego's PWM kernels (compute_pwm / compute_local_pwm / calc_seq_pwm) run a
+# small BLAS `dgemm` per sequence INSIDE an RcppParallel/TBB `parallelFor` over
+# sequences. With a multi-threaded BLAS (MKL, OpenBLAS), each TBB worker spawns
+# its own BLAS thread team, so a single call opens `n_threads * n_blas_threads`
+# OS threads - thousands on a many-core node. That oversubscribes the machine
+# and, on a cluster job with a thread/process (cgroup pids) limit, makes the
+# call FAIL with a thread-creation error. The per-sequence dgemm is tiny and the
+# TBB loop over sequences is the right level of parallelism, so the inner BLAS
+# must be serial. Restores the previous BLAS thread count on exit, so the rest
+# of the session keeps its threaded BLAS. No-op if RhpcBLASctl is unavailable.
+local_serial_blas <- function(.local_envir = parent.frame()) {
+    if (!requireNamespace("RhpcBLASctl", quietly = TRUE)) {
+        return(invisible(NULL))
+    }
+    old <- tryCatch(RhpcBLASctl::blas_get_num_procs(), error = function(e) NULL)
+    RhpcBLASctl::blas_set_num_threads(1)
+    if (!is.null(old) && old > 1) {
+        withr::defer(RhpcBLASctl::blas_set_num_threads(old), envir = .local_envir)
+    }
+    invisible(NULL)
+}
+
 safe_llply <- function(.data, .fun, ..., .parallel = FALSE) {
     tryCatch(
         {

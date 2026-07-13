@@ -1,5 +1,17 @@
 # prego 0.0.10
 
+* Fix: PWM scoring no longer opens thousands of threads / fails on core-limited
+  machines. `compute_pwm()`, `compute_local_pwm()` and `calc_seq_pwm()` (hence
+  `extract_pwm()`) run a small per-sequence BLAS `dgemm` inside an
+  RcppParallel/TBB `parallelFor`. With a multi-threaded BLAS (MKL, OpenBLAS) each
+  TBB worker spawned its own BLAS thread team, so one call opened
+  `n_threads * n_blas_threads` OS threads (thousands on a many-core node) - which
+  oversubscribed the machine and could fail outright on a cluster job with a
+  thread/process (cgroup pids) limit. The inner BLAS is now pinned to a single
+  thread for the duration of these calls (the TBB loop over sequences is the
+  parallelism layer), and the previous BLAS thread count is restored afterwards.
+  Results are unchanged; throughput is the same or better. Adds a dependency on
+  the `RhpcBLASctl` package.
 * Fix: `compute_pwm()` gave a sequence a different score depending on the other
   sequences in the batch. The motif-scan window was capped to the length of the
   *first* sequence for the whole batch, so a longer sequence sitting behind a
