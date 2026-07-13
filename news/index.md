@@ -2,6 +2,15 @@
 
 ## prego 0.0.10
 
+- Fix:
+  [`compute_pwm()`](https://tanaylab.github.io/prego/reference/compute_pwm.md)
+  gave a sequence a different score depending on the other sequences in
+  the batch. The motif-scan window was capped to the length of the
+  *first* sequence for the whole batch, so a longer sequence sitting
+  behind a shorter one was only scanned over its first
+  `nchar(sequences[1])` positions and missed motif hits further along.
+  Each sequence is now scored on its own full length, independently of
+  its batch companions.
 - Added `return_all` parameter to `regress_pwm` (multi-kmer path). When
   TRUE, returns every candidate-kmer regression (sorted by validation
   score) instead of just the best one - useful for getting N independent
