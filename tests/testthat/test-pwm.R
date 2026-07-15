@@ -33,6 +33,22 @@ test_that("compute_pwm and calc_seq_pwm produce the same results", {
     expect_true(abs(scores_new - scores_old) < 1e-6)
 })
 
+test_that("calc_seq_pwm errors on sequences of unequal length", {
+    test_motif_db <- data.frame(
+        motif = "test_motif", pos = 1:4,
+        A = c(0.7, 0.1, 0.1, 0.1), C = c(0.1, 0.7, 0.1, 0.1),
+        G = c(0.1, 0.1, 0.7, 0.1), T = c(0.1, 0.1, 0.1, 0.7)
+    )
+    test_mdb <- create_motif_db(test_motif_db)
+    # Unequal lengths used to silently recycle (rbind) and return wrong scores.
+    expect_error(
+        calc_seq_pwm(c("ACGTACGT", "ACGTAC"), test_mdb),
+        "same length"
+    )
+    # Equal lengths still work.
+    expect_silent(calc_seq_pwm(c("ACGTACGT", "TGCATGCA"), test_mdb))
+})
+
 test_that("compute_pwm and calc_seq_pwm produce the same results with spatial", {
     res <- regress_pwm(cluster_sequences_example, cluster_mat_example[, 1],
         final_metric = "ks", spat_bin_size = 40,
