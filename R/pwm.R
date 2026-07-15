@@ -48,6 +48,13 @@ calc_seq_pwm <- function(sequences, mdb, bidirect = TRUE) {
         stop("sequences must be a character vector")
     }
 
+    # calc_seq_pwm builds a single rectangular one-hot matrix, so all sequences
+    # must be the same length. Unequal lengths would silently recycle the shorter
+    # rows (via rbind) and return wrong scores - fail loudly instead.
+    if (length(unique(nchar(sequences))) > 1) {
+        cli_abort("All {.field sequences} must have the same length for {.fn extract_pwm}. For sequences of different lengths, use {.fn compute_pwm}.")
+    }
+
     # Convert sequences to uppercase and save original names
     sequences <- toupper(sequences)
     seq_names <- names(sequences)
