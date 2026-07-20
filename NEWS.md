@@ -1,5 +1,10 @@
 # prego 0.0.10
 
+* Fix: `calc_seq_pwm()` / `extract_pwm()` now error clearly when given sequences
+  of unequal length instead of silently recycling the shorter ones (via `rbind`)
+  and returning wrong scores. These functions build a single rectangular one-hot
+  matrix and require equal-length sequences; for variable lengths use
+  `compute_pwm()`.
 * Fix: PWM scoring no longer opens thousands of threads / fails on core-limited
   machines. `compute_pwm()`, `compute_local_pwm()` and `calc_seq_pwm()` (hence
   `extract_pwm()`) run a small per-sequence BLAS `dgemm` inside an
