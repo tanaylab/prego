@@ -2,6 +2,15 @@
 
 ## prego 0.0.10
 
+- Fix:
+  [`calc_seq_pwm()`](https://tanaylab.github.io/prego/reference/calc_seq_pwm.md)
+  /
+  [`extract_pwm()`](https://tanaylab.github.io/prego/reference/extract_pwm.md)
+  now error clearly when given sequences of unequal length instead of
+  silently recycling the shorter ones (via `rbind`) and returning wrong
+  scores. These functions build a single rectangular one-hot matrix and
+  require equal-length sequences; for variable lengths use
+  [`compute_pwm()`](https://tanaylab.github.io/prego/reference/compute_pwm.md).
 - Fix: PWM scoring no longer opens thousands of threads / fails on
   core-limited machines.
   [`compute_pwm()`](https://tanaylab.github.io/prego/reference/compute_pwm.md),
