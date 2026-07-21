@@ -3,6 +3,16 @@
 ## prego 0.0.10
 
 - Fix:
+  [`compute_pwm()`](https://tanaylab.github.io/prego/reference/compute_pwm.md)
+  scored `N` (and the `*` wildcard) inconsistently between strands - the
+  forward strand used the column’s average log-probability while the
+  reverse strand used a flat `log(0.25)`. With `bidirect = TRUE` this
+  made a sequence and its reverse-complement score differently whenever
+  an `N` fell on an informative position. Both strands now use the
+  column average (`get_avg_log_prob()`), matching the other likelihood
+  routines, so scoring is strand-symmetric again. Only affects sequences
+  containing `N`/`*`.
+- Fix:
   [`calc_seq_pwm()`](https://tanaylab.github.io/prego/reference/calc_seq_pwm.md)
   /
   [`extract_pwm()`](https://tanaylab.github.io/prego/reference/extract_pwm.md)
