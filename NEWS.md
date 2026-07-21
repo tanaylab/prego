@@ -1,5 +1,12 @@
 # prego 0.0.10
 
+* Fix: `compute_pwm()` scored `N` (and the `*` wildcard) inconsistently between
+  strands - the forward strand used the column's average log-probability while
+  the reverse strand used a flat `log(0.25)`. With `bidirect = TRUE` this made a
+  sequence and its reverse-complement score differently whenever an `N` fell on
+  an informative position. Both strands now use the column average
+  (`get_avg_log_prob()`), matching the other likelihood routines, so scoring is
+  strand-symmetric again. Only affects sequences containing `N`/`*`.
 * Fix: `calc_seq_pwm()` / `extract_pwm()` now error clearly when given sequences
   of unequal length instead of silently recycling the shorter ones (via `rbind`)
   and returning wrong scores. These functions build a single rectangular one-hot

@@ -59,6 +59,28 @@ test_that("compute_pwm works with 'max' func", {
     expect_true(all(windows_r == windows_log_sum_exp_r))
 })
 
+test_that("compute_pwm handles N/* symmetrically on both strands", {
+    # For a bidirectional motif, a window and its reverse-complement must score
+    # identically. This held for plain ACGT but broke when the window contained
+    # an N at an informative position: the forward strand used the column's
+    # average log-prob while the reverse strand used a flat log(0.25).
+    win <- "AAATAAAAAAAAAAA" # single motif-length window (nchar == nrow(pssm) == 15)
+    win_n <- "AAANAAAAAAAAAAA" # N at position 4 (an informative, T-dominated column)
+    # tolerance is well above float32 traversal noise (~1e-6) but far below the
+    # ~1.6 nat gap the asymmetry produced.
+    for (f in c("max", "logSumExp")) {
+        expect_lt(abs(
+            compute_pwm(win_n, pssm, func = f, bidirect = TRUE) -
+                compute_pwm(rc(win_n), pssm, func = f, bidirect = TRUE)
+        ), 1e-4)
+        # sanity: the plain (N-free) window is strand-symmetric too
+        expect_lt(abs(
+            compute_pwm(win, pssm, func = f, bidirect = TRUE) -
+                compute_pwm(rc(win), pssm, func = f, bidirect = TRUE)
+        ), 1e-4)
+    }
+})
+
 test_that("compute_pwm score of a sequence is independent of batch companions", {
     # A long sequence must score the same whether computed alone or in a batch
     # with a shorter sequence. Regression test for the scan window being capped
