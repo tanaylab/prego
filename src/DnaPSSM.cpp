@@ -872,10 +872,10 @@ void DnaPSSM::integrate_energy_max(const string &target, float &energy, vector<f
                     logp_rev += p->get_log_prob('C');
                     break;
                 case '*':
-                    logp_rev += c_log_quarter;
+                    logp_rev += p->get_avg_log_prob();
                     break;
                 case 'N':
-                    logp_rev += c_log_quarter;
+                    logp_rev += p->get_avg_log_prob();
                     break;
                 default:
                     break;
@@ -947,10 +947,10 @@ void DnaPSSM::integrate_energy(const string &target, float &energy, vector<float
                     logp += p->get_log_prob('C');
                     break;
                 case '*':
-                    logp += c_log_quarter;
+                    logp += p->get_avg_log_prob();
                     break;
                 case 'N':
-                    logp += c_log_quarter;
+                    logp += p->get_avg_log_prob();
                     break;
                 default:
                     break;
