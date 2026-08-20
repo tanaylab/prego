@@ -34,6 +34,17 @@ set_parallel <- function(thread_num = max(1, round(parallel::detectCores() * 0.8
     options(prego.parallel.nc = thread_num)
     RcppParallel::setThreadOptions(numThreads = thread_num)
 
+    if (thread_num > 1 && openmp_blas_hazard() && !isTRUE(getOption("prego.openmp_blas_warned"))) {
+        options(prego.openmp_blas_warned = TRUE)
+        omp_max <- RhpcBLASctl::omp_get_max_threads()
+        cli_warn(c(
+            "This session's BLAS is OpenMP-threaded ({.code omp_get_max_threads()} = {.val {omp_max}}).",
+            "!" = "prego's PWM kernels run a BLAS call inside a {.val {thread_num}}-worker parallel loop, so each call can open up to {.val {thread_num * omp_max}} OS threads and spend most of its time in the scheduler instead of computing.",
+            "i" = "Restart R with {.code OMP_NUM_THREADS=1} in the environment, e.g. {.code OMP_NUM_THREADS=1 Rscript your_script.R}.",
+            "x" = "{.code Sys.setenv(OMP_NUM_THREADS = 1)} inside the script does NOT work - libgomp reads the variable before R starts."
+        ))
+    }
+
     if (thread_num <= 1) {
         options(prego.parallel = FALSE)
         return(invisible(NULL))
@@ -75,7 +86,41 @@ local_serial_blas <- function(.local_envir = parent.frame()) {
     if (!is.null(old) && old > 1) {
         withr::defer(RhpcBLASctl::blas_set_num_threads(old), envir = .local_envir)
     }
+
+    # blas_set_num_threads() alone is a NO-OP on an OpenMP-linked OpenBLAS -
+    # conda's `libopenblas-*-openmp` build, which is what the lab envs ship.
+    # There openblas_set_num_threads() does nothing and omp_get_max_threads()
+    # is what sizes the thread team, so pin that too or this guard silently
+    # protects nothing. Measured on a 128-core node, extract_pwm() over
+    # 3,000 x 500bp sequences and 20 motifs at set_parallel(16):
+    #   unguarded          >600s (killed), 2049 threads
+    #   blas pin only      >600s (killed), 2049 threads
+    #   + omp pin (this)     4.8s,         1922 threads
+    #   OMP_NUM_THREADS=1    0.47s,          17 threads
+    # The omp pin is worth ~125x but cannot close the gap on its own: it writes
+    # the CALLING thread's libgomp ICV, and the TBB workers are separate threads
+    # that still inherit the global ICV. Only OMP_NUM_THREADS=1 in the
+    # environment BEFORE R starts fixes that one - see set_parallel(), which
+    # warns when it detects the hazard.
+    old_omp <- tryCatch(RhpcBLASctl::omp_get_max_threads(), error = function(e) NULL)
+    if (!is.null(old_omp) && old_omp > 1) {
+        RhpcBLASctl::omp_set_num_threads(1)
+        withr::defer(RhpcBLASctl::omp_set_num_threads(old_omp), envir = .local_envir)
+    }
     invisible(NULL)
+}
+
+# TRUE when the session's BLAS will let each TBB worker open its own OpenMP
+# thread team, which turns one prego kernel call into n_threads * omp_max OS
+# threads. Only OMP_NUM_THREADS in the environment at process start can prevent
+# this; libgomp reads it in an ELF constructor, so Sys.setenv() inside R is
+# always too late.
+openmp_blas_hazard <- function() {
+    if (!requireNamespace("RhpcBLASctl", quietly = TRUE)) {
+        return(FALSE)
+    }
+    omp_max <- tryCatch(RhpcBLASctl::omp_get_max_threads(), error = function(e) NULL)
+    !is.null(omp_max) && omp_max > 1
 }
 
 safe_llply <- function(.data, .fun, ..., .parallel = FALSE) {
