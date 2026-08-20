@@ -70,9 +70,14 @@ local_serial_blas <- function(.local_envir = parent.frame()) {
     if (!requireNamespace("RhpcBLASctl", quietly = TRUE)) {
         return(invisible(NULL))
     }
+    # RhpcBLASctl reports NA - not NULL, and without erroring - when the runtime
+    # it queries is absent; omp_get_max_threads() does exactly that on macOS. NA
+    # has to be screened out here or the comparison errors, and this guard runs
+    # on every PWM call, so an error in it takes the whole package down.
+    worth_pinning <- function(n) !is.null(n) && !is.na(n) && n > 1
     old <- tryCatch(RhpcBLASctl::blas_get_num_procs(), error = function(e) NULL)
     RhpcBLASctl::blas_set_num_threads(1)
-    if (!is.null(old) && old > 1) {
+    if (worth_pinning(old)) {
         withr::defer(RhpcBLASctl::blas_set_num_threads(old), envir = .local_envir)
     }
 
@@ -94,7 +99,7 @@ local_serial_blas <- function(.local_envir = parent.frame()) {
     # Sys.setenv() is always too late. Pinning it per worker thread from C++
     # would; see the NEWS entry for 0.0.11.
     old_omp <- tryCatch(RhpcBLASctl::omp_get_max_threads(), error = function(e) NULL)
-    if (!is.null(old_omp) && old_omp > 1) {
+    if (worth_pinning(old_omp)) {
         RhpcBLASctl::omp_set_num_threads(1)
         withr::defer(RhpcBLASctl::omp_set_num_threads(old_omp), envir = .local_envir)
     }
