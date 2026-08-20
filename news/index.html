@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prego</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,14 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.12" id="prego-0012">prego 0.0.12<a class="anchor" aria-label="anchor" href="#prego-0012"></a></h2>
+<ul><li>
+<p>Fix: PWM scoring no longer needs <code>OMP_NUM_THREADS=1</code> in the environment to avoid the thread explosion. 0.0.11 pinned the OpenMP thread count from R, which helped but could not finish the job: <code>omp_set_num_threads()</code> writes the <em>calling</em> thread’s libgomp ICV, while the workers that actually run the BLAS call are separate threads that inherit the untouched global one. The count is now pinned inside each worker thread itself, in <code>PWMWorker::operator()</code>, resolved via <code>dlsym</code> so prego still does not need to be built with OpenMP (and is a no-op where no OpenMP runtime is loaded).</p>
+<p>Measured standalone against the OpenBLAS conda ships (which links libgomp despite the <code>p</code> in <code>libopenblasp-*.so</code>), 16 threads each running a <code>dgemm</code>: unpinned 54.91s at 2,034 OS threads; pinned per worker 0.08s at 1 thread - matching <code>OMP_NUM_THREADS=1</code> set before the process starts (0.09s). End to end through <code><a href="../reference/extract_pwm.html">extract_pwm()</a></code> over 20,000 x 500bp sequences and 20 motifs at <code>set_parallel(16)</code>, on an idle 128-core node: 8.28s at 2,049 threads before, 2.03s at 17 threads after. The gap is far larger on a loaded machine, which is where this bites.</p>
+<p>Results are unchanged apart from floating-point reassociation inside <code>dgemm</code> (max absolute difference 3.6e-15 over a 5,000 x 20 energy matrix, identical NA pattern), which is inherent to changing a BLAS thread count.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.11" id="prego-0011">prego 0.0.11<a class="anchor" aria-label="anchor" href="#prego-0011"></a></h2>
 <ul><li>
