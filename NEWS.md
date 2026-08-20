@@ -1,3 +1,27 @@
+# prego 0.0.12
+
+* Fix: PWM scoring no longer needs `OMP_NUM_THREADS=1` in the environment to
+  avoid the thread explosion. 0.0.11 pinned the OpenMP thread count from R,
+  which helped but could not finish the job: `omp_set_num_threads()` writes the
+  *calling* thread's libgomp ICV, while the workers that actually run the BLAS
+  call are separate threads that inherit the untouched global one. The count is
+  now pinned inside each worker thread itself, in `PWMWorker::operator()`,
+  resolved via `dlsym` so prego still does not need to be built with OpenMP (and
+  is a no-op where no OpenMP runtime is loaded).
+
+  Measured standalone against the OpenBLAS conda ships (which links libgomp
+  despite the `p` in `libopenblasp-*.so`), 16 threads each running a `dgemm`:
+  unpinned 54.91s at 2,034 OS threads; pinned per worker 0.08s at 1 thread -
+  matching `OMP_NUM_THREADS=1` set before the process starts (0.09s). End to end
+  through `extract_pwm()` over 20,000 x 500bp sequences and 20 motifs at
+  `set_parallel(16)`, on an idle 128-core node: 8.28s at 2,049 threads before,
+  2.03s at 17 threads after. The gap is far larger on a loaded machine, which is
+  where this bites.
+
+  Results are unchanged apart from floating-point reassociation inside `dgemm`
+  (max absolute difference 3.6e-15 over a 5,000 x 20 energy matrix, identical NA
+  pattern), which is inherent to changing a BLAS thread count.
+
 # prego 0.0.11
 
 * Fix: the thread-explosion guard added in 0.0.10 did not actually work on an
