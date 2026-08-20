@@ -8,15 +8,19 @@
   `local_serial_blas()` now pins the OpenMP thread count as well. Measured on a
   128-core node, `extract_pwm()` over 3,000 x 500bp sequences and 20 motifs at
   `set_parallel(16)`: unguarded and blas-pin-only both exceeded 600s at 2,049 OS
-  threads and ~11,000% CPU (~80% of it system time); with the OpenMP pin, 5.4s.
-* `set_parallel()` now warns once per session when the BLAS is OpenMP-threaded,
-  because the pin above cannot fully close the gap: it writes the calling
-  thread's libgomp ICV, while the TBB workers are separate threads that still
-  inherit the untouched global one. The same benchmark runs in 0.47s with 17
-  threads when `OMP_NUM_THREADS=1` is set in the environment *before* R starts,
-  which is the only complete fix. Note `Sys.setenv(OMP_NUM_THREADS = 1)` inside a
-  script is always too late - libgomp reads the variable in an ELF constructor at
-  process load.
+  threads and ~11,000% CPU (~80% of it system time); with the OpenMP pin, 4.8s.
+
+  This does not close the gap completely. `omp_set_num_threads()` writes the
+  *calling* thread's libgomp ICV, while the parallel workers that actually run
+  the BLAS call are separate threads which still inherit the untouched global
+  one. The same benchmark runs in 0.47s with 17 threads when `OMP_NUM_THREADS=1`
+  is set in the environment *before* R starts, so on a many-core machine that is
+  still worth setting: `OMP_NUM_THREADS=1 Rscript your_script.R`. Note that
+  `Sys.setenv(OMP_NUM_THREADS = 1)` inside the script cannot work - libgomp reads
+  the variable in an ELF constructor at process load, long before R runs line 1.
+  Pinning the count from inside the worker threads themselves would remove the
+  need for the variable; that is worth doing but needs validating on a machine
+  where the affected BLAS can be rebuilt against.
 
 # prego 0.0.10
 
