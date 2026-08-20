@@ -70,10 +70,38 @@ local_serial_blas <- function(.local_envir = parent.frame()) {
     if (!requireNamespace("RhpcBLASctl", quietly = TRUE)) {
         return(invisible(NULL))
     }
+    # RhpcBLASctl reports NA - not NULL, and without erroring - when the runtime
+    # it queries is absent; omp_get_max_threads() does exactly that on macOS. NA
+    # has to be screened out here or the comparison errors, and this guard runs
+    # on every PWM call, so an error in it takes the whole package down.
+    worth_pinning <- function(n) !is.null(n) && !is.na(n) && n > 1
     old <- tryCatch(RhpcBLASctl::blas_get_num_procs(), error = function(e) NULL)
     RhpcBLASctl::blas_set_num_threads(1)
-    if (!is.null(old) && old > 1) {
+    if (worth_pinning(old)) {
         withr::defer(RhpcBLASctl::blas_set_num_threads(old), envir = .local_envir)
+    }
+
+    # blas_set_num_threads() alone is a NO-OP on an OpenMP-linked OpenBLAS -
+    # conda's `libopenblas-*-openmp` build, which is what the lab envs ship.
+    # There openblas_set_num_threads() does nothing and omp_get_max_threads()
+    # is what sizes the thread team, so pin that too or this guard silently
+    # protects nothing. Measured on a 128-core node, extract_pwm() over
+    # 3,000 x 500bp sequences and 20 motifs at set_parallel(16):
+    #   unguarded          >600s (killed), 2049 threads
+    #   blas pin only      >600s (killed), 2049 threads
+    #   + omp pin (this)     4.8s,         1922 threads
+    #   OMP_NUM_THREADS=1    0.47s,          17 threads
+    # The omp pin is worth ~125x but cannot close the gap on its own: it writes
+    # the CALLING thread's libgomp ICV, and the TBB workers are separate threads
+    # that still inherit the global ICV. Only OMP_NUM_THREADS=1 in the
+    # environment BEFORE R starts closes the rest, and no package can set that
+    # for the user - libgomp reads it in an ELF constructor at process load, so
+    # Sys.setenv() is always too late. Pinning it per worker thread from C++
+    # would; see the NEWS entry for 0.0.11.
+    old_omp <- tryCatch(RhpcBLASctl::omp_get_max_threads(), error = function(e) NULL)
+    if (worth_pinning(old_omp)) {
+        RhpcBLASctl::omp_set_num_threads(1)
+        withr::defer(RhpcBLASctl::omp_set_num_threads(old_omp), envir = .local_envir)
     }
     invisible(NULL)
 }
