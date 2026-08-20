@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">prego</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,13 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.11" id="prego-0011">prego 0.0.11<a class="anchor" aria-label="anchor" href="#prego-0011"></a></h2>
+<ul><li>
+<p>Fix: the thread-explosion guard added in 0.0.10 did not actually work on an OpenMP-linked OpenBLAS - the <code>libopenblas-*-openmp</code> build conda ships, and therefore what most lab environments run. <code>RhpcBLASctl::blas_set_num_threads(1)</code> reports success there while changing nothing: <code>openblas_set_num_threads()</code> is a no-op for that build and <code>omp_get_max_threads()</code> is what sizes the thread team. <code>local_serial_blas()</code> now pins the OpenMP thread count as well. Measured on a 128-core node, <code><a href="../reference/extract_pwm.html">extract_pwm()</a></code> over 3,000 x 500bp sequences and 20 motifs at <code>set_parallel(16)</code>: unguarded and blas-pin-only both exceeded 600s at 2,049 OS threads and ~11,000% CPU (~80% of it system time); with the OpenMP pin, 4.8s.</p>
+<p>This does not close the gap completely. <code>omp_set_num_threads()</code> writes the <em>calling</em> thread’s libgomp ICV, while the parallel workers that actually run the BLAS call are separate threads which still inherit the untouched global one. The same benchmark runs in 0.47s with 17 threads when <code>OMP_NUM_THREADS=1</code> is set in the environment <em>before</em> R starts, so on a many-core machine that is still worth setting: <code>OMP_NUM_THREADS=1 Rscript your_script.R</code>. Note that <code>Sys.setenv(OMP_NUM_THREADS = 1)</code> inside the script cannot work - libgomp reads the variable in an ELF constructor at process load, long before R runs line 1. Pinning the count from inside the worker threads themselves would remove the need for the variable; that is worth doing but needs validating on a machine where the affected BLAS can be rebuilt against.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.10" id="prego-0010">prego 0.0.10<a class="anchor" aria-label="anchor" href="#prego-0010"></a></h2>
 <ul><li>Fix: <code><a href="../reference/compute_pwm.html">compute_pwm()</a></code> scored <code>N</code> (and the <code>*</code> wildcard) inconsistently between strands - the forward strand used the column’s average log-probability while the reverse strand used a flat <code>log(0.25)</code>. With <code>bidirect = TRUE</code> this made a sequence and its reverse-complement score differently whenever an <code>N</code> fell on an informative position. Both strands now use the column average (<code>get_avg_log_prob()</code>), matching the other likelihood routines, so scoring is strand-symmetric again. Only affects sequences containing <code>N</code>/<code>*</code>.</li>
