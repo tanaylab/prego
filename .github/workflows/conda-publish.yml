@@ -12,12 +12,16 @@ on:
 
 jobs:
   build_conda:
-    name: conda (ubuntu-latest)
-    runs-on: ubuntu-latest
+    name: conda (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
     defaults:
       run:
         shell: bash -el {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
     steps:
       - uses: actions/checkout@v5
 
@@ -82,7 +86,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: conda-pkg-ubuntu-latest
+          name: conda-pkg-${{ matrix.os }}
           path: |
             conda-output/**/*.tar.bz2
             conda-output/**/*.conda
