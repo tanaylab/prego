@@ -2,6 +2,7 @@
 #include <RcppParallel.h>
 #include "blas_pin.h"
 #include "logSumExp.h"
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -38,8 +39,10 @@ static const int MIN_MOTIF_BLOCK = 8;
 
 struct FreqTask {
     int mat;
-    int motif_from;
+    int motif_from;  // index into the length-sorted motif order
     int n_block;
+    int block_len;   // longest motif in this block; the dgemm runs at this width
+    bool direct;     // block is contiguous at full width: feed the PWM to dgemm as-is
 };
 
 class FreqLocalPWMWorker : public Worker {
@@ -50,6 +53,7 @@ class FreqLocalPWMWorker : public Worker {
     const double *pwm;                      // 4D x n_motifs, log scale
     const double *pwm_rc;
     const int *motif_lengths;
+    const int *order;                       // motifs sorted by length
     const int n_motifs;
     const int D;
     const bool multiply;
@@ -64,29 +68,45 @@ class FreqLocalPWMWorker : public Worker {
                      std::vector<double> &S, std::vector<double> &pbuf,
                      std::vector<double> &acc) const {
         const int B = task.n_block;
-        const double *A = P;
+        const int Db = task.block_len;
+        const double *A;
 
-        if (multiply) {
-            const size_t np = (size_t)4 * D * B;
-            for (size_t k = 0; k < np; k++) {
-                pbuf[k] = std::exp(P[k]);
+        if (task.direct) {
+            // Uniform-length database: the sort is a no-op, the block is already
+            // contiguous and full width, so the PWM is its own dgemm operand.
+            A = P + (size_t)task.motif_from * 4 * D;
+        } else {
+            // Gather the block's motifs. A motif's first Db positions are contiguous
+            // in the PWM, so each is one copy; the length-sorted order means Db is
+            // the longest motif in this block rather than the longest in the whole
+            // database, which is what keeps the dgemm off the padded columns.
+            for (int b = 0; b < B; b++) {
+                const double *src = P + (size_t)order[task.motif_from + b] * 4 * D;
+                double *dst = pbuf.data() + (size_t)b * 4 * Db;
+                if (multiply) {
+                    for (int k = 0; k < 4 * Db; k++) {
+                        dst[k] = std::exp(src[k]);
+                    }
+                } else {
+                    std::copy(src, src + 4 * Db, dst);
+                }
             }
             A = pbuf.data();
         }
 
         char no_trans = 'N';
         double alpha = 1.0, beta = 0.0;
-        int mm = m, nn = D * B, kk = 4;
-        dgemm_(&no_trans, &no_trans, &mm, &nn, &kk, &alpha, Q, &mm, A, &kk, &beta, S.data(),
-               &mm);
+        int mm = m, nn = Db * B, kk = 4;
+        dgemm_(&no_trans, &no_trans, &mm, &nn, &kk, &alpha, Q, &mm, A, &kk, &beta,
+               S.data(), &mm);
 
         std::fill(acc.begin(), acc.begin() + (size_t)m * B, 0.0);
         for (int b = 0; b < B; b++) {
-            const int len = motif_lengths[task.motif_from + b];
+            const int len = motif_lengths[order[task.motif_from + b]];
             const int last = m - len;
             double *a = acc.data() + (size_t)b * m;
             for (int l = 0; l < len; l++) {
-                const double *col = S.data() + (size_t)(b * D + l) * m;
+                const double *col = S.data() + (size_t)(b * Db + l) * m;
                 // Every (motif, offset) column is read exactly once, so the log
                 // for multiply mode is fused in here rather than run over all of S.
                 if (multiply) {
@@ -107,15 +127,14 @@ class FreqLocalPWMWorker : public Worker {
         const int m = q_len[task.mat];
         const double *Q = q[task.mat];
         double *O = out[task.mat];
-        const size_t motif_off = (size_t)task.motif_from * 4 * D;
 
-        score_block(Q, m, pwm + motif_off, task, S, pbuf, acc);
+        score_block(Q, m, pwm, task, S, pbuf, acc);
         if (bidirect) {
-            score_block(Q, m, pwm_rc + motif_off, task, S, pbuf, acc_rc);
+            score_block(Q, m, pwm_rc, task, S, pbuf, acc_rc);
         }
 
         for (int b = 0; b < task.n_block; b++) {
-            const int i = task.motif_from + b;
+            const int i = order[task.motif_from + b];
             const int last = m - motif_lengths[i];
             for (int j = 0; j <= last; j++) {
                 double v = acc[(size_t)b * m + j];
@@ -133,11 +152,12 @@ class FreqLocalPWMWorker : public Worker {
   public:
     FreqLocalPWMWorker(const std::vector<const double *> &q, const std::vector<int> &q_len,
                        const std::vector<double *> &out, const double *pwm,
-                       const double *pwm_rc, const int *motif_lengths, int n_motifs, int D,
+                       const double *pwm_rc, const int *motif_lengths, const int *order,
+                       int n_motifs, int D,
                        bool multiply, bool bidirect, const std::vector<FreqTask> &tasks,
                        int max_m, int max_block)
         : q(q), q_len(q_len), out(out), pwm(pwm), pwm_rc(pwm_rc),
-          motif_lengths(motif_lengths), n_motifs(n_motifs), D(D), multiply(multiply),
+          motif_lengths(motif_lengths), order(order), n_motifs(n_motifs), D(D), multiply(multiply),
           bidirect(bidirect), tasks(tasks), max_m(max_m), max_block(max_block) {}
 
     void operator()(std::size_t begin, std::size_t end) {
@@ -146,7 +166,7 @@ class FreqLocalPWMWorker : public Worker {
         std::vector<double> S((size_t)max_m * D * max_block);
         std::vector<double> acc((size_t)max_m * max_block);
         std::vector<double> acc_rc(bidirect ? (size_t)max_m * max_block : 0);
-        std::vector<double> pbuf(multiply ? (size_t)4 * D * max_block : 0);
+        std::vector<double> pbuf((size_t)4 * D * max_block);
 
         for (std::size_t t = begin; t < end; t++) {
             run_task(tasks[t], S, pbuf, acc, acc_rc);
@@ -235,15 +255,41 @@ Rcpp::List calc_freq_local_pwm_cpp(const Rcpp::List &freqs, const Rcpp::NumericM
         max_block = std::max(MIN_MOTIF_BLOCK, std::min(max_block, n_motifs / n_threads));
     }
 
+    // Group motifs of similar length together, so a block's dgemm runs at the
+    // longest motif in that block rather than the longest in the database. On a
+    // database whose motifs vary in length this is most of the padded work, and
+    // it costs nothing numerically - the fold already stops at each motif's own
+    // length, so the columns dropped were never read.
+    std::vector<int> order(n_motifs);
+    for (int i = 0; i < n_motifs; i++) {
+        order[i] = i;
+    }
+    std::stable_sort(order.begin(), order.end(),
+                     [&](int a, int b) { return motif_lengths[a] < motif_lengths[b]; });
+
+    bool identity = true;
+    for (int i = 0; i < n_motifs; i++) {
+        if (order[i] != i) {
+            identity = false;
+            break;
+        }
+    }
+
     std::vector<FreqTask> tasks;
     for (int k = 0; k < n_mats; k++) {
         for (int i = 0; i < n_motifs; i += max_block) {
-            tasks.push_back({k, i, std::min(max_block, n_motifs - i)});
+            const int nb = std::min(max_block, n_motifs - i);
+            const int bl = motif_lengths[order[i + nb - 1]];  // sorted: last is longest
+            // The gather is only needed when the sort actually moved something or
+            // the block is narrower than the database; "sum" would otherwise pay a
+            // copy it never needed. "multiply" always needs its own buffer for exp().
+            tasks.push_back({k, i, nb, bl, identity && bl == D && !multiply});
         }
     }
 
     FreqLocalPWMWorker worker(q, q_len, out, pwm.begin(), pwm_rc.begin(), motif_lengths.begin(),
-                              n_motifs, D, multiply, bidirect, tasks, max_m, max_block);
+                              order.data(), n_motifs, D, multiply, bidirect, tasks, max_m,
+                              max_block);
     parallelFor(0, tasks.size(), worker);
 
     return out_list;
