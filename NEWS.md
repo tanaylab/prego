@@ -1,3 +1,9 @@
+# prego 0.0.13
+
+* New: `calc_freq_local_pwm()` scores every motif in a `MotifDB` against a
+  per-position base frequency matrix at every start position - the ensemble
+  counterpart of `compute_local_pwm()`.
+
 # prego 0.0.12
 
 * Fix: PWM scoring no longer needs `OMP_NUM_THREADS=1` in the environment to

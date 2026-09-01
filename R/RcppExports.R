@@ -13,6 +13,10 @@ kmer_matrix_cpp <- function(sequences, kmer_length, from_range = 0L, to_range = 
     .Call('_prego_kmer_matrix_cpp', PACKAGE = 'prego', sequences, kmer_length, from_range, to_range, mask, add_mask, max_gap)
 }
 
+calc_freq_local_pwm_cpp <- function(freqs, pwm, pwm_rc, motif_lengths, multiply = TRUE, bidirect = TRUE) {
+    .Call('_prego_calc_freq_local_pwm_cpp', PACKAGE = 'prego', freqs, pwm, pwm_rc, motif_lengths, multiply, bidirect)
+}
+
 pssm_dataset_cor_parallel <- function(pssm_list, method = "spearman", prior = 0.01) {
     .Call('_prego_pssm_dataset_cor_parallel', PACKAGE = 'prego', pssm_list, method, prior)
 }
