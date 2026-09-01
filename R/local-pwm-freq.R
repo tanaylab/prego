@@ -100,7 +100,8 @@ calc_freq_local_pwm <- function(freqs, motifs, combine = c("multiply", "sum"),
         mdb@rc_mat,
         mdb@motif_lengths,
         multiply = combine == "multiply",
-        bidirect = bidirect
+        bidirect = bidirect,
+        n_threads = as.integer(getOption("prego.parallel.nc", 1L))
     )
 
     res <- lapply(res, function(x) {

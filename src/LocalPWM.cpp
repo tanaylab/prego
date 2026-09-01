@@ -32,6 +32,9 @@ using namespace RcppParallel;
 // motifs keeps a full motif database off the >1GB an unblocked pass would need.
 static const size_t BLOCK_TARGET_ELEMS = 2500000;
 static const int MAX_MOTIF_BLOCK = 64;
+// Floor for the shrink below. A very skinny dgemm, and a fold whose innermost
+// axis is this short, cost more than the extra threads win back.
+static const int MIN_MOTIF_BLOCK = 8;
 
 struct FreqTask {
     int mat;
@@ -155,7 +158,8 @@ class FreqLocalPWMWorker : public Worker {
 Rcpp::List calc_freq_local_pwm_cpp(const Rcpp::List &freqs, const Rcpp::NumericMatrix &pwm,
                                    const Rcpp::NumericMatrix &pwm_rc,
                                    const Rcpp::IntegerVector &motif_lengths,
-                                   const bool multiply = true, const bool bidirect = true) {
+                                   const bool multiply = true, const bool bidirect = true,
+                                   const int n_threads = 1) {
     if (pwm.nrow() < 4 || pwm.nrow() % 4 != 0) {
         stop("Number of rows in PWM must be a positive multiple of 4");
     }
@@ -214,6 +218,22 @@ Rcpp::List calc_freq_local_pwm_cpp(const Rcpp::List &freqs, const Rcpp::NumericM
     // regardless of how long the frequency matrices are.
     int max_block = (int)(BLOCK_TARGET_ELEMS / ((size_t)max_m * D));
     max_block = std::max(1, std::min(max_block, MAX_MOTIF_BLOCK));
+
+    // Then shrink it so that one frequency matrix on its own already splits into
+    // enough tasks to fill the workers. Without this, a single matrix scored
+    // against a database that fits in one block is a single task and runs on one
+    // thread - measured at 38ms against 61 motifs, where the same matrix inside a
+    // batch costs 1ms.
+    //
+    // Deliberately derived from the database and the worker count only, never
+    // from the batch size: the block width changes the dgemm's inner dimension,
+    // and a BLAS that switches kernel on it returns results differing in the last
+    // bit or two. Keeping the block independent of how many matrices were passed
+    // means a region scores identically whether it is handed over on its own or
+    // inside a batch of a thousand.
+    if (n_threads > 1) {
+        max_block = std::max(MIN_MOTIF_BLOCK, std::min(max_block, n_motifs / n_threads));
+    }
 
     std::vector<FreqTask> tasks;
     for (int k = 0; k < n_mats; k++) {
