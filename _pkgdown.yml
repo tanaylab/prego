@@ -39,6 +39,7 @@ reference:
   - get_motif_pssm
   - ends_with("motifs")  
   - compute_local_pwm
+  - calc_freq_local_pwm
   - gextract_pwm.quantile
   - gpwm_quantiles 
   - mask_sequences_by_pwm
