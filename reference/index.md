@@ -120,6 +120,8 @@
   : Perform a PWM regression
 - [`compute_local_pwm()`](https://tanaylab.github.io/prego/reference/compute_local_pwm.md)
   : Compute local PWMs for a set of sequences given a PSSM matrix
+- [`calc_freq_local_pwm()`](https://tanaylab.github.io/prego/reference/calc_freq_local_pwm.md)
+  : Expected local PWM scores over a base frequency matrix
 - [`gextract_pwm.quantile()`](https://tanaylab.github.io/prego/reference/gextract_pwm.quantile.md)
   : Extract quantiles of pwm of intervals from a motif database
 - [`gpwm_quantiles()`](https://tanaylab.github.io/prego/reference/gpwm_quantiles.md)

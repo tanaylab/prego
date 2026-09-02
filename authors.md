@@ -9,11 +9,11 @@
 ## Citation
 
 Lifshitz A, Tanay A (2026). *prego: PWM Regression Optimizer*. R package
-version 0.0.12.
+version 0.0.13.
 
     @Manual{,
       title = {prego: PWM Regression Optimizer},
       author = {Aviezer Lifshitz and Amos Tanay},
       year = {2026},
-      note = {R package version 0.0.12},
+      note = {R package version 0.0.13},
     }
